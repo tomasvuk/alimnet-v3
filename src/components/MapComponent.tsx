@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -20,13 +20,9 @@ const getAlimnetIcon = (type: string) => {
     html: `
       <div style="position: relative; width: 36px; height: 46px;">
         <svg width="36" height="46" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Sombra de relieve inferior */}
           <path d="M16 2C7.16 2 0 9.16 0 18C0 30 16 44 16 44C16 44 32 30 32 18C32 9.16 24.84 2 16 2Z" fill="rgba(0,0,0,0.1)"/>
-          {/* Cuerpo principal */}
           <path d="M16 0C7.16 0 0 7.16 0 16C0 28 16 42 16 42C16 42 32 28 32 16C32 7.16 24.84 0 16 0Z" fill="#5F7D4A"/>
-          {/* Círculo interno con efecto de profundidad (relieve) */}
           <circle cx="16" cy="16" r="10" fill="#3F5232" stroke="#4a613b" stroke-width="1.5"/>
-          {/* Icono centrado y más pequeño */}
           <svg x="8" y="8" width="16" height="16" viewBox="0 0 24 24">
             ${iconPath}
           </svg>
@@ -40,8 +36,19 @@ const getAlimnetIcon = (type: string) => {
   });
 };
 
+interface MapProvider {
+  id: string;
+  name: string;
+  category?: string;
+  type?: string;
+  city_zone?: string;
+  location_lat: number;
+  location_lng: number;
+  is_exact_location: boolean;
+}
+
 interface MapProps {
-  providers: any[];
+  providers: MapProvider[];
   center?: [number, number];
   zoom?: number;
 }
@@ -66,7 +73,7 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: M
           return (
             <React.Fragment key={p.id}>
               {p.is_exact_location ? (
-                <Marker position={position} icon={getAlimnetIcon(p.type || p.category)}>
+                <Marker position={position} icon={getAlimnetIcon(p.type || p.category || 'productor')}>
                   <Popup>
                     <div style={{ textAlign: 'center', padding: '5px' }}>
                       <strong style={{ display: 'block', fontSize: '1rem', marginBottom: '4px' }}>{p.name}</strong>
@@ -78,10 +85,9 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: M
                 </Marker>
               ) : (
                 <>
-                  {/* Icono de zona (Círculo de entrega) */}
                   <Circle 
                     center={position}
-                    radius={3000} // 3km de radio por defecto para "zonas"
+                    radius={3000}
                     pathOptions={{ 
                       fillColor: 'var(--secondary)', 
                       fillOpacity: 0.1, 
@@ -98,7 +104,6 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: M
                       </div>
                     </Popup>
                   </Circle>
-                  {/* Punto central tenue */}
                   <Circle 
                     center={position} 
                     radius={200} 

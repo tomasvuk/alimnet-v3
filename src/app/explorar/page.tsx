@@ -403,7 +403,7 @@ function SlimCard({ merchant, onClick, isActive }: { merchant: Merchant, onClick
   );
 }
 
-function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: { merchant: Merchant, isLoggedIn: boolean, onClose: () => void, trackClick: any, onValidate: (id: string) => void }) {
+function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: { merchant: Merchant, isLoggedIn: boolean, onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void }) {
   const [hasValidated, setHasValidated] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
