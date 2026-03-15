@@ -8,7 +8,12 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-const COORDS: any = {
+interface Coord {
+  lat: number;
+  lng: number;
+}
+
+const COORDS: Record<string, Coord> = {
   'pilar': { lat: -34.4586, lng: -58.9142 },
   'tigre': { lat: -34.4251, lng: -58.5796 },
   'san_isidro': { lat: -34.4719, lng: -58.5278 },
@@ -40,7 +45,6 @@ async function seedMega() {
   console.log('🚀 Iniciando CARGA MEGA (~100 productores)...')
 
   const merchantsData = [
-    // --- IMAGEN 1 ---
     { name: 'Huerta Madre', city_zone: 'Pilar y Zona Norte', instagram_url: 'https://www.instagram.com/huertamadre/', website_url: 'huertamadre.com', category: 'productor', ...COORDS.pilar },
     { name: 'Genjibre Orgánico', city_zone: 'Pilar, Benavidez, Nordelta', instagram_url: 'https://www.instagram.com/genjibreorganico/', category: 'productor', ...COORDS.pilar },
     { name: 'Como Siempre Orgánico', city_zone: 'Pilar, Campana, Zarate', instagram_url: 'https://www.instagram.com/comosiempreorganico/', category: 'productor', ...COORDS.pilar },
@@ -69,8 +73,6 @@ async function seedMega() {
     { name: 'Sikkim Orgánico', city_zone: 'Castelar, Ituzaingo, Ramos', instagram_url: 'https://www.instagram.com/sikkim.organico/', phone: '1521791201', category: 'productor', lat: -34.6601, lng: -58.6432 },
     { name: 'En Respeto con la Naturaleza', city_zone: 'Ciudad Evita', instagram_url: 'https://www.instagram.com/enrespetoconlanaturaleza/', phone: '11 7369-3206', category: 'productor', lat: -34.7225, lng: -58.5342 },
     { name: 'Eres lo que comes', city_zone: 'De Ramos Mejia hasta Moreno', instagram_url: 'https://www.instagram.com/almacen_eresloquecomes/', category: 'almacen', ...COORDS.ramos_mejia },
-
-    // --- IMAGEN 2 ---
     { name: 'MadreSol', city_zone: 'Ramos Mejia / Ciudadela', instagram_url: 'https://www.instagram.com/madresol_organica/', phone: '1139026360', category: 'productor', ...COORDS.ramos_mejia },
     { name: 'Mercado Transformador', city_zone: 'Haedo, Moron, Liniers, Ramos', instagram_url: 'https://www.instagram.com/mercadotransformador/', website_url: 'mercadotransformador.com', category: 'almacen', ...COORDS.ramos_mejia },
     { name: 'Morón Surco', city_zone: 'Morón', instagram_url: 'https://www.facebook.com/moron.surco.9/', category: 'productor', ...COORDS.moron },
@@ -87,8 +89,6 @@ async function seedMega() {
     { name: 'Red Conciencia en el Sur', city_zone: 'Ezeiza', instagram_url: 'https://www.instagram.com/red_conciencia_enelsur/', category: 'productor', ...COORDS.ezeiza },
     { name: 'El Patio de las Rosas', city_zone: 'Lomas de Zamora', instagram_url: 'https://www.instagram.com/elpatiodelasrosas/', category: 'productor', lat: -34.7578, lng: -58.4042 },
     { name: 'Verdores Almacén Vivero', city_zone: 'Lomas de Zamora', instagram_url: 'https://www.instagram.com/verdores.almacen.vivero/', category: 'almacen', lat: -34.7578, lng: -58.4042 },
-
-    // --- IMAGEN 3 ---
     { name: 'Alimentos con el Alma', city_zone: 'Rawson, Trevelin, Madryn', instagram_url: 'https://www.instagram.com/alimentos_con_alma/', category: 'productor', ...COORDS.trevelin },
     { name: 'Mercado de la Tierra Amboy', city_zone: 'Amboy', instagram_url: 'https://www.instagram.com/mercadodelatierra.amboy/', category: 'productor', ...COORDS.cordoba },
     { name: 'Yuyupa Córdoba', city_zone: 'Arguello', instagram_url: 'https://www.instagram.com/yuyupa_cordoba/', category: 'productor', ...COORDS.cordoba },
@@ -114,13 +114,10 @@ async function seedMega() {
     { name: 'Cooperativa Agroecológica yvy Maraney', city_zone: 'Corrientes', instagram_url: 'https://www.instagram.com/coop_agroecologica_yvy_maraney/', category: 'productor', ...COORDS.corrientes },
     { name: 'Skinny Waffles Gualeguaychu', city_zone: 'Gualeguaychu', instagram_url: 'https://www.instagram.com/skinnywafflesgualeguaychu/', category: 'almacen', ...COORDS.gualeguaychu },
     { name: 'Alimenta Paraná', city_zone: 'Paraná', instagram_url: 'https://www.instagram.com/alimentaparana/', category: 'productor', ...COORDS.parana },
-
-    // --- IMAGEN 4 ---
     { name: 'Vive la Huerta Trevelin', city_zone: 'Trevelin', instagram_url: 'https://www.instagram.com/vive_la_huerta_trevelin/', category: 'productor', ...COORDS.trevelin },
     { name: 'Colectivo Agroecologico', city_zone: 'Viedma', instagram_url: 'https://www.instagram.com/colectivoagroecologico/', category: 'productor', lat: -40.8135, lng: -62.9961 },
     { name: 'Granja Tía Nora', city_zone: 'Albardón', instagram_url: 'https://www.instagram.com/granjatianora/', phone: '2644365391', category: 'productor', ...COORDS.san_juan },
     { name: 'La Huertita SL', city_zone: 'San Luis Capital', instagram_url: 'https://www.instagram.com/lahuertitasl/', website_url: 'lahuertita.cstore.app', category: 'productor', ...COORDS.san_luis },
-    { name: 'Red Viva San Luis', city_zone: 'San Luis', instagram_url: 'CECILIA 266 457 4533', category: 'productor', ...COORDS.san_luis },
     { name: 'El Campito Huerta', city_zone: 'Arroyo Seco', instagram_url: 'https://www.instagram.com/el.campito.huerta/', phone: '3402 552-723', category: 'productor', ...COORDS.santa_fe },
     { name: 'Broagroecológico', city_zone: 'Esperanza', instagram_url: 'https://www.instagram.com/broagroecologico/', phone: '3496400062', category: 'productor', ...COORDS.santa_fe },
     { name: 'Benjamín Santiago', city_zone: 'Hughes', instagram_url: 'https://www.instagram.com/samtiago.moru/', phone: '542473-46-9103', category: 'productor', ...COORDS.santa_fe },
@@ -137,8 +134,6 @@ async function seedMega() {
     { name: 'Cosecha Agroecológica', city_zone: 'Santa Fé Capital', instagram_url: 'https://www.instagram.com/cosecha_agroecologica/', category: 'productor', ...COORDS.santa_fe },
     { name: 'Amma 100 Agroecología', city_zone: 'Santa Fé Capital', instagram_url: 'https://www.instagram.com/amma100agroecologica/', phone: '3425008482', category: 'productor', ...COORDS.santa_fe },
     { name: 'Mercadito Agroecológico Tucuman', city_zone: 'Yerba Buena', instagram_url: 'https://www.instagram.com/mercaditoagroecologicotuc/', category: 'productor', ...COORDS.tucuman },
-    
-    // FALTANTES EXTRA
     { name: 'Almacén Nuevo Mundo', city_zone: 'Boulogne', instagram_url: 'https://www.instagram.com/almacen_nuevomundo/', category: 'almacen', lat: -34.4914, lng: -58.5628 },
   ]
 
@@ -163,4 +158,4 @@ async function seedMega() {
   else console.log('✅ MEGA CARGA COMPLETA:', merchantsData.length, 'productores activos.')
 }
 
-seedMega()
+seedMega().catch(console.error)

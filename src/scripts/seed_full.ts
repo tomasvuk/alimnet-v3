@@ -8,7 +8,12 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-const COORDS: any = {
+interface Coord {
+  lat: number;
+  lng: number;
+}
+
+const COORDS: Record<string, Coord> = {
   'pilar': { lat: -34.4586, lng: -58.9142 },
   'tigre': { lat: -34.4251, lng: -58.5796 },
   'san_isidro': { lat: -34.4719, lng: -58.5278 },
@@ -44,7 +49,6 @@ async function seedFull() {
   console.log('🚀 Iniciando carga masiva EXHAUSTIVA desde Excel...')
 
   const rawMerchants = [
-    // IMAGEN 1 & 2: ZONA NORTE / OESTE
     { name: 'Huerta Madre', city_zone: 'Pilar y Zona Norte', instagram_url: 'https://www.instagram.com/huertamadre/', website_url: 'huertamadre.com', category: 'productor', region: 'Zona Norte', ...COORDS.pilar },
     { name: 'Genjibre Orgánico', city_zone: 'Pilar, Benavidez, Nordelta', instagram_url: 'https://www.instagram.com/genjibreorganico/', category: 'productor', region: 'Zona Norte', ...COORDS.pilar },
     { name: 'Como Siempre Orgánico', city_zone: 'Pilar, Campana, Zarate', instagram_url: 'https://www.instagram.com/comosiempreorganico/', category: 'productor', region: 'Zona Norte', ...COORDS.pilar },
@@ -65,8 +69,6 @@ async function seedFull() {
     { name: 'Nuestra Tierra Orgánicos', city_zone: 'ver zonas en ig', instagram_url: 'https://www.instagram.com/nuestratierraorganicos/', category: 'productor', region: 'Zona Norte', ...COORDS.olivos },
     { name: 'El Solaz', city_zone: 'ver zonas en ig', instagram_url: 'https://www.instagram.com/elsolaz/', phone: '11 4417-2311', category: 'productor', region: 'Zona Norte', ...COORDS.san_isidro },
     { name: 'Monteverde', city_zone: 'ver zonas en ig', instagram_url: 'https://www.instagram.com/monteverdeverdu/', phone: '11 3424-5233', category: 'productor', region: 'Zona Norte', ...COORDS.beccar },
-
-    // ZONA OESTE
     { name: 'BioPandora Mercado Agroecológico', city_zone: 'Ramos Mejia, Haedo, Moron', instagram_url: 'https://www.instagram.com/bio.pandora/', website_url: 'biopandora.com.ar', category: 'almacen', region: 'Zona Oeste', ...COORDS.ramos_mejia },
     { name: 'Demeter Alimento Vital', city_zone: 'Bellavista, Muñiz, San Miguel', instagram_url: 'https://www.instagram.com/demeter.alimentovital/', category: 'productor', region: 'Zona Norte', ...COORDS.bella_vista },
     { name: 'El Almacen Orgánico', city_zone: 'Bellavista, San Miguel', instagram_url: 'https://www.instagram.com/elalmacenorganico/', category: 'almacen', region: 'Zona Norte', ...COORDS.bella_vista },
@@ -76,8 +78,6 @@ async function seedFull() {
     { name: 'MadreSol', city_zone: 'Ramos Mejia / Ciudadela', instagram_url: 'https://www.instagram.com/madresol_organica/', phone: '1139026360', category: 'productor', region: 'Zona Oeste', ...COORDS.ramos_mejia },
     { name: 'Mercado Transformador', city_zone: 'Ramos Mejia, Haedo, Moron +Varios', instagram_url: 'https://www.instagram.com/mercadotransformador/', website_url: 'mercadotransformador.com', category: 'almacen', region: 'Zona Oeste', ...COORDS.ramos_mejia },
     { name: 'Morón Surco', city_zone: 'Morón', instagram_url: 'https://www.facebook.com/moron.surco.9/', category: 'productor', region: 'Zona Oeste', ...COORDS.moron },
-
-    // ZONA SUR
     { name: 'Agro Primavera', city_zone: 'Florencio Varela', instagram_url: 'https://www.instagram.com/agroprimavera/', phone: '1169346341', category: 'productor', region: 'Zona Sur', ...COORDS.florencio_varela },
     { name: 'Feria Sustentable del Sur', city_zone: 'Adrogué', instagram_url: 'https://www.instagram.com/feriasustentabledelsur/', category: 'productor', region: 'Zona Sur', ...COORDS.adrogue },
     { name: 'Chavo Pastel', city_zone: 'Avellaneda', instagram_url: 'https://www.instagram.com/chavopastel/', category: 'almacen', region: 'Zona Sur', ...COORDS.avellaneda },
@@ -85,8 +85,6 @@ async function seedFull() {
     { name: 'Brota Orgánico', city_zone: 'Banfield', instagram_url: 'https://www.instagram.com/brotaorganico/', category: 'productor', region: 'Zona Sur', lat: -34.7431, lng: -58.3962 },
     { name: 'Huerta Trujillo', city_zone: 'El Pato / Berazategui', instagram_url: 'https://www.instagram.com/huerta_trujillo.06/', category: 'productor', region: 'Zona Sur', lat: -34.8812, lng: -58.1925 },
     { name: 'Red Conciencia en el Sur', city_zone: 'Ezeiza', instagram_url: 'https://www.instagram.com/red_conciencia_enelsur/', category: 'productor', region: 'Zona Sur', lat: -34.8532, lng: -58.5204 },
-
-    // CHUBUT / CORDOBA / SANTA FE / TUCUMAN
     { name: 'Alimentos con el Alma', city_zone: 'Rawson, Gaiman, Trevelin, Pto Madryn', instagram_url: 'https://www.instagram.com/alimentos_con_alma/', category: 'productor', region: 'Chubut', ...COORDS.trevelin },
     { name: 'Mercado de la Tierra Amboy', city_zone: 'Amboy', instagram_url: 'https://www.instagram.com/mercadodelatierra.amboy/', category: 'productor', region: 'Cordoba', ...COORDS.cordoba },
     { name: 'Yuyupa Córdoba', city_zone: 'Arguello', instagram_url: 'https://www.instagram.com/yuyupa_cordoba/', category: 'productor', region: 'Cordoba', ...COORDS.cordoba },
@@ -98,16 +96,13 @@ async function seedFull() {
     { name: 'Dulces del Jardín', city_zone: 'Rosario, Funes, Roldán', instagram_url: 'https://www.instagram.com/dulcesdeljardinenfunes/', category: 'productor', region: 'Santa Fe', ...COORDS.rosario },
     { name: 'Vitalia Almacen Natural', city_zone: 'Rosario y Gran Rosario', instagram_url: 'https://www.instagram.com/vitalia_almacennatural/', phone: '341 509-0914', category: 'almacen', region: 'Santa Fe', ...COORDS.rosario },
     { name: 'Mercadito Agroecológico Tucuman', city_zone: 'Yerba Buena', instagram_url: 'https://www.instagram.com/mercaditoagroecologicotuc/', category: 'productor', region: 'Tucuman', lat: -26.8167, lng: -65.3167 },
-    
-    // FALTANTES IDENTIFICADOS
     { name: 'Almacén Nuevo Mundo', city_zone: 'Boulogne', instagram_url: 'https://www.instagram.com/almacen_nuevomundo/', category: 'almacen', region: 'Zona Norte', ...COORDS.boulogne },
   ]
 
-  // Borramos los anteriores para evitar duplicados en el seed
   const { error: deleteError } = await supabase
     .from('providers')
     .delete()
-    .neq('id', '00000000-0000-0000-0000-000000000000') // Borra todo
+    .neq('id', '00000000-0000-0000-0000-000000000000')
 
   if (deleteError) {
     console.error('❌ Error limpiando tabla:', deleteError)
@@ -127,7 +122,7 @@ async function seedFull() {
     bio: `Proyecto de alimentos cuidados en ${m.region || 'Argentina'}. Cobertura en ${m.city_zone}.`
   }))
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('providers')
     .insert(cleanMerchants)
 
@@ -138,4 +133,4 @@ async function seedFull() {
   }
 }
 
-seedFull()
+seedFull().catch(console.error)
