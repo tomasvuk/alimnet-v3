@@ -147,6 +147,58 @@ h1, h2, h3, h4 {
   animation: float 6s ease-in-out infinite;
 }
 
+/* Responsive Grid & Flex Utilities */
+.flex-col-mobile {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .flex-col-mobile {
+    flex-direction: row;
+  }
+}
+
+.text-center-mobile {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .text-center-mobile {
+    text-align: left;
+  }
+}
+
+.full-width-mobile {
+  width: 100% !important;
+}
+
+@media (min-width: 1024px) {
+  .full-width-mobile {
+    width: auto !important;
+  }
+}
+
+.hidden-mobile {
+  display: none !important;
+}
+
+@media (min-width: 1024px) {
+  .hidden-mobile {
+    display: flex !important;
+  }
+}
+
+.hidden-desktop {
+  display: flex !important;
+}
+
+@media (min-width: 1024px) {
+  .hidden-desktop {
+    display: none !important;
+  }
+}
+
 /* Mobile Utilities */
 .mobile-only {
   display: block;
