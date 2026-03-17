@@ -88,7 +88,7 @@ const CATEGORIES_TAGS = [
 ];
 
 export default function ExplorarPage() {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor']);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'almacen', 'restaurante', 'chef']);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);

@@ -64,7 +64,7 @@ export default function Home() {
         <div className="container" style={{ maxWidth: "1280px", position: "relative", zIndex: 10, margin: "0" }}>
           <h1 style={{ fontSize: "clamp(3rem, 8.5vw, 4.8rem)", fontWeight: "950", marginBottom: "1.2rem", color: "var(--primary-dark)", maxWidth: "900px" }}>
             Conectamos personas con <br />
-            <span style={{ color: "var(--primary)", fontStyle: "italic" }}>alimentos cuidados.</span>
+            <span style={{ color: "var(--primary)", fontStyle: "italic" }}>Alimentos cuidados.</span>
           </h1>
           <p style={{ fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "680px", margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550" }}>
             Descubrí productores, proveedores, restaurantes y chefs que trabajan con alimentos agroecológicos, orgánicos y biodinámicos cerca tuyo.
@@ -90,11 +90,11 @@ export default function Home() {
             <div style={{ display: "flex", alignItems: "center" }}>
               {[1,2,3,4,5].map(i => (
                 <div key={i} style={{ 
-                  width: "36px", height: "36px", borderRadius: "50%", background: `var(--card-bg)`, 
+                  width: "36px", height: "36px", minWidth: "36px", minHeight: "36px", borderRadius: "50%", background: `var(--card-bg)`, 
                   border: "2.5px solid white", marginLeft: i === 1 ? 0 : "-10px", overflow: "hidden",
-                  boxShadow: "0 3px 5px rgba(0,0,0,0.1)"
+                  boxShadow: "0 3px 5px rgba(0,0,0,0.1)", flexShrink: 0
                 }}>
-                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="" />
+                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
               ))}
               <div style={{ marginLeft: "0.8rem", fontWeight: "800", fontSize: "0.85rem", color: "var(--primary-dark)" }}>
@@ -248,8 +248,8 @@ export default function Home() {
               <nav style={{ display: "flex", flexDirection: "column", gap: "1rem", fontWeight: "700", fontSize: "0.9rem" }}>
                 <a href="/explorar" className="footer-link">Explorar mapa</a>
                 <a href="/sostener" className="footer-link">Sostener Alimnet</a>
-                <button onClick={() => window.location.href = '/login'} className="footer-link" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}>Ingresar</button>
-                <button onClick={() => window.location.href = '/registro'} className="button button-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Crear cuenta</button>
+                <button onClick={() => window.location.href = '/login'} className="footer-link" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', fontWeight: 'inherit', fontSize: 'inherit', fontFamily: 'inherit' }}>Ingresar</button>
+                <button onClick={() => window.location.href = '/registro'} className="button button-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', width: 'fit-content' }}>Crear cuenta</button>
               </nav>
             </div>
 
