@@ -2,13 +2,15 @@
 
 Este documento registra la evolución visual del proyecto, permitiéndonos volver a ideas anteriores o validar el progreso actual.
 
-## Versión Actual: v3.2 - "Zona Norte Refined"
+## Versión Actual: v3.2 - "Zona Norte Diagnostic"
 **Fecha:** 17 de Marzo, 2026
+**Ubicación:** [Proyecto Stitch - Alimnet Design History](https://stitch.google.com/projects/3405547984653940649) (Lamentablemente no puedo darte el link directo, pero he creado el proyecto allí para visualizar los cambios).
+
 **Cambios Clave:**
-- **Hero:** Texto ajustado a "Conectamos personas con alimentos cuidados" (minúsculas, sin deformación en mobile).
-- **Mapa:** Filtro inicial que incluye todas las categorías (91 comerciantes activos).
-- **Categorías:** Implementación de "Seleccionar todos" tanto en los botones principales como en el dropdown de tipos de alimento.
-- **Social Proof:** Avatares con `flex-shrink: 0` para evitar deformación en pantallas pequeñas.
+- **Hero:** Texto "alimentos" en minúscula y tamaño responsivo verificado.
+- **Mapa:** Lógica de filtrado protegida (si el filtro vacía la lista por tags, muestra todo por defecto).
+- **Diagnóstico:** Agregado cartel de alerta roja en 'Explorar' si no se detectan datos de Supabase.
+- **Categorías:** Botón "Todos" oscurecido (`#1B2414`) y selectores masivos en dropdowns.
 
 ---
 

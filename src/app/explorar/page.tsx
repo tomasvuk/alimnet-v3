@@ -99,21 +99,30 @@ export default function ExplorarPage() {
   const [selectedFoodTypes, setSelectedFoodTypes] = useState<string[]>([]);
 
   // 1. Cargar datos filtrados (Zona Norte Activa)
-  useEffect(() => {
-    async function getActiveMerchants() {
-      setLoading(true);
+  const getActiveMerchants = async () => {
+    setLoading(true);
+    console.log("[SUPABASE] Intentando conectar a:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+    try {
       const { data, error } = await supabase
         .from('merchants')
         .select('*, locations(*)')
         .eq('status', 'active');
 
       if (error) {
-        console.error('Error:', error);
+        console.error('[SUPABASE ERROR]:', error);
       } else {
+        console.log(`[SUPABASE SUCCESS] Datos crudos:`, data?.length);
         setMerchants(data || []);
+        if (data) filterData(data, selectedCategories, selectedFoodTypes);
       }
+    } catch (err) {
+      console.error('[CRITICAL]:', err);
+    } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
     getActiveMerchants();
   }, []);
 
@@ -255,12 +264,27 @@ export default function ExplorarPage() {
 
       {/* 2. SUB-TOOLBAR */}
       <div style={{ 
+        padding: '1.5rem 2rem', 
         background: 'white', 
-        borderBottom: '1px solid var(--border)', 
-        padding: '1rem 2rem',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
         boxShadow: 'var(--shadow-sm)',
         zIndex: 500
       }}>
+        {merchants.length === 0 && !loading && (
+          <div style={{ padding: '12px', background: '#FFF4F4', color: '#D32F2F', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center', border: '1px solid #FFCDD2', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div>⚠️ No se detectan comerciantes. Esto suele pasar si las variables de Supabase no están configuradas en Vercel.</div>
+            <div style={{ fontSize: '0.7rem', opacity: 0.8 }}>URL actual: {process.env.NEXT_PUBLIC_SUPABASE_URL || 'No configurada'}</div>
+            <button 
+              onClick={getActiveMerchants} 
+              style={{ alignSelf: 'center', padding: '4px 12px', borderRadius: '8px', border: '1px solid currentColor', background: 'transparent', cursor: 'pointer', fontSize: '0.75rem' }}
+            >
+              Reintentar conexión
+            </button>
+          </div>
+        )}
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           
           <div style={{ display: 'flex', gap: '8px', background: '#F8F9F5', padding: '4px', borderRadius: '16px', border: '1px solid #eee', alignItems: 'center' }}>
