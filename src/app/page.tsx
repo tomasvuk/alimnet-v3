@@ -62,14 +62,14 @@ export default function Home() {
         </div>
 
         <div className="container" style={{ maxWidth: "1280px", position: "relative", zIndex: 10, margin: "0" }}>
-          <h1 style={{ fontSize: "clamp(3rem, 8.5vw, 4.8rem)", fontWeight: "950", marginBottom: "1.2rem", color: "var(--primary-dark)", maxWidth: "900px" }}>
+          <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4.4rem)", fontWeight: "950", marginBottom: "1.2rem", color: "var(--primary-dark)", maxWidth: "900px", lineHeight: "1.1" }}>
             Conectamos personas con <br />
-            <span style={{ color: "var(--primary)", fontStyle: "italic" }}>Alimentos cuidados.</span>
+            <span style={{ color: "var(--primary)", fontStyle: "italic" }}>alimentos cuidados.</span>
           </h1>
           <p style={{ fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "680px", margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550" }}>
             Descubrí productores, proveedores, restaurantes y chefs que trabajan con alimentos agroecológicos, orgánicos y biodinámicos cerca tuyo.
           </p>
-          <div style={{ display: "flex", gap: "10px", justifyContent: "flex-start", color: "var(--primary)", fontWeight: "800", fontSize: "0.85rem", marginBottom: "3rem", letterSpacing: "0.05em" }}>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "flex-start", color: "var(--primary)", fontWeight: "800", fontSize: "clamp(0.7rem, 2vw, 0.85rem)", marginBottom: "3rem", letterSpacing: "0.05em", flexWrap: "wrap" }}>
             <span>Productores</span> · <span>Proveedores</span> · <span>Restaurantes</span> · <span>Chefs</span>
           </div>
 

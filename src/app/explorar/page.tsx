@@ -260,7 +260,33 @@ export default function ExplorarPage() {
       }}>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           
-          <div style={{ display: 'flex', gap: '8px', background: '#F8F9F5', padding: '4px', borderRadius: '16px', border: '1px solid #eee' }}>
+          <div style={{ display: 'flex', gap: '8px', background: '#F8F9F5', padding: '4px', borderRadius: '16px', border: '1px solid #eee', alignItems: 'center' }}>
+            <button 
+              onClick={() => {
+                const allIds = CATEGORIES.map(c => c.id);
+                if (selectedCategories.length === allIds.length) {
+                  setSelectedCategories([]);
+                } else {
+                  setSelectedCategories(allIds);
+                }
+              }}
+              style={{
+                padding: '0.6rem 1rem',
+                fontSize: '0.75rem',
+                fontWeight: '900',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                border: 'none',
+                background: selectedCategories.length === CATEGORIES.length ? 'var(--primary)' : 'white',
+                color: selectedCategories.length === CATEGORIES.length ? 'white' : 'var(--text-secondary)',
+                transition: 'all 0.2s',
+                boxShadow: 'var(--shadow-sm)',
+                marginRight: '4px'
+              }}
+            >
+              {selectedCategories.length === CATEGORIES.length ? 'Deseleccionar todos' : 'Todos'}
+            </button>
+            <div style={{ width: '1px', height: '20px', background: '#ddd' }}></div>
             {CATEGORIES.map(cat => {
               const isActive = selectedCategories.includes(cat.id);
               return (
@@ -357,7 +383,10 @@ export default function ExplorarPage() {
         <section style={{ flex: 1, position: 'relative' }}>
           <MapComponent 
             providers={filteredMerchants.map(m => ({
-              ...m,
+              id: m.id,
+              name: m.name,
+              category: m.type,
+              type: m.type,
               location_lat: m.locations?.[0]?.lat || -34.4586,
               location_lng: m.locations?.[0]?.lng || -58.9142,
               is_exact_location: true,
