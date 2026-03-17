@@ -68,13 +68,7 @@ h1, h2, h3, h4 {
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-@media (min-width: 768px) {
-  .container {
-    padding: 0 2rem;
-  }
+  padding: 0 2rem;
 }
 
 .button {
@@ -147,90 +141,7 @@ h1, h2, h3, h4 {
   animation: float 6s ease-in-out infinite;
 }
 
-/* Responsive Grid & Flex Utilities */
-.flex-col-mobile {
-  display: flex;
-  flex-direction: column;
-}
-
-@media (min-width: 1024px) {
-  .flex-col-mobile {
-    flex-direction: row;
-  }
-}
-
-.text-center-mobile {
-  text-align: center;
-}
-
-@media (min-width: 1024px) {
-  .text-center-mobile {
-    text-align: left;
-  }
-}
-
-.full-width-mobile {
-  width: 100% !important;
-}
-
-@media (min-width: 1024px) {
-  .full-width-mobile {
-    width: auto !important;
-  }
-}
-
-.hidden-mobile {
-  display: none !important;
-}
-
-@media (min-width: 1024px) {
-  .hidden-mobile {
-    display: flex !important;
-  }
-}
-
-.hidden-desktop {
-  display: flex !important;
-}
-
-@media (min-width: 1024px) {
-  .hidden-desktop {
-    display: none !important;
-  }
-}
-
-/* Mobile Utilities */
-.mobile-only {
-  display: block;
-}
-.desktop-only {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .mobile-only {
-    display: none;
-  }
-  .desktop-only {
-    display: block;
-  }
-}
-
-/* Scrollbar styling for the sidebar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(95, 125, 74, 0.1);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(95, 125, 74, 0.2);
-}
-
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
