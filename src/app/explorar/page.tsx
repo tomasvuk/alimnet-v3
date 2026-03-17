@@ -133,7 +133,7 @@ export default function ExplorarPage() {
   };
 
   const filterData = (data: Merchant[], categories: string[], types: string[]) => {
-    let result = data.filter(m => categories.includes(m.type.toLowerCase()));
+    let result = data.filter(m => categories.includes((m.type || '').toLowerCase()));
     
     // Filtrado por tipos de alimento (Tags)
     if (types.length > 0) {
@@ -143,6 +143,8 @@ export default function ExplorarPage() {
       });
     }
     
+    // Console log for debugging (only in development)
+    console.log(`[FILTER] Raw: ${data.length}, Filtered: ${result.length}, Categories: ${categories}, Types: ${types}`);
     setFilteredMerchants(result);
   };
 
@@ -277,7 +279,7 @@ export default function ExplorarPage() {
                 borderRadius: '12px',
                 cursor: 'pointer',
                 border: 'none',
-                background: selectedCategories.length === CATEGORIES.length ? 'var(--primary)' : 'white',
+                background: selectedCategories.length === CATEGORIES.length ? '#1B2414' : '#E0E4D9', // Más oscuro cuando está activo, más grisáceo cuando no
                 color: selectedCategories.length === CATEGORIES.length ? 'white' : 'var(--text-secondary)',
                 transition: 'all 0.2s',
                 boxShadow: 'var(--shadow-sm)',
@@ -307,7 +309,8 @@ export default function ExplorarPage() {
                     background: isActive ? 'var(--primary-dark)' : 'transparent',
                     color: isActive ? 'white' : 'var(--text-secondary)',
                     boxShadow: isActive ? '0 4px 12px rgba(63, 82, 50, 0.2)' : 'none',
-                    transform: isActive ? 'translateY(-1px)' : 'none'
+                    transform: isActive ? 'translateY(-1px)' : 'none',
+                    opacity: isActive ? 1 : 0.8
                   }}
                 >
                   <cat.icon size={14} />
@@ -323,27 +326,52 @@ export default function ExplorarPage() {
             <button 
               onClick={() => setShowFoodDropdown(!showFoodDropdown)}
               style={{
-                padding: '0.7rem 1rem', borderRadius: '12px', border: '1px solid var(--border)',
-                background: 'white', fontSize: '0.85rem', fontWeight: '700', display: 'flex', gap: '8px', cursor: 'pointer'
+                padding: '0.7rem 1.2rem', borderRadius: '12px', border: '1px solid var(--border)',
+                background: 'white', fontSize: '0.85rem', fontWeight: '800', display: 'flex', gap: '8px', cursor: 'pointer',
+                boxShadow: 'var(--shadow-sm)', color: 'var(--primary-dark)'
               }}
             >
-              <Filter size={16} /> Categorías <ChevronDown size={14} />
+              <Filter size={16} /> Tipos de Alimento <ChevronDown size={14} />
             </button>
             
             {showFoodDropdown && (
-              <div style={{ position: 'absolute', top: '110%', left: 0, width: '220px', background: 'white', backdropFilter: 'blur(10px)', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid var(--border)', padding: '1rem', zIndex: 2000 }}>
-                {CATEGORIES_TAGS.map(type => (
-                  <label key={type} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.5rem 0', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>
-                    <input 
-                      type="checkbox" 
-                      onChange={(e) => {
-                        const newTypes = e.target.checked ? [...selectedFoodTypes, type] : selectedFoodTypes.filter(t => t !== type);
-                        setSelectedFoodTypes(newTypes);
-                      }}
-                    />
-                    {type}
-                  </label>
-                ))}
+              <div style={{ 
+                position: 'absolute', top: '110%', left: 0, width: '250px', 
+                background: 'white', borderRadius: '20px', boxShadow: '0 15px 40px rgba(0,0,0,0.12)', 
+                border: '1px solid var(--border)', padding: '1rem', zIndex: 2000,
+                display: 'flex', flexDirection: 'column', gap: '4px'
+              }}>
+                <button 
+                  onClick={() => {
+                    if (selectedFoodTypes.length === CATEGORIES_TAGS.length) {
+                      setSelectedFoodTypes([]);
+                    } else {
+                      setSelectedFoodTypes([...CATEGORIES_TAGS]);
+                    }
+                  }}
+                  style={{
+                    width: '100%', padding: '0.6rem', background: '#F0F4ED', border: 'none',
+                    borderRadius: '10px', fontSize: '0.8rem', fontWeight: '900', color: 'var(--primary-dark)',
+                    cursor: 'pointer', marginBottom: '8px', textAlign: 'center'
+                  }}
+                >
+                  {selectedFoodTypes.length === CATEGORIES_TAGS.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
+                </button>
+                <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '4px' }}>
+                  {CATEGORIES_TAGS.map(type => (
+                    <label key={type} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0.6rem 0.5rem', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '700', borderRadius: '8px', transition: 'background 0.2s' }} className="dropdown-item">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedFoodTypes.includes(type)}
+                        onChange={(e) => {
+                          const newTypes = e.target.checked ? [...selectedFoodTypes, type] : selectedFoodTypes.filter(t => t !== type);
+                          setSelectedFoodTypes(newTypes);
+                        }}
+                      />
+                      {type}
+                    </label>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -382,7 +410,7 @@ export default function ExplorarPage() {
 
         <section style={{ flex: 1, position: 'relative' }}>
           <MapComponent 
-            providers={filteredMerchants.map(m => ({
+            providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
               id: m.id,
               name: m.name,
               category: m.type,

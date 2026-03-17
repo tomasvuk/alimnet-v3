@@ -14,7 +14,8 @@ const CATEGORY_PATHS: Record<string, string> = {
 };
 
 const getAlimnetIcon = (type: string) => {
-  const iconPath = CATEGORY_PATHS[type.toLowerCase()] || CATEGORY_PATHS['productor'];
+  const safeType = (type || 'productor').toLowerCase();
+  const iconPath = CATEGORY_PATHS[safeType] || CATEGORY_PATHS['productor'];
   
   return L.divIcon({
     html: `
