@@ -133,18 +133,19 @@ export default function ExplorarPage() {
   };
 
   const filterData = (data: Merchant[], categories: string[], types: string[]) => {
+    // 1. Filtrar por categorías (Productor, Almacén, etc.)
     let result = data.filter(m => categories.includes((m.type || '').toLowerCase()));
     
-    // Filtrado por tipos de alimento (Tags)
-    if (types.length > 0) {
+    // 2. Filtrar por tipos de alimento (Tags)
+    // Solo aplicamos el filtro si el usuario seleccionó algunos tags pero NO TODOS (para evitar el "trap" de borrar todo si no hay tags cargados)
+    if (types.length > 0 && types.length < CATEGORIES_TAGS.length) {
       result = result.filter(m => {
         const merchantTags = m.tags || [];
         return types.some(type => merchantTags.includes(type));
       });
     }
     
-    // Console log for debugging (only in development)
-    console.log(`[FILTER] Raw: ${data.length}, Filtered: ${result.length}, Categories: ${categories}, Types: ${types}`);
+    console.log(`[DEBUG] Merchants: ${data.length}, Filtered: ${result.length}`);
     setFilteredMerchants(result);
   };
 
@@ -410,7 +411,7 @@ export default function ExplorarPage() {
 
         <section style={{ flex: 1, position: 'relative' }}>
           <MapComponent 
-            providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
+            providers={(filteredMerchants.length > 0 ? filteredMerchants : (merchants.length > 0 ? merchants : [])).map(m => ({
               id: m.id,
               name: m.name,
               category: m.type,
@@ -418,7 +419,7 @@ export default function ExplorarPage() {
               location_lat: m.locations?.[0]?.lat || -34.4586,
               location_lng: m.locations?.[0]?.lng || -58.9142,
               is_exact_location: true,
-              city_zone: m.locations?.[0]?.locality
+              city_zone: m.locations?.[0]?.locality || 'Zona Norte'
             }))} 
             center={[-34.4586, -58.9142]} 
             zoom={11}
