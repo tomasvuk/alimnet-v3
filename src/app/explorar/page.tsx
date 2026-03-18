@@ -262,27 +262,19 @@ export default function ExplorarPage() {
         </div>
       </header>
 
-      {/* 2. SUB-TOOLBAR */}
       <div style={{ 
-        padding: '1.5rem 2rem', 
+        padding: '1.2rem 2rem', 
         background: 'white', 
         borderBottom: '1px solid var(--border)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem',
-        boxShadow: 'var(--shadow-sm)',
+        gap: '0.8rem',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
         zIndex: 500
       }}>
-        {merchants.length === 0 && !loading && (
-          <div style={{ padding: '12px', background: '#FFF4F4', color: '#D32F2F', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center', border: '1px solid #FFCDD2', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div>⚠️ No se detectan comerciantes. Esto suele pasar si las variables de Supabase no están configuradas en Vercel.</div>
-            <div style={{ fontSize: '0.7rem', opacity: 0.8 }}>URL actual: {process.env.NEXT_PUBLIC_SUPABASE_URL || 'No configurada'}</div>
-            <button 
-              onClick={getActiveMerchants} 
-              style={{ alignSelf: 'center', padding: '4px 12px', borderRadius: '8px', border: '1px solid currentColor', background: 'transparent', cursor: 'pointer', fontSize: '0.75rem' }}
-            >
-              Reintentar conexión
-            </button>
+        {loading && (
+          <div style={{ padding: '4px', background: '#F8F9F5', color: 'var(--primary)', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 'bold', textAlign: 'center', opacity: 0.6 }}>
+            Actualizando datos de comerciantes...
           </div>
         )}
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
