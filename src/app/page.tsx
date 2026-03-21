@@ -66,7 +66,11 @@ export default function Home() {
             Conectamos personas con <br />
             <span style={{ color: "var(--primary)", fontStyle: "italic" }}>alimentos cuidados.</span>
           </h1>
-          <p className="hero-p" style={{ fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "680px", margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550" }}>
+          <p className="hero-p" style={{ 
+            fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "680px", 
+            margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550",
+            textAlign: "justify" // Justificación para bordes simétricos
+          }}>
             Descubrí productores, proveedores, restaurantes y chefs que trabajan con alimentos agroecológicos, orgánicos y biodinámicos cerca tuyo.
           </p>
           <div className="hero-categories" style={{ display: "flex", gap: "10px", justifyContent: "flex-start", color: "var(--primary)", fontWeight: "800", fontSize: "0.85rem", marginBottom: "3rem", letterSpacing: "0.05em", flexWrap: "wrap" }}>
@@ -109,7 +113,7 @@ export default function Home() {
       <section id="como-funciona" style={{ padding: "8rem 2rem", background: "white" }}>
         <div className="container" style={{ textAlign: "center" }}>
           <h2 style={{ fontSize: "3rem", marginBottom: "1.2rem" }}>Cómo funciona</h2>
-          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", maxWidth: "550px", margin: "0 auto 5rem", fontWeight: "550" }}>
+          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", maxWidth: "550px", margin: "0 auto 5rem", fontWeight: "550", textAlign: "justify" }}>
             Tres simples pasos para acercarte a una alimentación cuidada y apoyar redes de producción local.
           </p>
 
@@ -212,7 +216,7 @@ export default function Home() {
         <div className="container" style={{ textAlign: "center", maxWidth: "700px" }}>
           <Heart size={40} color="var(--primary)" style={{ marginBottom: "1.5rem" }} fill="var(--primary)" fillOpacity={0.1} />
           <h2 style={{ fontSize: "2.8rem", marginBottom: "1.2rem" }}>Una red sostenida por su comunidad</h2>
-          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", marginBottom: "3.5rem", lineHeight: "1.8", fontWeight: "500" }}>
+          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", marginBottom: "3.5rem", lineHeight: "1.8", fontWeight: "500", textAlign: "justify" }}>
             Alimnet crece gracias a personas que creen en una forma más consciente, transparente y cercana de producir y encontrar alimentos.
           </p>
           <button 

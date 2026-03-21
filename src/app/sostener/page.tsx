@@ -42,7 +42,7 @@ export default function SostenerAlimnetPage() {
             <Heart size={16} fill="var(--primary)" /> Sostener alimnet
           </div>
           <h1 style={{ fontSize: '3.5rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1.5rem', letterSpacing: '-0.04em' }}>Construyamos juntos el futuro <br /><span style={{ color: 'var(--primary)' }}>de nuestra alimentación.</span></h1>
-          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto', lineHeight: '1.7', fontWeight: '550' }}>
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto', lineHeight: '1.7', fontWeight: '550', textAlign: 'justify' }}>
             Alimnet es una plataforma independiente que busca descentralizar el acceso a comida real. No cobramos comitivas ni pautas a los productores. Nuestro crecimiento depende de la comunidad.
           </p>
         </div>
