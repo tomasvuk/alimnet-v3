@@ -139,31 +139,30 @@ export default function SostenerAlimnetPage() {
         <div style={{ marginBottom: '6rem', padding: '0 2rem' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4rem', alignItems: 'center' }}>
             <div style={{ 
-              width: '280px', height: '280px', borderRadius: '50%', overflow: 'visible', flexShrink: 0, 
-              background: '#F9FAF7',
+              width: '320px', height: '320px', borderRadius: '50%', flexShrink: 0, 
+              background: '#F4F1E6',
               position: 'relative',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '18px 18px 40px rgba(0,0,0,0.15), -18px -18px 40px rgba(255,255,255,1)',
             }}>
-              {/* EL BOTON 3D (Relieve Extremo) */}
+              {/* EL ANILLO (Torus/Doughnut effect) */}
               <div style={{ 
-                position: 'absolute', inset: '-18px', borderRadius: '50%', 
+                position: 'absolute', inset: '28px', borderRadius: '50%', 
                 background: '#F4F1E6',
-                border: '1px solid rgba(255,255,255,0.8)',
                 boxShadow: `
-                  15px 15px 35px rgba(0,0,0,0.12), 
-                  -15px -15px 35px rgba(255,255,255,1),
-                  inset 10px 10px 20px rgba(0,0,0,0.08), 
-                  inset -10px -10px 20px rgba(255,255,255,1)
+                  inset 12px 12px 25px rgba(0,0,0,0.12), 
+                  inset -12px -12px 25px rgba(255,255,255,1),
+                  10px 10px 20px rgba(0,0,0,0.05)
                 `,
                 zIndex: 1
               }}></div>
               
-              {/* Contenedor de la Imagen (Hundida en el botón) */}
+              {/* Contenedor de la Imagen (Flotando en el medio del anillo) */}
               <div style={{ 
-                width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', 
+                width: '180px', height: '180px', borderRadius: '50%', overflow: 'hidden', 
                 zIndex: 2, position: 'relative',
-                boxShadow: 'inset 8px 8px 15px rgba(0,0,0,0.15), 4px 4px 10px rgba(255,255,255,0.5)',
-                border: '10px solid #F4F1E6'
+                boxShadow: '8px 8px 15px rgba(0,0,0,0.1), -8px -8px 15px rgba(255,255,255,0.8)',
+                border: '4px solid #F4F1E6'
               }}>
                 <img 
                   src="/tomas_profile.jpg" 
@@ -248,14 +247,13 @@ export default function SostenerAlimnetPage() {
           to { opacity: 1; transform: translateY(0); }
         }
         .relief-card:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 15px 15px 40px rgba(0,0,0,0.08);
+          transform: translateY(-12px);
+          box-shadow: 0 30px 60px rgba(0,0,0,0.08);
           opacity: 1;
         }
         .relief-card.highlighted:hover {
-          transform: translateY(-15px) scale(1.08); /* Más exagerado */
+          transform: translateY(-12px); /* Igual que el otro */
           box-shadow: 0 40px 80px rgba(27, 36, 20, 0.4);
-          background: #1B2414; /* Intensificar el color */
         }
       `}</style>
     </div>
