@@ -249,12 +249,12 @@ export default function SostenerAlimnetPage() {
           to { opacity: 1; transform: translateY(0); }
         }
         .relief-card:hover {
-          transform: translateY(-12px);
+          transform: translateY(-15px) scale(1.05); /* Elevación y escala igual en ambas */
           box-shadow: 0 30px 60px rgba(0,0,0,0.08);
           opacity: 1;
         }
         .relief-card.highlighted:hover {
-          transform: translateY(-15px); /* Elevación de la tarjeta */
+          transform: translateY(-15px) scale(1.05); /* Mantener consistencia */
           box-shadow: 0 50px 100px rgba(27, 36, 20, 0.4);
         }
         .founder-button:hover {
