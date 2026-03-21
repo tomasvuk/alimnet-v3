@@ -92,9 +92,9 @@ export default function SostenerAlimnetPage() {
               </p>
               <button style={{ 
                 width: '100%', borderRadius: '20px', padding: '1.4rem', background: 'white', color: 'var(--primary-dark)', 
-                border: 'none', fontWeight: '1000', cursor: 'pointer', fontSize: '1.15rem', transition: 'all 0.3s ease',
+                border: 'none', fontWeight: '1000', cursor: 'pointer', fontSize: '1.15rem', transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                 boxShadow: '0 15px 40px rgba(0,0,0,0.3)'
-              }}>
+              }} className="founder-button">
                 Unirme como Fundador
               </button>
             </div>
@@ -254,8 +254,13 @@ export default function SostenerAlimnetPage() {
           opacity: 1;
         }
         .relief-card.highlighted:hover {
-          transform: translateY(-12px); /* Igual que el otro */
-          box-shadow: 0 40px 80px rgba(27, 36, 20, 0.4);
+          transform: translateY(-15px); /* Elevación de la tarjeta */
+          box-shadow: 0 50px 100px rgba(27, 36, 20, 0.4);
+        }
+        .founder-button:hover {
+          transform: translateY(-5px) scale(1.05); /* Elevación extra del botón */
+          box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+          background: #FFFFFF !important;
         }
       `}</style>
     </div>
