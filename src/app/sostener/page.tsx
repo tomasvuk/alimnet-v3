@@ -139,30 +139,28 @@ export default function SostenerAlimnetPage() {
         <div style={{ marginBottom: '6rem', padding: '0 2rem' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4rem', alignItems: 'center' }}>
             <div style={{ 
-              width: '320px', height: '320px', borderRadius: '50%', flexShrink: 0, 
+              width: '240px', height: '240px', borderRadius: '50%', flexShrink: 0, 
               background: '#F4F1E6',
               position: 'relative',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '18px 18px 40px rgba(0,0,0,0.15), -18px -18px 40px rgba(255,255,255,1)',
+              /* El volumen exterior del anillo */
+              boxShadow: `
+                18px 18px 30px rgba(0,0,0,0.12), 
+                -18px -18px 30px rgba(255,255,255,1),
+                inset 2px 2px 5px rgba(255,255,255,0.5),
+                inset -2px -2px 5px rgba(0,0,0,0.05)
+              `,
+              padding: '35px' // Grosor del anillo
             }}>
-              {/* EL ANILLO (Torus/Doughnut effect) */}
+              {/* Contenedor de la Imagen (Hundida en el anillo) */}
               <div style={{ 
-                position: 'absolute', inset: '28px', borderRadius: '50%', 
-                background: '#F4F1E6',
-                boxShadow: `
-                  inset 12px 12px 25px rgba(0,0,0,0.12), 
-                  inset -12px -12px 25px rgba(255,255,255,1),
-                  10px 10px 20px rgba(0,0,0,0.05)
-                `,
-                zIndex: 1
-              }}></div>
-              
-              {/* Contenedor de la Imagen (Flotando en el medio del anillo) */}
-              <div style={{ 
-                width: '180px', height: '180px', borderRadius: '50%', overflow: 'hidden', 
+                width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', 
                 zIndex: 2, position: 'relative',
-                boxShadow: '8px 8px 15px rgba(0,0,0,0.1), -8px -8px 15px rgba(255,255,255,0.8)',
-                border: '4px solid #F4F1E6'
+                boxShadow: `
+                  inset 10px 10px 20px rgba(0,0,0,0.15), 
+                  inset -10px -10px 20px rgba(255,255,255,0.8),
+                  0 0 0 8px #F4F1E6 /* El borde interno que "conecta" con el anillo */
+                `,
               }}>
                 <img 
                   src="/tomas_profile.jpg" 
