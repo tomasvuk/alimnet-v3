@@ -21,7 +21,8 @@ import {
   UtensilsCrossed,
   Leaf,
   LogIn,
-  UserCircle
+  UserCircle,
+  Map as MapIcon
 } from 'lucide-react';
 
 // Carga dinámica del mapa para evitar error "window is not defined" en SSR
@@ -87,18 +88,48 @@ const CATEGORIES_TAGS = [
   'Otros'
 ];
 
+// --- NUEVO LOGO PRO ---
+function LogoV3({ size = 40 }: { size?: number }) {
+  return (
+    <div style={{ position: 'relative', width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="28" stroke="#5F7D4A" strokeWidth="0.5" strokeDasharray="1 3" />
+        <circle cx="30" cy="30" r="22" stroke="#5F7D4A" strokeWidth="0.5" strokeOpacity="0.4" />
+        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="26" fontWeight="950" fill="#1B2414">A</text>
+        <defs>
+          <radialGradient id="logo_glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(30 30) rotate(90) scale(28)">
+            <stop stopColor="#5F7D4A" stopOpacity="0.15"/>
+            <stop offset="1" stopColor="#5F7D4A" stopOpacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="30" cy="30" r="28" fill="url(#logo_glow)"/>
+      </svg>
+    </div>
+  );
+}
+
 export default function ExplorarPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'almacen', 'restaurante', 'chef']);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Simulado
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
   const [showFoodDropdown, setShowFoodDropdown] = useState(false);
   const [selectedFoodTypes, setSelectedFoodTypes] = useState<string[]>([]);
-  const [mobileView, setMobileView] = useState<'map' | 'list'>('map'); // 'map' por defecto en mobile
+  const [mobileView, setMobileView] = useState<'list' | 'map'>('list'); 
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [showHamburger, setShowHamburger] = useState(false);
+  const [stickyFilters, setStickyFilters] = useState(false);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setStickyFilters(window.scrollY > 80);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // 1. Cargar datos filtrados (Zona Norte Activa)
   const getActiveMerchants = async () => {
@@ -214,99 +245,86 @@ export default function ExplorarPage() {
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F4ED' }}>
       
-      {/* 1. NAVBAR PREMIUM */}
-      <header style={{ 
-        padding: "0.8rem 2rem", 
+      {/* 1. HEADER PRINCIPAL (Se va con el scroll estilo Argenprop) */}
+      <header className="main-header" style={{ 
+        padding: "0.8rem 1.5rem", 
         display: "flex", 
         justifyContent: "space-between", 
         alignItems: "center",
-        borderBottom: "1px solid var(--border)",
-        background: "rgba(244, 241, 230, 0.98)",
-        backdropFilter: "blur(10px)",
-        zIndex: 1000
+        background: "var(--background)",
+        zIndex: 1000,
+        position: 'relative'
       }}>
         <div 
           onClick={() => window.location.href = '/'}
-          style={{ fontSize: "1.3rem", fontWeight: "950", color: "var(--primary-dark)", letterSpacing: "-0.05em", display: "flex", alignItems: "center", gap: "8px", cursor: 'pointer' }}
+          style={{ fontSize: "1.3rem", fontWeight: "950", color: "var(--primary-dark)", letterSpacing: "-0.05em", display: "flex", alignItems: "center", gap: "10px", cursor: 'pointer' }}
         >
-          <Leaf size={24} fill="var(--primary)" fillOpacity={0.25} />
-          ALIMNET
+          <LogoV3 size={38} />
+          <span className="desktop-only text-primary-dark">ALIMNET</span>
         </div>
-        <div className="header-actions" style={{ display: "flex", gap: "1.2rem", alignItems: "center" }}>
-          {!isLoggedIn && (
-            <button 
-              className="desktop-only"
-              onClick={() => setIsLoggedIn(true)}
-              style={{ 
-                color: "var(--primary)", fontWeight: "800", background: "white", 
-                border: "1px solid var(--primary)", padding: "0.5rem 1rem", borderRadius: "12px", 
-                cursor: "pointer", fontSize: "0.85rem" 
-              }}
-            >
-              Simular Ingreso (Modo Test)
-            </button>
-          )}
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button 
-            className="header-cta"
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', 
-              fontWeight: '800', color: 'var(--primary)', background: 'rgba(95, 125, 74, 0.1)', 
-              padding: '0.5rem 1rem', borderRadius: '12px', border: 'none', cursor: 'pointer'
-            }}
-            onClick={() => window.location.href = '/unirse'}
+            className="desktop-only button button-secondary"
+            onClick={() => window.location.href = '/login'}
+            style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem' }}
           >
-            <Heart size={14} fill="var(--primary)" /> <span className="desktop-only">Sumar mi comercio</span>
-            <span className="mobile-only">Sumar</span>
+            Ingresar
           </button>
           <button 
-            onClick={() => window.location.href = '/perfil'}
-            style={{ color: "var(--text-secondary)", fontWeight: "750", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px", fontSize: "0.85rem" }}
+            className="hamburger-btn"
+            onClick={() => setShowHamburger(!showHamburger)}
+            style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}
           >
-            <UserCircle size={20} /> <span className="desktop-only">Mi Perfil</span>
+            <div style={{ width: '22px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
+            <div style={{ width: '16px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
+            <div style={{ width: '22px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
           </button>
         </div>
+
+        {showHamburger && (
+          <div style={{ 
+            position: 'absolute', top: 'calc(100% + 10px)', right: '1rem', width: '220px', 
+            background: 'white', borderRadius: '20px', boxShadow: '0 15px 40px rgba(0,0,0,0.12)', 
+            padding: '1.2rem', zIndex: 2000, display: 'flex', flexDirection: 'column', gap: '1.2rem',
+            border: '1px solid rgba(0,0,0,0.05)', animation: 'slideDown 0.2s ease-out'
+          }}>
+            <a href="/sostener" style={{ textDecoration: 'none', color: 'var(--primary-dark)', fontWeight: '800', fontSize: '0.85rem' }}>💎 Sostener Alimnet</a>
+            <a href="/explorar" style={{ textDecoration: 'none', color: 'var(--primary-dark)', fontWeight: '800', fontSize: '0.85rem' }}>🗺️ Explorar Mapa</a>
+            <a href="/perfil" style={{ textDecoration: 'none', color: 'var(--primary-dark)', fontWeight: '800', fontSize: '0.85rem' }}>👤 Mi Perfil</a>
+            <div style={{ height: '1px', background: '#eee', margin: '0.2rem 0' }}></div>
+            <a href="/unirse" style={{ textDecoration: 'none', color: 'var(--primary)', fontWeight: '900', fontSize: '0.85rem' }}>Sumar mi comercio</a>
+          </div>
+        )}
       </header>
 
-      <div className="filter-bar" style={{ 
-        padding: '1.2rem 2rem', 
-        background: 'white', 
+      {/* 2. BARRA DE FILTROS (STICKY) */}
+      <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
+        padding: '0.8rem 1.5rem', 
+        background: 'rgba(255, 255, 255, 0.98)', 
+        backdropFilter: 'blur(10px)',
         borderBottom: '1px solid var(--border)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 900,
         display: 'flex',
         flexDirection: 'column',
         gap: '0.8rem',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-        zIndex: 500
+        boxShadow: stickyFilters ? '0 8px 25px rgba(0,0,0,0.06)' : 'none',
+        transition: 'all 0.3s'
       }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: '4px' }} className="no-scrollbar">
           
-          <div style={{ display: 'flex', gap: '8px', background: '#F8F9F5', padding: '4px', borderRadius: '16px', border: '1px solid #eee', alignItems: 'center', flexShrink: 0 }}>
-            <button 
-              className="desktop-only"
-              onClick={() => {
-                const allIds = CATEGORIES.map(c => c.id);
-                if (selectedCategories.length === allIds.length) {
-                  setSelectedCategories([]);
-                } else {
-                  setSelectedCategories(allIds);
-                }
-              }}
-              style={{
-                padding: '0.6rem 1rem',
-                fontSize: '0.75rem',
-                fontWeight: '900',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                border: 'none',
-                background: selectedCategories.length === CATEGORIES.length ? '#1B2414' : '#E0E4D9', 
-                color: selectedCategories.length === CATEGORIES.length ? 'white' : 'var(--text-secondary)',
-                transition: 'all 0.2s',
-                marginRight: '4px',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {selectedCategories.length === CATEGORIES.length ? 'Deseleccionar' : 'Todos'}
-            </button>
-            <div className="desktop-only" style={{ width: '1px', height: '20px', background: '#ddd' }}></div>
+          <div className="search-box" style={{ position: 'relative', minWidth: '220px', flexShrink: 0 }}>
+            <input 
+              type="text" placeholder="Localidad o nombre..." value={searchLocation} 
+              onChange={(e) => setSearchLocation(e.target.value)}
+              style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.2rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.85rem', outline: 'none', background: '#f5f5f5' }} 
+            />
+            <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={14} />
+          </div>
+
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             {CATEGORIES.map(cat => {
               const isActive = selectedCategories.includes(cat.id);
               return (
@@ -314,186 +332,164 @@ export default function ExplorarPage() {
                   key={cat.id}
                   onClick={() => toggleCategory(cat.id)}
                   style={{
-                    padding: '0.6rem 1.2rem',
-                    fontSize: '0.8rem',
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.75rem',
                     fontWeight: '800',
-                    borderRadius: '12px',
+                    borderRadius: '10px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
+                    gap: '6px',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    border: 'none',
-                    background: isActive ? 'var(--primary-dark)' : 'transparent',
-                    color: isActive ? 'white' : 'var(--text-secondary)',
+                    border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
+                    background: isActive ? 'var(--primary)' : 'white',
+                    color: isActive ? 'white' : 'var(--primary-dark)',
                     whiteSpace: 'nowrap'
                   }}
                 >
-                  <cat.icon size={14} />
+                  <cat.icon size={12} />
                   {cat.label}
                 </button>
               );
             })}
           </div>
-
-          <div style={{ position: 'relative', flexShrink: 0 }}>
-            <button 
-              onClick={() => setShowFoodDropdown(!showFoodDropdown)}
-              style={{
-                padding: '0.7rem 1.2rem', borderRadius: '12px', border: '1px solid var(--border)',
-                background: 'white', fontSize: '0.85rem', fontWeight: '800', display: 'flex', gap: '8px', cursor: 'pointer',
-                color: 'var(--primary-dark)', whiteSpace: 'nowrap'
-              }}
-            >
-              <Filter size={16} /> <span className="desktop-only">Tipos</span> <ChevronDown size={14} />
-            </button>
-            
-            {showFoodDropdown && (
-              <div style={{ 
-                position: 'absolute', top: '110%', left: 0, width: '250px', 
-                background: 'white', borderRadius: '20px', boxShadow: '0 15px 40px rgba(0,0,0,0.12)', 
-                border: '1px solid var(--border)', padding: '1rem', zIndex: 2000,
-                display: 'flex', flexDirection: 'column', gap: '4px'
-              }}>
-                <button 
-                  onClick={() => {
-                    if (selectedFoodTypes.length === CATEGORIES_TAGS.length) {
-                      setSelectedFoodTypes([]);
-                    } else {
-                      setSelectedFoodTypes([...CATEGORIES_TAGS]);
-                    }
-                  }}
-                  style={{
-                    width: '100%', padding: '0.6rem', background: '#F0F4ED', border: 'none',
-                    borderRadius: '10px', fontSize: '0.8rem', fontWeight: '900', color: 'var(--primary-dark)',
-                    cursor: 'pointer', marginBottom: '8px', textAlign: 'center'
-                  }}
-                >
-                  {selectedFoodTypes.length === CATEGORIES_TAGS.length ? 'Deseleccionar' : 'Todos'}
-                </button>
-                <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '4px' }}>
-                  {CATEGORIES_TAGS.map(type => (
-                    <label key={type} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0.6rem 0.5rem', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '700', borderRadius: '8px' }} className="dropdown-item">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedFoodTypes.includes(type)}
-                        onChange={(e) => {
-                          const newTypes = e.target.checked ? [...selectedFoodTypes, type] : selectedFoodTypes.filter(t => t !== type);
-                          setSelectedFoodTypes(newTypes);
-                        }}
-                      />
-                      {type}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="search-box" style={{ position: 'relative', width: '250px', flexShrink: 0 }}>
-            <input 
-              type="text" placeholder="Zona..." value={searchLocation} 
-              onChange={(e) => setSearchLocation(e.target.value)}
-              style={{ width: '100%', padding: '0.7rem 1rem 0.7rem 2.5rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.9rem', outline: 'none' }} 
-            />
-            <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={16} />
-          </div>
-
-          <button 
-            className="search-btn button button-primary" 
-            style={{ padding: '0.7rem 1.5rem', borderRadius: '12px', fontWeight: '900', fontSize: '0.85rem', flexShrink: 0 }}
-            onClick={() => trackClick('SEARCH_EXECUTE_INTENT', { location: searchLocation, categories: selectedCategories, food_types: selectedFoodTypes })}
-          >
-            Buscar
-          </button>
         </div>
       </div>
 
-      {/* 3. SPLIT CONTENT / MOBILE ADAPTIVE */}
-      <div className="main-content" style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
+      {/* 3. CONTENIDO PRINCIPAL (Split Desktop / Toggle Mobile) */}
+      <div className="main-content" style={{ flex: 1, display: 'flex', overflow: 'visible', position: 'relative' }}>
         
-        {/* Toggle para mobile */}
-        <div className="mobile-only toggle-view" style={{ 
-          position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', 
-          zIndex: 1000, display: 'flex', background: 'white', borderRadius: '30px', 
-          boxShadow: '0 10px 25px rgba(0,0,0,0.15)', overflow: 'hidden', border: '1px solid #eee'
-        }}>
-          <button 
-            onClick={() => setMobileView('map')}
-            style={{ padding: '0.8rem 1.5rem', border: 'none', background: mobileView === 'map' ? 'var(--primary-dark)' : 'white', color: mobileView === 'map' ? 'white' : 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer' }}
-          >
-            Mapa
-          </button>
-          <button 
-            onClick={() => setMobileView('list')}
-            style={{ padding: '0.8rem 1.5rem', border: 'none', background: mobileView === 'list' ? 'var(--primary-dark)' : 'white', color: mobileView === 'list' ? 'white' : 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer' }}
-          >
-            Lista
-          </button>
-        </div>
+        {/* Toggle Flotante Mobile (Estilo Argenprop/Maps) */}
+        <button 
+          className="mobile-only toggle-view-btn"
+          onClick={() => setMobileView(mobileView === 'list' ? 'map' : 'list')}
+          style={{ 
+            position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', zIndex: 3000, 
+            background: '#1B2414', color: 'white', border: 'none', borderRadius: '30px', padding: '1rem 2rem',
+            boxShadow: '0 12px 30px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: '10px',
+            fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.05em', transition: 'all 0.2s'
+          }}
+        >
+          {mobileView === 'list' ? <MapIcon size={18} /> : <Search size={18} />}
+          {mobileView === 'list' ? 'VER MAPA' : 'VER LISTADO'}
+        </button>
 
-        <aside className={`sidebar ${mobileView === 'list' ? 'active' : ''}`} style={{ width: '35%', overflowY: 'auto', padding: '1.5rem', background: 'transparent' }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1.5rem' }}>
-            {filteredMerchants.length} resultados <span className="desktop-only">en Zona Norte</span>
+        {/* LISTA DE RESULTADOS */}
+        <section className={`results-section ${mobileView === 'list' ? 'visible' : 'hidden'}`} style={{ 
+          width: '38%', minWidth: '420px', padding: '1.5rem', background: 'transparent' 
+        }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1.5rem' }}>
+            {filteredMerchants.length} Comercios encontrados
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.2rem' }} className="cards-grid">
             {filteredMerchants.map(m => (
-              <SlimCard key={m.id} merchant={m} onClick={() => {
+              <MerchantCard key={m.id} merchant={m} onClick={() => {
                 handleMerchantSelect(m);
-                if (window.innerWidth < 768) setMobileView('map'); // Al elegir uno en mobile, vamos al mapa para ver el panel
-              }} isActive={selectedMerchant?.id === m.id} />
+                if (window.innerWidth < 768) setMobileView('map');
+              }} />
             ))}
           </div>
-        </aside>
+        </section>
 
-        <section className={`map-container ${mobileView === 'map' ? 'active' : ''}`} style={{ flex: 1, position: 'relative' }}>
-          <MapComponent 
-            providers={(filteredMerchants.length > 0 ? filteredMerchants : (merchants.length > 0 ? merchants : [])).map(m => ({
-              id: m.id,
-              name: m.name,
-              category: m.type,
-              type: m.type,
-              location_lat: m.locations?.[0]?.lat || -34.4586,
-              location_lng: m.locations?.[0]?.lng || -58.9142,
-              is_exact_location: true,
-              city_zone: m.locations?.[0]?.locality || 'Zona Norte'
-            }))} 
-            center={[-34.4586, -58.9142]} 
-            zoom={11}
-          />
+        {/* MAPA */}
+        <section className={`map-section ${mobileView === 'map' ? 'active' : ''}`} style={{ flex: 1, position: 'relative' }}>
+          <div style={{ position: 'sticky', top: stickyFilters ? '60px' : '0', height: 'calc(100vh - 60px)', width: '100%' }}>
+            <MapComponent 
+              providers={(filteredMerchants.length > 1 ? filteredMerchants : merchants).map(m => ({
+                id: m.id,
+                name: m.name,
+                category: m.type,
+                type: m.type,
+                location_lat: m.locations?.[0]?.lat || -34.4586,
+                location_lng: m.locations?.[0]?.lng || -58.9142,
+                is_exact_location: true,
+                city_zone: m.locations?.[0]?.locality || 'Zona Norte'
+              }))} 
+              center={[-34.4586, -58.9142]} 
+              zoom={11}
+            />
+          </div>
         </section>
       </div>
 
       {selectedMerchant && (
         <DetailPanel 
-          merchant={selectedMerchant} 
+          merchant={selectedMerchant as Merchant} 
           isLoggedIn={isLoggedIn}
           onClose={() => setSelectedMerchant(null)} 
           trackClick={trackClick}
           onValidate={handleValidate}
         />
       )}
+
+      <style jsx>{` 
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .desktop-only { display: inline-flex; }
+        .mobile-only { display: none; }
+
+        @media (max-width: 768px) {
+          .mobile-only { display: flex; }
+          .desktop-only { display: none !important; }
+          
+          .results-section { width: 100% !important; min-width: 0 !important; }
+          .results-section.hidden { display: none; }
+
+          .map-section { display: none; }
+          .map-section.active { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; }
+          
+          .detail-panel { 
+            width: 100% !important; 
+            height: 94% !important;
+            top: 6% !important;
+            border-radius: 30px 30px 0 0;
+            z-index: 4000;
+          }
+          .detail-panel { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+          
+          .is-sticky { border-bottom: 2px solid var(--primary); }
+        }
+      `}</style>
     </div>
   );
 }
 
-function SlimCard({ merchant, onClick, isActive }: { merchant: Merchant, onClick: () => void, isActive: boolean }) {
+function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () => void }) {
+  const IconComponent = CATEGORIES.find(c => c.id === merchant.type?.toLowerCase())?.icon || MapPin;
+  
   return (
     <div 
       onClick={onClick}
       style={{
-        padding: '0.8rem 1rem', borderRadius: '16px', background: 'white', cursor: 'pointer',
-        border: isActive ? '2px solid var(--primary)' : '1px solid white', boxShadow: 'var(--shadow-sm)'
+        padding: '1.2rem', borderRadius: '24px', background: 'white', cursor: 'pointer',
+        border: '1px solid #eee', boxShadow: '0 8px 20px rgba(0,0,0,0.03)',
+        display: 'flex', flexDirection: 'column', gap: '12px', transition: 'all 0.2s'
       }}
+      className="merchant-card-pro"
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <h3 style={{ fontSize: '0.9rem', fontWeight: '900', color: 'var(--primary-dark)' }}>{merchant.name}</h3>
-        <CheckCircle2 size={13} color="var(--primary)" />
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ 
+          width: '45px', height: '45px', borderRadius: '15px', background: '#F0F4ED', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', flexShrink: 0 
+        }}>
+          <IconComponent size={22} />
+        </div>
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{merchant.name}</h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, fontWeight: '700' }}>
+            📍 {merchant.locations?.[0]?.locality || 'Zona Norte'}
+          </p>
+        </div>
+        <div style={{ fontSize: '0.65rem', fontWeight: '900', background: 'var(--primary-dark)', color: 'white', padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>
+          {merchant.type}
+        </div>
       </div>
-      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0' }}>{merchant.bio_short}</p>
-      <div style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--soft-leaf)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-        <MapPin size={10} /> {merchant.locations?.[0]?.locality}
-      </div>
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.7, margin: 0, lineHeight: '1.5' }}>
+        {merchant.bio_short?.substring(0, 90)}...
+      </p>
     </div>
   );
 }
@@ -724,6 +720,7 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
 
       <style jsx>{` 
         @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         
         .mobile-only { display: none; }
         .desktop-only { display: inline-flex; }
@@ -732,35 +729,44 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
           .mobile-only { display: flex; }
           .desktop-only { display: none !important; }
           
-          header { padding: 0.8rem 1.2rem !important; }
-          .header-cta span { font-size: 0.75rem; }
+          .main-header { padding: 0.7rem 1.2rem !important; }
           
-          .filter-bar { padding: 0.8rem 1.2rem !important; }
+          .filter-bar { display: none !important; }
           
           .main-content { flex-direction: column; }
           
           .sidebar { 
-            width: 100% !important; 
-            display: none; 
-            height: 100%;
+            width: 300px !important; 
+            max-width: 85%;
+            height: calc(100% - 10px);
+            margin: 5px;
             position: absolute;
-            background: #F0F4ED !important;
-            z-index: 50;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            box-shadow: 10px 0 40px rgba(0,0,0,0.1);
+            transform: translateX(-110%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+            display: block !important;
+            padding: 1.2rem !important;
           }
-          .sidebar.active { display: block; }
+          .sidebar.active { transform: translateX(0); }
           
-          .map-container { display: none; width: 100% !important; height: 100%; }
-          .map-container.active { display: block; }
+          .map-container { width: 100% !important; height: 100%; border-radius: 0; }
           
           .detail-panel { 
             width: 100% !important; 
-            z-index: 2000;
+            z-index: 3000;
+            height: 92% !important;
+            top: 8% !important;
+            border-radius: 30px 30px 0 0;
           }
           
-          @keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
-          .detail-panel { animation: slideIn 0.3s ease-out; }
-
-          .search-box { width: 180px !important; }
+          @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+          .detail-panel { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         }
       `}</style>
     </div>
