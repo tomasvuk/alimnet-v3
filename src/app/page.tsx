@@ -69,7 +69,10 @@ export default function Home() {
           <p className="hero-p" style={{ 
             fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "680px", 
             margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550",
-            textAlign: "justify" // Justificación para bordes simétricos
+            textAlign: "justify", 
+            textJustify: "inter-word",
+            hyphens: "auto", // Importante para evitar huecos grandes
+            WebkitHyphens: "auto"
           }}>
             Descubrí productores, proveedores, restaurantes y chefs que trabajan con alimentos agroecológicos, orgánicos y biodinámicos cerca tuyo.
           </p>
