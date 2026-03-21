@@ -2,17 +2,23 @@
 
 Este documento registra la evolución visual del proyecto, permitiéndonos volver a ideas anteriores o validar el progreso actual.
 
-## Versión Actual: v3.2 - "Zona Norte Diagnostic"
-**Fecha:** 17 de Marzo, 2026
-**Ubicación:** [Proyecto Stitch - Alimnet Design History](https://stitch.google.com/projects/3405547984653940649) (Lamentablemente no puedo darte el link directo, pero he creado el proyecto allí para visualizar los cambios).
+## Versión Actual: v3.3 - "Identidad Premium & Relieve"
+**Fecha:** 21 de Marzo, 2026
+**Ubicación:** [Proyecto Stitch - Alimnet Design History](https://stitch.google.com/projects/3405547984653940649).
 
 **Cambios Clave:**
-- **Hero:** Texto "alimentos" en minúscula y tamaño responsivo verificado.
-- **Mapa:** Lógica de filtrado protegida (si el filtro vacía la lista por tags, muestra todo por defecto).
-- **Diagnóstico:** Agregado cartel de alerta roja en 'Explorar' si no se detectan datos de Supabase.
-- **Categorías:** Botón "Todos" oscurecido (`#1B2414`) y selectores masivos en dropdowns.
+- **Sostener:** Rediseño con efectos de **relieve (neumorfismo)** en tarjetas "Miembro Fundador" y foto de perfil.
+- **Header Unificado:** Menú consistente en todas las páginas (Explorar, Sostener, Perfil).
+- **Checklist:** Creación de `PROJECT_CHECKLIST.md` para seguimiento de tareas y prioridades mobile.
+- **Identidad:** Sombras suaves y elevación en hover para mayor sensación premium.
 
 ---
+
+## Historial Anterior
+### v3.2 - "Zona Norte Diagnostic" (17-MAR-2026)
+- Agregado cartel de alerta para diagnóstico de Supabase en Vercel.
+- Filtro de mapa mejorado para evitar "0 resultados" accidentales.
+- Botón "Todos" oscurecido (#1B2414).
 
 ## Versión v3.1 - "Mobile Clean-up"
 **Estado:** Revertida parcialmente (Textos del Hero).

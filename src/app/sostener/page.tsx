@@ -54,41 +54,48 @@ export default function SostenerAlimnetPage() {
             <p style={{ color: 'var(--text-secondary)', fontWeight: '600' }}>Elige cómo ayudarnos a mantener la red activa y libre de publicidad.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem', alignItems: 'stretch' }}>
             <div style={{ 
-              background: '#F9FAF7', padding: '3rem', borderRadius: '40px', border: '1px solid white', 
-              boxShadow: '8px 8px 24px rgba(0,0,0,0.06), -8px -8px 24px rgba(255,255,255,0.7)', 
-              display: 'flex', flexDirection: 'column', justifyContent: 'center', transition: 'transform 0.3s ease'
+              background: '#F9FAF7', padding: '3rem', borderRadius: '50px', border: '1px solid white', 
+              boxShadow: '8px 8px 24px rgba(0,0,0,0.04), -8px -8px 24px rgba(255,255,255,0.6)', 
+              display: 'flex', flexDirection: 'column', justifyContent: 'center', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              opacity: 0.85
             }} className="relief-card">
-              <div style={{ width: '50px', height: '50px', background: '#F0F4ED', color: 'var(--primary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.05)' }}>
+              <div style={{ width: '50px', height: '50px', background: 'white', color: 'var(--primary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '4px 4px 10px rgba(0,0,0,0.03)' }}>
                 <Coffee size={24} />
               </div>
               <h3 style={{ fontSize: '1.4rem', fontWeight: '900', color: 'var(--primary-dark)', marginBottom: '1rem' }}>Aporte por única vez</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '2rem' }}>
-                Una pequeña contribución (vía Cafecito) que nos ayuda a solventar los costos de servidores mensuales.
+                Una pequeña contribución (vía Cafecito) para ayudarnos a sostener la infraestructura.
               </p>
-              <button className="button button-primary" style={{ width: '100%', borderRadius: '16px', padding: '1rem', fontWeight: '950', boxShadow: '0 10px 20px rgba(63, 82, 50, 0.2)' }}>Invitar un café (Cafecito)</button>
+              <button 
+                className="button button-primary" 
+                style={{ width: '100%', borderRadius: '16px', padding: '1rem', fontWeight: '950', background: 'var(--text-secondary)', border: 'none' }}
+              >
+                Invitar café
+              </button>
             </div>
 
             <div style={{ 
-              background: '#F9FAF7', padding: '3.5rem', borderRadius: '40px', color: 'var(--primary-dark)', position: 'relative', overflow: 'hidden',
-              boxShadow: '12px 12px 30px rgba(0,0,0,0.08), -10px -10px 30px rgba(255,255,255,0.8)', 
-              border: '1px solid white', transition: 'transform 0.3s ease'
+              background: 'var(--primary-dark)', padding: '4rem 3.5rem', borderRadius: '50px', color: 'white', position: 'relative', overflow: 'hidden',
+              boxShadow: '0 30px 60px rgba(27, 36, 20, 0.25), 0 10px 20px rgba(0,0,0,0.2)', 
+              border: '2px solid var(--primary)', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              transform: 'scale(1.05)', zIndex: 10
             }} className="relief-card highlighted">
-              <div style={{ position: 'absolute', top: '25px', right: '25px', background: 'var(--primary)', color: 'white', padding: '0.5rem 1.2rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '950', textTransform: 'uppercase', letterSpacing: '0.05em', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>Suscripción</div>
-              <div style={{ width: '60px', height: '60px', background: '#E8EDDF', color: 'var(--primary)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.05)' }}>
-                <Users size={30} />
+              <div style={{ position: 'absolute', top: '25px', right: '25px', background: 'white', color: 'var(--primary-dark)', padding: '0.5rem 1.2rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '950', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Más Impacto</div>
+              <div style={{ width: '70px', height: '70px', background: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem', backdropFilter: 'blur(10px)' }}>
+                <Users size={35} />
               </div>
-              <h3 style={{ fontSize: '1.8rem', fontWeight: '950', marginBottom: '1.2rem', letterSpacing: '-0.02em', color: 'var(--primary-dark)' }}>Miembro Fundador</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', marginBottom: '2.5rem', fontWeight: '600' }}>
-                Tu aporte mensual nos permite pagar servidores, integraciones y tener un equipo dedicado a la red todos los días.
+              <h3 style={{ fontSize: '2rem', fontWeight: '950', marginBottom: '1.2rem', letterSpacing: '-0.02em', color: 'white' }}>Miembro Fundador</h3>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', lineHeight: '1.7', marginBottom: '3rem', fontWeight: '500' }}>
+                Sostén la red con un aporte mensual y sé parte activa del equipo que elige el futuro de Alimnet.
               </p>
               <button style={{ 
-                width: '100%', borderRadius: '18px', padding: '1.3rem', background: 'var(--primary)', color: 'white', 
-                border: 'none', fontWeight: '1000', cursor: 'pointer', fontSize: '1.1rem', transition: 'all 0.3s ease',
-                boxShadow: '0 15px 30px rgba(63, 82, 50, 0.3)'
+                width: '100%', borderRadius: '20px', padding: '1.4rem', background: 'white', color: 'var(--primary-dark)', 
+                border: 'none', fontWeight: '1000', cursor: 'pointer', fontSize: '1.15rem', transition: 'all 0.3s ease',
+                boxShadow: '0 15px 40px rgba(0,0,0,0.3)'
               }}>
-                Ser Miembro Fundador
+                Unirme como Fundador
               </button>
             </div>
           </div>
@@ -132,26 +139,30 @@ export default function SostenerAlimnetPage() {
         <div style={{ marginBottom: '6rem', padding: '0 2rem' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4rem', alignItems: 'center' }}>
             <div style={{ 
-              width: '240px', height: '240px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, 
-              background: '#F4F1E6',
-              border: '12px solid #F9FAF7',
-              boxShadow: `
-                15px 15px 35px rgba(0, 0, 0, 0.1), 
-                -15px -15px 35px rgba(255, 255, 255, 0.9),
-                inset 4px 4px 10px rgba(0,0,0,0.05)
-              `,
-              position: 'relative'
+              width: '260px', height: '260px', borderRadius: '50%', overflow: 'visible', flexShrink: 0, 
+              background: '#F9FAF7',
+              position: 'relative',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '10px 10px 20px rgba(0,0,0,0.08), -10px -10px 20px rgba(255,255,255,0.8)',
+              border: '1px solid rgba(255,255,255,0.5)'
             }}>
+              {/* El "Anillo" de relieve 3D similar al screenshot */}
               <div style={{ 
-                position: 'absolute', inset: '4px', borderRadius: '50%', 
-                boxShadow: 'inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,1)',
+                position: 'absolute', inset: '-15px', borderRadius: '50%', 
+                border: '15px solid #F4F1E6',
+                boxShadow: 'inset 5px 5px 10px rgba(0,0,0,0.1), inset -5px -5px 10px rgba(255,255,255,1), 10px 10px 30px rgba(0,0,0,0.05)',
                 zIndex: 1
               }}></div>
-              <img 
-                src="/tomas_profile.jpg" 
-                alt="Tomas Vukojicic" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'relative', zIndex: 0 }} 
-              />
+              <div style={{ 
+                width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', zIndex: 2,
+                boxShadow: 'inset 0 0 20px rgba(0,0,0,0.1)'
+              }}>
+                <img 
+                  src="/tomas_profile.jpg" 
+                  alt="Tomas Vukojicic" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+              </div>
             </div>
             <div style={{ flex: 1, minWidth: '300px' }}>
               <h2 style={{ fontSize: '2.2rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1.5rem', letterSpacing: '-0.03em' }}>¿Quiénes están detrás?</h2>
