@@ -97,6 +97,8 @@ export default function ExplorarPage() {
   const [searchLocation, setSearchLocation] = useState('');
   const [showFoodDropdown, setShowFoodDropdown] = useState(false);
   const [selectedFoodTypes, setSelectedFoodTypes] = useState<string[]>([]);
+  const [mobileView, setMobileView] = useState<'map' | 'list'>('map'); // 'map' por defecto en mobile
+
 
   // 1. Cargar datos filtrados (Zona Norte Activa)
   const getActiveMerchants = async () => {
@@ -230,9 +232,10 @@ export default function ExplorarPage() {
           <Leaf size={24} fill="var(--primary)" fillOpacity={0.25} />
           ALIMNET
         </div>
-        <div style={{ display: "flex", gap: "1.2rem", alignItems: "center" }}>
+        <div className="header-actions" style={{ display: "flex", gap: "1.2rem", alignItems: "center" }}>
           {!isLoggedIn && (
             <button 
+              className="desktop-only"
               onClick={() => setIsLoggedIn(true)}
               style={{ 
                 color: "var(--primary)", fontWeight: "800", background: "white", 
@@ -244,6 +247,7 @@ export default function ExplorarPage() {
             </button>
           )}
           <button 
+            className="header-cta"
             style={{ 
               display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', 
               fontWeight: '800', color: 'var(--primary)', background: 'rgba(95, 125, 74, 0.1)', 
@@ -251,18 +255,19 @@ export default function ExplorarPage() {
             }}
             onClick={() => window.location.href = '/unirse'}
           >
-            <Heart size={14} fill="var(--primary)" /> Sumar mi comercio
+            <Heart size={14} fill="var(--primary)" /> <span className="desktop-only">Sumar mi comercio</span>
+            <span className="mobile-only">Sumar</span>
           </button>
           <button 
             onClick={() => window.location.href = '/perfil'}
             style={{ color: "var(--text-secondary)", fontWeight: "750", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px", fontSize: "0.85rem" }}
           >
-            <UserCircle size={20} /> Mi Perfil
+            <UserCircle size={20} /> <span className="desktop-only">Mi Perfil</span>
           </button>
         </div>
       </header>
 
-      <div style={{ 
+      <div className="filter-bar" style={{ 
         padding: '1.2rem 2rem', 
         background: 'white', 
         borderBottom: '1px solid var(--border)',
@@ -272,15 +277,11 @@ export default function ExplorarPage() {
         boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
         zIndex: 500
       }}>
-        {loading && (
-          <div style={{ padding: '4px', background: '#F8F9F5', color: 'var(--primary)', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 'bold', textAlign: 'center', opacity: 0.6 }}>
-            Actualizando datos de comerciantes...
-          </div>
-        )}
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
           
-          <div style={{ display: 'flex', gap: '8px', background: '#F8F9F5', padding: '4px', borderRadius: '16px', border: '1px solid #eee', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', background: '#F8F9F5', padding: '4px', borderRadius: '16px', border: '1px solid #eee', alignItems: 'center', flexShrink: 0 }}>
             <button 
+              className="desktop-only"
               onClick={() => {
                 const allIds = CATEGORIES.map(c => c.id);
                 if (selectedCategories.length === allIds.length) {
@@ -296,16 +297,16 @@ export default function ExplorarPage() {
                 borderRadius: '12px',
                 cursor: 'pointer',
                 border: 'none',
-                background: selectedCategories.length === CATEGORIES.length ? '#1B2414' : '#E0E4D9', // Más oscuro cuando está activo, más grisáceo cuando no
+                background: selectedCategories.length === CATEGORIES.length ? '#1B2414' : '#E0E4D9', 
                 color: selectedCategories.length === CATEGORIES.length ? 'white' : 'var(--text-secondary)',
                 transition: 'all 0.2s',
-                boxShadow: 'var(--shadow-sm)',
-                marginRight: '4px'
+                marginRight: '4px',
+                whiteSpace: 'nowrap'
               }}
             >
-              {selectedCategories.length === CATEGORIES.length ? 'Deseleccionar todos' : 'Todos'}
+              {selectedCategories.length === CATEGORIES.length ? 'Deseleccionar' : 'Todos'}
             </button>
-            <div style={{ width: '1px', height: '20px', background: '#ddd' }}></div>
+            <div className="desktop-only" style={{ width: '1px', height: '20px', background: '#ddd' }}></div>
             {CATEGORIES.map(cat => {
               const isActive = selectedCategories.includes(cat.id);
               return (
@@ -325,9 +326,7 @@ export default function ExplorarPage() {
                     border: 'none',
                     background: isActive ? 'var(--primary-dark)' : 'transparent',
                     color: isActive ? 'white' : 'var(--text-secondary)',
-                    boxShadow: isActive ? '0 4px 12px rgba(63, 82, 50, 0.2)' : 'none',
-                    transform: isActive ? 'translateY(-1px)' : 'none',
-                    opacity: isActive ? 1 : 0.8
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   <cat.icon size={14} />
@@ -337,18 +336,16 @@ export default function ExplorarPage() {
             })}
           </div>
 
-          <div style={{ width: '1px', height: '30px', background: '#eee' }}></div>
-
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', flexShrink: 0 }}>
             <button 
               onClick={() => setShowFoodDropdown(!showFoodDropdown)}
               style={{
                 padding: '0.7rem 1.2rem', borderRadius: '12px', border: '1px solid var(--border)',
                 background: 'white', fontSize: '0.85rem', fontWeight: '800', display: 'flex', gap: '8px', cursor: 'pointer',
-                boxShadow: 'var(--shadow-sm)', color: 'var(--primary-dark)'
+                color: 'var(--primary-dark)', whiteSpace: 'nowrap'
               }}
             >
-              <Filter size={16} /> Tipos de Alimento <ChevronDown size={14} />
+              <Filter size={16} /> <span className="desktop-only">Tipos</span> <ChevronDown size={14} />
             </button>
             
             {showFoodDropdown && (
@@ -372,11 +369,11 @@ export default function ExplorarPage() {
                     cursor: 'pointer', marginBottom: '8px', textAlign: 'center'
                   }}
                 >
-                  {selectedFoodTypes.length === CATEGORIES_TAGS.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
+                  {selectedFoodTypes.length === CATEGORIES_TAGS.length ? 'Deseleccionar' : 'Todos'}
                 </button>
                 <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '4px' }}>
                   {CATEGORIES_TAGS.map(type => (
-                    <label key={type} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0.6rem 0.5rem', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '700', borderRadius: '8px', transition: 'background 0.2s' }} className="dropdown-item">
+                    <label key={type} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0.6rem 0.5rem', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '700', borderRadius: '8px' }} className="dropdown-item">
                       <input 
                         type="checkbox" 
                         checked={selectedFoodTypes.includes(type)}
@@ -393,18 +390,18 @@ export default function ExplorarPage() {
             )}
           </div>
 
-          <div style={{ position: 'relative', width: '250px' }}>
+          <div className="search-box" style={{ position: 'relative', width: '250px', flexShrink: 0 }}>
             <input 
-              type="text" placeholder="Localidad o zona..." value={searchLocation} 
+              type="text" placeholder="Zona..." value={searchLocation} 
               onChange={(e) => setSearchLocation(e.target.value)}
-              style={{ width: '100%', padding: '0.7rem 1rem 0.7rem 2.8rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.9rem', outline: 'none' }} 
+              style={{ width: '100%', padding: '0.7rem 1rem 0.7rem 2.5rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.9rem', outline: 'none' }} 
             />
-            <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={18} />
+            <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={16} />
           </div>
 
           <button 
-            className="button button-primary" 
-            style={{ padding: '0.7rem 1.5rem', borderRadius: '12px', fontWeight: '900', fontSize: '0.85rem' }}
+            className="search-btn button button-primary" 
+            style={{ padding: '0.7rem 1.5rem', borderRadius: '12px', fontWeight: '900', fontSize: '0.85rem', flexShrink: 0 }}
             onClick={() => trackClick('SEARCH_EXECUTE_INTENT', { location: searchLocation, categories: selectedCategories, food_types: selectedFoodTypes })}
           >
             Buscar
@@ -412,20 +409,44 @@ export default function ExplorarPage() {
         </div>
       </div>
 
-      {/* 3. SPLIT CONTENT */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        <aside style={{ width: '35%', overflowY: 'auto', padding: '1.5rem', background: 'transparent' }}>
+      {/* 3. SPLIT CONTENT / MOBILE ADAPTIVE */}
+      <div className="main-content" style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
+        
+        {/* Toggle para mobile */}
+        <div className="mobile-only toggle-view" style={{ 
+          position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', 
+          zIndex: 1000, display: 'flex', background: 'white', borderRadius: '30px', 
+          boxShadow: '0 10px 25px rgba(0,0,0,0.15)', overflow: 'hidden', border: '1px solid #eee'
+        }}>
+          <button 
+            onClick={() => setMobileView('map')}
+            style={{ padding: '0.8rem 1.5rem', border: 'none', background: mobileView === 'map' ? 'var(--primary-dark)' : 'white', color: mobileView === 'map' ? 'white' : 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer' }}
+          >
+            Mapa
+          </button>
+          <button 
+            onClick={() => setMobileView('list')}
+            style={{ padding: '0.8rem 1.5rem', border: 'none', background: mobileView === 'list' ? 'var(--primary-dark)' : 'white', color: mobileView === 'list' ? 'white' : 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer' }}
+          >
+            Lista
+          </button>
+        </div>
+
+        <aside className={`sidebar ${mobileView === 'list' ? 'active' : ''}`} style={{ width: '35%', overflowY: 'auto', padding: '1.5rem', background: 'transparent' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1.5rem' }}>
-            {filteredMerchants.length} resultados en Zona Norte
+            {filteredMerchants.length} resultados <span className="desktop-only">en Zona Norte</span>
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {filteredMerchants.map(m => (
-              <SlimCard key={m.id} merchant={m} onClick={() => handleMerchantSelect(m)} isActive={selectedMerchant?.id === m.id} />
+              <SlimCard key={m.id} merchant={m} onClick={() => {
+                handleMerchantSelect(m);
+                if (window.innerWidth < 768) setMobileView('map'); // Al elegir uno en mobile, vamos al mapa para ver el panel
+              }} isActive={selectedMerchant?.id === m.id} />
             ))}
           </div>
         </aside>
 
-        <section style={{ flex: 1, position: 'relative' }}>
+        <section className={`map-container ${mobileView === 'map' ? 'active' : ''}`} style={{ flex: 1, position: 'relative' }}>
           <MapComponent 
             providers={(filteredMerchants.length > 0 ? filteredMerchants : (merchants.length > 0 ? merchants : [])).map(m => ({
               id: m.id,
@@ -491,7 +512,7 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
   };
 
   return (
-    <div style={{ 
+    <div className="detail-panel" style={{ 
       position: 'absolute', top: 0, left: 0, width: '420px', height: '100%', 
       background: 'white', boxShadow: '0 0 40px rgba(0,0,0,0.1)', zIndex: 1500, 
       display: 'flex', flexDirection: 'column', animation: 'slideIn 0.3s ease-out'
@@ -701,7 +722,47 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
         )}
       </div>
 
-      <style jsx>{` @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } `}</style>
+      <style jsx>{` 
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
+        
+        .mobile-only { display: none; }
+        .desktop-only { display: inline-flex; }
+
+        @media (max-width: 768px) {
+          .mobile-only { display: flex; }
+          .desktop-only { display: none !important; }
+          
+          header { padding: 0.8rem 1.2rem !important; }
+          .header-cta span { font-size: 0.75rem; }
+          
+          .filter-bar { padding: 0.8rem 1.2rem !important; }
+          
+          .main-content { flex-direction: column; }
+          
+          .sidebar { 
+            width: 100% !important; 
+            display: none; 
+            height: 100%;
+            position: absolute;
+            background: #F0F4ED !important;
+            z-index: 50;
+          }
+          .sidebar.active { display: block; }
+          
+          .map-container { display: none; width: 100% !important; height: 100%; }
+          .map-container.active { display: block; }
+          
+          .detail-panel { 
+            width: 100% !important; 
+            z-index: 2000;
+          }
+          
+          @keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+          .detail-panel { animation: slideIn 0.3s ease-out; }
+
+          .search-box { width: 180px !important; }
+        }
+      `}</style>
     </div>
   );
 }
