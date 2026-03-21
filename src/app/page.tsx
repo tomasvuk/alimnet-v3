@@ -46,7 +46,7 @@ export default function Home() {
       </header>
 
       {/* 2. Hero Principal (Alineado a la IZQUIERDA y reducido ~15%) */}
-      <section style={{ 
+      <section className="hero-section" style={{ 
         padding: "8rem 2.5rem 10rem", 
         position: "relative", 
         overflow: "hidden", 
@@ -62,18 +62,18 @@ export default function Home() {
         </div>
 
         <div className="container" style={{ maxWidth: "1280px", position: "relative", zIndex: 10, margin: "0" }}>
-          <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4.4rem)", fontWeight: "950", marginBottom: "1.2rem", color: "var(--primary-dark)", maxWidth: "900px", lineHeight: "1.1" }}>
+          <h1 className="hero-title" style={{ fontSize: "clamp(2.5rem, 6vw, 4.4rem)", fontWeight: "950", marginBottom: "1.2rem", color: "var(--primary-dark)", maxWidth: "900px", lineHeight: "1.1" }}>
             Conectamos personas con <br />
             <span style={{ color: "var(--primary)", fontStyle: "italic" }}>alimentos cuidados.</span>
           </h1>
-          <p style={{ fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "680px", margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550" }}>
+          <p className="hero-p" style={{ fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "680px", margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550" }}>
             Descubrí productores, proveedores, restaurantes y chefs que trabajan con alimentos agroecológicos, orgánicos y biodinámicos cerca tuyo.
           </p>
-          <div style={{ display: "flex", gap: "10px", justifyContent: "flex-start", color: "var(--primary)", fontWeight: "800", fontSize: "clamp(0.7rem, 2vw, 0.85rem)", marginBottom: "3rem", letterSpacing: "0.05em", flexWrap: "wrap" }}>
+          <div className="hero-categories" style={{ display: "flex", gap: "10px", justifyContent: "flex-start", color: "var(--primary)", fontWeight: "800", fontSize: "0.85rem", marginBottom: "3rem", letterSpacing: "0.05em", flexWrap: "wrap" }}>
             <span>Productores</span> · <span>Proveedores</span> · <span>Restaurantes</span> · <span>Chefs</span>
           </div>
 
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-start", marginBottom: "4rem" }}>
+          <div className="hero-buttons" style={{ display: "flex", gap: "1rem", justifyContent: "flex-start", marginBottom: "4rem" }}>
             <a href="/explorar" className="button button-primary" style={{ padding: "0.95rem 2.5rem", fontSize: "1rem", textDecoration: "none", textAlign: "center" }}>
               Explorar el mapa
             </a>
@@ -290,6 +290,15 @@ export default function Home() {
         .footer-link:hover { color: var(--primary); transform: translateX(5px); }
         .footer-icon { color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
         .footer-icon:hover { color: var(--primary); }
+
+        @media (max-width: 768px) {
+          .hero-section { padding: 4rem 1.5rem 6rem !important; }
+          .hero-title { font-size: 2.5rem !important; }
+          .hero-p { font-size: 1rem !important; }
+          .hero-categories { font-size: 0.75rem !important; gap: 6px !important; }
+          .hero-buttons { flex-direction: column; width: 100%; }
+          .hero-buttons a, .hero-buttons button { width: 100%; }
+        }
       `}</style>
     </main>
   );
