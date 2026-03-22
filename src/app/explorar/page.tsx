@@ -111,28 +111,43 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
   const isPlantBased = selectedFilters.includes('Plant-based') || selectedFilters.includes('Vegetariano');
   const isMeatSelected = selectedFilters.includes('Carne');
 
-  const renderSection = (key: keyof typeof ADVANCED_CATEGORIES, forceHighlight: boolean = false) => {
+  const renderSection = (key: keyof typeof ADVANCED_CATEGORIES) => {
     const section = ADVANCED_CATEGORIES[key];
     return (
-      <div key={key} style={{ marginBottom: '1.5rem' }}>
-        <h4 style={{ fontSize: '0.85rem', fontWeight: '900', color: 'var(--primary-dark)', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{section.label}</h4>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {section.options.map(opt => {
+      <div key={key} style={{ marginBottom: '2rem' }}>
+        <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--primary-dark)', marginBottom: '0.8rem' }}>{section.label}</h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+          {section.options.map((opt, i) => {
             const isActive = selectedFilters.includes(opt);
-            const isHighlighted = forceHighlight && !isActive;
+            const isLast = i === section.options.length - 1;
             return (
-              <button
-                key={opt} onClick={() => toggleFilter(opt)}
+              <label
+                key={opt}
                 style={{
-                  padding: '0.5rem 1rem', fontSize: '0.8rem', fontWeight: '700', borderRadius: '12px',
-                  display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.15s',
-                  border: '1px solid ' + (isActive ? 'var(--primary)' : isHighlighted ? 'var(--primary-light)' : '#ddd'),
-                  background: isActive ? '#5F7D4A15' : 'white',
-                  color: isActive ? 'var(--primary)' : 'var(--text-secondary)'
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '1.2rem 0', cursor: 'pointer', borderBottom: isLast ? 'none' : '1px solid #eee',
+                  transition: 'background 0.2s', margin: '0 -1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#f9f9f9'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
-                {opt}
-              </button>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '1rem', fontWeight: '500', color: 'var(--text-primary)' }}>{opt}</span>
+                </div>
+                <div style={{ 
+                  width: '26px', height: '26px', borderRadius: '8px', border: '1.5px solid ' + (isActive ? 'var(--primary)' : '#ccc'),
+                  background: isActive ? 'var(--primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.2s'
+                }}>
+                  {isActive && <CheckCircle2 size={16} color="white" strokeWidth={3} />}
+                </div>
+                <input 
+                  type="checkbox" 
+                  checked={isActive} 
+                  onChange={() => toggleFilter(opt)} 
+                  style={{ display: 'none' }} 
+                />
+              </label>
             )
           })}
         </div>
@@ -157,7 +172,7 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
           {renderSection('alimentacion')}
           {renderSection('calidad')}
           {renderSection('productos')}
-          {!isPlantBased && renderSection('animal', isMeatSelected)}
+          {!isPlantBased && renderSection('animal')}
           {renderSection('modelo')}
           {renderSection('certificaciones')}
         </div>
@@ -439,7 +454,7 @@ export default function ExplorarPage() {
       }}>
         <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
           
-          <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+          <div style={{ position: 'relative', flex: 1, maxWidth: '350px' }}>
             <input 
               type="text" placeholder="Buscar por zona o nombre..." value={searchLocation} 
               onChange={(e) => updateSuggestions(e.target.value)}
@@ -457,6 +472,19 @@ export default function ExplorarPage() {
               </div>
             )}
           </div>
+
+          {/* NUEVO BOTÓN FILTROS (NIVEL 1) */}
+          <button 
+            onClick={() => setShowAdvancedFilters(true)}
+            style={{
+              padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '12px',
+              display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.15s',
+              border: '1px solid var(--border)', background: 'white', color: 'var(--primary-dark)', whiteSpace: 'nowrap'
+            }}
+          >
+            <Filter size={14} strokeWidth={2.5} />
+            Filtros {selectedFilters.length > 0 && `(${selectedFilters.length})`}
+          </button>
 
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center', overflowX: 'auto', flex: 2 }} className="no-scrollbar">
             {CATEGORIES.map(cat => {
@@ -482,7 +510,7 @@ export default function ExplorarPage() {
           </div>
         </div>
 
-        {/* ROW 2: TIPO DE PRODUCTO */}
+        {/* ROW 2: TIPO DE PRODUCTO (Principal - oscuro) */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }} className="no-scrollbar">
           {ADVANCED_CATEGORIES.productos.options.map(prod => {
             const isActive = selectedFilters.includes(prod);
@@ -490,11 +518,11 @@ export default function ExplorarPage() {
               <button 
                 key={prod} onClick={() => toggleFilter(prod)}
                 style={{
-                  padding: '0.4rem 1rem', fontSize: '0.8rem', fontWeight: '800', borderRadius: '20px',
+                  padding: '0.45rem 1.2rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '20px',
                   display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
-                  border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
-                  background: isActive ? 'var(--primary)' : '#f9f9f9',
-                  color: isActive ? 'white' : 'var(--text-secondary)', whiteSpace: 'nowrap'
+                  border: isActive ? '1px solid var(--primary-dark)' : '1px solid #c9d2c4',
+                  background: isActive ? 'var(--primary-dark)' : '#eaeee6',
+                  color: isActive ? 'white' : 'var(--primary-dark)', whiteSpace: 'nowrap'
                 }}
               >
                 {prod}
@@ -503,39 +531,25 @@ export default function ExplorarPage() {
           })}
         </div>
 
-        {/* ROW 3: FILTROS SIMPLES + MÁS FILTROS */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', alignItems: 'center' }} className="no-scrollbar">
+        {/* ROW 3: FILTROS SIMPLES (Secundarios - livianos) */}
+        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', alignItems: 'center' }} className="no-scrollbar">
           {SIMPLE_FILTERS.map(tag => {
             const isActive = selectedFilters.includes(tag);
             return (
               <button 
                 key={tag} onClick={() => toggleFilter(tag)}
                 style={{
-                  padding: '0.35rem 0.8rem', fontSize: '0.75rem', fontWeight: '700', borderRadius: '8px',
+                  padding: '0.3rem 0.75rem', fontSize: '0.7rem', fontWeight: '600', borderRadius: '8px',
                   display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
-                  border: '1px solid ' + (isActive ? 'var(--primary)' : 'transparent'),
-                  background: isActive ? '#5F7D4A15' : 'transparent',
-                  color: isActive ? 'var(--primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap'
+                  border: isActive ? '1px solid var(--primary)' : '1px solid transparent',
+                  background: isActive ? '#5F7D4A15' : '#f0f0f0',
+                  color: isActive ? 'var(--primary)' : '#777', whiteSpace: 'nowrap'
                 }}
               >
                 {tag}
               </button>
             )
           })}
-          
-          <div style={{ width: '1px', height: '16px', background: '#ccc', margin: '0 4px' }} />
-          
-          <button 
-            onClick={() => setShowAdvancedFilters(true)}
-            style={{
-              padding: '0.35rem 0.8rem', fontSize: '0.75rem', fontWeight: '800', borderRadius: '8px',
-              display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', transition: 'all 0.15s',
-              border: '1px solid var(--border)', background: 'white', color: 'var(--primary-dark)', whiteSpace: 'nowrap'
-            }}
-          >
-            <Filter size={12} strokeWidth={2.5} />
-            Más filtros {selectedFilters.length > 0 && `(${selectedFilters.length})`}
-          </button>
         </div>
       </div>
 
