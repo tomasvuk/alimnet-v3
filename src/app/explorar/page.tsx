@@ -212,6 +212,8 @@ export default function ExplorarPage() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [deliveryType, setDeliveryType] = useState<'Retiro en local' | 'Entrega a domicilio'>('Retiro en local');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -268,22 +270,40 @@ export default function ExplorarPage() {
   useEffect(() => {
     let result = merchants.filter(m => selectedCategories.includes((m.type || '').toLowerCase()));
 
+    // Filtrado por Búsqueda Libre (Nombre, Alimento, Lugar)
+    if (searchQuery.trim().length > 0) {
+      result = result.filter(m => 
+        m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (m.tags || []).some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Filtrado por Ubicación (Editable)
     if (searchLocation.trim().length > 0) {
       result = result.filter(m => 
-        m.name.toLowerCase().includes(searchLocation.toLowerCase()) || 
         m.locations?.some(l => l.locality.toLowerCase().includes(searchLocation.toLowerCase()))
       );
+    }
+
+    // Filtrado por Modalidad (Delivery vs Retiro)
+    // Regla: Entrega a domicilio busca por 'delivery_zones', Retiro por 'locations' física
+    if (deliveryType === 'Entrega a domicilio') {
+      result = result.filter(m => {
+        // En un caso real, esto cruzaría con la zona del usuario. 
+        // Por ahora comprobamos si el merchant tiene esa modalidad en sus tags/config
+        return (m.tags || []).includes('Entrega a domicilio');
+      });
     }
 
     if (selectedFilters.length > 0) {
       result = result.filter(m => {
         const merchantTags = m.tags || [];
-        return selectedFilters.some(type => merchantTags.includes(type));
+        return selectedFilters.every(f => merchantTags.includes(f));
       });
     }
 
     setFilteredMerchants(result);
-  }, [selectedCategories, selectedFilters, merchants, searchLocation]);
+  }, [selectedCategories, selectedFilters, merchants, searchQuery, searchLocation, deliveryType]);
 
   const filterData = (data: Merchant[], categories: string[], types: string[]) => {
     let result = data.filter(m => {
@@ -443,76 +463,116 @@ export default function ExplorarPage() {
 
       {/* 2. BARRA DE FILTROS (STICKY + DUAL ROW) */}
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
-        padding: '0.8rem 1.5rem', 
-        background: 'rgba(255, 255, 255, 0.98)', 
-        backdropFilter: 'blur(10px)',
+        padding: '1.2rem 1.5rem', 
+        background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
         position: 'sticky',
         top: 0,
         zIndex: 900,
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.8rem',
-        boxShadow: stickyFilters ? '0 10px 20px rgba(0,0,0,0.05)' : 'none'
+        gap: '1rem',
+        boxShadow: stickyFilters ? '0 10px 30px rgba(0,0,0,0.08)' : 'none',
+        alignItems: 'center'
       }}>
-        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+        
+        {/* LA CÁPSULA AIRBNB */}
+        <div style={{ 
+          width: '100%', maxWidth: '850px', position: 'relative', 
+          zIndex: isSearchFocused ? 1001 : 100,
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
+          {isSearchFocused && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: -1, pointerEvents: 'none', transition: 'opacity 0.3s' }} />}
           
-          <div style={{ position: 'relative', flex: 1, maxWidth: '350px', zIndex: isSearchFocused ? 901 : 1, transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', transform: isSearchFocused ? 'scale(1.02)' : 'scale(1)', boxShadow: isSearchFocused ? '0 12px 30px rgba(0,0,0,0.15)' : 'none', borderRadius: '12px' }}>
-            {isSearchFocused && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: -1, pointerEvents: 'none', transition: 'opacity 0.3s' }} />}
-            <input 
-              type="text" placeholder="Buscar por zona o nombre..." value={searchLocation} 
-              onChange={(e) => updateSuggestions(e.target.value)}
-              onFocus={() => { setIsSearchFocused(true); searchLocation.length > 2 && setShowSuggestions(true); }}
-              onBlur={() => { setTimeout(() => setIsSearchFocused(false), 200); setShowSuggestions(false); }}
-              onKeyDown={handleSearchKeyPress}
-              style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.2rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.85rem', outline: 'none', background: 'white' }} 
-            />
-            <SearchIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={14} />
+          <div style={{ 
+            display: 'flex', background: 'white', borderRadius: '40px', border: '1px solid #ddd', 
+            boxShadow: isSearchFocused ? '0 15px 40px rgba(0,0,0,0.12)' : '0 4px 12px rgba(0,0,0,0.05)',
+            transition: 'all 0.2s', padding: '2px', alignItems: 'center'
+          }} className="search-capsule">
             
-            {showSuggestions && suggestions.length > 0 && (
-              <div style={{ position: 'absolute', top: '110%', left: 0, width: '100%', background: 'white', border: '1px solid var(--border)', borderRadius: '12px', zIndex: 1000, boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-                {suggestions.map(s => (
-                  <div key={s} onClick={() => handleSuggestionClick(s)} style={{ padding: '0.8rem 1rem', fontSize: '0.85rem', cursor: 'pointer', borderBottom: '1px solid #f9f9f9' }}>{s}</div>
-                ))}
-              </div>
-            )}
-          </div>
+            {/* SECCIÓN 1: BUSCAR */}
+            <div style={{ flex: 1.5, position: 'relative', padding: '10px 24px', borderRadius: '40px', cursor: 'pointer' }} className="capsule-section">
+              <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#000', marginBottom: '2px', textTransform: 'uppercase' }}>Buscar</label>
+              <input 
+                type="text" 
+                placeholder="Alimentos, lugares..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.85rem', fontWeight: '400', background: 'transparent' }}
+              />
+            </div>
 
-          {/* NUEVO BOTÓN FILTROS (NIVEL 1) */}
-          <button 
-            onClick={() => setShowAdvancedFilters(true)}
-            style={{
-              padding: '0.6rem 1rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '12px',
-              display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.15s',
-              border: '1px solid var(--border)', background: 'white', color: 'var(--primary-dark)', whiteSpace: 'nowrap'
-            }}
-          >
-            <Filter size={14} strokeWidth={2.5} />
-            Filtros {selectedFilters.length > 0 && `(${selectedFilters.length})`}
-          </button>
+            <div style={{ width: '1px', height: '28px', background: '#ddd' }}></div>
 
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', overflowX: 'auto', flex: 2 }} className="no-scrollbar">
-            {CATEGORIES.map(cat => {
-              const isActive = selectedCategories.includes(cat.id);
-              const CatIcon = cat.id === 'productor' ? ProductorIcon : cat.icon;
-              return (
-                <button 
-                  key={cat.id}
-                  onClick={() => toggleCategory(cat.id)}
-                  style={{
-                    padding: '0.5rem 1rem', fontSize: '0.75rem', fontWeight: '800', borderRadius: '10px',
-                    display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s',
-                    border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
-                    background: isActive ? 'var(--primary)' : 'white',
-                    color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap'
-                  }}
+            {/* SECCIÓN 2: UBICACIÓN */}
+            <div style={{ flex: 1, position: 'relative', padding: '10px 24px', borderRadius: '40px', cursor: 'pointer' }} className="capsule-section">
+              <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#000', marginBottom: '2px', textTransform: 'uppercase' }}>Ubicación</label>
+              <input 
+                type="text" 
+                placeholder="¿A dónde?" 
+                value={searchLocation}
+                onChange={(e) => setSearchLocation(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.85rem', fontWeight: '400', background: 'transparent' }}
+              />
+            </div>
+
+            <div style={{ width: '1px', height: '28px', background: '#ddd' }}></div>
+
+            {/* SECCIÓN 3: MODALIDAD */}
+            <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '24px', paddingRight: '8px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#000', marginBottom: '2px', textTransform: 'uppercase' }}>Modalidad</label>
+                <select 
+                  value={deliveryType}
+                  onChange={(e) => setDeliveryType(e.target.value as any)}
+                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.85rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
                 >
-                  <CatIcon size={14} />
-                  {cat.label}
-                </button>
-              );
-            })}
+                  <option value="Retiro en local">Retiro en local</option>
+                  <option value="Entrega a domicilio">Entrega a domicilio</option>
+                </select>
+              </div>
+              
+              <button 
+                onClick={() => setShowAdvancedFilters(true)}
+                style={{ 
+                  width: '44px', height: '44px', borderRadius: '50%', background: 'var(--primary)', 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', border: 'none', cursor: 'pointer',
+                  marginLeft: '12px', transition: 'all 0.2s'
+                }}
+                className="search-btn-pro"
+              >
+                <SearchIcon size={18} strokeWidth={3} />
+              </button>
+            </div>
           </div>
+        </div>
+
+        {/* ROW CATEGORÍAS (Ahora más limpia debajo) */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', overflowX: 'auto', width: '100%', maxWidth: '850px' }} className="no-scrollbar">
+          {CATEGORIES.map(cat => {
+            const isActive = selectedCategories.includes(cat.id);
+            const CatIcon = cat.id === 'productor' ? ProductorIcon : cat.icon;
+            return (
+              <button 
+                key={cat.id}
+                onClick={() => toggleCategory(cat.id)}
+                style={{
+                  padding: '0.5rem 1rem', fontSize: '0.75rem', fontWeight: '800', borderRadius: '10px',
+                  display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s',
+                  border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
+                  background: isActive ? 'var(--primary)' : 'white',
+                  color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap'
+                }}
+              >
+                <CatIcon size={14} />
+                {cat.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* ROW 2: TIPO DE PRODUCTO (Principal - oscuro) */}
