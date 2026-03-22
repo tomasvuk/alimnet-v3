@@ -25,7 +25,14 @@ const ROLES = [
 ];
 
 const PRODUCTOS = ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'];
-const TAGS_SIMPLES = ['Sin gluten', 'Agroecológico', 'Orgánico', 'Plant-based', 'Sin ultraprocesados'];
+
+// BLOQUES SEMÁNTICOS (V2)
+const RECEPCION = ['Retiro en local', 'Entrega a domicilio'];
+const ALIMENTACION = ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'];
+const CALIDAD = ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Integral / no refinado', 'De estación', 'Local'];
+const ANIMAL = ['Pastura', 'Grass-fed', 'Bienestar animal'];
+const MODELO = ['CSA', 'Cooperativa', 'Suscripción']; // "Venta directa" applies conditionally below.
+const CERTIFICACIONES = ['Demeter', 'AABDA'];
 
 const ADJECTIVES = ['Granja', 'Huerta', 'Finca', 'Almacén', 'Cooperativa', 'Mercado', 'Cocina', 'Taller', 'Estación', 'Raíz'];
 const NOUNS = ['Sol', 'Verde', 'Norte', 'Vivo', 'Natural', 'Cercano', 'Sur', 'Alegre', 'Tierra', 'Pueblo'];
@@ -80,25 +87,29 @@ async function seed() {
       // Products (1 a 3)
       const selectedProducts = randomSample(PRODUCTOS, randomInt(1, 3));
       
-      // Tags (0 a 3 visibles) -> in DB let's just push them all
-      const selectedTags = randomSample(TAGS_SIMPLES, randomInt(0, 3));
+      // Tags (0 a 3 visibles) - let's collect from combined taxonomic lists
+      const combinedTags = [...ALIMENTACION, ...CALIDAD, ...ANIMAL, ...MODELO, ...CERTIFICACIONES];
+      const selectedTags = randomSample(combinedTags, randomInt(0, 3));
 
       if (type.includes('Productor') && directSalesCount < 30 && Math.random() > 0.5) {
         selectedTags.push('Venta directa');
         directSalesCount++;
       }
+      
+      // How to receive? (Bloque 1)
+      const recepcionType = randomSample(RECEPCION, randomInt(1, 2));
+      selectedTags.push(...recepcionType);
 
-      // Coverage logic (zonas amplias)
+      // Coverage logic (zonas amplias) -> "Entrega en: CABA, Zona Norte"
       const allRegions = ZONAS.map(z => z.region);
-      const coverage = [];
-      if (Math.random() > 0.5) {
-        coverage.push(zona.region); // local
+      const deliveryZones = [];
+      if (recepcionType.includes('Entrega a domicilio')) {
+        if (Math.random() > 0.5) deliveryZones.push(zona.region); // local
+        if (Math.random() > 0.6) {
+          let other = allRegions[randomInt(0, allRegions.length - 1)];
+          if (!deliveryZones.includes(other)) deliveryZones.push(other);
+        }
       }
-      if (Math.random() > 0.7) {
-        let other = allRegions[randomInt(0, allRegions.length - 1)];
-        if (!coverage.includes(other)) coverage.push(other);
-      }
-      if (coverage.length === 0) coverage.push('Solo retiro');
 
       // Add to payload
       merchantsToInsert.push({
@@ -106,7 +117,7 @@ async function seed() {
         type,
         bio_short: `Somos un proyecto ubicado en ${city} dedicado a brindar los mejores alimentos de la región con un impacto positivo.`,
         tags: [...selectedProducts, ...selectedTags],
-        delivery_zones: coverage,
+        delivery_zones: deliveryZones,
         _locations: locations // temporary store to insert later
       });
     }

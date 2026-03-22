@@ -94,16 +94,16 @@ const CATEGORIES = [
   { id: 'chef', label: 'Chef', icon: ChefHat },
 ];
 
-const ADVANCED_CATEGORIES = {
-  alimentacion: { label: 'Alimentación', options: ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'] },
-  calidad: { label: 'Calidad / Producción', options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Integral / no refinado', 'De estación', 'Local'] },
-  animal: { label: 'Producción animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
-  productos: { label: 'Tipo de producto', options: ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'] },
-  modelo: { label: 'Modelo', options: ['CSA', 'Cooperativa', 'Venta directa', 'Suscripción'] },
-  certificaciones: { label: 'Certificaciones', options: ['Demeter', 'AABDA', 'Orgánico certificado'] }
-};
+const PRODUCT_OPTIONS = ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'];
 
-const SIMPLE_FILTERS = ['Sin gluten', 'Agroecológico', 'Orgánico', 'Plant-based', 'Sin ultraprocesados'];
+const ADVANCED_CATEGORIES = {
+  recepcion: { label: '¿Cómo querés recibir?', options: ['Retiro en local', 'Entrega a domicilio'] },
+  alimentacion: { label: 'Tipo de alimentación', options: ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'] },
+  calidad: { label: 'Calidad / producción', options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Integral / no refinado', 'De estación', 'Local'] },
+  animal: { label: 'Producción animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
+  modelo: { label: 'Modelo', options: ['CSA', 'Cooperativa', 'Venta directa', 'Suscripción'] },
+  certificaciones: { label: 'Certificaciones', options: ['Demeter', 'AABDA'] }
+};
 
 function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void }) {
   if (!isOpen) return null;
@@ -174,9 +174,9 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
         </div>
         
         <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+          {renderSection('recepcion')}
           {renderSection('alimentacion')}
           {renderSection('calidad')}
-          {renderSection('productos')}
           {!isPlantBased && renderSection('animal')}
           {renderSection('modelo')}
           {renderSection('certificaciones')}
@@ -211,6 +211,7 @@ export default function ExplorarPage() {
   const [stickyFilters, setStickyFilters] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -456,13 +457,15 @@ export default function ExplorarPage() {
       }}>
         <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
           
-          <div style={{ position: 'relative', flex: 1, maxWidth: '350px' }}>
+          <div style={{ position: 'relative', flex: 1, maxWidth: '350px', zIndex: isSearchFocused ? 901 : 1, transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', transform: isSearchFocused ? 'scale(1.02)' : 'scale(1)', boxShadow: isSearchFocused ? '0 12px 30px rgba(0,0,0,0.15)' : 'none', borderRadius: '12px' }}>
+            {isSearchFocused && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: -1, pointerEvents: 'none', transition: 'opacity 0.3s' }} />}
             <input 
               type="text" placeholder="Buscar por zona o nombre..." value={searchLocation} 
               onChange={(e) => updateSuggestions(e.target.value)}
-              onFocus={() => searchLocation.length > 2 && setShowSuggestions(true)}
+              onFocus={() => { setIsSearchFocused(true); searchLocation.length > 2 && setShowSuggestions(true); }}
+              onBlur={() => { setTimeout(() => setIsSearchFocused(false), 200); setShowSuggestions(false); }}
               onKeyDown={handleSearchKeyPress}
-              style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.2rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.85rem', outline: 'none', background: '#f5f5f5' }} 
+              style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.2rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.85rem', outline: 'none', background: 'white' }} 
             />
             <SearchIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={14} />
             
@@ -514,7 +517,7 @@ export default function ExplorarPage() {
 
         {/* ROW 2: TIPO DE PRODUCTO (Principal - oscuro) */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }} className="no-scrollbar">
-          {ADVANCED_CATEGORIES.productos.options.map(prod => {
+          {PRODUCT_OPTIONS.map(prod => {
             const isActive = selectedFilters.includes(prod);
             return (
               <button 
@@ -533,26 +536,24 @@ export default function ExplorarPage() {
           })}
         </div>
 
-        {/* ROW 3: FILTROS SIMPLES (Secundarios - livianos) */}
-        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', alignItems: 'center' }} className="no-scrollbar">
-          {SIMPLE_FILTERS.map(tag => {
-            const isActive = selectedFilters.includes(tag);
-            return (
+        {/* ROW 3: FILTROS ACTIVOS DINÁMICOS */}
+        {selectedFilters.filter(f => !PRODUCT_OPTIONS.includes(f)).length > 0 && (
+          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', alignItems: 'center' }} className="no-scrollbar">
+            {selectedFilters.filter(f => !PRODUCT_OPTIONS.includes(f)).map(activeFilter => (
               <button 
-                key={tag} onClick={() => toggleFilter(tag)}
+                key={activeFilter} onClick={() => toggleFilter(activeFilter)}
                 style={{
-                  padding: '0.35rem 0.85rem', fontSize: '0.75rem', fontWeight: '600', borderRadius: '20px',
+                  padding: '0.35rem 0.85rem', fontSize: '0.75rem', fontWeight: '700', borderRadius: '20px',
                   display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
-                  border: isActive ? '1px solid var(--primary-dark)' : '1px solid #e0e0e0',
-                  background: isActive ? '#5F7D4A15' : 'transparent',
-                  color: isActive ? 'var(--primary-dark)' : 'var(--text-secondary)', whiteSpace: 'nowrap'
+                  border: '1px solid var(--primary-dark)', background: '#5F7D4A20',
+                  color: 'var(--primary-dark)', whiteSpace: 'nowrap'
                 }}
               >
-                {tag}
+                {activeFilter}
               </button>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 3. CONTENIDO PRINCIPAL */}
@@ -677,7 +678,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
   const IconComponent = CATEGORIES.find(c => c.id === mainType.toLowerCase())?.icon || (mainType.toLowerCase() === 'productor' ? ProductorIcon : Sprout);
   
   const allTags = merchant.tags || [];
-  const productOptions = ADVANCED_CATEGORIES.productos.options;
+  const productOptions = PRODUCT_OPTIONS;
   
   const productTags = allTags.filter(t => productOptions.includes(t));
   const otherTags = allTags.filter(t => !productOptions.includes(t) && t !== 'Venta directa');
