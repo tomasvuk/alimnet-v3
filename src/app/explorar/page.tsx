@@ -347,8 +347,8 @@ export default function ExplorarPage() {
             padding: '1.2rem', zIndex: 2000, display: 'flex', flexDirection: 'column', gap: '1.2rem',
             border: '1px solid rgba(0,0,0,0.05)', animation: 'slideDown 0.2s ease-out'
           }}>
+            <a href="/" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Home</a>
             <a href="/sostener" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Sostener Alimnet</a>
-            <a href="/explorar" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Explorar Mapa</a>
             <a href="/perfil" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Mi Perfil</a>
             <div style={{ height: '1px', background: '#eee', margin: '0.2rem 0' }}></div>
             <a href="/unirse" style={{ textDecoration: 'none', color: 'var(--primary)', fontWeight: '900', fontSize: '0.85rem' }}>Sumar mi comercio</a>
