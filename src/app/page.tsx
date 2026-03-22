@@ -1,7 +1,17 @@
 'use client';
 
 import React from "react";
-import { Leaf, Map as MapIcon, HelpCircle, LogIn, Rocket, UserPlus, MapPin, CheckCircle, Heart, Instagram, Linkedin, Mail } from "lucide-react";
+import { Leaf, Map as MapIcon, HelpCircle, LogIn, Rocket, UserPlus, MapPin, CheckCircle, Heart, Instagram, Linkedin, Mail, Store, UtensilsCrossed, ChefHat } from "lucide-react";
+
+const ProductorIcon = ({ size = 20 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM15.89 8.11C15.5 7.72 14.83 7 13.53 7h-3.06c-1.3 0-1.97.72-2.36 1.11L4 12.25V15h2v-2h1v9h2v-5h2v5h2v-9h1v2h2v-2.75l-4.11-4.14z" fill="currentColor" />
+    <path d="M6 14v8h1v-8H6zM18 14v8h-1v-8h1z" fill="currentColor" opacity="0.5" />
+    <path d="M5 10v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M3 10h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M19 10v10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
 
 export default function Home() {
   return (
@@ -78,31 +88,34 @@ export default function Home() {
           </p>
           
           <div className="hero-roles-explainer" style={{ 
-            display: "flex", flexWrap: "wrap", gap: "12px", 
-            color: "var(--primary-dark)", fontWeight: "700", fontSize: "0.85rem", 
-            marginBottom: "3rem", padding: "1rem", background: "white", 
-            borderRadius: "16px", border: "1px solid var(--border)", maxWidth: "800px",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.02)"
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px",
+            marginBottom: "3.5rem", maxWidth: "800px"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "var(--primary)" }}>🌱 Productor</span> 
-              <span style={{ color: "var(--text-secondary)", fontWeight: "500" }}>&rarr; crea el alimento</span>
-            </div>
-            <span style={{ color: "var(--border)" }}>|</span>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "var(--primary)" }}>🧺 Abastecedor</span> 
-              <span style={{ color: "var(--text-secondary)", fontWeight: "500" }}>&rarr; lo acerca</span>
-            </div>
-            <span style={{ color: "var(--border)" }}>|</span>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "var(--primary)" }}>🍽 Restaurante</span> 
-              <span style={{ color: "var(--text-secondary)", fontWeight: "500" }}>&rarr; lo transforma</span>
-            </div>
-            <span style={{ color: "var(--border)" }}>|</span>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "var(--primary)" }}>👨🍳 Chef</span> 
-              <span style={{ color: "var(--text-secondary)", fontWeight: "500" }}>&rarr; lo interpreta</span>
-            </div>
+            {[
+              { role: 'Productor', desc: 'crea el alimento', icon: ProductorIcon },
+              { role: 'Abastecedor', desc: 'lo acerca', icon: Store },
+              { role: 'Restaurante', desc: 'lo transforma', icon: UtensilsCrossed },
+              { role: 'Chef', desc: 'lo interpreta', icon: ChefHat }
+            ].map((item, idx) => (
+              <div key={idx} style={{
+                display: "flex", flexDirection: "column", gap: "12px", padding: "1.2rem",
+                background: "rgba(255, 255, 255, 0.7)", backdropFilter: "blur(12px)",
+                borderRadius: "16px", border: "1px solid rgba(255,255,255,0.9)",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.03)", alignItems: "flex-start",
+                transition: "transform 0.2s ease"
+              }}>
+                <div style={{ 
+                  width: "42px", height: "42px", borderRadius: "12px", background: "#F0F4ED",
+                  display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)"
+                }}>
+                  <item.icon size={22} />
+                </div>
+                <div>
+                  <div style={{ color: "var(--primary-dark)", fontWeight: "950", fontSize: "0.95rem", marginBottom: "2px" }}>{item.role}</div>
+                  <div style={{ color: "var(--text-secondary)", fontWeight: "600", fontSize: "0.85rem", opacity: 0.85 }}>{item.desc}</div>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="hero-buttons" style={{ display: "flex", gap: "1rem", justifyContent: "flex-start", marginBottom: "4rem" }}>
