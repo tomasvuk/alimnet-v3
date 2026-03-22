@@ -40,6 +40,10 @@ const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   loading: () => <div style={{ height: '100%', width: '100%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Cargando mapa...</div>
 });
 
+const normalizeString = (str: string) => {
+  return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+};
+
 // --- Tipos ---
 interface Merchant {
   id: string;
@@ -214,6 +218,7 @@ export default function ExplorarPage() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'Retiro en local' | 'Entrega a domicilio'>('Retiro en local');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -272,27 +277,24 @@ export default function ExplorarPage() {
 
     // Filtrado por Búsqueda Libre (Nombre, Alimento, Lugar)
     if (searchQuery.trim().length > 0) {
+      const q = normalizeString(searchQuery);
       result = result.filter(m => 
-        m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        (m.tags || []).some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
+        normalizeString(m.name).includes(q) || 
+        (m.tags || []).some(t => normalizeString(t).includes(q))
       );
     }
 
     // Filtrado por Ubicación (Editable)
     if (searchLocation.trim().length > 0) {
+      const loc = normalizeString(searchLocation);
       result = result.filter(m => 
-        m.locations?.some(l => l.locality.toLowerCase().includes(searchLocation.toLowerCase()))
+        m.locations?.some(l => normalizeString(l.locality).includes(loc))
       );
     }
 
     // Filtrado por Modalidad (Delivery vs Retiro)
-    // Regla: Entrega a domicilio busca por 'delivery_zones', Retiro por 'locations' física
     if (deliveryType === 'Entrega a domicilio') {
-      result = result.filter(m => {
-        // En un caso real, esto cruzaría con la zona del usuario. 
-        // Por ahora comprobamos si el merchant tiene esa modalidad en sus tags/config
-        return (m.tags || []).includes('Entrega a domicilio');
-      });
+      result = result.filter(m => (m.tags || []).includes('Entrega a domicilio'));
     }
 
     if (selectedFilters.length > 0) {
@@ -463,7 +465,7 @@ export default function ExplorarPage() {
 
       {/* 2. BARRA DE FILTROS (STICKY + DUAL ROW) */}
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
-        padding: '1.2rem 1.5rem', 
+        padding: '1rem 1.5rem', 
         background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
         position: 'sticky',
@@ -471,88 +473,99 @@ export default function ExplorarPage() {
         zIndex: 900,
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem',
+        gap: '0.8rem',
         boxShadow: stickyFilters ? '0 10px 30px rgba(0,0,0,0.08)' : 'none',
         alignItems: 'center'
       }}>
         
-        {/* LA CÁPSULA AIRBNB */}
+        {/* LA CÁPSULA AIRBNB CENTRADA */}
         <div style={{ 
-          width: '100%', maxWidth: '850px', position: 'relative', 
-          zIndex: isSearchFocused ? 1001 : 100,
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          width: '100%', maxWidth: '850px', display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'center'
         }}>
-          {isSearchFocused && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: -1, pointerEvents: 'none', transition: 'opacity 0.3s' }} />}
-          
-          <div style={{ 
-            display: 'flex', background: 'white', borderRadius: '40px', border: '1px solid #ddd', 
-            boxShadow: isSearchFocused ? '0 15px 40px rgba(0,0,0,0.12)' : '0 4px 12px rgba(0,0,0,0.05)',
-            transition: 'all 0.2s', padding: '2px', alignItems: 'center'
-          }} className="search-capsule">
+          <div 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{ 
+              flex: 1, position: 'relative', 
+              zIndex: isSearchFocused ? 1001 : 100,
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: (isSearchFocused || isHovered) ? 'translateY(-2px)' : 'translateY(0)'
+            }}
+          >
+            {isSearchFocused && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: -1, pointerEvents: 'none', transition: 'opacity 0.3s' }} />}
             
-            {/* SECCIÓN 1: BUSCAR */}
-            <div style={{ flex: 1.5, position: 'relative', padding: '10px 24px', borderRadius: '40px', cursor: 'pointer' }} className="capsule-section">
-              <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#000', marginBottom: '2px', textTransform: 'uppercase' }}>Buscar</label>
-              <input 
-                type="text" 
-                placeholder="Alimentos, lugares..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.85rem', fontWeight: '400', background: 'transparent' }}
-              />
-            </div>
-
-            <div style={{ width: '1px', height: '28px', background: '#ddd' }}></div>
-
-            {/* SECCIÓN 2: UBICACIÓN */}
-            <div style={{ flex: 1, position: 'relative', padding: '10px 24px', borderRadius: '40px', cursor: 'pointer' }} className="capsule-section">
-              <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#000', marginBottom: '2px', textTransform: 'uppercase' }}>Ubicación</label>
-              <input 
-                type="text" 
-                placeholder="¿A dónde?" 
-                value={searchLocation}
-                onChange={(e) => setSearchLocation(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.85rem', fontWeight: '400', background: 'transparent' }}
-              />
-            </div>
-
-            <div style={{ width: '1px', height: '28px', background: '#ddd' }}></div>
-
-            {/* SECCIÓN 3: MODALIDAD */}
-            <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '24px', paddingRight: '8px' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#000', marginBottom: '2px', textTransform: 'uppercase' }}>Modalidad</label>
-                <select 
-                  value={deliveryType}
-                  onChange={(e) => setDeliveryType(e.target.value as any)}
-                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.85rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
-                >
-                  <option value="Retiro en local">Retiro en local</option>
-                  <option value="Entrega a domicilio">Entrega a domicilio</option>
-                </select>
-              </div>
+            <div style={{ 
+              display: 'flex', background: 'white', borderRadius: '40px', border: '1px solid #ddd', 
+              boxShadow: (isSearchFocused || isHovered) ? '0 15px 40px rgba(0,0,0,0.12)' : '0 4px 12px rgba(0,0,0,0.05)',
+              transition: 'all 0.2s', padding: '1px', alignItems: 'center'
+            }} className="search-capsule">
               
-              <button 
-                onClick={() => setShowAdvancedFilters(true)}
-                style={{ 
-                  width: '44px', height: '44px', borderRadius: '50%', background: 'var(--primary)', 
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', border: 'none', cursor: 'pointer',
-                  marginLeft: '12px', transition: 'all 0.2s'
-                }}
-                className="search-btn-pro"
-              >
-                <SearchIcon size={18} strokeWidth={3} />
-              </button>
+              {/* SECCIÓN 1: BUSCAR */}
+              <div style={{ flex: 1.5, position: 'relative', padding: '6px 24px', borderRadius: '40px', cursor: 'text' }} className="capsule-section">
+                <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Buscar</label>
+                <input 
+                  type="text" 
+                  placeholder="Alimentos, lugares..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.8rem', fontWeight: '400', background: 'transparent' }}
+                />
+              </div>
+
+              <div style={{ width: '1px', height: '24px', background: '#ddd' }}></div>
+
+              {/* SECCIÓN 2: UBICACIÓN */}
+              <div style={{ flex: 1, position: 'relative', padding: '6px 24px', borderRadius: '40px', cursor: 'text' }} className="capsule-section">
+                <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Ubicación</label>
+                <input 
+                  type="text" 
+                  placeholder="¿A dónde?" 
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.8rem', fontWeight: '400', background: 'transparent' }}
+                />
+              </div>
+
+              <div style={{ width: '1px', height: '24px', background: '#ddd' }}></div>
+
+              {/* SECCIÓN 3: MODALIDAD */}
+              <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '24px', paddingRight: '6px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Modalidad</label>
+                  <select 
+                    value={deliveryType}
+                    onChange={(e) => setDeliveryType(e.target.value as any)}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.8rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
+                  >
+                    <option value="Retiro en local">Retiro en local</option>
+                    <option value="Entrega a domicilio">Entrega a domicilio</option>
+                  </select>
+                </div>
+                
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <SearchIcon size={16} strokeWidth={3} />
+                </div>
+              </div>
             </div>
           </div>
+
+          <button 
+            onClick={() => setShowAdvancedFilters(true)}
+            style={{ 
+              padding: '0.6rem 1.2rem', background: 'white', border: '1px solid #ddd', borderRadius: '12px', 
+              fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+            }}
+          >
+            <Filter size={16} /> Filtros
+          </button>
         </div>
 
-        {/* ROW CATEGORÍAS (Ahora más limpia debajo) */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', overflowX: 'auto', width: '100%', maxWidth: '850px' }} className="no-scrollbar">
+        {/* ROW CATEGORÍAS (Roles) - CENTRADO */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', overflowX: 'auto', width: '100%', maxWidth: '850px', justifyContent: 'center' }} className="no-scrollbar">
           {CATEGORIES.map(cat => {
             const isActive = selectedCategories.includes(cat.id);
             const CatIcon = cat.id === 'productor' ? ProductorIcon : cat.icon;
@@ -575,8 +588,8 @@ export default function ExplorarPage() {
           })}
         </div>
 
-        {/* ROW 2: TIPO DE PRODUCTO (Principal - oscuro) */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }} className="no-scrollbar">
+        {/* ROW PRODUCTOS - CENTRADO */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', width: '100%', maxWidth: '850px', justifyContent: 'center' }} className="no-scrollbar">
           {PRODUCT_OPTIONS.map(prod => {
             const isActive = selectedFilters.includes(prod);
             return (
@@ -596,9 +609,9 @@ export default function ExplorarPage() {
           })}
         </div>
 
-        {/* ROW 3: FILTROS ACTIVOS DINÁMICOS */}
+        {/* ROW FILTROS DINÁMICOS - CENTRADO */}
         {selectedFilters.filter(f => !PRODUCT_OPTIONS.includes(f)).length > 0 && (
-          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', alignItems: 'center' }} className="no-scrollbar">
+          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', alignItems: 'center', width: '100%', maxWidth: '850px', justifyContent: 'center' }} className="no-scrollbar">
             {selectedFilters.filter(f => !PRODUCT_OPTIONS.includes(f)).map(activeFilter => (
               <button 
                 key={activeFilter} onClick={() => toggleFilter(activeFilter)}
