@@ -89,36 +89,84 @@ const PasturaIcon = ({ size = 16 }: { size?: number }) => <Wheat size={size} />;
 
 const CATEGORIES = [
   { id: 'productor', label: 'Productor', icon: ProductorIcon },
-  { id: 'almacen', label: 'Proveedor', icon: Store },
+  { id: 'abastecedor', label: 'Abastecedor', icon: Store },
   { id: 'restaurante', label: 'Restaurante', icon: UtensilsCrossed },
   { id: 'chef', label: 'Chef', icon: ChefHat },
 ];
 
-const CATEGORIES_TAGS = [
-  'Agroecológico',
-  'Orgánico',
-  'Biodinámico',
-  'De Pastura',
-  'Libre de Gluten',
-  'Libre de Azúcar',
-  'Vegano',
-  'Vegetariano',
-  'Otros'
+const ADVANCED_FILTERS = [
+  {
+    title: 'Estilos / Prácticas',
+    options: ['Agroecológico', 'Orgánico', 'Biodinámico', 'Regenerativo', 'Sin agroquímicos', 'Comercio justo', 'Producción local', 'De estación']
+  },
+  {
+    title: 'Modelos',
+    options: ['CSA', 'Suscripción', 'Venta directa', 'Cooperativa', 'Prosumidor']
+  },
+  {
+    title: 'Organizaciones',
+    options: ['Demeter', 'AABDA', 'Orgánico certificado', 'Comercio justo certificado']
+  }
 ];
 
-const TAG_ICONS: Record<string, React.FC<{size?: number}>> = {
-  'Agroecológico': AgroecologicoIcon,
-  'Orgánico': OrganicoIcon,
-  'Biodinámico': BiodinamicoIcon,
-  'De Pastura': PasturaIcon,
-  'Libre de Gluten': Wheat,
-};
+const FilterDropdown = ({ title, options, selected, toggleOption, clearOptions }: { title: string, options: string[], selected: string[], toggleOption: (o:string)=>void, clearOptions: ()=>void }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const activeCount = options.filter(o => selected.includes(o)).length;
+
+  return (
+    <div className="filter-dropdown" style={{ position: 'relative' }}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          padding: '0.4rem 0.8rem', fontSize: '0.75rem', fontWeight: '700', borderRadius: '8px',
+          display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', transition: 'all 0.15s',
+          border: '1px solid ' + (activeCount > 0 ? 'var(--primary)' : '#eee'),
+          background: activeCount > 0 ? '#5F7D4A15' : 'transparent',
+          color: activeCount > 0 ? 'var(--primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap'
+        }}
+      >
+        {title} {activeCount > 0 && `(${activeCount})`}
+        <ChevronDown size={12} strokeWidth={3} />
+      </button>
+
+      {isOpen && (
+        <>
+          <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 1000 }} />
+          <div style={{
+            position: 'absolute', top: '110%', left: 0, minWidth: '220px', background: 'white',
+            border: '1px solid var(--border)', borderRadius: '12px', padding: '0.5rem',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 1001, display: 'flex', flexDirection: 'column', gap: '4px'
+          }}>
+            <button 
+              onClick={(e) => { e.stopPropagation(); clearOptions(); setIsOpen(false); }}
+              style={{ textAlign: 'left', padding: '0.5rem 0.8rem', fontSize: '0.8rem', background: 'none', border: 'none', cursor: 'pointer', fontWeight: activeCount === 0 ? '800' : '500', color: activeCount === 0 ? 'var(--primary)' : 'var(--text-secondary)' }}
+            >
+              Seleccionar todos
+            </button>
+            <div style={{ height: '1px', background: '#eee', margin: '4px 0' }} />
+            {options.map(opt => (
+              <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.5rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer', borderRadius: '6px', background: selected.includes(opt) ? '#f9f9f9' : 'transparent' }}>
+                <input 
+                  type="checkbox" 
+                  checked={selected.includes(opt)} 
+                  onChange={() => toggleOption(opt)} 
+                  style={{ accentColor: 'var(--primary)', width: '14px', height: '14px' }}
+                />
+                <span style={{ fontWeight: selected.includes(opt) ? '700' : '500', color: selected.includes(opt) ? 'var(--primary)' : 'var(--text-primary)' }}>{opt}</span>
+              </label>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
 
 // --- NUEVO LOGO PRO (EXACTO: ESFERA DE RED) ---
 // (LOGO REMOVIDO POR PEDIDO DEL USUARIO - SE MANTIENE SOLO TEXTO)
 
 export default function ExplorarPage() {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'almacen', 'restaurante', 'chef']);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'abastecedor', 'restaurante', 'chef']);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
@@ -196,7 +244,7 @@ export default function ExplorarPage() {
       );
     }
 
-    if (selectedFoodTypes.length > 0 && selectedFoodTypes.length < CATEGORIES_TAGS.length) {
+    if (selectedFoodTypes.length > 0) {
       result = result.filter(m => {
         const merchantTags = m.tags || [];
         return selectedFoodTypes.some(type => merchantTags.includes(type));
@@ -207,8 +255,12 @@ export default function ExplorarPage() {
   }, [selectedCategories, selectedFoodTypes, merchants, searchLocation]);
 
   const filterData = (data: Merchant[], categories: string[], types: string[]) => {
-    let result = data.filter(m => categories.includes((m.type || '').toLowerCase()));
-    if (types.length > 0 && types.length < CATEGORIES_TAGS.length) {
+    let result = data.filter(m => {
+      let type = (m.type || '').toLowerCase();
+      if (type === 'almacen' || type === 'proveedor') type = 'abastecedor';
+      return categories.includes((m.type || '').toLowerCase()) || categories.includes(type);
+    });
+    if (types.length > 0) {
       result = result.filter(m => {
         const merchantTags = m.tags || [];
         return types.some(type => merchantTags.includes(type));
@@ -221,7 +273,9 @@ export default function ExplorarPage() {
     setSearchLocation(value);
     if (value.length > 1) {
       const names = merchants.map(m => m.name);
-      const localities = Array.from(new Set(merchants.flatMap(m => m.locations?.map(l => l.locality) || [])));
+      const localities = Array.from(new Set(
+        merchants.flatMap(m => m.locations?.flatMap(l => (l.locality || '').split(',').map(s => s.trim()).filter(Boolean)) || [])
+      ));
       const filtered = [...names, ...localities].filter(s => s?.toLowerCase().includes(value.toLowerCase())).slice(0, 5);
       setSuggestions(filtered);
       setShowSuggestions(true);
@@ -415,28 +469,21 @@ export default function ExplorarPage() {
           </div>
         </div>
 
-        {/* Segunda Fila: Tags (Agroecológico, etc) */}
+        {/* Segunda Fila: Filtros Avanzados (Dropdowns) */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }} className="no-scrollbar">
-          {CATEGORIES_TAGS.map(tag => {
-            const isActive = selectedFoodTypes.includes(tag);
-            const TagIcon = TAG_ICONS[tag] || Sprout;
-            return (
-              <button 
-                key={tag}
-                onClick={() => toggleFoodType(tag)}
-                style={{
-                  padding: '0.4rem 0.8rem', fontSize: '0.7rem', fontWeight: '700', borderRadius: '8px',
-                  display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', transition: 'all 0.15s',
-                  border: '1px solid ' + (isActive ? 'var(--primary)' : '#eee'),
-                  background: isActive ? '#5F7D4A15' : 'transparent',
-                  color: isActive ? 'var(--primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap'
-                }}
-              >
-                <TagIcon size={12} />
-                {tag}
-              </button>
-            )
-          })}
+          {ADVANCED_FILTERS.map(filterGroup => (
+            <FilterDropdown 
+              key={filterGroup.title}
+              title={filterGroup.title}
+              options={filterGroup.options}
+              selected={selectedFoodTypes}
+              toggleOption={toggleFoodType}
+              clearOptions={() => {
+                const newTypes = selectedFoodTypes.filter(t => !filterGroup.options.includes(t));
+                setSelectedFoodTypes(newTypes);
+              }}
+            />
+          ))}
         </div>
       </div>
 

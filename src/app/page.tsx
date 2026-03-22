@@ -71,13 +71,38 @@ export default function Home() {
             margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550",
             textAlign: "justify", 
             textJustify: "inter-word",
-            hyphens: "auto", // Importante para evitar huecos grandes
+            hyphens: "auto",
             WebkitHyphens: "auto"
           }}>
-            Descubrí productores, proveedores, restaurantes y chefs que trabajan con alimentos agroecológicos, orgánicos y biodinámicos cerca tuyo.
+            Descubrí productores, abastecedores, restaurantes y chefs que trabajan con alimentos agroecológicos, orgánicos y biodinámicos cerca tuyo.
           </p>
-          <div className="hero-categories" style={{ display: "flex", gap: "10px", justifyContent: "flex-start", color: "var(--primary)", fontWeight: "800", fontSize: "0.85rem", marginBottom: "3rem", letterSpacing: "0.05em", flexWrap: "wrap" }}>
-            <span>Productores</span> · <span>Proveedores</span> · <span>Restaurantes</span> · <span>Chefs</span>
+          
+          <div className="hero-roles-explainer" style={{ 
+            display: "flex", flexWrap: "wrap", gap: "12px", 
+            color: "var(--primary-dark)", fontWeight: "700", fontSize: "0.85rem", 
+            marginBottom: "3rem", padding: "1rem", background: "white", 
+            borderRadius: "16px", border: "1px solid var(--border)", maxWidth: "800px",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.02)"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "var(--primary)" }}>🌱 Productor</span> 
+              <span style={{ color: "var(--text-secondary)", fontWeight: "500" }}>&rarr; crea el alimento</span>
+            </div>
+            <span style={{ color: "var(--border)" }}>|</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "var(--primary)" }}>🧺 Abastecedor</span> 
+              <span style={{ color: "var(--text-secondary)", fontWeight: "500" }}>&rarr; lo acerca</span>
+            </div>
+            <span style={{ color: "var(--border)" }}>|</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "var(--primary)" }}>🍽 Restaurante</span> 
+              <span style={{ color: "var(--text-secondary)", fontWeight: "500" }}>&rarr; lo transforma</span>
+            </div>
+            <span style={{ color: "var(--border)" }}>|</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "var(--primary)" }}>👨🍳 Chef</span> 
+              <span style={{ color: "var(--text-secondary)", fontWeight: "500" }}>&rarr; lo interpreta</span>
+            </div>
           </div>
 
           <div className="hero-buttons" style={{ display: "flex", gap: "1rem", justifyContent: "flex-start", marginBottom: "4rem" }}>
@@ -141,7 +166,7 @@ export default function Home() {
               <div>
                 <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>2. Buscá por zona</h3>
                 <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
-                  Encontrá productores, proveedores, restaurantes y chefs cerca tuyo o con entrega en tu zona.
+                  Encontrá productores, abastecedores, restaurantes y chefs cerca tuyo o con entrega en tu zona.
                 </p>
               </div>
             </div>
