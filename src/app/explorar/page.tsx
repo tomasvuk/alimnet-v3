@@ -115,28 +115,7 @@ const TAG_ICONS: Record<string, React.FC<{size?: number}>> = {
 };
 
 // --- NUEVO LOGO PRO (EXACTO: ESFERA DE RED) ---
-function LogoV3({ size = 40 }: { size?: number }) {
-  return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="48" stroke="#5F7D4A" strokeWidth="0.5" strokeDasharray="2 4" strokeOpacity="0.3" />
-        <circle cx="50" cy="50" r="40" stroke="#5F7D4A" strokeWidth="1" strokeDasharray="1 3" strokeOpacity="0.5" />
-        {/* Nodos de red */}
-        <circle cx="50" cy="15" r="3" fill="#5F7D4A" />
-        <circle cx="85" cy="50" r="3" fill="#5F7D4A" />
-        <circle cx="50" cy="85" r="3" fill="#5F7D4A" />
-        <circle cx="15" cy="50" r="3" fill="#5F7D4A" />
-        <circle cx="30" cy="30" r="2.5" fill="#5F7D4A" />
-        <circle cx="70" cy="30" r="2.5" fill="#5F7D4A" />
-        <circle cx="70" cy="70" r="2.5" fill="#5F7D4A" />
-        <circle cx="30" cy="70" r="2.5" fill="#5F7D4A" />
-        {/* Conexiones de red más densas */}
-        <path d="M50 15L85 50M85 50L50 85M50 85L15 50M15 50L50 15M30 30L70 70M70 30L30 70M50 15L30 30M50 15L70 30M85 50L70 30M85 50L70 70M50 85L70 70M50 85L30 70M15 50L30 70M15 50L30 30" stroke="#5F7D4A" strokeWidth="0.8" opacity="0.4" />
-        <text x="50" y="58" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="32" fontWeight="950" fill="#1B2414">A</text>
-      </svg>
-    </div>
-  );
-}
+// (LOGO REMOVIDO POR PEDIDO DEL USUARIO - SE MANTIENE SOLO TEXTO)
 
 export default function ExplorarPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'almacen', 'restaurante', 'chef']);
@@ -206,20 +185,35 @@ export default function ExplorarPage() {
     }
   };
 
+  // Efecto principal para reactividad de filtros y búsquedas
+  useEffect(() => {
+    let result = merchants.filter(m => selectedCategories.includes((m.type || '').toLowerCase()));
+
+    if (searchLocation.trim().length > 0) {
+      result = result.filter(m => 
+        m.name.toLowerCase().includes(searchLocation.toLowerCase()) || 
+        m.locations?.some(l => l.locality.toLowerCase().includes(searchLocation.toLowerCase()))
+      );
+    }
+
+    if (selectedFoodTypes.length > 0 && selectedFoodTypes.length < CATEGORIES_TAGS.length) {
+      result = result.filter(m => {
+        const merchantTags = m.tags || [];
+        return selectedFoodTypes.some(type => merchantTags.includes(type));
+      });
+    }
+
+    setFilteredMerchants(result);
+  }, [selectedCategories, selectedFoodTypes, merchants, searchLocation]);
+
   const filterData = (data: Merchant[], categories: string[], types: string[]) => {
-    // 1. Filtrar por categorías (Productor, Almacén, etc.)
     let result = data.filter(m => categories.includes((m.type || '').toLowerCase()));
-    
-    // 2. Filtrar por tipos de alimento (Tags)
-    // Solo aplicamos el filtro si el usuario seleccionó algunos tags pero NO TODOS (para evitar el "trap" de borrar todo si no hay tags cargados)
     if (types.length > 0 && types.length < CATEGORIES_TAGS.length) {
       result = result.filter(m => {
         const merchantTags = m.tags || [];
         return types.some(type => merchantTags.includes(type));
       });
     }
-    
-    console.log(`[DEBUG] Merchants: ${data.length}, Filtered: ${result.length}`);
     setFilteredMerchants(result);
   };
 
@@ -233,18 +227,28 @@ export default function ExplorarPage() {
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
+      // Si la búsqueda queda vacía, dejamos registro para entender qué borró
+      if (value === '') trackClick('SEARCH_CLEARED', {});
     }
   };
 
   const handleSuggestionClick = (s: string) => {
     setSearchLocation(s);
     setShowSuggestions(false);
-    // Filtrar inmediatamente
-    const results = merchants.filter(m => 
+    
+    // Log in valuable data for missing zones or user intents
+    const hasResults = merchants.some(m => 
       m.name.toLowerCase().includes(s.toLowerCase()) || 
       m.locations?.some(l => l.locality.toLowerCase().includes(s.toLowerCase()))
     );
-    setFilteredMerchants(results);
+    trackClick('SEARCH_QUERY_SELECTED', { query: s, has_results: hasResults });
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setShowSuggestions(false);
+      trackClick('SEARCH_QUERY_ENTER', { query: searchLocation, results_count: filteredMerchants.length });
+    }
   };
 
   const toggleCategory = (id: string) => {
@@ -304,23 +308,23 @@ export default function ExplorarPage() {
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F4ED' }}>
       
-      {/* 1. HEADER PRINCIPAL (Extra fino) */}
+      {/* 1. HEADER PRINCIPAL (Extra fino, sin logo gráfico) */}
       <header className="main-header" style={{ 
-        padding: "0.5rem 1.5rem", 
+        padding: "0.4rem 1.5rem", 
         display: "flex", 
         justifyContent: "space-between", 
         alignItems: "center",
         background: "#F4F1E6", 
         zIndex: 1000,
         position: 'relative',
-        borderBottom: '1px solid rgba(0,0,0,0.05)'
+        borderBottom: '1px solid rgba(0,0,0,0.05)',
+        height: '52px'
       }}>
         <div 
           onClick={() => window.location.href = '/'}
           style={{ display: "flex", alignItems: "center", gap: "10px", cursor: 'pointer' }}
         >
-          <LogoV3 size={32} />
-          <span style={{ fontSize: "1.1rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em" }} className="desktop-only">ALIMNET</span>
+          <span style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em" }}>ALIMNET</span>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -343,9 +347,9 @@ export default function ExplorarPage() {
             padding: '1.2rem', zIndex: 2000, display: 'flex', flexDirection: 'column', gap: '1.2rem',
             border: '1px solid rgba(0,0,0,0.05)', animation: 'slideDown 0.2s ease-out'
           }}>
-            <a href="/sostener" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>💎 Sostener Alimnet</a>
-            <a href="/explorar" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>🗺️ Explorar Mapa</a>
-            <a href="/perfil" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>👤 Mi Perfil</a>
+            <a href="/sostener" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Sostener Alimnet</a>
+            <a href="/explorar" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Explorar Mapa</a>
+            <a href="/perfil" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Mi Perfil</a>
             <div style={{ height: '1px', background: '#eee', margin: '0.2rem 0' }}></div>
             <a href="/unirse" style={{ textDecoration: 'none', color: 'var(--primary)', fontWeight: '900', fontSize: '0.85rem' }}>Sumar mi comercio</a>
           </div>
@@ -373,6 +377,7 @@ export default function ExplorarPage() {
               type="text" placeholder="Buscar por zona o nombre..." value={searchLocation} 
               onChange={(e) => updateSuggestions(e.target.value)}
               onFocus={() => searchLocation.length > 2 && setShowSuggestions(true)}
+              onKeyDown={handleSearchKeyPress}
               style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.2rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.85rem', outline: 'none', background: '#f5f5f5' }} 
             />
             <SearchIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={14} />
@@ -458,6 +463,11 @@ export default function ExplorarPage() {
           width: '35%', minWidth: '400px', padding: '1rem', background: '#F8F9F5',
           borderRight: '1px solid var(--border)', height: 'calc(100vh - 120px)', overflowY: 'auto'
         }}>
+          <div style={{ marginBottom: '1.2rem', padding: '0.5rem 0.8rem', background: '#2D3A2010', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <h2 style={{ fontSize: '0.9rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>
+              {filteredMerchants.length} {filteredMerchants.length === 1 ? 'local encontrado' : 'locales encontrados'}
+            </h2>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
             {filteredMerchants.map(m => (
               <MerchantCard key={m.id} merchant={m} onClick={() => {
