@@ -4,25 +4,34 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import dynamic from 'next/dynamic';
 import { 
-  Search, 
-  MapPin, 
-  ChevronRight, 
-  X, 
-  Instagram, 
-  ExternalLink, 
-  ChevronDown,
-  Filter,
-  Lock,
-  Heart,
-  User,
-  CheckCircle2,
-  ChefHat,
-  Store,
-  UtensilsCrossed,
   Leaf,
   LogIn,
   UserCircle,
-  Map as MapIcon
+  Map as MapIcon,
+  Search as SearchIcon,
+  ChevronDown,
+  Navigation,
+  CheckCircle,
+  Wheat,
+  Sprout,
+  Milk,
+  Beef,
+  Coffee,
+  Sun,
+  CloudSun,
+  X,
+  Store,
+  ChefHat,
+  UtensilsCrossed,
+  MapPin,
+  Heart,
+  Instagram,
+  CheckCircle2,
+  Lock,
+  Filter,
+  User,
+  ExternalLink,
+  ChevronRight
 } from 'lucide-react';
 
 // Carga dinámica del mapa para evitar error "window is not defined" en SSR
@@ -62,15 +71,24 @@ interface Location {
   is_primary: boolean;
 }
 
-// --- Iconos Custom ---
-const FarmerIcon = ({ size = 16, color = "currentColor" }) => (
+// --- ICONOGRAFÍA PERSONALIZADA (Inspirada en las imágenes del usuario) ---
+const ProductorIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill={color}/>
+    <path d="M12 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM15.89 8.11C15.5 7.72 14.83 7 13.53 7h-3.06c-1.3 0-1.97.72-2.36 1.11L4 12.25V15h2v-2h1v9h2v-5h2v5h2v-9h1v2h2v-2.75l-4.11-4.14z" fill="currentColor" />
+    <path d="M6 14v8h1v-8H6zM18 14v8h-1v-8h1z" fill="currentColor" opacity="0.5" />
+    <path d="M5 10v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M3 10h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M19 10v10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
+const AgroecologicoIcon = ({ size = 16 }: { size?: number }) => <Sprout size={size} />;
+const OrganicoIcon = ({ size = 16 }: { size?: number }) => <Sun size={size} />;
+const BiodinamicoIcon = ({ size = 16 }: { size?: number }) => <CloudSun size={size} />;
+const PasturaIcon = ({ size = 16 }: { size?: number }) => <Wheat size={size} />;
+
 const CATEGORIES = [
-  { id: 'productor', label: 'Productor', icon: FarmerIcon },
+  { id: 'productor', label: 'Productor', icon: ProductorIcon },
   { id: 'almacen', label: 'Proveedor', icon: Store },
   { id: 'restaurante', label: 'Restaurante', icon: UtensilsCrossed },
   { id: 'chef', label: 'Chef', icon: ChefHat },
@@ -88,21 +106,33 @@ const CATEGORIES_TAGS = [
   'Otros'
 ];
 
-// --- NUEVO LOGO PRO ---
+const TAG_ICONS: Record<string, React.FC<{size?: number}>> = {
+  'Agroecológico': AgroecologicoIcon,
+  'Orgánico': OrganicoIcon,
+  'Biodinámico': BiodinamicoIcon,
+  'De Pastura': PasturaIcon,
+  'Libre de Gluten': Wheat,
+};
+
+// --- NUEVO LOGO PRO (EXACTO: ESFERA DE RED) ---
 function LogoV3({ size = 40 }: { size?: number }) {
   return (
-    <div style={{ position: 'relative', width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="30" cy="30" r="28" stroke="#5F7D4A" strokeWidth="0.5" strokeDasharray="1 3" />
-        <circle cx="30" cy="30" r="22" stroke="#5F7D4A" strokeWidth="0.5" strokeOpacity="0.4" />
-        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="26" fontWeight="950" fill="#1B2414">A</text>
-        <defs>
-          <radialGradient id="logo_glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(30 30) rotate(90) scale(28)">
-            <stop stopColor="#5F7D4A" stopOpacity="0.15"/>
-            <stop offset="1" stopColor="#5F7D4A" stopOpacity="0"/>
-          </radialGradient>
-        </defs>
-        <circle cx="30" cy="30" r="28" fill="url(#logo_glow)"/>
+    <div style={{ position: 'relative', width: size, height: size }}>
+      <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" stroke="#5F7D4A" strokeWidth="0.5" strokeDasharray="2 4" strokeOpacity="0.3" />
+        <circle cx="50" cy="50" r="40" stroke="#5F7D4A" strokeWidth="1" strokeDasharray="1 3" strokeOpacity="0.5" />
+        {/* Nodos de red */}
+        <circle cx="50" cy="15" r="3" fill="#5F7D4A" />
+        <circle cx="85" cy="50" r="3" fill="#5F7D4A" />
+        <circle cx="50" cy="85" r="3" fill="#5F7D4A" />
+        <circle cx="15" cy="50" r="3" fill="#5F7D4A" />
+        <circle cx="30" cy="30" r="2.5" fill="#5F7D4A" />
+        <circle cx="70" cy="30" r="2.5" fill="#5F7D4A" />
+        <circle cx="70" cy="70" r="2.5" fill="#5F7D4A" />
+        <circle cx="30" cy="70" r="2.5" fill="#5F7D4A" />
+        {/* Conexiones de red más densas */}
+        <path d="M50 15L85 50M85 50L50 85M50 85L15 50M15 50L50 15M30 30L70 70M70 30L30 70M50 15L30 30M50 15L70 30M85 50L70 30M85 50L70 70M50 85L70 70M50 85L30 70M15 50L30 70M15 50L30 30" stroke="#5F7D4A" strokeWidth="0.8" opacity="0.4" />
+        <text x="50" y="58" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="32" fontWeight="950" fill="#1B2414">A</text>
       </svg>
     </div>
   );
@@ -113,7 +143,7 @@ export default function ExplorarPage() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Desbloqueado por ahora
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
   const [showFoodDropdown, setShowFoodDropdown] = useState(false);
@@ -122,6 +152,8 @@ export default function ExplorarPage() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showHamburger, setShowHamburger] = useState(false);
   const [stickyFilters, setStickyFilters] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -191,9 +223,29 @@ export default function ExplorarPage() {
     setFilteredMerchants(result);
   };
 
-  useEffect(() => {
-    filterData(merchants, selectedCategories, selectedFoodTypes);
-  }, [selectedCategories, selectedFoodTypes, merchants]);
+  const updateSuggestions = (value: string) => {
+    setSearchLocation(value);
+    if (value.length > 1) {
+      const names = merchants.map(m => m.name);
+      const localities = Array.from(new Set(merchants.flatMap(m => m.locations?.map(l => l.locality) || [])));
+      const filtered = [...names, ...localities].filter(s => s?.toLowerCase().includes(value.toLowerCase())).slice(0, 5);
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (s: string) => {
+    setSearchLocation(s);
+    setShowSuggestions(false);
+    // Filtrar inmediatamente
+    const results = merchants.filter(m => 
+      m.name.toLowerCase().includes(s.toLowerCase()) || 
+      m.locations?.some(l => l.locality.toLowerCase().includes(s.toLowerCase()))
+    );
+    setFilteredMerchants(results);
+  };
 
   const toggleCategory = (id: string) => {
     const newCategories = selectedCategories.includes(id)
@@ -201,6 +253,13 @@ export default function ExplorarPage() {
       : [...selectedCategories, id];
     
     setSelectedCategories(newCategories);
+  };
+
+  const toggleFoodType = (type: string) => {
+    const newTypes = selectedFoodTypes.includes(type)
+      ? selectedFoodTypes.filter(t => t !== type)
+      : [...selectedFoodTypes, type];
+    setSelectedFoodTypes(newTypes);
   };
 
   const handleMerchantSelect = (m: Merchant) => {
@@ -245,60 +304,55 @@ export default function ExplorarPage() {
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F4ED' }}>
       
-      {/* 1. HEADER PRINCIPAL (Se va con el scroll estilo Argenprop) */}
+      {/* 1. HEADER PRINCIPAL (Extra fino) */}
       <header className="main-header" style={{ 
-        padding: "0.8rem 1.5rem", 
+        padding: "0.5rem 1.5rem", 
         display: "flex", 
         justifyContent: "space-between", 
         alignItems: "center",
-        background: "var(--background)",
+        background: "#F4F1E6", 
         zIndex: 1000,
-        position: 'relative'
+        position: 'relative',
+        borderBottom: '1px solid rgba(0,0,0,0.05)'
       }}>
         <div 
           onClick={() => window.location.href = '/'}
-          style={{ fontSize: "1.3rem", fontWeight: "950", color: "var(--primary-dark)", letterSpacing: "-0.05em", display: "flex", alignItems: "center", gap: "10px", cursor: 'pointer' }}
+          style={{ display: "flex", alignItems: "center", gap: "10px", cursor: 'pointer' }}
         >
-          <LogoV3 size={38} />
-          <span className="desktop-only text-primary-dark">ALIMNET</span>
+          <LogoV3 size={32} />
+          <span style={{ fontSize: "1.1rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em" }} className="desktop-only">ALIMNET</span>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button 
-            className="desktop-only button button-secondary"
-            onClick={() => window.location.href = '/login'}
-            style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem' }}
-          >
-            Ingresar
-          </button>
-          <button 
             className="hamburger-btn"
             onClick={() => setShowHamburger(!showHamburger)}
-            style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}
+            style={{ background: 'none', border: 'none', color: '#2D3A20', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}
           >
-            <div style={{ width: '22px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
-            <div style={{ width: '16px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
-            <div style={{ width: '22px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
+            {/* Triángulo Hamburguesa style */}
+            <div style={{ width: '12px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
+            <div style={{ width: '18px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
+            <div style={{ width: '24px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
           </button>
         </div>
 
         {showHamburger && (
           <div style={{ 
-            position: 'absolute', top: 'calc(100% + 10px)', right: '1rem', width: '220px', 
+            position: 'absolute', top: 'calc(100% + 5px)', right: '1rem', width: '220px', 
             background: 'white', borderRadius: '20px', boxShadow: '0 15px 40px rgba(0,0,0,0.12)', 
             padding: '1.2rem', zIndex: 2000, display: 'flex', flexDirection: 'column', gap: '1.2rem',
             border: '1px solid rgba(0,0,0,0.05)', animation: 'slideDown 0.2s ease-out'
           }}>
-            <a href="/sostener" style={{ textDecoration: 'none', color: 'var(--primary-dark)', fontWeight: '800', fontSize: '0.85rem' }}>💎 Sostener Alimnet</a>
-            <a href="/explorar" style={{ textDecoration: 'none', color: 'var(--primary-dark)', fontWeight: '800', fontSize: '0.85rem' }}>🗺️ Explorar Mapa</a>
-            <a href="/perfil" style={{ textDecoration: 'none', color: 'var(--primary-dark)', fontWeight: '800', fontSize: '0.85rem' }}>👤 Mi Perfil</a>
+            <a href="/sostener" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>💎 Sostener Alimnet</a>
+            <a href="/explorar" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>🗺️ Explorar Mapa</a>
+            <a href="/perfil" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>👤 Mi Perfil</a>
             <div style={{ height: '1px', background: '#eee', margin: '0.2rem 0' }}></div>
             <a href="/unirse" style={{ textDecoration: 'none', color: 'var(--primary)', fontWeight: '900', fontSize: '0.85rem' }}>Sumar mi comercio</a>
           </div>
         )}
       </header>
 
-      {/* 2. BARRA DE FILTROS (STICKY) */}
+      {/* 2. BARRA DE FILTROS (STICKY + DUAL ROW) */}
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
         padding: '0.8rem 1.5rem', 
         background: 'rgba(255, 255, 255, 0.98)', 
@@ -310,78 +364,101 @@ export default function ExplorarPage() {
         display: 'flex',
         flexDirection: 'column',
         gap: '0.8rem',
-        boxShadow: stickyFilters ? '0 8px 25px rgba(0,0,0,0.06)' : 'none',
-        transition: 'all 0.3s'
+        boxShadow: stickyFilters ? '0 10px 20px rgba(0,0,0,0.05)' : 'none'
       }}>
-        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: '4px' }} className="no-scrollbar">
+        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
           
-          <div className="search-box" style={{ position: 'relative', minWidth: '220px', flexShrink: 0 }}>
+          <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
             <input 
-              type="text" placeholder="Localidad o nombre..." value={searchLocation} 
-              onChange={(e) => setSearchLocation(e.target.value)}
+              type="text" placeholder="Buscar por zona o nombre..." value={searchLocation} 
+              onChange={(e) => updateSuggestions(e.target.value)}
+              onFocus={() => searchLocation.length > 2 && setShowSuggestions(true)}
               style={{ width: '100%', padding: '0.6rem 1rem 0.6rem 2.2rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.85rem', outline: 'none', background: '#f5f5f5' }} 
             />
-            <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={14} />
+            <SearchIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} size={14} />
+            
+            {showSuggestions && suggestions.length > 0 && (
+              <div style={{ position: 'absolute', top: '110%', left: 0, width: '100%', background: 'white', border: '1px solid var(--border)', borderRadius: '12px', zIndex: 1000, boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+                {suggestions.map(s => (
+                  <div key={s} onClick={() => handleSuggestionClick(s)} style={{ padding: '0.8rem 1rem', fontSize: '0.85rem', cursor: 'pointer', borderBottom: '1px solid #f9f9f9' }}>{s}</div>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', overflowX: 'auto', flex: 2 }} className="no-scrollbar">
             {CATEGORIES.map(cat => {
               const isActive = selectedCategories.includes(cat.id);
+              const CatIcon = cat.id === 'productor' ? ProductorIcon : cat.icon;
               return (
                 <button 
                   key={cat.id}
                   onClick={() => toggleCategory(cat.id)}
                   style={{
-                    padding: '0.5rem 1rem',
-                    fontSize: '0.75rem',
-                    fontWeight: '800',
-                    borderRadius: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
+                    padding: '0.5rem 1rem', fontSize: '0.75rem', fontWeight: '800', borderRadius: '10px',
+                    display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s',
                     border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
                     background: isActive ? 'var(--primary)' : 'white',
-                    color: isActive ? 'white' : 'var(--primary-dark)',
-                    whiteSpace: 'nowrap'
+                    color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap'
                   }}
                 >
-                  <cat.icon size={12} />
+                  <CatIcon size={14} />
                   {cat.label}
                 </button>
               );
             })}
           </div>
         </div>
+
+        {/* Segunda Fila: Tags (Agroecológico, etc) */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }} className="no-scrollbar">
+          {CATEGORIES_TAGS.map(tag => {
+            const isActive = selectedFoodTypes.includes(tag);
+            const TagIcon = TAG_ICONS[tag] || Sprout;
+            return (
+              <button 
+                key={tag}
+                onClick={() => toggleFoodType(tag)}
+                style={{
+                  padding: '0.4rem 0.8rem', fontSize: '0.7rem', fontWeight: '700', borderRadius: '8px',
+                  display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', transition: 'all 0.15s',
+                  border: '1px solid ' + (isActive ? 'var(--primary)' : '#eee'),
+                  background: isActive ? '#5F7D4A15' : 'transparent',
+                  color: isActive ? 'var(--primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap'
+                }}
+              >
+                <TagIcon size={12} />
+                {tag}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      {/* 3. CONTENIDO PRINCIPAL (Split Desktop / Toggle Mobile) */}
+      {/* 3. CONTENIDO PRINCIPAL */}
       <div className="main-content" style={{ flex: 1, display: 'flex', overflow: 'visible', position: 'relative' }}>
         
-        {/* Toggle Flotante Mobile (Estilo Argenprop/Maps) */}
+        {/* Toggle Flotante Mobile SOLAMENTE */}
         <button 
           className="mobile-only toggle-view-btn"
           onClick={() => setMobileView(mobileView === 'list' ? 'map' : 'list')}
           style={{ 
             position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', zIndex: 3000, 
-            background: '#1B2414', color: 'white', border: 'none', borderRadius: '30px', padding: '1rem 2rem',
+            background: '#2D3A20', color: 'white', border: 'none', borderRadius: '30px', padding: '1rem 2rem',
             boxShadow: '0 12px 30px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: '10px',
-            fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.05em', transition: 'all 0.2s'
+            fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.05em'
           }}
         >
-          {mobileView === 'list' ? <MapIcon size={18} /> : <Search size={18} />}
+          {mobileView === 'list' ? <MapIcon size={18} /> : <SearchIcon size={18} />}
           {mobileView === 'list' ? 'VER MAPA' : 'VER LISTADO'}
         </button>
 
         {/* LISTA DE RESULTADOS */}
-        <section className={`results-section ${mobileView === 'list' ? 'visible' : 'hidden'}`} style={{ 
-          width: '38%', minWidth: '420px', padding: '1.5rem', background: 'transparent' 
+        <section className={`results-section ${mobileView === 'list' ? 'active' : ''}`} style={{ 
+          width: '35%', minWidth: '400px', padding: '1rem', background: '#F8F9F5',
+          borderRight: '1px solid var(--border)', height: 'calc(100vh - 120px)', overflowY: 'auto'
         }}>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1.5rem' }}>
-            {filteredMerchants.length} Comercios encontrados
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.2rem' }} className="cards-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
             {filteredMerchants.map(m => (
               <MerchantCard key={m.id} merchant={m} onClick={() => {
                 handleMerchantSelect(m);
@@ -393,9 +470,9 @@ export default function ExplorarPage() {
 
         {/* MAPA */}
         <section className={`map-section ${mobileView === 'map' ? 'active' : ''}`} style={{ flex: 1, position: 'relative' }}>
-          <div style={{ position: 'sticky', top: stickyFilters ? '60px' : '0', height: 'calc(100vh - 60px)', width: '100%' }}>
+          <div style={{ position: 'sticky', top: 0, height: 'calc(100vh - 120px)', width: '100%' }}>
             <MapComponent 
-              providers={(filteredMerchants.length > 1 ? filteredMerchants : merchants).map(m => ({
+              providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
                 id: m.id,
                 name: m.name,
                 category: m.type,
@@ -458,37 +535,39 @@ export default function ExplorarPage() {
 }
 
 function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () => void }) {
-  const IconComponent = CATEGORIES.find(c => c.id === merchant.type?.toLowerCase())?.icon || MapPin;
+  const IconComponent = CATEGORIES.find(c => c.id === merchant.type?.toLowerCase())?.icon || (merchant.type === 'productor' ? ProductorIcon : Sprout);
   
   return (
     <div 
       onClick={onClick}
       style={{
         padding: '1.2rem', borderRadius: '24px', background: 'white', cursor: 'pointer',
-        border: '1px solid #eee', boxShadow: '0 8px 20px rgba(0,0,0,0.03)',
-        display: 'flex', flexDirection: 'column', gap: '12px', transition: 'all 0.2s'
+        border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+        display: 'flex', flexDirection: 'column', gap: '8px', transition: 'all 0.2s',
       }}
       className="merchant-card-pro"
     >
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <div style={{ 
-          width: '45px', height: '45px', borderRadius: '15px', background: '#F0F4ED', 
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', flexShrink: 0 
-        }}>
-          <IconComponent size={22} />
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ 
+            width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', flexShrink: 0 
+          }}>
+            <IconComponent size={20} />
+          </div>
+          <div style={{ overflow: 'hidden' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>{merchant.name}</h3>
+            <p style={{ fontSize: '0.8rem', color: '#5F7D4A', margin: 0, fontWeight: '800' }}>
+              {merchant.locations?.[0]?.locality || 'Zona Norte'}
+            </p>
+          </div>
         </div>
-        <div style={{ flex: 1, overflow: 'hidden' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{merchant.name}</h3>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, fontWeight: '700' }}>
-            📍 {merchant.locations?.[0]?.locality || 'Zona Norte'}
-          </p>
-        </div>
-        <div style={{ fontSize: '0.65rem', fontWeight: '900', background: 'var(--primary-dark)', color: 'white', padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>
+        <div style={{ fontSize: '0.6rem', fontWeight: '900', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>
           {merchant.type}
         </div>
       </div>
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.7, margin: 0, lineHeight: '1.5' }}>
-        {merchant.bio_short?.substring(0, 90)}...
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: '1.4' }}>
+        {merchant.bio_short?.substring(0, 85)}...
       </p>
     </div>
   );
