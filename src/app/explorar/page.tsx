@@ -219,6 +219,14 @@ export default function ExplorarPage() {
   const [deliveryType, setDeliveryType] = useState<'Retiro en local' | 'Entrega a domicilio'>('Retiro en local');
   const [searchQuery, setSearchQuery] = useState('');
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -480,7 +488,9 @@ export default function ExplorarPage() {
         
         {/* LA CÁPSULA AIRBNB CENTRADA */}
         <div style={{ 
-          width: '100%', maxWidth: '850px', display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'center'
+          width: '100%', maxWidth: '850px', display: 'flex', gap: isMobile ? '8px' : '12px', 
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'center'
         }}>
           <div 
             onMouseEnter={() => setIsHovered(true)}
@@ -495,14 +505,15 @@ export default function ExplorarPage() {
             {isSearchFocused && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: -1, pointerEvents: 'none', transition: 'opacity 0.3s' }} />}
             
             <div style={{ 
-              display: 'flex', background: 'white', borderRadius: '40px', border: '1px solid #ddd', 
+              display: 'flex', background: 'white', borderRadius: isMobile ? '20px' : '40px', border: '1px solid #ddd', 
+              flexDirection: isMobile ? 'column' : 'row',
               boxShadow: (isSearchFocused || isHovered) ? '0 15px 40px rgba(0,0,0,0.12)' : '0 4px 12px rgba(0,0,0,0.05)',
-              transition: 'all 0.2s', padding: '1px', alignItems: 'center'
+              transition: 'all 0.2s', padding: '1px', alignItems: isMobile ? 'stretch' : 'center'
             }} className="search-capsule">
               
               {/* SECCIÓN 1: BUSCAR */}
-              <div style={{ flex: 1.5, position: 'relative', padding: '6px 24px', borderRadius: '40px', cursor: 'text' }} className="capsule-section">
-                <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Buscar</label>
+              <div style={{ flex: 1.5, position: 'relative', padding: isMobile ? '8px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
+                <label style={{ display: 'block', fontSize: isMobile ? '0.55rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Buscar</label>
                 <input 
                   type="text" 
                   placeholder="Alimentos, lugares..." 
@@ -510,15 +521,15 @@ export default function ExplorarPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.8rem', fontWeight: '400', background: 'transparent' }}
+                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent' }}
                 />
               </div>
 
-              <div style={{ width: '1px', height: '24px', background: '#ddd' }}></div>
+              {!isMobile && <div style={{ width: '1px', height: '24px', background: '#ddd' }}></div>}
 
               {/* SECCIÓN 2: UBICACIÓN */}
-              <div style={{ flex: 1, position: 'relative', padding: '6px 24px', borderRadius: '40px', cursor: 'text' }} className="capsule-section">
-                <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Ubicación</label>
+              <div style={{ flex: 1, position: 'relative', padding: isMobile ? '8px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
+                <label style={{ display: 'block', fontSize: isMobile ? '0.55rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Ubicación</label>
                 <input 
                   type="text" 
                   placeholder="¿A dónde?" 
@@ -526,28 +537,28 @@ export default function ExplorarPage() {
                   onChange={(e) => setSearchLocation(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.8rem', fontWeight: '400', background: 'transparent' }}
+                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent' }}
                 />
               </div>
 
-              <div style={{ width: '1px', height: '24px', background: '#ddd' }}></div>
+              {!isMobile && <div style={{ width: '1px', height: '24px', background: '#ddd' }}></div>}
 
               {/* SECCIÓN 3: MODALIDAD */}
-              <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '24px', paddingRight: '6px' }}>
+              <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: isMobile ? '20px' : '24px', paddingRight: '6px', paddingBottom: isMobile ? '8px' : '0' }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Modalidad</label>
+                  <label style={{ display: 'block', fontSize: isMobile ? '0.55rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Modalidad</label>
                   <select 
                     value={deliveryType}
                     onChange={(e) => setDeliveryType(e.target.value as any)}
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: '0.8rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
                   >
                     <option value="Retiro en local">Retiro en local</option>
                     <option value="Entrega a domicilio">Entrega a domicilio</option>
                   </select>
                 </div>
                 
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                  <SearchIcon size={16} strokeWidth={3} />
+                <div style={{ width: isMobile ? '32px' : '36px', height: isMobile ? '32px' : '36px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <SearchIcon size={isMobile ? 14 : 16} strokeWidth={3} />
                 </div>
               </div>
             </div>
@@ -556,11 +567,12 @@ export default function ExplorarPage() {
           <button 
             onClick={() => setShowAdvancedFilters(true)}
             style={{ 
-              padding: '0.6rem 1.2rem', background: 'white', border: '1px solid #ddd', borderRadius: '12px', 
-              fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+              padding: isMobile ? '0.5rem 1rem' : '0.6rem 1.2rem', background: 'white', border: '1px solid #ddd', borderRadius: '12px', 
+              fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+              justifyContent: 'center'
             }}
           >
-            <Filter size={16} /> Filtros
+            <Filter size={isMobile ? 14 : 16} /> Filtros
           </button>
         </div>
 
@@ -648,12 +660,24 @@ export default function ExplorarPage() {
         </button>
 
         {/* LISTA DE RESULTADOS */}
-        <section className={`results-section ${mobileView === 'list' ? 'active' : ''}`} style={{ 
-          width: '35%', minWidth: '400px', padding: '1rem', background: '#F8F9F5',
-          borderRight: '1px solid var(--border)', height: 'calc(100vh - 120px)', overflowY: 'auto'
-        }}>
-          <div style={{ marginBottom: '1.2rem', padding: '0.5rem 0.8rem', background: '#2D3A2010', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <h2 style={{ fontSize: '0.9rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>
+        <section 
+          className="results-section" 
+          style={{ 
+            width: isMobile ? '100%' : '35%', 
+            minWidth: isMobile ? '0' : '400px', 
+            display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
+            padding: '1rem', background: '#F8F9F5',
+            borderRight: isMobile ? 'none' : '1px solid var(--border)', 
+            height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)', 
+            overflowY: 'auto'
+          }}
+        >
+          <div style={{ 
+            marginBottom: '1.2rem', padding: '0.6rem 1rem', background: 'white', borderRadius: '16px', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E4EBDD',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.02)' 
+          }}>
+            <h2 style={{ fontSize: '0.85rem', fontWeight: '900', color: '#2D3A20', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {filteredMerchants.length} {filteredMerchants.length === 1 ? 'local encontrado' : 'locales encontrados'}
             </h2>
           </div>
@@ -668,8 +692,15 @@ export default function ExplorarPage() {
         </section>
 
         {/* MAPA */}
-        <section className={`map-section ${mobileView === 'map' ? 'active' : ''}`} style={{ flex: 1, position: 'relative' }}>
-          <div style={{ position: 'sticky', top: 0, height: 'calc(100vh - 120px)', width: '100%' }}>
+        <section 
+          className="map-section" 
+          style={{ 
+            flex: 1, 
+            position: 'relative',
+            display: (isMobile && mobileView !== 'map') ? 'none' : 'block'
+          }}
+        >
+          <div style={{ position: 'sticky', top: 0, height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)', width: '100%' }}>
             <MapComponent 
               providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
                 id: m.id,
