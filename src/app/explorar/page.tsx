@@ -94,72 +94,85 @@ const CATEGORIES = [
   { id: 'chef', label: 'Chef', icon: ChefHat },
 ];
 
-const ADVANCED_FILTERS = [
-  {
-    title: 'Estilos / Prácticas',
-    options: ['Agroecológico', 'Orgánico', 'Biodinámico', 'Regenerativo', 'Sin agroquímicos', 'Comercio justo', 'Producción local', 'De estación']
-  },
-  {
-    title: 'Modelos',
-    options: ['CSA', 'Suscripción', 'Venta directa', 'Cooperativa', 'Prosumidor']
-  },
-  {
-    title: 'Organizaciones',
-    options: ['Demeter', 'AABDA', 'Orgánico certificado', 'Comercio justo certificado']
-  }
-];
+const ADVANCED_CATEGORIES = {
+  alimentacion: { label: 'Alimentación', options: ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'] },
+  calidad: { label: 'Calidad / Producción', options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Integral / no refinado', 'De estación', 'Local'] },
+  animal: { label: 'Producción animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
+  productos: { label: 'Tipo de producto', options: ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'] },
+  modelo: { label: 'Modelo', options: ['CSA', 'Cooperativa', 'Venta directa', 'Suscripción'] },
+  certificaciones: { label: 'Certificaciones', options: ['Demeter', 'AABDA', 'Orgánico certificado'] }
+};
 
-const FilterDropdown = ({ title, options, selected, toggleOption, clearOptions }: { title: string, options: string[], selected: string[], toggleOption: (o:string)=>void, clearOptions: ()=>void }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const activeCount = options.filter(o => selected.includes(o)).length;
+const SIMPLE_FILTERS = ['Sin gluten', 'Agroecológico', 'Orgánico', 'Plant-based', 'Sin ultraprocesados'];
+
+function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void }) {
+  if (!isOpen) return null;
+
+  const isPlantBased = selectedFilters.includes('Plant-based') || selectedFilters.includes('Vegetariano');
+  const isMeatSelected = selectedFilters.includes('Carne');
+
+  const renderSection = (key: keyof typeof ADVANCED_CATEGORIES, forceHighlight: boolean = false) => {
+    const section = ADVANCED_CATEGORIES[key];
+    return (
+      <div key={key} style={{ marginBottom: '1.5rem' }}>
+        <h4 style={{ fontSize: '0.85rem', fontWeight: '900', color: 'var(--primary-dark)', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{section.label}</h4>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {section.options.map(opt => {
+            const isActive = selectedFilters.includes(opt);
+            const isHighlighted = forceHighlight && !isActive;
+            return (
+              <button
+                key={opt} onClick={() => toggleFilter(opt)}
+                style={{
+                  padding: '0.5rem 1rem', fontSize: '0.8rem', fontWeight: '700', borderRadius: '12px',
+                  display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.15s',
+                  border: '1px solid ' + (isActive ? 'var(--primary)' : isHighlighted ? 'var(--primary-light)' : '#ddd'),
+                  background: isActive ? '#5F7D4A15' : 'white',
+                  color: isActive ? 'var(--primary)' : 'var(--text-secondary)'
+                }}
+              >
+                {opt}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="filter-dropdown" style={{ position: 'relative' }}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          padding: '0.4rem 0.8rem', fontSize: '0.75rem', fontWeight: '700', borderRadius: '8px',
-          display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', transition: 'all 0.15s',
-          border: '1px solid ' + (activeCount > 0 ? 'var(--primary)' : '#eee'),
-          background: activeCount > 0 ? '#5F7D4A15' : 'transparent',
-          color: activeCount > 0 ? 'var(--primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap'
-        }}
-      >
-        {title} {activeCount > 0 && `(${activeCount})`}
-        <ChevronDown size={12} strokeWidth={3} />
-      </button>
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 3000, backdropFilter: 'blur(4px)' }} />
+      <div style={{
+        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+        width: '90%', maxWidth: '600px', maxHeight: '90vh', background: 'white', borderRadius: '24px',
+        zIndex: 3001, display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px rgba(0,0,0,0.2)'
+      }}>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Filtros Avanzados</h2>
+          <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}><X size={20} /></button>
+        </div>
+        
+        <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+          {renderSection('alimentacion')}
+          {renderSection('calidad')}
+          {renderSection('productos')}
+          {!isPlantBased && renderSection('animal', isMeatSelected)}
+          {renderSection('modelo')}
+          {renderSection('certificaciones')}
+        </div>
 
-      {isOpen && (
-        <>
-          <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 1000 }} />
-          <div style={{
-            position: 'absolute', top: '110%', left: 0, minWidth: '220px', background: 'white',
-            border: '1px solid var(--border)', borderRadius: '12px', padding: '0.5rem',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 1001, display: 'flex', flexDirection: 'column', gap: '4px'
-          }}>
-            <button 
-              onClick={(e) => { e.stopPropagation(); clearOptions(); setIsOpen(false); }}
-              style={{ textAlign: 'left', padding: '0.5rem 0.8rem', fontSize: '0.8rem', background: 'none', border: 'none', cursor: 'pointer', fontWeight: activeCount === 0 ? '800' : '500', color: activeCount === 0 ? 'var(--primary)' : 'var(--text-secondary)' }}
-            >
-              Seleccionar todos
-            </button>
-            <div style={{ height: '1px', background: '#eee', margin: '4px 0' }} />
-            {options.map(opt => (
-              <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.5rem 0.8rem', fontSize: '0.8rem', cursor: 'pointer', borderRadius: '6px', background: selected.includes(opt) ? '#f9f9f9' : 'transparent' }}>
-                <input 
-                  type="checkbox" 
-                  checked={selected.includes(opt)} 
-                  onChange={() => toggleOption(opt)} 
-                  style={{ accentColor: 'var(--primary)', width: '14px', height: '14px' }}
-                />
-                <span style={{ fontWeight: selected.includes(opt) ? '700' : '500', color: selected.includes(opt) ? 'var(--primary)' : 'var(--text-primary)' }}>{opt}</span>
-              </label>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  )
+        <div style={{ padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9f9f9', borderRadius: '0 0 24px 24px' }}>
+          <button onClick={clearAll} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
+            Limpiar filtros
+          </button>
+          <button onClick={onClose} className="button button-primary" style={{ padding: '0.8rem 2rem', fontSize: '0.9rem', borderRadius: '12px' }}>
+            Ver {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''} resultados
+          </button>
+        </div>
+      </div>
+    </>
+  );
 }
 
 // --- NUEVO LOGO PRO (EXACTO: ESFERA DE RED) ---
@@ -173,8 +186,8 @@ export default function ExplorarPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(true); // Desbloqueado por ahora
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
-  const [showFoodDropdown, setShowFoodDropdown] = useState(false);
-  const [selectedFoodTypes, setSelectedFoodTypes] = useState<string[]>([]);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list'); 
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showHamburger, setShowHamburger] = useState(false);
@@ -205,7 +218,7 @@ export default function ExplorarPage() {
       } else {
         console.log(`[SUPABASE SUCCESS] Datos crudos:`, data?.length);
         setMerchants(data || []);
-        if (data) filterData(data, selectedCategories, selectedFoodTypes);
+        if (data) filterData(data, selectedCategories, selectedFilters);
       }
     } catch (err) {
       console.error('[CRITICAL]:', err);
@@ -244,15 +257,15 @@ export default function ExplorarPage() {
       );
     }
 
-    if (selectedFoodTypes.length > 0) {
+    if (selectedFilters.length > 0) {
       result = result.filter(m => {
         const merchantTags = m.tags || [];
-        return selectedFoodTypes.some(type => merchantTags.includes(type));
+        return selectedFilters.some(type => merchantTags.includes(type));
       });
     }
 
     setFilteredMerchants(result);
-  }, [selectedCategories, selectedFoodTypes, merchants, searchLocation]);
+  }, [selectedCategories, selectedFilters, merchants, searchLocation]);
 
   const filterData = (data: Merchant[], categories: string[], types: string[]) => {
     let result = data.filter(m => {
@@ -313,11 +326,11 @@ export default function ExplorarPage() {
     setSelectedCategories(newCategories);
   };
 
-  const toggleFoodType = (type: string) => {
-    const newTypes = selectedFoodTypes.includes(type)
-      ? selectedFoodTypes.filter(t => t !== type)
-      : [...selectedFoodTypes, type];
-    setSelectedFoodTypes(newTypes);
+  const toggleFilter = (type: string) => {
+    const newTypes = selectedFilters.includes(type)
+      ? selectedFilters.filter(t => t !== type)
+      : [...selectedFilters, type];
+    setSelectedFilters(newTypes);
   };
 
   const handleMerchantSelect = (m: Merchant) => {
@@ -469,21 +482,60 @@ export default function ExplorarPage() {
           </div>
         </div>
 
-        {/* Segunda Fila: Filtros Avanzados (Dropdowns) */}
+        {/* ROW 2: TIPO DE PRODUCTO */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }} className="no-scrollbar">
-          {ADVANCED_FILTERS.map(filterGroup => (
-            <FilterDropdown 
-              key={filterGroup.title}
-              title={filterGroup.title}
-              options={filterGroup.options}
-              selected={selectedFoodTypes}
-              toggleOption={toggleFoodType}
-              clearOptions={() => {
-                const newTypes = selectedFoodTypes.filter(t => !filterGroup.options.includes(t));
-                setSelectedFoodTypes(newTypes);
-              }}
-            />
-          ))}
+          {ADVANCED_CATEGORIES.productos.options.map(prod => {
+            const isActive = selectedFilters.includes(prod);
+            return (
+              <button 
+                key={prod} onClick={() => toggleFilter(prod)}
+                style={{
+                  padding: '0.4rem 1rem', fontSize: '0.8rem', fontWeight: '800', borderRadius: '20px',
+                  display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
+                  border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
+                  background: isActive ? 'var(--primary)' : '#f9f9f9',
+                  color: isActive ? 'white' : 'var(--text-secondary)', whiteSpace: 'nowrap'
+                }}
+              >
+                {prod}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* ROW 3: FILTROS SIMPLES + MÁS FILTROS */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', alignItems: 'center' }} className="no-scrollbar">
+          {SIMPLE_FILTERS.map(tag => {
+            const isActive = selectedFilters.includes(tag);
+            return (
+              <button 
+                key={tag} onClick={() => toggleFilter(tag)}
+                style={{
+                  padding: '0.35rem 0.8rem', fontSize: '0.75rem', fontWeight: '700', borderRadius: '8px',
+                  display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
+                  border: '1px solid ' + (isActive ? 'var(--primary)' : 'transparent'),
+                  background: isActive ? '#5F7D4A15' : 'transparent',
+                  color: isActive ? 'var(--primary)' : 'var(--text-secondary)', whiteSpace: 'nowrap'
+                }}
+              >
+                {tag}
+              </button>
+            )
+          })}
+          
+          <div style={{ width: '1px', height: '16px', background: '#ccc', margin: '0 4px' }} />
+          
+          <button 
+            onClick={() => setShowAdvancedFilters(true)}
+            style={{
+              padding: '0.35rem 0.8rem', fontSize: '0.75rem', fontWeight: '800', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', transition: 'all 0.15s',
+              border: '1px solid var(--border)', background: 'white', color: 'var(--primary-dark)', whiteSpace: 'nowrap'
+            }}
+          >
+            <Filter size={12} strokeWidth={2.5} />
+            Más filtros {selectedFilters.length > 0 && `(${selectedFilters.length})`}
+          </button>
         </div>
       </div>
 
@@ -587,12 +639,29 @@ export default function ExplorarPage() {
           .is-sticky { border-bottom: 2px solid var(--primary); }
         }
       `}</style>
+
+      {/* MODAL DE FILTROS AVANZADOS */}
+      <AdvancedFiltersModal
+        isOpen={showAdvancedFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        selectedFilters={selectedFilters}
+        toggleFilter={toggleFilter}
+        clearAll={() => setSelectedFilters([])}
+      />
     </div>
   );
 }
 
 function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () => void }) {
-  const IconComponent = CATEGORIES.find(c => c.id === merchant.type?.toLowerCase())?.icon || (merchant.type === 'productor' ? ProductorIcon : Sprout);
+  const types = (merchant.type || '').split(',').map(s => s.trim());
+  const mainType = types[0] || 'Productor';
+  const secondaryType = types.length > 1 ? types[1] : null;
+
+  const IconComponent = CATEGORIES.find(c => c.id === mainType.toLowerCase())?.icon || (mainType.toLowerCase() === 'productor' ? ProductorIcon : Sprout);
+  
+  const merchantTags = merchant.tags || [];
+  const visibleTags = merchantTags.slice(0, 3);
+  const isDirect = mainType.toLowerCase() === 'productor' && merchantTags.includes('Venta directa');
   
   return (
     <div 
@@ -619,13 +688,38 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
             </p>
           </div>
         </div>
-        <div style={{ fontSize: '0.6rem', fontWeight: '900', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>
-          {merchant.type}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+          <div style={{ fontSize: '0.6rem', fontWeight: '900', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>
+            {mainType}
+          </div>
+          {secondaryType && (
+            <div style={{ fontSize: '0.55rem', fontWeight: '800', background: '#5F7D4A15', color: '#5F7D4A', padding: '2px 8px', borderRadius: '20px', textTransform: 'uppercase' }}>
+              + {secondaryType}
+            </div>
+          )}
         </div>
       </div>
       <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: '1.4' }}>
         {merchant.bio_short?.substring(0, 85)}...
       </p>
+      
+      {(visibleTags.length > 0 || isDirect) && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+          {isDirect && (
+            <span style={{ fontSize: '0.65rem', fontWeight: '800', background: '#e8f5e9', color: '#2e7d32', padding: '3px 8px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <Leaf size={10} strokeWidth={2.5} /> Del campo a la mesa
+            </span>
+          )}
+          {visibleTags.map(tag => (
+            <span key={tag} style={{ fontSize: '0.65rem', fontWeight: '700', background: '#f5f5f5', color: 'var(--text-secondary)', padding: '3px 8px', borderRadius: '12px' }}>
+              {tag}
+            </span>
+          ))}
+          {merchantTags.length > 3 && (
+            <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#aaa', padding: '3px' }}>+{merchantTags.length - 3}</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -676,8 +770,10 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
             <span style={{ fontSize: '0.7rem', fontWeight: '900', marginTop: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Alimnet Proyect</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '1.2rem' }}>
-            <span style={{ padding: '0.3rem 0.8rem', background: 'var(--primary-dark)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900' }}>{merchant.type}</span>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
+            {merchant.type?.split(',').map(s => s.trim()).map(t => (
+              <span key={t} style={{ padding: '0.3rem 0.8rem', background: 'var(--primary-dark)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900', textTransform: 'uppercase' }}>{t}</span>
+            ))}
             <span style={{ padding: '0.3rem 0.8rem', background: 'var(--soft-leaf)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900' }}>Validado</span>
           </div>
 
