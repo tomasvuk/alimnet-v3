@@ -164,8 +164,13 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
         zIndex: 3001, display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px rgba(0,0,0,0.2)'
       }}>
         <div style={{ padding: '1.5rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Filtros Avanzados</h2>
-          <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}><X size={20} /></button>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Filtros</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button onClick={clearAll} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
+              Limpiar
+            </button>
+            <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}><X size={20} /></button>
+          </div>
         </div>
         
         <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
@@ -177,11 +182,8 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
           {renderSection('certificaciones')}
         </div>
 
-        <div style={{ padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9f9f9', borderRadius: '0 0 24px 24px' }}>
-          <button onClick={clearAll} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
-            Limpiar filtros
-          </button>
-          <button onClick={onClose} className="button button-primary" style={{ padding: '0.8rem 2rem', fontSize: '0.9rem', borderRadius: '12px' }}>
+        <div style={{ padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f9f9f9', borderRadius: '0 0 24px 24px' }}>
+          <button onClick={onClose} className="button button-primary" style={{ padding: '0.9rem 2rem', fontSize: '1rem', width: '100%', borderRadius: '12px' }}>
             Ver {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''} resultados
           </button>
         </div>
@@ -539,11 +541,11 @@ export default function ExplorarPage() {
               <button 
                 key={tag} onClick={() => toggleFilter(tag)}
                 style={{
-                  padding: '0.3rem 0.75rem', fontSize: '0.7rem', fontWeight: '600', borderRadius: '8px',
+                  padding: '0.35rem 0.85rem', fontSize: '0.75rem', fontWeight: '600', borderRadius: '20px',
                   display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
-                  border: isActive ? '1px solid var(--primary)' : '1px solid transparent',
-                  background: isActive ? '#5F7D4A15' : '#f0f0f0',
-                  color: isActive ? 'var(--primary)' : '#777', whiteSpace: 'nowrap'
+                  border: isActive ? '1px solid var(--primary-dark)' : '1px solid #e0e0e0',
+                  background: isActive ? '#5F7D4A15' : 'transparent',
+                  color: isActive ? 'var(--primary-dark)' : 'var(--text-secondary)', whiteSpace: 'nowrap'
                 }}
               >
                 {tag}
@@ -667,19 +669,46 @@ export default function ExplorarPage() {
 }
 
 function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () => void }) {
+  const [isHovered, setIsHovered] = useState(false);
   const types = (merchant.type || '').split(',').map(s => s.trim());
   const mainType = types[0] || 'Productor';
   const secondaryType = types.length > 1 ? types[1] : null;
 
   const IconComponent = CATEGORIES.find(c => c.id === mainType.toLowerCase())?.icon || (mainType.toLowerCase() === 'productor' ? ProductorIcon : Sprout);
   
-  const merchantTags = merchant.tags || [];
-  const visibleTags = merchantTags.slice(0, 3);
-  const isDirect = mainType.toLowerCase() === 'productor' && merchantTags.includes('Venta directa');
+  const allTags = merchant.tags || [];
+  const productOptions = ADVANCED_CATEGORIES.productos.options;
   
+  const productTags = allTags.filter(t => productOptions.includes(t));
+  const otherTags = allTags.filter(t => !productOptions.includes(t) && t !== 'Venta directa');
+  
+  // Tag Limiter
+  const maxVisibleTags = 3;
+  const visibleOtherTags = isHovered ? otherTags : otherTags.slice(0, maxVisibleTags);
+  const hiddenTagsCount = otherTags.length - maxVisibleTags;
+  
+  // Product Icons logic
+  const visibleProducts = isHovered ? productTags : productTags.slice(0, 1);
+  const hiddenProductsCount = productTags.length - 1;
+
+  const isDirect = mainType.toLowerCase() === 'productor' && allTags.includes('Venta directa');
+  
+  // Location formatting
+  const locations = merchant.locations || [];
+  let displayLocation = 'Zona Norte';
+  if (locations.length === 1) {
+    const loc = locations[0];
+    displayLocation = loc.locality || 'Zona Norte'; 
+  } else if (locations.length > 1) {
+    const firstLocality = locations[0]?.locality?.split(' | ')?.[1] || locations[0]?.locality || 'Zona';
+    displayLocation = `${locations.length} sucursales | ${firstLocality}`;
+  }
+
   return (
     <div 
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         padding: '1.2rem', borderRadius: '24px', background: 'white', cursor: 'pointer',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
@@ -687,19 +716,33 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       }}
       className="merchant-card-pro"
     >
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
           <div style={{ 
             width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', flexShrink: 0 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', flexShrink: 0, marginTop: '2px'
           }}>
             <IconComponent size={20} />
           </div>
           <div style={{ overflow: 'hidden' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>{merchant.name}</h3>
-            <p style={{ fontSize: '0.8rem', color: '#5F7D4A', margin: 0, fontWeight: '800' }}>
-              {merchant.locations?.[0]?.locality || 'Zona Norte'}
+            <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20', margin: 0, lineHeight: '1.2', marginBottom: '4px' }}>{merchant.name}</h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <MapPin size={10} /> {displayLocation}
             </p>
+            {productTags.length > 0 && (
+              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '6px' }}>
+                {visibleProducts.map(pt => (
+                  <span key={pt} style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--primary-dark)', background: '#f5f5f5', padding: '2px 6px', borderRadius: '6px' }}>
+                    📦 {pt}
+                  </span>
+                ))}
+                {!isHovered && hiddenProductsCount > 0 && (
+                    <span style={{ fontSize: '0.65rem', fontWeight: '900', color: 'var(--text-secondary)', padding: '2px 4px' }}>
+                      +{hiddenProductsCount}
+                    </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
@@ -713,24 +756,24 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
           )}
         </div>
       </div>
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, margin: 0, lineHeight: '1.4' }}>
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, margin: '4px 0 0 0', lineHeight: '1.4' }}>
         {merchant.bio_short?.substring(0, 85)}...
       </p>
       
-      {(visibleTags.length > 0 || isDirect) && (
+      {(visibleOtherTags.length > 0 || isDirect) && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
           {isDirect && (
             <span style={{ fontSize: '0.65rem', fontWeight: '800', background: '#e8f5e9', color: '#2e7d32', padding: '3px 8px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '3px' }}>
               <Leaf size={10} strokeWidth={2.5} /> Del campo a la mesa
             </span>
           )}
-          {visibleTags.map(tag => (
-            <span key={tag} style={{ fontSize: '0.65rem', fontWeight: '700', background: '#f5f5f5', color: 'var(--text-secondary)', padding: '3px 8px', borderRadius: '12px' }}>
+          {visibleOtherTags.map(tag => (
+            <span key={tag} style={{ fontSize: '0.65rem', fontWeight: '700', background: 'transparent', color: 'var(--text-secondary)', padding: '3px 8px', borderRadius: '12px', border: '1px solid #eee' }}>
               {tag}
             </span>
           ))}
-          {merchantTags.length > 3 && (
-            <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#aaa', padding: '3px' }}>+{merchantTags.length - 3}</span>
+          {!isHovered && hiddenTagsCount > 0 && (
+            <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#aaa', padding: '3px' }}>+{hiddenTagsCount}</span>
           )}
         </div>
       )}
