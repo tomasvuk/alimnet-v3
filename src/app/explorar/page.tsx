@@ -680,6 +680,18 @@ export default function ExplorarPage() {
           </button>
         </div>
 
+        {/* CONTENEDOR DE PILLS (CON ESCALONAMIENTO AL SCROLLEAR) */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: '0.8rem', width: '100%', alignItems: 'center',
+          maxHeight: (isMobile && !isHeaderVisible) ? '0' : '200px',
+          opacity: (isMobile && !isHeaderVisible) ? 0 : 1,
+          transform: (isMobile && !isHeaderVisible) ? 'translateY(-20px)' : 'translateY(0)',
+          overflow: 'hidden',
+          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+          pointerEvents: (isMobile && !isHeaderVisible) ? 'none' : 'auto'
+        }}>
+
+
         {/* ROW CATEGORÍAS (Roles) - CENTRADO */}
         <div style={{ 
           display: 'flex', gap: isMobile ? '6px' : '8px', alignItems: 'center', 
@@ -740,8 +752,7 @@ export default function ExplorarPage() {
             )
           })}
         </div>
-
-        {/* ROW FILTROS DINÁMICOS REMOVED TO PREVENT DUPLICATION */}
+        </div>
       </div>
 
       {/* 3. CONTENIDO PRINCIPAL */}
