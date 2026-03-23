@@ -53,6 +53,7 @@ interface UserProfile {
   delivery_preference: string | null;
   preferred_zones: string[];
   search_radius_km: number | null;
+  categories_interest: string[];
 }
 
 export default function MiCuentaPage() {
@@ -71,10 +72,10 @@ export default function MiCuentaPage() {
     locality: '',
     province: '',
     dietary_type: '',
-    delivery_preference: 'Ambos',
+    delivery_preference: 'Retiro y Entrega',
     preferred_zones: [] as string[],
-    intolerances: [] as string[], // We'll map this to 'Alimentación'
-    preferences: [] as string[],   // We'll map this to 'Producción'
+    intolerances: [] as string[],
+    preferences: [] as string[],
     categories_interest: [] as string[],
   });
 
@@ -106,11 +107,11 @@ export default function MiCuentaPage() {
           locality: p.locality || '',
           province: p.province || '',
           dietary_type: p.dietary_type || '',
-          delivery_preference: p.delivery_preference || 'Ambos',
+          delivery_preference: p.delivery_preference || 'Retiro y Entrega',
           preferred_zones: Array.isArray(p.preferred_zones) ? p.preferred_zones : [],
           intolerances: Array.isArray(p.intolerances) ? p.intolerances : [],
           preferences: Array.isArray(p.preferences) ? p.preferences : [],
-          categories_interest: (p as any).categories_interest || [],
+          categories_interest: Array.isArray(p.categories_interest) ? p.categories_interest : [],
         });
       }
       setLoading(false);
@@ -121,43 +122,40 @@ export default function MiCuentaPage() {
   const handleSaveProfile = async () => {
     if (!user) return;
     setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: editForm.first_name,
+          last_name: editForm.last_name,
+          full_name: `${editForm.first_name} ${editForm.last_name}`.trim(),
+          locality: editForm.locality,
+          province: editForm.province,
+          dietary_type: editForm.dietary_type,
+          delivery_preference: editForm.delivery_preference,
+          preferred_zones: editForm.preferred_zones,
+          intolerances: editForm.intolerances,
+          preferences: editForm.preferences,
+          categories_interest: editForm.categories_interest,
+        })
+        .eq('id', user.id);
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        first_name: editForm.first_name,
-        last_name: editForm.last_name,
-        full_name: `${editForm.first_name} ${editForm.last_name}`.trim(),
-        locality: editForm.locality,
-        province: editForm.province,
-        dietary_type: editForm.dietary_type,
-        delivery_preference: editForm.delivery_preference,
-        preferred_zones: editForm.preferred_zones,
-        intolerances: editForm.intolerances,
-        preferences: editForm.preferences,
-        categories_interest: editForm.categories_interest,
-      })
-      .eq('id', user.id);
+      if (error) throw error;
 
-    setSaving(false);
-    if (!error) {
       setProfile(prev => prev ? {
         ...prev,
-        first_name: editForm.first_name,
-        last_name: editForm.last_name,
-        full_name: `${editForm.first_name} ${editForm.last_name}`.trim(),
-        locality: editForm.locality,
-        province: editForm.province,
-        dietary_type: editForm.dietary_type,
-        delivery_preference: editForm.delivery_preference,
-        preferred_zones: editForm.preferred_zones,
-        intolerances: editForm.intolerances,
-        preferences: editForm.preferences,
-        categories_interest: editForm.categories_interest,
+        ...editForm,
+        full_name: `${editForm.first_name} ${editForm.last_name}`.trim()
       } : null);
+      
       setEditing(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Hubo un problema al guardar. Intentá de nuevo.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -175,14 +173,7 @@ export default function MiCuentaPage() {
     }));
   };
 
-  const toggleIntolerance = (item: string) => {
-    setEditForm(prev => ({
-      ...prev,
-      intolerances: prev.intolerances.includes(item)
-        ? prev.intolerances.filter(i => i !== item)
-        : [...prev.intolerances, item]
-    }));
-  };
+  const filteredZones = ZONE_OPTIONS.filter(z => z.toLowerCase().includes(zoneSearch.toLowerCase()));
 
   if (loading) {
     return (
@@ -199,24 +190,8 @@ export default function MiCuentaPage() {
   const initials = profile?.first_name ? `${profile.first_name[0]}${profile.last_name?.[0] || ''}`.toUpperCase() : 'U';
   const memberSince = user?.created_at ? new Date(user.created_at).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }) : 'Reciente';
 
-  const deliveryLabel = (v: string | null) => {
-    if (!v) return 'No especificado';
-    return v;
-  };
-
-  const dietaryLabel = (v: string | null) => {
-    const opt = DIETARY_OPTIONS.find(o => o.value === v);
-    return opt ? opt.label : v || 'Sin especificar';
-  };
-
-  const filteredZones = ZONE_OPTIONS.filter(z => z.toLowerCase().includes(zoneSearch.toLowerCase()));
-
-  // ═══════════════════════════════════════════
-  //  RENDER: Profile Tab (HERO SECTION)
-  // ═══════════════════════════════════════════
   const renderProfileTab = () => (
     <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
-
       {/* Success Toast */}
       {saveSuccess && (
         <div style={{ 
@@ -229,534 +204,136 @@ export default function MiCuentaPage() {
         </div>
       )}
 
-      {/* ══════ HERO: PROFILE CARD ══════ */}
-      <div style={{ 
-        background: 'white', borderRadius: '32px', 
-        border: '1px solid #E4EBDD', overflow: 'hidden', marginBottom: '1.5rem',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.04)'
-      }}>
-        {/* Banner gradient */}
-        <div style={{ 
-          height: isMobile ? '100px' : '120px', 
-          background: 'linear-gradient(135deg, #2D3A20, #5F7D4A, #7FA05B)',
-          position: 'relative'
-        }}>
+      {/* HERO: PROFILE CARD */}
+      <div style={{ background: 'white', borderRadius: '32px', border: '1px solid #E4EBDD', overflow: 'hidden', marginBottom: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+        <div style={{ height: isMobile ? '100px' : '120px', background: 'linear-gradient(135deg, #2D3A20, #5F7D4A, #7FA05B)', position: 'relative' }}>
           <Leaf size={120} style={{ position: 'absolute', right: '20px', top: '-20px', opacity: 0.12, color: 'white' }} />
         </div>
-
-        {/* Avatar + Name + Edit Button */}
         <div style={{ padding: isMobile ? '0 1.5rem 1.5rem' : '0 2.5rem 2rem', marginTop: '-45px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'flex-end', flexDirection: isMobile ? 'column' : 'row', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.2rem' }}>
-              <div style={{ 
-                width: '90px', height: '90px', borderRadius: '28px', 
-                background: 'linear-gradient(135deg, #5F7D4A, #7FA05B)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'white', fontSize: '2rem', fontWeight: '950', 
-                border: '4px solid white', boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
-                flexShrink: 0
-              }}>
-                {initials}
-              </div>
+              <div style={{ width: '90px', height: '90px', borderRadius: '28px', background: 'linear-gradient(135deg, #5F7D4A, #7FA05B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2rem', fontWeight: '950', border: '4px solid white', boxShadow: '0 8px 20px rgba(0,0,0,0.1)', flexShrink: 0 }}>{initials}</div>
               <div style={{ paddingBottom: '4px' }}>
                 <h1 style={{ fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: '950', color: '#2D3A20', lineHeight: 1.2 }}>{displayName}</h1>
                 <p style={{ color: '#6B7C5E', fontSize: '0.8rem', marginTop: '4px' }}>{user?.email}</p>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', marginTop: '6px', padding: '3px 10px', borderRadius: '20px', background: '#F0F4ED', fontSize: '0.7rem', fontWeight: '800', color: '#5F7D4A' }}>
-                  <Star size={11} fill="#5F7D4A" /> Miembro desde {memberSince}
-                </div>
               </div>
             </div>
-
-            {/* ══════ EDIT BUTTON (MUY VISIBLE) ══════ */}
-            <button 
-              onClick={() => editing ? handleSaveProfile() : setEditing(true)}
-              disabled={saving}
-              style={{ 
-                padding: editing ? '0.8rem 2rem' : '0.8rem 1.8rem', 
-                borderRadius: '16px', border: 'none',
-                background: editing ? (saving ? '#94a88a' : '#5F7D4A') : 'linear-gradient(135deg, #5F7D4A, #4A6B35)',
-                color: 'white', fontWeight: '900', cursor: 'pointer', fontSize: '0.9rem',
-                boxShadow: '0 6px 20px rgba(95,125,74,0.3)',
-                display: 'flex', alignItems: 'center', gap: '8px',
-                transition: 'all 0.2s', flexShrink: 0,
-                transform: editing ? 'none' : 'none'
-              }}
-            >
-              {saving ? (
-                <><div style={{ width: '16px', height: '16px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} /> Guardando...</>
-              ) : editing ? (
-                <><Check size={18} /> Guardar Cambios</>
-              ) : (
-                <><Edit3 size={18} /> Editar Perfil</>
-              )}
+            <button onClick={() => editing ? handleSaveProfile() : setEditing(true)} disabled={saving} style={{ padding: '0.8rem 1.8rem', borderRadius: '16px', border: 'none', background: editing ? (saving ? '#94a88a' : '#5F7D4A') : 'linear-gradient(135deg, #5F7D4A, #4A6B35)', color: 'white', fontWeight: '900', cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 6px 20px rgba(95,125,74,0.3)', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s', flexShrink: 0 }}>
+              {saving ? 'Guardando...' : editing ? <><Check size={18} /> Guardar</> : <><Edit3 size={18} /> Editar Perfil</>}
             </button>
           </div>
-
-          {editing && (
-            <button onClick={() => setEditing(false)} style={{ marginTop: '0.5rem', background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700' }}>
-              ✕ Cancelar edición
-            </button>
-          )}
+          {editing && <button onClick={() => setEditing(false)} style={{ marginTop: '0.5rem', background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700' }}>✕ Cancelar edición</button>}
         </div>
       </div>
 
-      {/* ══════ SECTION: DATOS PERSONALES ══════ */}
-      <div style={{ 
-        background: 'white', borderRadius: '28px', padding: isMobile ? '1.5rem' : '2rem',
-        border: '1px solid #E4EBDD', marginBottom: '1rem',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.02)'
-      }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <User size={16} color="#5F7D4A" />
-          </div>
-          Datos Personales
-        </h3>
-
+      {/* DATOS PERSONALES */}
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}><User size={16} color="#5F7D4A" /> Datos Personales</h3>
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.2rem' }}>
-          {/* Nombre */}
           <div>
             <label style={labelStyle}>Nombre</label>
-            {editing ? (
-              <input type="text" value={editForm.first_name} onChange={(e) => setEditForm(p => ({ ...p, first_name: e.target.value }))} placeholder="Tu nombre" style={inputStyle} />
-            ) : (
-              <p style={valueStyle}>{profile?.first_name || '—'}</p>
-            )}
+            {editing ? <input type="text" value={editForm.first_name} onChange={(e) => setEditForm(p => ({ ...p, first_name: e.target.value }))} style={inputStyle} /> : <p style={valueStyle}>{profile?.first_name || '—'}</p>}
           </div>
-          {/* Apellido */}
           <div>
             <label style={labelStyle}>Apellido</label>
-            {editing ? (
-              <input type="text" value={editForm.last_name} onChange={(e) => setEditForm(p => ({ ...p, last_name: e.target.value }))} placeholder="Tu apellido" style={inputStyle} />
-            ) : (
-              <p style={valueStyle}>{profile?.last_name || '—'}</p>
-            )}
+            {editing ? <input type="text" value={editForm.last_name} onChange={(e) => setEditForm(p => ({ ...p, last_name: e.target.value }))} style={inputStyle} /> : <p style={valueStyle}>{profile?.last_name || '—'}</p>}
           </div>
-          {/* Localidad */}
           <div>
             <label style={labelStyle}>Ubicación</label>
-            {editing ? (
-              <input type="text" value={editForm.locality} onChange={(e) => setEditForm(p => ({ ...p, locality: e.target.value }))} placeholder="Ej: Pilar, Buenos Aires" style={inputStyle} />
-            ) : (
-              <p style={valueStyle}>
-                <MapPin size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px', color: '#5F7D4A' }} />
-                {profile?.locality || '—'}{profile?.province ? `, ${profile.province}` : ''}
-              </p>
-            )}
+            {editing ? <input type="text" value={editForm.locality} onChange={(e) => setEditForm(p => ({ ...p, locality: e.target.value }))} style={inputStyle} /> : <p style={valueStyle}><MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} /> {profile?.locality || '—'}</p>}
           </div>
-          {/* Provincia */}
           <div>
             <label style={labelStyle}>Provincia</label>
-            {editing ? (
-              <input type="text" value={editForm.province} onChange={(e) => setEditForm(p => ({ ...p, province: e.target.value }))} placeholder="Ej: Buenos Aires" style={inputStyle} />
-            ) : (
-              <p style={valueStyle}>{profile?.province || '—'}</p>
-            )}
+            {editing ? <input type="text" value={editForm.province} onChange={(e) => setEditForm(p => ({ ...p, province: e.target.value }))} style={inputStyle} /> : <p style={valueStyle}>{profile?.province || '—'}</p>}
           </div>
         </div>
       </div>
 
-      {/* ══════ SECTION: PREFERENCIA DE ENVÍO ══════ */}
-      <div style={{ 
-        background: 'white', borderRadius: '28px', padding: isMobile ? '1.5rem' : '2rem',
-        border: '1px solid #E4EBDD', marginBottom: '1rem',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.02)'
-      }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#EBF5FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Truck size={16} color="#2563EB" />
-          </div>
-          ¿Cómo preferís recibir?
-        </h3>
-
+      {/* ENTREGA */}
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}><Truck size={16} color="#2563EB" /> ¿Cómo preferís recibir?</h3>
         {editing ? (
-          <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {DELIVERY_OPTIONS.map(opt => (
-              <button 
-                key={opt}
-                onClick={() => setEditForm(p => ({ ...p, delivery_preference: opt }))}
-                style={{ 
-                  flex: isMobile ? '1 1 100%' : '1',
-                  padding: '1rem', borderRadius: '16px', cursor: 'pointer',
-                  border: editForm.delivery_preference === opt ? '2px solid #5F7D4A' : '1px solid #E4EBDD',
-                  background: editForm.delivery_preference === opt ? '#F0F4ED' : 'white',
-                  textAlign: 'left', transition: 'all 0.15s'
-                }}
-              >
-                <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#2D3A20' }}>{opt}</div>
-              </button>
+              <button key={opt} onClick={() => setEditForm(p => ({ ...p, delivery_preference: opt }))} style={{ padding: '0.8rem 1rem', borderRadius: '12px', border: editForm.delivery_preference === opt ? '2px solid #5F7D4A' : '1px solid #E4EBDD', background: editForm.delivery_preference === opt ? '#F0F4ED' : 'white', cursor: 'pointer', fontWeight: '800', fontSize: '0.85rem' }}>{opt}</button>
             ))}
           </div>
         ) : (
-          <div style={{ 
-            padding: '1rem', background: '#F8F9F5', borderRadius: '16px',
-            fontSize: '1rem', fontWeight: '700', color: '#2D3A20'
-          }}>
-            {deliveryLabel(profile?.delivery_preference)}
-          </div>
+          <p style={valueStyle}>{profile?.delivery_preference || 'No especificado'}</p>
         )}
       </div>
 
-      {/* ══════ SECTION: ZONAS DONDE QUERÉS RECIBIR ══════ */}
-      <div style={{ 
-        background: 'white', borderRadius: '28px', padding: isMobile ? '1.5rem' : '2rem',
-        border: '1px solid #E4EBDD', marginBottom: '1rem',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.02)'
-      }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#2D3A20', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <MapPin size={16} color="#D97706" />
-          </div>
-          Zonas donde querés recibir
-        </h3>
-        <p style={{ fontSize: '0.8rem', color: '#6B7C5E', marginBottom: '1.2rem' }}>
-          Esto nos permite mostrarte locales que hacen envíos a tu zona.
-        </p>
-
+      {/* ZONAS */}
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}><MapPin size={16} color="#D97706" /> Zonas de entrega</h3>
         {editing ? (
           <div>
-            {/* Search zones */}
-            <div style={{ position: 'relative', marginBottom: '1rem' }}>
-              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
-              <input 
-                type="text" value={zoneSearch} onChange={(e) => setZoneSearch(e.target.value)}
-                placeholder="Buscar zona..."
-                style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.5rem', borderRadius: '12px', border: '1px solid #E4EBDD', outline: 'none', fontSize: '0.85rem' }}
-              />
+             <div style={{ position: 'relative', marginBottom: '0.8rem' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+              <input type="text" value={zoneSearch} onChange={(e) => setZoneSearch(e.target.value)} placeholder="Buscar zona..." style={{ width: '100%', padding: '0.5rem' , paddingLeft: '2rem', borderRadius: '10px', border: '1px solid #ddd' }} />
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
-              {filteredZones.map(zone => {
-                const selected = editForm.preferred_zones.includes(zone);
-                return (
-                  <button 
-                    key={zone} onClick={() => toggleZone(zone)}
-                    style={{ 
-                      padding: '0.5rem 1rem', borderRadius: '20px', cursor: 'pointer',
-                      border: selected ? '2px solid #5F7D4A' : '1px solid #E4EBDD',
-                      background: selected ? '#5F7D4A' : 'white',
-                      color: selected ? 'white' : '#2D3A20',
-                      fontSize: '0.8rem', fontWeight: '700', transition: 'all 0.15s',
-                      display: 'flex', alignItems: 'center', gap: '4px'
-                    }}
-                  >
-                    {selected && <Check size={12} />} {zone}
-                  </button>
-                );
-              })}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {filteredZones.map(z => (
+                <button key={z} onClick={() => toggleZone(z)} style={{ padding: '0.4rem 0.8rem', borderRadius: '20px', border: editForm.preferred_zones.includes(z) ? '2px solid #5F7D4A' : '1px solid #ddd', background: editForm.preferred_zones.includes(z) ? '#F0F4ED' : 'white', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700' }}>{z}</button>
+              ))}
             </div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {(profile?.preferred_zones && profile.preferred_zones.length > 0) 
-              ? profile.preferred_zones.map((z: string) => (
-                <span key={z} style={{ padding: '0.4rem 1rem', borderRadius: '20px', background: '#F0F4ED', color: '#2D3A20', fontSize: '0.8rem', fontWeight: '700', border: '1px solid #D4E0CC' }}>
-                  📍 {z}
-                </span>
-              ))
-              : <p style={{ color: '#999', fontSize: '0.85rem', fontStyle: 'italic' }}>No definiste zonas todavía</p>
-            }
+            {profile?.preferred_zones.map(z => <span key={z} style={{ padding: '0.3rem 0.8rem', background: '#F0F4ED', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700' }}>{z}</span>)}
           </div>
         )}
       </div>
 
-      {/* ══════ SECTION: TIPO DE ALIMENTACIÓN ══════ */}
-      <div style={{ 
-        background: 'white', borderRadius: '28px', padding: isMobile ? '1.5rem' : '2rem',
-        border: '1px solid #E4EBDD', marginBottom: '1rem',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.02)'
-      }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Leaf size={16} color="#059669" />
-          </div>
-          Mi Alimentación
-        </h3>
-
-        {editing ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {DIETARY_OPTIONS.map(opt => {
-              const selected = editForm.intolerances.includes(opt.label);
-              return (
-                <button 
-                  key={opt.value} onClick={() => {
-                    const newI = editForm.intolerances.includes(opt.label)
-                      ? editForm.intolerances.filter(i => i !== opt.label)
-                      : [...editForm.intolerances, opt.label];
-                    setEditForm(p => ({ ...p, intolerances: newI }));
-                  }}
-                  style={{ 
-                    padding: '0.6rem 1rem', borderRadius: '14px', cursor: 'pointer',
-                    border: selected ? '2px solid #059669' : '1px solid #E4EBDD',
-                    background: selected ? '#ECFDF5' : 'white',
-                    color: '#2D3A20', fontSize: '0.8rem', fontWeight: '700',
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {(profile?.intolerances && profile.intolerances.length > 0)
-              ? profile.intolerances.map((i: string) => (
-                <span key={i} style={{ padding: '0.4rem 1rem', borderRadius: '20px', background: '#ECFDF5', color: '#059669', fontSize: '0.8rem', fontWeight: '700', border: '1px solid #D1FAE5' }}>
-                  {i}
-                </span>
-              ))
-              : <p style={{ color: '#999', fontSize: '0.85rem', fontStyle: 'italic' }}>Sin especificar</p>
-            }
-          </div>
-        )}
-
-        {/* Producción */}
-        <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#2D3A20', marginTop: '2rem', marginBottom: '0.8rem' }}>
-          Calidad y Producción
-        </h4>
-        {editing ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {PRODUCTION_OPTIONS.map(item => {
-              const selected = editForm.preferences.includes(item);
-              return (
-                <button 
-                  key={item} onClick={() => {
-                    const newP = editForm.preferences.includes(item)
-                      ? editForm.preferences.filter(p => p !== item)
-                      : [...editForm.preferences, item];
-                    setEditForm(p => ({ ...p, preferences: newP }));
-                  }}
-                  style={{ 
-                    padding: '0.5rem 1rem', borderRadius: '20px', cursor: 'pointer',
-                    border: selected ? '2px solid #5F7D4A' : '1px solid #E4EBDD',
-                    background: selected ? '#F0F4ED' : 'white',
-                    color: selected ? '#5F7D4A' : '#6B7C5E',
-                    fontSize: '0.8rem', fontWeight: '700', transition: 'all 0.15s'
-                  }}
-                >
-                  {item}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {(profile?.preferences && profile.preferences.length > 0)
-              ? profile.preferences.map((p: string) => (
-                <span key={p} style={{ padding: '0.3rem 0.8rem', borderRadius: '20px', background: '#F0F4ED', color: '#5F7D4A', fontSize: '0.8rem', fontWeight: '700', border: '1px solid #D4E0CC' }}>
-                  {p}
-                </span>
-              ))
-              : <p style={{ color: '#999', fontSize: '0.85rem', fontStyle: 'italic' }}>Sin especificar</p>
-            }
-          </div>
-        )}
-
-        {/* Productos de Interés */}
-        <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#2D3A20', marginTop: '2rem', marginBottom: '0.8rem' }}>
-          Categorías de Interés
-        </h4>
-        {editing ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {PRODUCT_CATEGORIES.map(item => {
-              const selected = (editForm as any).categories_interest?.includes(item);
-              return (
-                <button 
-                  key={item} onClick={() => {
-                    const current = (editForm as any).categories_interest || [];
-                    const next = current.includes(item)
-                      ? current.filter((i: string) => i !== item)
-                      : [...current, item];
-                    setEditForm(p => ({ ...p, categories_interest: next }));
-                  }}
-                  style={{ 
-                    padding: '0.5rem 1rem', borderRadius: '20px', cursor: 'pointer',
-                    border: selected ? '2px solid #2D3A20' : '1px solid #E4EBDD',
-                    background: selected ? '#2D3A20' : 'white',
-                    color: selected ? 'white' : '#6B7C5E',
-                    fontSize: '0.8rem', fontWeight: '700', transition: 'all 0.15s'
-                  }}
-                >
-                  {item}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {((profile as any)?.categories_interest && (profile as any).categories_interest.length > 0)
-              ? (profile as any).categories_interest.map((i: string) => (
-                <span key={i} style={{ padding: '0.3rem 0.8rem', borderRadius: '20px', background: '#eee', color: '#2D3A20', fontSize: '0.8rem', fontWeight: '700', border: '1px solid #ddd' }}>
-                  {i}
-                </span>
-              ))
-              : <p style={{ color: '#999', fontSize: '0.85rem', fontStyle: 'italic' }}>Sin especificar</p>
-            }
-          </div>
-        )}
-      </div>
-
-      {/* ══════ BOTTOM EDIT BUTTON (MOBILE) ══════ */}
-      {!editing && isMobile && (
-        <button 
-          onClick={() => setEditing(true)}
-          style={{ 
-            width: '100%', padding: '1rem', borderRadius: '18px', border: 'none',
-            background: 'linear-gradient(135deg, #5F7D4A, #4A6B35)',
-            color: 'white', fontWeight: '900', cursor: 'pointer', fontSize: '1rem',
-            boxShadow: '0 8px 24px rgba(95,125,74,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-            marginTop: '0.5rem'
-          }}
-        >
-          <Edit3 size={20} /> Editar mi Perfil
-        </button>
-      )}
-
-      {editing && isMobile && (
-        <button 
-          onClick={handleSaveProfile}
-          disabled={saving}
-          style={{ 
-            width: '100%', padding: '1rem', borderRadius: '18px', border: 'none',
-            background: saving ? '#94a88a' : '#5F7D4A',
-            color: 'white', fontWeight: '900', cursor: 'pointer', fontSize: '1rem',
-            boxShadow: '0 8px 24px rgba(95,125,74,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-            marginTop: '0.5rem'
-          }}
-        >
-          {saving ? 'Guardando...' : <><Check size={20} /> Guardar Cambios</>}
-        </button>
-      )}
-    </div>
-  );
-
-  // ═══════════════════════════════════════════
-  //  RENDER: Config Tab
-  // ═══════════════════════════════════════════
-  const renderConfigTab = () => (
-    <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
-      <h2 style={{ fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1.5rem' }}>Configuración</h2>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD' }}>
-          <h3 style={{ fontWeight: '800', color: '#2D3A20', marginBottom: '0.8rem', fontSize: '0.95rem' }}>Correo Electrónico</h3>
-          <div style={{ padding: '0.7rem 1rem', background: '#F8F9F5', borderRadius: '12px', color: '#6B7C5E', fontSize: '0.9rem', fontWeight: '600' }}>{user?.email}</div>
+      {/* ALIMENTACIÓN & OTROS */}
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}><Leaf size={16} color="#059669" /> Preferencias y Alimentación</h3>
+        
+        <label style={labelStyle}>Mi Alimentación</label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '1rem' }}>
+          {editing ? DIETARY_OPTIONS.map(opt => {
+            const sel = editForm.intolerances.includes(opt.label);
+            return <button key={opt.value} onClick={() => setEditForm(p => ({ ...p, intolerances: sel ? p.intolerances.filter(i=>i!==opt.label) : [...p.intolerances, opt.label] }))} style={{ padding: '0.4rem 0.8rem', borderRadius: '14px', border: sel ? '2px solid #059669' : '1px solid #ddd', background: sel ? '#ECFDF5' : 'white', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700' }}>{opt.label}</button>
+          }) : profile?.intolerances.map(i => <span key={i} style={{ padding: '0.3rem 0.8rem', background: '#ECFDF5', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700' }}>{i}</span>)}
         </div>
-        <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD' }}>
-          <h3 style={{ fontWeight: '800', color: '#2D3A20', marginBottom: '0.5rem', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Bell size={16} /> Notificaciones</h3>
-          <p style={{ color: '#6B7C5E', fontSize: '0.8rem' }}>Próximamente: alertas de nuevos productores en tu zona.</p>
-        </div>
-        <button onClick={handleLogout} style={{ background: 'white', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', width: '100%', textAlign: 'left' }}>
-          <LogOut size={20} color="#E11D48" /><span style={{ fontWeight: '800', color: '#E11D48', fontSize: '0.9rem' }}>Cerrar Sesión</span>
-        </button>
-        <div style={{ padding: '1.5rem', borderRadius: '24px', border: '2px solid #FEE2E2', background: '#FEF2F2', marginTop: '0.5rem' }}>
-          <h3 style={{ fontSize: '0.9rem', fontWeight: '900', color: '#991B1B', marginBottom: '0.5rem' }}>Zona de Peligro</h3>
-          <p style={{ fontSize: '0.75rem', color: '#B91C1C', marginBottom: '1rem' }}>Eliminar tu cuenta es permanente.</p>
-          <button style={{ padding: '0.6rem 1.2rem', background: '#EF4444', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', fontSize: '0.8rem' }}>Eliminar mi cuenta</button>
+
+        <label style={labelStyle}>Producción</label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          {editing ? PRODUCTION_OPTIONS.map(opt => {
+            const sel = editForm.preferences.includes(opt);
+            return <button key={opt} onClick={() => setEditForm(p => ({ ...p, preferences: sel ? p.preferences.filter(i=>i!==opt) : [...p.preferences, opt] }))} style={{ padding: '0.4rem 0.8rem', borderRadius: '14px', border: sel ? '2px solid #5F7D4A' : '1px solid #ddd', background: sel ? '#F0F4ED' : 'white', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700' }}>{opt}</button>
+          }) : profile?.preferences.map(i => <span key={i} style={{ padding: '0.3rem 0.8rem', background: '#F0F4ED', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700' }}>{i}</span>)}
         </div>
       </div>
     </div>
   );
-
-  const tabs = [
-    { id: 'perfil', label: 'Mi Perfil', icon: User },
-    { id: 'favoritos', label: 'Favoritos', icon: Heart },
-    { id: 'config', label: 'Ajustes', icon: Settings },
-  ];
 
   const renderContent = () => {
-    switch (activeTab) {
-      case 'perfil': return renderProfileTab();
-      case 'favoritos': return (
-        <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
-          <h2 style={{ fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1.5rem' }}>Mis Favoritos</h2>
-          <div style={{ background: 'white', borderRadius: '32px', padding: '3rem 2rem', border: '1px solid #E4EBDD', textAlign: 'center' }}>
-            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.2rem' }}><Heart size={30} color="#E11D48" /></div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '900', color: '#2D3A20', marginBottom: '0.5rem' }}>Aún no tenés favoritos</h3>
-            <p style={{ color: '#6B7C5E', fontSize: '0.85rem', marginBottom: '1.5rem', maxWidth: '350px', margin: '0 auto 1.5rem' }}>Explorá el mapa y guardá los locales que más te gusten.</p>
-            <button onClick={() => window.location.href = '/explorar'} style={{ padding: '0.7rem 1.8rem', borderRadius: '14px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '800', cursor: 'pointer', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}><MapPin size={16} /> Explorar Mapa</button>
-          </div>
-        </div>
-      );
-      case 'config': return renderConfigTab();
-      default: return null;
-    }
+    if (activeTab === 'perfil') return renderProfileTab();
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Próximamente...</div>;
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F9F5' }}>
-      {/* Header */}
-      <header style={{ padding: '0.6rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F4F1E6', borderBottom: '1px solid rgba(0,0,0,0.05)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
-          <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20', letterSpacing: '-0.05em' }}>ALIMNET</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button onClick={() => window.location.href = '/explorar'} style={{ background: 'none', border: 'none', color: '#5F7D4A', fontWeight: '800', cursor: 'pointer', fontSize: '0.85rem' }}>Explorar</button>
-          <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'linear-gradient(135deg, #5F7D4A, #7FA05B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.85rem', fontWeight: '900' }}>{initials}</div>
-        </div>
+    <div style={{ minHeight: '100vh', background: '#F8F9F5', paddingBottom: '80px' }}>
+      <header style={{ padding: '1rem', background: '#F4F1E6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span onClick={()=>window.location.href='/'} style={{ fontWeight: '950', cursor:'pointer' }}>ALIMNET</span>
+        <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#5F7D4A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900' }}>{initials}</div>
       </header>
+      
+      <main style={{ maxWidth: '600px', margin: '0 auto', padding: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+          {['perfil', 'favoritos', 'config'].map(t => <button key={t} onClick={()=>setActiveTab(t)} style={{ padding: '0.5rem 1rem', borderRadius: '12px', border: 'none', background: activeTab === t ? '#5F7D4A' : 'transparent', color: activeTab === t ? 'white' : '#6B7C5E', fontWeight: '800', cursor: 'pointer' }}>{t.toUpperCase()}</button>)}
+        </div>
+        {renderContent()}
+      </main>
 
-      <div style={{ display: 'flex', maxWidth: '1100px', margin: '0 auto', minHeight: 'calc(100vh - 52px)' }}>
-        {/* Desktop Sidebar */}
-        {!isMobile && (
-          <nav style={{ width: '220px', padding: '2rem 1rem', borderRight: '1px solid #E4EBDD', background: 'white', position: 'sticky', top: '52px', height: 'calc(100vh - 52px)' }}>
-            <p style={{ fontSize: '0.7rem', fontWeight: '800', color: '#6B7C5E', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 0.5rem', marginBottom: '1rem' }}>Mi Cuenta</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {tabs.map(tab => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0.7rem 1rem', borderRadius: '14px', border: 'none', background: activeTab === tab.id ? '#5F7D4A' : 'transparent', color: activeTab === tab.id ? 'white' : '#6B7C5E', fontWeight: '800', cursor: 'pointer', fontSize: '0.85rem', transition: 'all 0.15s', textAlign: 'left', width: '100%' }}>
-                  <tab.icon size={18} /> {tab.label}
-                </button>
-              ))}
-            </div>
-            <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
-              <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.7rem 1rem', borderRadius: '14px', border: 'none', background: 'transparent', color: '#E11D48', fontWeight: '700', cursor: 'pointer', fontSize: '0.8rem', width: '100%', textAlign: 'left' }}><LogOut size={16} /> Cerrar Sesión</button>
-            </div>
-          </nav>
-        )}
-
-        {/* Mobile Bottom Tabs */}
-        {isMobile && (
-          <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', borderTop: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-around', padding: '0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom))', zIndex: 100 }}>
-            {tabs.map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', background: 'none', border: 'none', cursor: 'pointer', color: activeTab === tab.id ? '#5F7D4A' : '#aaa', fontSize: '0.6rem', fontWeight: '800', padding: '4px 8px' }}>
-                <tab.icon size={20} /> {tab.label}
-              </button>
-            ))}
-          </nav>
-        )}
-
-        {/* Main Content */}
-        <main style={{ flex: 1, padding: isMobile ? '1.2rem 1rem 5rem' : '2rem 2.5rem', maxWidth: '750px' }}>
-          {renderContent()}
-        </main>
-      </div>
-
-      <style jsx>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes slideDown { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-      `}</style>
+      <style jsx>{` @keyframes spin { to { transform: rotate(360deg); } } `}</style>
     </div>
   );
 }
 
-// ═══════════════════════
-//  Shared Styles
-// ═══════════════════════
-const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: '0.72rem', fontWeight: '900', color: '#6B7C5E',
-  marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em'
-};
-
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '0.75rem 1rem', borderRadius: '14px',
-  border: '2px solid #5F7D4A', background: 'white', outline: 'none',
-  fontSize: '0.9rem', fontWeight: '600', color: '#2D3A20',
-  transition: 'border-color 0.2s'
-};
-
-const valueStyle: React.CSSProperties = {
-  fontSize: '1rem', fontWeight: '700', color: '#2D3A20', padding: '0.4rem 0'
-};
+const sectionStyle: React.CSSProperties = { background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD', marginBottom: '1rem' };
+const sectionTitleStyle: React.CSSProperties = { fontSize: '0.9rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' };
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#6B7C5E', marginBottom: '0.3rem', textTransform: 'uppercase' };
+const inputStyle: React.CSSProperties = { width: '100%', padding: '0.5rem', borderRadius: '10px', border: '1px solid #ddd' };
+const valueStyle: React.CSSProperties = { fontSize: '0.95rem', fontWeight: '700', color: '#2D3A20' };
