@@ -101,57 +101,44 @@ const CATEGORIES = [
 const PRODUCT_OPTIONS = ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'];
 
 const ADVANCED_CATEGORIES = {
-  recepcion: { label: '¿Cómo querés recibir?', options: ['Retiro en local', 'Entrega a domicilio'] },
+  tipo: { label: 'Tipo de actor', options: ['Productor', 'Abastecedor', 'Restaurante', 'Chef'] },
+  modalidad: { label: 'Cómo querés recibir', options: ['Retiro en local', 'Entrega a domicilio'] },
+  productos: { label: '¿Qué estás buscando?', options: PRODUCT_OPTIONS },
   alimentacion: { label: 'Tipo de alimentación', options: ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'] },
-  calidad: { label: 'Calidad / producción', options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Integral / no refinado', 'De estación', 'Local'] },
-  animal: { label: 'Producción animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
-  modelo: { label: 'Modelo', options: ['CSA', 'Cooperativa', 'Venta directa', 'Suscripción'] },
-  certificaciones: { label: 'Certificaciones', options: ['Demeter', 'AABDA'] }
+  calidad: { label: 'Calidad y Producción', options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable'] },
+  animal: { label: 'Producción Animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
+  certificaciones: { label: 'Certificaciones Profesionales', options: ['Demeter', 'AABDA', 'Orgánico Certificado'] }
 };
 
-function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void }) {
+function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number }) {
   if (!isOpen) return null;
 
   const isPlantBased = selectedFilters.includes('Plant-based') || selectedFilters.includes('Vegetariano');
-  const isMeatSelected = selectedFilters.includes('Carne');
 
   const renderSection = (key: keyof typeof ADVANCED_CATEGORIES) => {
     const section = ADVANCED_CATEGORIES[key];
     return (
-      <div key={key} style={{ marginBottom: '2rem' }}>
-        <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--primary-dark)', marginBottom: '0.8rem' }}>{section.label}</h4>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-          {section.options.map((opt, i) => {
+      <div key={key} style={{ padding: '2rem 0', borderBottom: '1px solid #f0f0f0' }}>
+        <h4 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1.5rem', letterSpacing: '-0.01em' }}>{section.label}</h4>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+          {section.options.map((opt) => {
             const isActive = selectedFilters.includes(opt);
-            const isLast = i === section.options.length - 1;
             return (
-              <label
+              <button
                 key={opt}
+                onClick={() => toggleFilter(opt)}
                 style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '1.2rem 0', cursor: 'pointer', borderBottom: isLast ? 'none' : '1px solid #eee',
-                  transition: 'background 0.2s', margin: '0 -1.5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem'
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0.8rem 1rem', cursor: 'pointer', borderRadius: '12px',
+                  border: '1.2px solid ' + (isActive ? '#2D3A20' : '#ddd'),
+                  background: isActive ? '#2D3A20' : 'white',
+                  color: isActive ? 'white' : '#2D3A20',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  fontSize: '0.85rem', fontWeight: '800', textAlign: 'center'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f9f9f9'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '1rem', fontWeight: '500', color: 'var(--text-primary)' }}>{opt}</span>
-                </div>
-                <div style={{ 
-                  width: '26px', height: '26px', borderRadius: '8px', border: '1.5px solid ' + (isActive ? 'var(--primary)' : '#ccc'),
-                  background: isActive ? 'var(--primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.2s'
-                }}>
-                  {isActive && <CheckCircle2 size={16} color="white" strokeWidth={3} />}
-                </div>
-                <input 
-                  type="checkbox" 
-                  checked={isActive} 
-                  onChange={() => toggleFilter(opt)} 
-                  style={{ display: 'none' }} 
-                />
-              </label>
+                {opt}
+              </button>
             )
           })}
         </div>
@@ -161,34 +148,45 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
 
   return (
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 3000, backdropFilter: 'blur(4px)' }} />
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 3000, backdropFilter: 'blur(3px)' }} />
       <div style={{
         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '90%', maxWidth: '600px', maxHeight: '90vh', background: 'white', borderRadius: '24px',
-        zIndex: 3001, display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px rgba(0,0,0,0.2)'
+        width: '94%', maxWidth: '780px', height: '85vh', background: 'white', borderRadius: '32px',
+        zIndex: 3001, display: 'flex', flexDirection: 'column', boxShadow: '0 30px 60px rgba(0,0,0,0.25)',
+        overflow: 'hidden'
       }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Filtros</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button onClick={clearAll} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
-              Limpiar
-            </button>
-            <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}><X size={20} /></button>
-          </div>
+        <div style={{ padding: '1.2rem 2rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2D3A20', display: 'flex', padding: '8px' }}><X size={20} /></button>
+          <h2 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Filtros</h2>
+          <div style={{ width: '40px' }} />
         </div>
         
-        <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
-          {renderSection('recepcion')}
+        <div style={{ padding: '0 2rem', overflowY: 'auto', flex: 1 }} className="no-scrollbar">
+          {renderSection('tipo')}
+          {renderSection('modalidad')}
+          {renderSection('productos')}
           {renderSection('alimentacion')}
           {renderSection('calidad')}
           {!isPlantBased && renderSection('animal')}
-          {renderSection('modelo')}
           {renderSection('certificaciones')}
         </div>
 
-        <div style={{ padding: '1.2rem 1.5rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f9f9f9', borderRadius: '0 0 24px 24px' }}>
-          <button onClick={onClose} className="button button-primary" style={{ padding: '0.9rem 2rem', fontSize: '1rem', width: '100%', borderRadius: '12px' }}>
-            Ver {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''} resultados
+        <div style={{ padding: '1.2rem 2rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white' }}>
+          <button 
+            onClick={clearAll} 
+            style={{ background: 'none', border: 'none', color: '#2D3A20', fontWeight: '900', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Quitar todos
+          </button>
+          <button 
+            onClick={onClose} 
+            style={{ 
+              background: '#2D3A20', color: 'white', border: 'none', borderRadius: '12px', 
+              padding: '1rem 2rem', fontWeight: '950', fontSize: '0.9rem', cursor: 'pointer',
+              boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
+            }}
+          >
+            Ver {resultCount} locales
           </button>
         </div>
       </div>
@@ -783,6 +781,7 @@ export default function ExplorarPage() {
         selectedFilters={selectedFilters}
         toggleFilter={toggleFilter}
         clearAll={() => setSelectedFilters([])}
+        resultCount={filteredMerchants.length}
       />
     </div>
   );
