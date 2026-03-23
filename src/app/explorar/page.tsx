@@ -230,6 +230,9 @@ export default function ExplorarPage() {
   const [isPillsVisible, setIsPillsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const resultsRef = React.useRef<HTMLElement>(null);
+  const mapSectionRef = React.useRef<HTMLDivElement>(null);
+  const touchStartY = React.useRef<number>(0);
+  const cumulativeSwipe = React.useRef<number>(0);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -265,6 +268,53 @@ export default function ExplorarPage() {
 
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
+  }, [isMobile]);
+
+  // Touch-based swipe detection for mobile MAP view
+  useEffect(() => {
+    if (!isMobile) return;
+    const el = mapSectionRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const currentY = e.touches[0].clientY;
+      const deltaY = touchStartY.current - currentY; // positive = swiping up
+      touchStartY.current = currentY;
+
+      // Accumulate swipe distance
+      if (deltaY > 0) {
+        // Swiping UP → hide filters
+        cumulativeSwipe.current = Math.min(cumulativeSwipe.current + deltaY, 200);
+      } else {
+        // Swiping DOWN → show filters
+        cumulativeSwipe.current = Math.max(cumulativeSwipe.current + deltaY, 0);
+      }
+
+      const s = cumulativeSwipe.current;
+      if (deltaY > 2) {
+        // Swiping UP: staggered hide
+        if (s > 20) setIsPillsVisible(false);
+        if (s > 60) setIsRolesVisible(false);
+        if (s > 110) setIsHeaderVisible(false);
+      } else if (deltaY < -2) {
+        // Swiping DOWN: restore all
+        setIsHeaderVisible(true);
+        setIsRolesVisible(true);
+        setIsPillsVisible(true);
+        cumulativeSwipe.current = 0;
+      }
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: true });
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+    };
   }, [isMobile]);
 
   // Desktop scroll (window-based for sticky shadows)
@@ -830,6 +880,7 @@ export default function ExplorarPage() {
 
         {/* MAPA */}
         <section 
+          ref={mapSectionRef}
           className="map-section" 
           style={{ 
             flex: 1, 
