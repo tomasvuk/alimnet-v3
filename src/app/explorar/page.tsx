@@ -107,7 +107,7 @@ const ADVANCED_CATEGORIES = {
   alimentacion: { label: 'Tipo de alimentación', options: ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'] },
   calidad: { label: 'Calidad y Producción', options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable'] },
   animal: { label: 'Producción Animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
-  certificaciones: { label: 'Certificaciones Profesionales', options: ['Demeter', 'AABDA', 'Orgánico Certificado'] }
+  certificaciones: { label: 'Certificaciones / asociaciones', options: ['Demeter', 'AABDA', 'Orgánico Certificado'] }
 };
 
 function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number }) {
@@ -117,8 +117,9 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
 
   const renderSection = (key: keyof typeof ADVANCED_CATEGORIES) => {
     const section = ADVANCED_CATEGORIES[key];
+    const isLast = key === 'productos';
     return (
-      <div key={key} style={{ padding: '2rem 0', borderBottom: '1px solid #f0f0f0' }}>
+      <div key={key} style={{ padding: '2.2rem 0', borderBottom: isLast ? 'none' : '2px solid #f5f5f5' }}>
         <h4 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1.5rem', letterSpacing: '-0.01em' }}>{section.label}</h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
           {section.options.map((opt) => {
@@ -165,13 +166,13 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
         </div>
         
         <div style={{ padding: '0 2rem', overflowY: 'auto', flex: 1 }} className="no-scrollbar">
-          {renderSection('tipo')}
           {renderSection('modalidad')}
-          {renderSection('productos')}
           {renderSection('alimentacion')}
           {renderSection('calidad')}
           {!isPlantBased && renderSection('animal')}
           {renderSection('certificaciones')}
+          {renderSection('tipo')}
+          {renderSection('productos')}
         </div>
 
         <div style={{ padding: '1.2rem 2rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white' }}>
