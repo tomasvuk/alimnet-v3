@@ -4,34 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import dynamic from 'next/dynamic';
 import { 
-  Leaf,
-  LogIn,
-  UserCircle,
-  Map as MapIcon,
-  Search as SearchIcon,
-  ChevronDown,
-  Navigation,
-  CheckCircle,
-  Wheat,
-  Sprout,
-  Milk,
-  Beef,
-  Coffee,
-  Sun,
-  CloudSun,
-  X,
-  Store,
-  ChefHat,
-  UtensilsCrossed,
-  MapPin,
-  Heart,
-  Instagram,
-  CheckCircle2,
-  Lock,
-  Filter,
-  User,
-  ExternalLink,
-  ChevronRight
+  Search, MapPin, Filter, Star, ChevronDown, Check, X, 
+  ChevronRight, Info, Shield, Map as MapIcon, List,
+  Menu, User, LogOut, Heart, Settings, Bell, 
+  Trash2, ExternalLink, ArrowRight, Instagram, Linkedin,
+  ChevronLeft, LayoutGrid, Clock, Package, Truck, ArrowUpRight,
+  Leaf, LogIn, UserCircle, Navigation, CheckCircle, Wheat,
+  Sprout, Milk, Beef, Coffee, Sun, CloudSun, Store, ChefHat,
+  UtensilsCrossed
 } from 'lucide-react';
 
 // Carga dinámica del mapa para evitar error "window is not defined" en SSR
@@ -207,7 +187,9 @@ export default function ExplorarPage() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Desbloqueado por ahora
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [searchMode, setSearchMode] = useState<'perfil' | 'libre'>('perfil');
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -240,6 +222,51 @@ export default function ExplorarPage() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Monitor Auth State & Fetch Profile
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setIsLoggedIn(true);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setUserProfile(profile);
+          // Apply initial location if set in profile
+          if (profile.locality && searchMode === 'perfil') {
+            setSearchLocation(profile.locality);
+          }
+          // Apply dietary filters if profile exists and we are in profile mode
+          if (profile.dietary_type && searchMode === 'perfil') {
+            applyDietaryFilters(profile.dietary_type);
+          }
+        }
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+      if (!session) {
+        setUserProfile(null);
+        setSearchMode('libre');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const applyDietaryFilters = (diet: string) => {
+    // Logic to select specific pills based on diet
+    // If 'celiaco', we might want to prioritize specific categories or just show a message
+    // For now, let's keep it simple and just set the search location
+  };
 
   useEffect(() => {
     if (!isMobile) return;
@@ -565,13 +592,37 @@ export default function ExplorarPage() {
           <span style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em" }}>ALIMNET</span>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          {isLoggedIn ? (
+            <div 
+              onClick={() => window.location.href = '/mi-cuenta'}
+              style={{ 
+                width: '32px', height: '32px', borderRadius: '10px', 
+                background: 'linear-gradient(135deg, #5F7D4A, #7FA05B)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontSize: '0.8rem', fontWeight: '950', cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}
+            >
+              {(userProfile?.first_name?.[0] || 'C').toUpperCase()}
+            </div>
+          ) : (
+            <button 
+              onClick={() => window.location.href = '/login'}
+              style={{ 
+                padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid #E4EBDD',
+                background: 'white', color: '#5F7D4A', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer'
+              }}
+            >
+              Login
+            </button>
+          )}
+
           <button 
             className="hamburger-btn"
             onClick={() => setShowHamburger(!showHamburger)}
             style={{ background: 'none', border: 'none', color: '#2D3A20', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}
           >
-            {/* Triángulo Hamburguesa style */}
             <div style={{ width: '12px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
             <div style={{ width: '18px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
             <div style={{ width: '24px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
@@ -648,7 +699,7 @@ export default function ExplorarPage() {
                   display: 'flex', alignItems: 'center', padding: '0 16px', height: '54px', width: '100%', gap: '12px'
                 }}>
                   <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                    <SearchIcon size={14} strokeWidth={3} />
+                    <Search size={14} strokeWidth={3} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '850', color: '#2D3A20' }}>¿Qué estás buscando?</p>
@@ -663,19 +714,103 @@ export default function ExplorarPage() {
                 flexDirection: isMobile ? 'column' : 'row',
                 width: '100%'
               }}>
-                {/* SECCIÓN 1: BUSCAR */}
-                <div style={{ flex: 1.5, position: 'relative', padding: isMobile ? '12px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
-                  <label style={{ display: 'block', fontSize: isMobile ? '0.6rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Buscar</label>
+                                 {/* Search Container with Mode Switch */}
+              <div 
+                className="search-container"
+                style={{ 
+                  flex: 1, position: 'relative', display: 'flex', alignItems: 'center', gap: '10px',
+                  background: '#F8F9F5', borderRadius: '18px', padding: '2px 6px',
+                  border: isSearchFocused ? '2px solid #5F7D4A' : '1px solid #E4EBDD',
+                  maxWidth: isMobile ? 'none' : '65%'
+                }}
+              >
+                {/* Search Mode Toggle (DENTRO DEL INPUT) */}
+                {isLoggedIn && !isMobile && (
+                  <div style={{ display: 'flex', background: 'white', borderRadius: '12px', padding: '2px', marginRight: '4px', border: '1px solid #eee' }}>
+                    <button 
+                      onClick={() => {
+                        setSearchMode('perfil');
+                        if (userProfile?.locality) setSearchLocation(userProfile.locality);
+                      }}
+                      style={{ 
+                        padding: '6px 12px', borderRadius: '10px', border: 'none',
+                        background: searchMode === 'perfil' ? '#5F7D4A' : 'transparent',
+                        color: searchMode === 'perfil' ? 'white' : '#6B7C5E',
+                        fontSize: '0.7rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'
+                      }}
+                    >
+                      Mi Perfil
+                    </button>
+                    <button 
+                      onClick={() => setSearchMode('libre')}
+                      style={{ 
+                        padding: '6px 12px', borderRadius: '10px', border: 'none',
+                        background: searchMode === 'libre' ? '#5F7D4A' : 'transparent',
+                        color: searchMode === 'libre' ? 'white' : '#6B7C5E',
+                        fontSize: '0.7rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'
+                      }}
+                    >
+                      Libre
+                    </button>
+                  </div>
+                )}
+
+                <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+                  <Search size={18} style={{ 
+                    position: 'absolute', left: '12px',
+                    color: '#5F7D4A', opacity: 0.6
+                  }} />
                   <input 
-                    type="text" autoFocus={isMobile}
-                    placeholder="Alimentos, lugares..." 
+                    type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => setIsSearchFocused(true)}
-                    onBlur={() => !isMobile && setTimeout(() => setIsSearchFocused(false), 200)}
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
+                    onFocus={() => { setIsSearchFocused(true); setShowSuggestions(true); }}
+                    onBlur={() => { setIsSearchFocused(false); setTimeout(() => setShowSuggestions(false), 200); }}
+                    placeholder="Buscá alimentos o productores..."
+                    style={{ 
+                      width: '100%', padding: '0.8rem 1rem 0.8rem 2.8rem',
+                      background: 'transparent', border: 'none', outline: 'none',
+                      fontSize: '0.9rem', fontWeight: '600'
+                    }}
                   />
                 </div>
+              </div>
+
+              {/* Mobile Mode Switcher (Visible on Mobile) */}
+              {isLoggedIn && isMobile && (
+                <div style={{ 
+                  display: 'flex', background: '#F0F4ED', borderRadius: '12px', 
+                  padding: '3px', width: '100%', marginTop: '8px'
+                }}>
+                  <button 
+                    onClick={() => {
+                      setSearchMode('perfil');
+                      if (userProfile?.locality) setSearchLocation(userProfile.locality);
+                    }}
+                    style={{ 
+                      flex: 1, padding: '8px', borderRadius: '9px', border: 'none',
+                      background: searchMode === 'perfil' ? 'white' : 'transparent',
+                      color: searchMode === 'perfil' ? '#2D3A20' : '#6B7C5E',
+                      fontSize: '0.75rem', fontWeight: '900', cursor: 'pointer',
+                      boxShadow: searchMode === 'perfil' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
+                    }}
+                  >
+                    🔍 Mi Perfil
+                  </button>
+                  <button 
+                    onClick={() => setSearchMode('libre')}
+                    style={{ 
+                      flex: 1, padding: '8px', borderRadius: '9px', border: 'none',
+                      background: searchMode === 'libre' ? 'white' : 'transparent',
+                      color: searchMode === 'libre' ? '#2D3A20' : '#6B7C5E',
+                      fontSize: '0.75rem', fontWeight: '900', cursor: 'pointer',
+                      boxShadow: searchMode === 'libre' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
+                    }}
+                  >
+                    🌎 Libre
+                  </button>
+                </div>
+              )}
 
                 <div style={{ width: isMobile ? '90%' : '1px', height: isMobile ? '1px' : '24px', background: '#ddd', alignSelf: 'center' }}></div>
 
@@ -726,7 +861,7 @@ export default function ExplorarPage() {
                       alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' 
                     }}
                   >
-                    {isMobile && isSearchFocused ? <CheckCircle size={20} strokeWidth={3} /> : <SearchIcon size={isMobile ? 14 : 16} strokeWidth={3} />}
+                    {isMobile && isSearchFocused ? <CheckCircle size={20} strokeWidth={3} /> : <Search size={isMobile ? 14 : 16} strokeWidth={3} />}
                   </div>
                 </div>
               </div>
@@ -839,7 +974,7 @@ export default function ExplorarPage() {
               fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.05em'
             }}
           >
-            {mobileView === 'list' ? <MapIcon size={18} /> : <SearchIcon size={18} />}
+            {mobileView === 'list' ? <MapIcon size={18} /> : <Search size={18} />}
             {mobileView === 'list' ? 'VER MAPA' : 'VER LISTADO'}
           </button>
         </div>
@@ -1139,7 +1274,7 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
               justifyContent: 'center', gap: '8px', marginBottom: '1.5rem' 
             }}
           >
-            {hasValidated ? <CheckCircle2 size={18} /> : <Heart size={18} />}
+            {hasValidated ? <CheckCircle size={18} /> : <Heart size={18} />}
             {hasValidated ? '¡Proyecto Validado!' : 'Validar este proyecto'}
           </button>
 
