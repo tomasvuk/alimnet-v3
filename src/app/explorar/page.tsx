@@ -610,16 +610,31 @@ export default function ExplorarPage() {
           <span style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em" }}>ALIMNET</span>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+          {!isLoggedIn ? (
+            <button 
+              onClick={() => window.location.href = '/login'} 
+              style={{ padding: '0.4rem 1rem', borderRadius: '14px', border: '1.5px solid #5F7D4A', background: 'transparent', color: '#5F7D4A', fontWeight: '900', cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.05em' }}
+            >
+              INGRESAR
+            </button>
+          ) : (
+            <div 
+              onClick={() => window.location.href = '/mi-cuenta'} 
+              style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5F7D4A' }}
+            >
+              <User size={18} />
+            </div>
+          )}
+          
           <button 
             className="hamburger-btn"
             onClick={() => setShowHamburger(!showHamburger)}
-            style={{ background: 'none', border: 'none', color: '#2D3A20', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}
+            style={{ background: 'none', border: 'none', color: '#2D3A20', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}
           >
-            {/* Triángulo Hamburguesa style */}
             <div style={{ width: '12px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
-            <div style={{ width: '18px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
-            <div style={{ width: '24px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
+            <div style={{ width: '20px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
+            <div style={{ width: '28px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
           </button>
         </div>
 
@@ -1131,8 +1146,10 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
   
   // Lógica inteligente de visualización:
   const displayValidators = [...validators];
+  const currentUserName = userProfile?.first_name || 'Tomas';
+  
   if (hasValidated && !displayValidators.some(v => v.user_id === user?.id)) {
-    displayValidators.unshift({ user_id: user?.id, profiles: { first_name: userProfile?.first_name || 'Tomas' } });
+    displayValidators.unshift({ user_id: user?.id, profiles: { first_name: currentUserName } });
   }
 
   const othersCount = Math.max(0, (merchant.validation_count || 0) - (displayValidators.length));
