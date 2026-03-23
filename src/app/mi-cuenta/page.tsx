@@ -145,7 +145,8 @@ export default function MiCuentaPage() {
           left: 0,
           top: 0,
           height: '100vh',
-          boxShadow: 'none'
+          boxShadow: 'none',
+          transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
         className={`sidebar-dashboard ${showSidebar ? 'open' : ''}`}
       >
@@ -191,95 +192,85 @@ export default function MiCuentaPage() {
       </aside>
 
       {/* CONTENIDO CENTRAL */}
-      <main style={{ 
+      <main className="main-content" style={{ 
         flex: 1, 
         overflowY: 'auto', 
         padding: '3rem 5rem', 
         position: 'relative', 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        width: '100%' 
+        width: '100%',
+        minHeight: '100vh'
       }}>
         
-        {/* Header Content */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '1rem' }}>
-           <div>
-             <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
-             <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
-           </div>
-           <button 
-             onClick={() => window.location.href = '/explorar'} 
-             style={{ padding: '0.8rem 1.5rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(95, 125, 74, 0.2)' }}
-             className="desktop-only"
-           >
-             <MapIcon size={18} /> Explorar
-           </button>
-        </div>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          {/* Header Content */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '1rem' }}>
+             <div>
+               <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
+               <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
+             </div>
+             <button 
+               onClick={() => window.location.href = '/explorar'} 
+               style={{ padding: '0.8rem 1.5rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(95, 125, 74, 0.2)' }}
+               className="desktop-only"
+             >
+               <MapIcon size={18} /> Explorar
+             </button>
+          </div>
 
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
-            {/* Quick Stats Grid - Horizontal Elegant Style */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
+            {/* Quick Stats Grid - 2x2 on Mobile, 2x2 or 4x1 on wider */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(2, 1fr)', 
+              gap: '1rem', 
+              width: '100%' 
+            }}>
               
-              <div 
-                onClick={() => handleTabChange('validaciones')}
-                style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
-                className="stat-bar"
-              >
-                <div style={{ color: '#5F7D4A', display: 'flex' }}><ShieldCheck size={20} /></div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.validations}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>VALIDACIONES</span>
+              <div onClick={() => handleTabChange('validaciones')} style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
+                <div style={{ color: '#5F7D4A', display: 'flex' }}><ShieldCheck size={22} /></div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.validations}</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="desktop-only">VALIDACIONES</span>
                 </div>
               </div>
               
-              <div 
-                onClick={() => handleTabChange('referentes')}
-                style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
-                className="stat-bar"
-              >
-                <div style={{ color: '#8EA87D', display: 'flex' }}><Users size={20} /></div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.referents}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>REFERENTES</span>
+              <div onClick={() => handleTabChange('referentes')} style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
+                <div style={{ color: '#8EA87D', display: 'flex' }}><Users size={22} /></div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.referents}</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="desktop-only">REFERENTES</span>
                 </div>
               </div>
 
-              <div 
-                onClick={() => handleTabChange('favoritos')}
-                style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
-                className="stat-bar"
-              >
-                <div style={{ color: '#2D3A20', display: 'flex' }}><Star size={20} /></div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.saved}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>GUARDADOS</span>
+              <div onClick={() => handleTabChange('favoritos')} style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
+                <div style={{ color: '#2D3A20', display: 'flex' }}><Star size={22} /></div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.saved}</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="desktop-only">GUARDADOS</span>
                 </div>
               </div>
 
-              <div 
-                onClick={() => handleTabChange('recientes')}
-                style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
-                className="stat-bar"
-              >
-                <div style={{ color: '#B8C6B1', display: 'flex' }}><History size={20} /></div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                  <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.recent}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>RECIENTES</span>
+              <div onClick={() => handleTabChange('recientes')} style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
+                <div style={{ color: '#B8C6B1', display: 'flex' }}><History size={22} /></div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.recent}</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="desktop-only">RECIENTES</span>
                 </div>
               </div>
             </div>
 
-            {/* Activity Timeline Placeholder */}
-            <div style={{ gridColumn: 'span 3', background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD', marginTop: '1rem' }}>
-               <h3 style={{ fontWeight: '950', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '10px' }}><Activity size={20} color="#5F7D4A" /> Actividad Reciente</h3>
-               <div style={{ padding: '4rem 2rem', textAlign: 'center', color: '#999' }}>
-                 <p style={{ fontWeight: '700' }}>Aquí aparecerán tus últimas validaciones y descubrimientos.</p>
+            {/* Activity Timeline Placeholder - Full Width */}
+            <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', width: '100%', minHeight: '300px' }}>
+               <h3 style={{ fontSize: '1.1rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1.5rem' }}>Actividad Reciente</h3>
+               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', color: '#888' }}>
+                 <p style={{ fontWeight: '700', fontSize: '0.9rem' }}>Aquí aparecerán tus últimas validaciones y descubrimientos.</p>
                </div>
             </div>
           </div>
         )}
+        </div>
 
         {activeTab === 'validaciones' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
@@ -508,7 +499,7 @@ export default function MiCuentaPage() {
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .stat-bar:hover {
-          transform: translateX(10px);
+          transform: translateY(-5px);
           border-color: #5F7D4A;
           box-shadow: 0 10px 20px rgba(0,0,0,0.03);
         }
@@ -536,7 +527,7 @@ export default function MiCuentaPage() {
           }
           h1 { font-size: 1.8rem !important; }
           .stat-bar { 
-            padding: 1rem !important; 
+            padding: 0.8rem 1rem !important; 
             min-width: 0 !important;
             width: auto !important;
           }
@@ -545,6 +536,9 @@ export default function MiCuentaPage() {
         @media (min-width: 901px) {
           .main-content {
             margin-left: 280px;
+          }
+          .sidebar-dashboard {
+            transform: none !important;
           }
         }
       `}</style>
