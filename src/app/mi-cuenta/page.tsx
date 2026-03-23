@@ -31,6 +31,13 @@ export default function MiCuentaPage() {
     production_interest: [] as string[]
   });
   const [validatedMerchants, setValidatedMerchants] = useState<any[]>([]);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [counts, setCounts] = useState({
+    validations: 0,
+    referents: 1, // Carlos de base
+    saved: 1, // Raíz Vivo de base
+    recent: 3
+  });
 
   useEffect(() => {
     fetchData();
@@ -54,6 +61,7 @@ export default function MiCuentaPage() {
 
       const { count } = await supabase.from('validations').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
       setValidationCount(count || 0);
+      setCounts(prev => ({ ...prev, validations: count || 0 }));
 
       // Traer los locales validados reales
       const { data: vData } = await supabase
@@ -91,24 +99,48 @@ export default function MiCuentaPage() {
   return (
     <div style={{ height: '100vh', display: 'flex', background: '#F8F9F5', overflow: 'hidden' }}>
       
+      {/* BOTÓN MENÚ MÓVIL */}
+      <button 
+        onClick={() => setShowSidebar(!showSidebar)}
+        style={{ 
+          position: 'fixed', top: '20px', left: '20px', zIndex: 100, 
+          background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', padding: '10px',
+          display: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+        }}
+        className="mobile-menu-btn"
+      >
+        <Activity size={20} color="#5F7D4A" />
+      </button>
+
       {/* SIDEBAR IZQUIERDA */}
-      <aside style={{ width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem' }}>
-        <div onClick={() => window.location.href = '/'} style={{ cursor: 'pointer', marginBottom: '3rem' }}>
-          <span style={{ fontWeight: '950', fontSize: '1.4rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>ALIMNET</span>
+      <aside 
+        style={{ 
+          width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', 
+          display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem',
+          transition: 'transform 0.3s ease',
+          zIndex: 90
+        }}
+        className={`sidebar-dashboard ${showSidebar ? 'open' : ''}`}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+          <div onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
+            <span style={{ fontWeight: '950', fontSize: '1.4rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>ALIMNET</span>
+          </div>
+          <button className="mobile-only" onClick={() => setShowSidebar(false)} style={{ background: 'none', border: 'none', color: '#666' }}><X size={24} /></button>
         </div>
 
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {menuItems.map(item => (
             <button 
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => { setActiveTab(item.id); setShowSidebar(false); }}
               style={{ 
                 padding: '1rem', borderRadius: '16px', border: 'none', 
                 background: activeTab === item.id ? '#F0F4ED' : 'transparent',
                 color: activeTab === item.id ? '#5F7D4A' : '#666',
                 display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer',
                 fontWeight: activeTab === item.id ? '900' : '700', fontSize: '0.9rem',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s', width: '100%', textAlign: 'left'
               }}
             >
               <item.icon size={20} />
@@ -144,22 +176,46 @@ export default function MiCuentaPage() {
 
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
-            {/* Quick Stats */}
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-              <div style={{ color: '#5F7D4A', marginBottom: '1rem' }}><Award size={32} /></div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Miembro</h3>
-              <p style={{ color: '#888', fontWeight: '700', fontSize: '0.8rem' }}>FUNDADOR</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.5rem' }}>
+            {/* Quick Stats Grid */}
+            <div 
+              onClick={() => setActiveTab('validaciones')}
+              style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD', cursor: 'pointer' }}
+              className="stat-card"
+            >
+              <div style={{ color: '#5F7D4A', marginBottom: '1rem' }}><ShieldCheck size={32} /></div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>{counts.validations}</h3>
+              <p style={{ color: '#888', fontWeight: '700', fontSize: '0.8rem' }}>VALIDACIONES</p>
             </div>
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-              <div style={{ color: '#FF7043', marginBottom: '1rem' }}><Heart size={32} /></div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>{validationCount}</h3>
-              <p style={{ color: '#888', fontWeight: '700', fontSize: '0.8rem' }}>VALIDACIONES REALIZADAS</p>
+            
+            <div 
+              onClick={() => setActiveTab('referentes')}
+              style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD', cursor: 'pointer' }}
+              className="stat-card"
+            >
+              <div style={{ color: '#FF7043', marginBottom: '1rem' }}><Users size={32} /></div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>{counts.referents}</h3>
+              <p style={{ color: '#888', fontWeight: '700', fontSize: '0.8rem' }}>REFERENTES</p>
             </div>
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-              <div style={{ color: '#FFB74D', marginBottom: '1rem' }}><Star size={32} /></div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>0</h3>
-              <p style={{ color: '#888', fontWeight: '700', fontSize: '0.8rem' }}>PROYECTOS FAVORITOS</p>
+
+            <div 
+              onClick={() => setActiveTab('favoritos')}
+              style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD', cursor: 'pointer' }}
+              className="stat-card"
+            >
+              <div style={{ color: '#E9C46A', marginBottom: '1rem' }}><Star size={32} /></div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>{counts.saved}</h3>
+              <p style={{ color: '#888', fontWeight: '700', fontSize: '0.8rem' }}>GUARDADOS</p>
+            </div>
+
+            <div 
+              onClick={() => setActiveTab('recientes')}
+              style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD', cursor: 'pointer' }}
+              className="stat-card"
+            >
+              <div style={{ color: '#2A9D8F', marginBottom: '1rem' }}><History size={32} /></div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>{counts.recent}</h3>
+              <p style={{ color: '#888', fontWeight: '700', fontSize: '0.8rem' }}>RECIENTES</p>
             </div>
 
             {/* Activity Timeline Placeholder */}
@@ -392,8 +448,31 @@ export default function MiCuentaPage() {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .card-hover:hover {
           transform: translateY(-8px);
-          boxShadow: 0 20px 40px rgba(0,0,0,0.05);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.05);
           border-color: #5F7D4A;
+        }
+        .stat-card:hover {
+          transform: scale(1.02);
+          border-color: #5F7D4A;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .mobile-only { display: none; }
+
+        @media (max-width: 900px) {
+          .sidebar-dashboard {
+             position: fixed;
+             left: 0;
+             top: 0;
+             height: 100vh;
+             transform: translateX(-100%);
+          }
+          .sidebar-dashboard.open {
+             transform: translateX(0);
+          }
+          .mobile-menu-btn { display: block !important; }
+          .mobile-only { display: block !important; }
+          main { padding: 4rem 1.5rem !important; }
+          h1 { font-size: 1.8rem !important; }
         }
       `}</style>
     </div>
