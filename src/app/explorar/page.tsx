@@ -1132,7 +1132,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
               padding: '2px 8px', borderRadius: '20px', border: '1px solid #FF7043', marginTop: '2px',
               display: 'flex', alignItems: 'center', gap: '3px'
             }}>
-              <Heart size={8} /> VÁLIDALO
+              <Heart size={8} /> VALÍDALO
             </div>
           )}
         </div>
