@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { 
   User, Settings, Heart, MapPin, LogOut, ChevronRight, 
   Edit3, Shield, Star, Clock, Leaf, Package, Truck,
@@ -16,7 +16,16 @@ import { supabase } from '@/lib/supabase';
 const PRODUCTION_OPTIONS = ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable', 'Pastura'];
 const DELIVERY_PREFERENCES = ['Retiro y Entrega', 'Solo Entrega', 'Solo Retiro'];
 
+// --- COMPONENTE PRINCIPAL CON SUSPENSE (REQUERIDO POR NEXT.JS) ---
 export default function MiCuentaPage() {
+  return (
+    <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>}>
+      <MiCuentaContent />
+    </Suspense>
+  );
+}
+
+function MiCuentaContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('dashboard');
