@@ -521,7 +521,7 @@ export default function ExplorarPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent' }}
+                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
                 />
               </div>
 
@@ -537,7 +537,7 @@ export default function ExplorarPage() {
                   onChange={(e) => setSearchLocation(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent' }}
+                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
                 />
               </div>
 
@@ -591,16 +591,17 @@ export default function ExplorarPage() {
                 key={cat.id}
                 onClick={() => toggleCategory(cat.id)}
                 style={{
-                  padding: isMobile ? '0.4rem 0.7rem' : '0.5rem 1rem', 
-                  fontSize: isMobile ? '0.7rem' : '0.75rem', 
-                  fontWeight: '800', borderRadius: '10px',
-                  display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s',
+                  padding: isMobile ? '0.5rem 0.9rem' : '0.6rem 1.2rem', 
+                  fontSize: isMobile ? '0.75rem' : '0.8rem', 
+                  fontWeight: '850', borderRadius: '12px',
+                  display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.2s',
                   border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
                   background: isActive ? 'var(--primary)' : 'white',
-                  color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap'
+                  color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap',
+                  boxShadow: isActive ? '0 4px 12px rgba(95, 125, 74, 0.2)' : 'none'
                 }}
               >
-                <CatIcon size={isMobile ? 12 : 14} />
+                <CatIcon size={isMobile ? 14 : 16} />
                 {cat.label}
               </button>
             );
@@ -609,10 +610,10 @@ export default function ExplorarPage() {
 
         {/* ROW PRODUCTOS - CENTRADO */}
         <div style={{ 
-          display: 'flex', gap: isMobile ? '6px' : '8px', 
-          flexWrap: isMobile ? 'wrap' : 'nowrap',
-          overflowX: isMobile ? 'visible' : 'auto', 
-          paddingBottom: '2px', width: '100%', maxWidth: '850px', justifyContent: 'center' 
+          display: 'flex', gap: isMobile ? '4px' : '6px', 
+          flexWrap: 'wrap',
+          width: '100%', maxWidth: '950px', justifyContent: 'center',
+          padding: '0 10px'
         }} className="no-scrollbar">
           {PRODUCT_OPTIONS.map(prod => {
             const isActive = selectedFilters.includes(prod);
@@ -620,9 +621,9 @@ export default function ExplorarPage() {
               <button 
                 key={prod} onClick={() => toggleFilter(prod)}
                 style={{
-                  padding: isMobile ? '0.35rem 0.8rem' : '0.45rem 1.2rem', 
-                  fontSize: isMobile ? '0.75rem' : '0.85rem', 
-                  fontWeight: '800', borderRadius: '20px',
+                  padding: isMobile ? '0.25rem 0.6rem' : '0.35rem 0.9rem', 
+                  fontSize: isMobile ? '0.65rem' : '0.75rem', 
+                  fontWeight: '700', borderRadius: '15px',
                   display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
                   border: isActive ? '1px solid var(--primary-dark)' : '1px solid #c9d2c4',
                   background: isActive ? 'var(--primary-dark)' : '#eaeee6',
