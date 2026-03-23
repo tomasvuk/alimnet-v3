@@ -628,8 +628,8 @@ export default function ExplorarPage() {
                 key={cat.id}
                 onClick={() => toggleCategory(cat.id)}
                 style={{
-                  padding: isMobile ? '0.25rem 0.6rem' : '0.35rem 0.9rem', 
-                  fontSize: isMobile ? '0.65rem' : '0.75rem', 
+                  padding: isMobile ? '0.4rem 0.8rem' : '0.45rem 1rem', 
+                  fontSize: isMobile ? '0.7rem' : '0.8rem', 
                   fontWeight: '900', borderRadius: '30px',
                   display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                   border: '1.2px solid ' + (isActive ? 'var(--primary-dark)' : '#ddd'),
@@ -659,8 +659,8 @@ export default function ExplorarPage() {
               <button 
                 key={prod} onClick={() => toggleFilter(prod)}
                 style={{
-                  padding: isMobile ? '0.2rem 0.5rem' : '0.25rem 0.75rem', 
-                  fontSize: isMobile ? '0.6rem' : '0.7rem', 
+                  padding: isMobile ? '0.3rem 0.7rem' : '0.35rem 0.9rem', 
+                  fontSize: isMobile ? '0.7rem' : '0.75rem', 
                   fontWeight: '800', borderRadius: '30px',
                   display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s',
                   border: isActive ? '1.2px solid var(--primary-dark)' : '1px solid #c9d2c4',
