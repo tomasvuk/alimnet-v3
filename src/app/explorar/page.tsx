@@ -1147,35 +1147,42 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
           .sidebar { 
             width: 300px !important; 
             max-width: 85%;
-            height: calc(100% - 10px);
-            margin: 5px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: rgba(255, 255, 255, 0.98) !important;
-            backdrop-filter: blur(15px);
-            z-index: 2000;
-            box-shadow: 10px 0 40px rgba(0,0,0,0.1);
-            transform: translateX(-110%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 20px;
-            display: block !important;
-            padding: 1.2rem !important;
-          }
-          .sidebar.active { transform: translateX(0); }
+        @media (max-width: 768px) {
+          .mobile-only { display: flex; }
+          .desktop-only { display: none !important; }
           
-          .map-container { width: 100% !important; height: 100%; border-radius: 0; }
+          .results-section { width: 100% !important; min-width: 0 !important; }
+          .results-section.hidden { display: none; }
+
+          .map-section { display: none; }
+          .map-section.active { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; }
           
           .detail-panel { 
             width: 100% !important; 
-            z-index: 3000;
-            height: 92% !important;
-            top: 8% !important;
+            height: 94% !important;
+            top: 6% !important;
             border-radius: 30px 30px 0 0;
+            z-index: 4000;
           }
+          .detail-panel { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
           
-          @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-          .detail-panel { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+          .is-sticky { border-bottom: 2px solid var(--primary); }
+        }
+
+        /* REMOVE FOCUS OUTLINES AND SQUARES */
+        input:focus, select:focus, textarea:focus, button:focus {
+          outline: none !important;
+          box-shadow: none !important;
+          -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Specific Fix for Search Capsule Focus */
+        .search-capsule input:focus {
+          background: transparent !important;
+        }
+        
+        .search-capsule select:focus {
+          background: transparent !important;
         }
       `}</style>
     </div>
