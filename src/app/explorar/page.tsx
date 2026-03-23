@@ -27,11 +27,13 @@ import {
   Heart,
   Instagram,
   CheckCircle2,
-  Lock,
-  Filter,
-  User,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Shield,
+  ShieldCheck,
+  User,
+  Filter,
+  Lock
 } from 'lucide-react';
 
 // Carga dinámica del mapa para evitar error "window is not defined" en SSR
@@ -1125,7 +1127,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
               display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
               boxShadow: '0 4px 10px rgba(95, 125, 74, 0.2)'
             }}>
-              <CheckCircle size={10} strokeWidth={3} /> VALIDADO +{merchant.validation_count}
+              <ShieldCheck size={10} strokeWidth={3} /> VALIDADO +{merchant.validation_count}
             </div>
           ) : (
             <div style={{ 
@@ -1134,7 +1136,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
               display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
               opacity: 0.85
             }}>
-              <Heart size={10} strokeWidth={3} /> VALIDAR
+              <Shield size={10} strokeWidth={3} /> VALIDAR
             </div>
           )}
         </div>

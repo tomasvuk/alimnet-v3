@@ -79,7 +79,7 @@ export default function MiCuentaPage() {
   const menuItems = [
     { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
     { id: 'perfil', label: 'Mi Perfil', icon: User },
-    { id: 'validaciones', label: 'Validaciones', icon: Heart },
+    { id: 'validaciones', label: 'Validaciones', icon: ShieldCheck },
     { id: 'referentes', label: 'Referentes', icon: Users },
     { id: 'favoritos', label: 'Guardados', icon: Star },
     { id: 'recientes', label: 'Recientes', icon: History },
