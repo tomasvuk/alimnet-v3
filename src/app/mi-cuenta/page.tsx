@@ -33,7 +33,7 @@ const PRODUCT_CATEGORIES = [
 ];
 
 const DELIVERY_OPTIONS = [
-  'Retiro en local', 'Entrega a domicilio'
+  'Retiro en local', 'Entrega a domicilio', 'Retiro y Entrega'
 ];
 
 interface UserProfile {
