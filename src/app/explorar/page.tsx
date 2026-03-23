@@ -101,13 +101,13 @@ const CATEGORIES = [
 const PRODUCT_OPTIONS = ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'];
 
 const ADVANCED_CATEGORIES = {
-  tipo: { label: 'Tipo de actor', options: ['Productor', 'Abastecedor', 'Restaurante', 'Chef'] },
   modalidad: { label: 'Cómo querés recibir', options: ['Retiro en local', 'Entrega a domicilio'] },
-  productos: { label: '¿Qué estás buscando?', options: PRODUCT_OPTIONS },
   alimentacion: { label: 'Tipo de alimentación', options: ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'] },
   calidad: { label: 'Calidad y Producción', options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable'] },
   animal: { label: 'Producción Animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
-  certificaciones: { label: 'Certificaciones / asociaciones', options: ['Demeter', 'AABDA', 'Orgánico Certificado'] }
+  certificaciones: { label: 'Certificaciones / asociaciones', options: ['Demeter', 'AABDA', 'Orgánico Certificado'] },
+  tipo: { label: 'Tipo de actor', options: ['Productor', 'Abastecedor', 'Restaurante', 'Chef'] },
+  productos: { label: '¿Qué estás buscando?', options: PRODUCT_OPTIONS },
 };
 
 function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number }) {
@@ -119,7 +119,7 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
     const section = ADVANCED_CATEGORIES[key];
     const isLast = key === 'productos';
     return (
-      <div key={key} style={{ padding: '2.2rem 0', borderBottom: isLast ? 'none' : '2px solid #f5f5f5' }}>
+      <div key={key} style={{ padding: '2.2rem 0', borderBottom: isLast ? 'none' : '4px solid #eee' }}>
         <h4 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2D3A20', marginBottom: '1.5rem', letterSpacing: '-0.02em', opacity: 0.9 }}>{section.label}</h4>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
           {section.options.map((opt) => {
@@ -203,7 +203,7 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
 // (LOGO REMOVIDO POR PEDIDO DEL USUARIO - SE MANTIENE SOLO TEXTO)
 
 export default function ExplorarPage() {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'abastecedor', 'restaurante', 'chef']);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
@@ -213,7 +213,7 @@ export default function ExplorarPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
   // Sincronizar selectedFilters con selectedCategories para el Modal
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(['Productor', 'Abastecedor', 'Restaurante', 'Chef']);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list'); 
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showHamburger, setShowHamburger] = useState(false);
