@@ -162,8 +162,8 @@ function MiCuentaContent() {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '4rem' }}>
           <div onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
-            <span style={{ fontWeight: '950', fontSize: '1.4rem', color: '#2D3A20', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
-              {profile?.first_name || 'ALIMNET'}
+            <span style={{ fontWeight: '950', fontSize: '1.4rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>
+              {profile ? `${profile.first_name} ${profile.last_name || ''}` : 'Carlos Prueba'}
             </span>
           </div>
         </div>
@@ -505,8 +505,8 @@ function MiCuentaContent() {
         {/* BRANDING PERSISTENTE ABAJO A LA DERECHA */}
         <div style={{ 
           position: 'fixed', bottom: '2rem', right: '3rem', 
-          opacity: 0.1, fontWeight: '950', fontSize: '1.4rem', 
-          letterSpacing: '0.1em', pointerEvents: 'none', color: '#2D3A20',
+          opacity: 0.5, fontWeight: '950', fontSize: '1.4rem', 
+          letterSpacing: '0.1em', pointerEvents: 'none', color: '#5F7D4A',
           zIndex: 1
         }} className="desktop-only">
           ALIMNET
