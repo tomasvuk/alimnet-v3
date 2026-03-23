@@ -502,7 +502,7 @@ export default function ExplorarPage() {
               transform: (isSearchFocused || isHovered) ? 'translateY(-2px)' : 'translateY(0)'
             }}
           >
-            {isSearchFocused && <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: -1, pointerEvents: 'none', transition: 'opacity 0.3s' }} />}
+            {/* NO OVERLAY HERE */}
             
             <div style={{ 
               display: 'flex', background: 'white', borderRadius: isMobile ? '20px' : '40px', border: '1px solid #ddd', 
