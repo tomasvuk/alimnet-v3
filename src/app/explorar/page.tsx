@@ -657,24 +657,7 @@ export default function ExplorarPage() {
           })}
         </div>
 
-        {/* ROW FILTROS DINÁMICOS - CENTRADO */}
-        {selectedFilters.filter(f => !PRODUCT_OPTIONS.includes(f)).length > 0 && (
-          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', alignItems: 'center', width: '100%', maxWidth: '850px', justifyContent: 'center' }} className="no-scrollbar">
-            {selectedFilters.filter(f => !PRODUCT_OPTIONS.includes(f)).map(activeFilter => (
-              <button 
-                key={activeFilter} onClick={() => toggleFilter(activeFilter)}
-                style={{
-                  padding: '0.35rem 0.85rem', fontSize: '0.75rem', fontWeight: '700', borderRadius: '20px',
-                  display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
-                  border: '1px solid var(--primary-dark)', background: '#5F7D4A20',
-                  color: 'var(--primary-dark)', whiteSpace: 'nowrap'
-                }}
-              >
-                {activeFilter}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* ROW FILTROS DINÁMICOS REMOVED TO PREVENT DUPLICATION */}
       </div>
 
       {/* 3. CONTENIDO PRINCIPAL */}
