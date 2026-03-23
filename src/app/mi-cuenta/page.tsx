@@ -25,7 +25,7 @@ const DIETARY_OPTIONS = [
 ];
 
 const PRODUCTION_OPTIONS = [
-  'Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sustentable', 'Sin ultraprocesados'
+  'Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sustentable', 'Sin ultraprocesados', 'Pastura'
 ];
 
 const PRODUCT_CATEGORIES = [
