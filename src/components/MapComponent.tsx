@@ -8,7 +8,7 @@ import L from 'leaflet';
 // --- Iconos por Categoría (SVG Paths simplificados y centrados) ---
 const CATEGORY_PATHS: Record<string, string> = {
   productor: `<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#F4F1E6"/>`, 
-  abastecedor: `<path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1z" fill="#F4F1E6"/>`,
+  almacen: `<path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1z" fill="#F4F1E6"/>`,
   restaurante: `<path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z" fill="#F4F1E6"/>`,
   chef: `<path d="M12 3a9 9 0 00-6.19 15.55L4.5 21h15l-1.31-2.45A9 9 0 0012 3zm0 2a7 7 0 015.65 11.11L18.42 19H5.58l.77-2.89A7 7 0 0112 5z" fill="#F4F1E6"/>`
 };
@@ -54,9 +54,9 @@ interface MapProps {
   zoom?: number;
 }
 
-const MapComponent = ({ providers = [], center = [-34.6037, -58.3816], zoom = 11 }: MapProps) => {
+const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: MapProps) => {
   return (
-    <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
+    <div style={{ height: '100%', width: '100%', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
       <MapContainer 
         center={center} 
         zoom={zoom} 
@@ -64,12 +64,13 @@ const MapComponent = ({ providers = [], center = [-34.6037, -58.3816], zoom = 11
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
         
         {providers.map((p) => {
           const position: [number, number] = [p.location_lat, p.location_lng];
+          
           return (
             <React.Fragment key={p.id}>
               {p.is_exact_location ? (
@@ -77,6 +78,8 @@ const MapComponent = ({ providers = [], center = [-34.6037, -58.3816], zoom = 11
                   <Popup>
                     <div style={{ textAlign: 'center', padding: '5px' }}>
                       <strong style={{ display: 'block', fontSize: '1rem', marginBottom: '4px' }}>{p.name}</strong>
+                      <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{p.category}</span>
+                      <br />
                       <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{p.city_zone}</span>
                     </div>
                   </Popup>
@@ -87,9 +90,9 @@ const MapComponent = ({ providers = [], center = [-34.6037, -58.3816], zoom = 11
                     center={position}
                     radius={3000}
                     pathOptions={{ 
-                      fillColor: '#5F7D4A', 
+                      fillColor: 'var(--secondary)', 
                       fillOpacity: 0.1, 
-                      color: '#5F7D4A', 
+                      color: 'var(--secondary)', 
                       weight: 1,
                       dashArray: '5, 5'
                     }}
@@ -105,7 +108,7 @@ const MapComponent = ({ providers = [], center = [-34.6037, -58.3816], zoom = 11
                   <Circle 
                     center={position} 
                     radius={200} 
-                    pathOptions={{ color: '#5F7D4A', weight: 2 }} 
+                    pathOptions={{ color: 'var(--secondary)', weight: 2 }} 
                   />
                 </>
               )}
