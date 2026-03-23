@@ -308,10 +308,15 @@ export default function ExplorarPage() {
       result = result.filter(m => (m.tags || []).includes('Entrega a domicilio'));
     }
 
-    if (selectedFilters.length > 0) {
+    const tagsToFilter = selectedFilters.filter(f => 
+      !['Productor', 'Abastecedor', 'Restaurante', 'Chef'].includes(f) &&
+      !PRODUCT_OPTIONS.includes(f)
+    );
+
+    if (tagsToFilter.length > 0) {
       result = result.filter(m => {
         const merchantTags = m.tags || [];
-        return selectedFilters.every(f => merchantTags.includes(f));
+        return tagsToFilter.every(f => merchantTags.includes(f));
       });
     }
 
