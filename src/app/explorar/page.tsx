@@ -207,7 +207,10 @@ export default function ExplorarPage() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Desbloqueado por ahora
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [validators, setValidators] = useState<any[]>([]);
   const [hasMounted, setHasMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
@@ -237,11 +240,42 @@ export default function ExplorarPage() {
 
   useEffect(() => {
     setHasMounted(true);
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setIsLoggedIn(!!user);
+    };
+    checkAuth();
+    
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const fetchValidators = async (merchantId: string) => {
+    try {
+      const { data } = await supabase
+        .from('validations')
+        .select(`
+          user_id,
+          profiles (first_name)
+        `)
+        .eq('merchant_id', merchantId)
+        .limit(3);
+      setValidators(data || []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedMerchant) {
+      fetchValidators(selectedMerchant.id);
+    } else {
+      setValidators([]);
+    }
+  }, [selectedMerchant]);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -915,6 +949,7 @@ export default function ExplorarPage() {
         <DetailPanel 
           merchant={selectedMerchant as Merchant} 
           isLoggedIn={isLoggedIn}
+          validators={validators}
           onClose={() => setSelectedMerchant(null)} 
           trackClick={trackClick}
           onValidate={handleValidate}
@@ -1079,7 +1114,8 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
   );
 }
 
-function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: { merchant: Merchant, isLoggedIn: boolean, onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void }) {
+function DetailPanel({ merchant, isLoggedIn, validators, onClose, trackClick, onValidate }: { merchant: Merchant, isLoggedIn: boolean, validators: any[], onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void }) {
+  const othersCount = (merchant.validation_count || 0) - (validators?.length || 0);
   const [hasValidated, setHasValidated] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
@@ -1130,6 +1166,25 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
               <span key={t} style={{ padding: '0.3rem 0.8rem', background: 'var(--primary-dark)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900', textTransform: 'uppercase' }}>{t}</span>
             ))}
             <span style={{ padding: '0.3rem 0.8rem', background: 'var(--soft-leaf)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900' }}>Validado</span>
+          </div>
+
+          <div style={{ background: '#F8F9F5', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', marginBottom: '1rem' }}>
+             <div style={{ marginBottom: '0.4rem' }}>
+                <span style={{ fontSize: '0.65rem', fontWeight: '950', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Validación Comunitaria</span>
+                <div style={{ marginTop: '5px', fontSize: '0.85rem', fontWeight: '700', color: '#2D3A20', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CheckCircle size={16} color="#5F7D4A" /> 
+                  {validators && validators.length > 0 ? (
+                    <span style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
+                      Validado por {validators.map((v: any, i: number) => (
+                        <strong key={v.user_id + i} style={{ color: '#5F7D4A' }}>{v.profiles?.first_name || 'Alimneter'}{i < validators.length - 1 ? ', ' : ''}</strong>
+                      ))}
+                      {othersCount > 0 && <span style={{ color: '#888' }}>{` y ${othersCount} más`}</span>}
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '0.8rem', color: '#888' }}>Sin validaciones aún</span>
+                  )}
+                </div>
+             </div>
           </div>
 
           <button 
