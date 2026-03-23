@@ -92,7 +92,7 @@ export default function MiCuentaPage() {
     { id: 'favoritos', label: 'Guardados', icon: Star },
     { id: 'recientes', label: 'Recientes', icon: History },
     { id: 'sostener', label: 'Sostener Alimnet', icon: Heart, special: true },
-    { id: 'configuracion', label: 'Ajustes', icon: Settings },
+    { id: 'logout', label: 'Cerrar Sesión', icon: LogOut },
   ];
 
   if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>;
@@ -147,17 +147,23 @@ export default function MiCuentaPage() {
                   window.location.href = '/sostener';
                   return;
                 }
+                if (item.id === 'logout') {
+                  supabase.auth.signOut().then(() => window.location.href = '/');
+                  return;
+                }
                 setActiveTab(item.id); 
                 setShowSidebar(false); 
               }}
               style={{ 
                 padding: '1rem', borderRadius: '16px', border: 'none', 
-                background: item.special ? '#FDF1ED' : (activeTab === item.id ? '#F0F4ED' : 'transparent'),
-                color: item.special ? '#FF7043' : (activeTab === item.id ? '#5F7D4A' : '#666'),
+                background: item.special ? '#5F7D4A' : (activeTab === item.id ? '#F0F4ED' : 'transparent'),
+                color: item.special ? 'white' : (activeTab === item.id ? '#5F7D4A' : '#666'),
                 display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer',
                 fontWeight: (activeTab === item.id || item.special) ? '900' : '700', fontSize: '0.9rem',
-                transition: 'all 0.2s', width: '100%', textAlign: 'left',
-                marginTop: item.special ? 'auto' : '0'
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', 
+                width: '100%', textAlign: 'left',
+                marginTop: item.special ? 'auto' : '0',
+                boxShadow: item.special ? '0 10px 25px rgba(95, 125, 74, 0.2)' : 'none'
               }}
             >
               <item.icon size={20} />
