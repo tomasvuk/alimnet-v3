@@ -16,20 +16,24 @@ const ZONE_OPTIONS = [
 ];
 
 const DIETARY_OPTIONS = [
-  { value: '', label: 'Sin especificar' },
-  { value: 'omnivoro', label: '🍖 Omnívoro' },
-  { value: 'vegetariano', label: '🥬 Vegetariano' },
-  { value: 'vegano', label: '🌱 Vegano' },
-  { value: 'flexitariano', label: '🥗 Flexitariano' },
-  { value: 'celiaco', label: '🌾 Sin Gluten / Celíaco' },
-  { value: 'sin_lactosa', label: '🥛 Sin Lactosa' },
-  { value: 'keto', label: '🥑 Keto / Low Carb' },
-  { value: 'otro', label: '✨ Otro' },
+  { value: 'sin_gluten', label: 'Sin gluten' },
+  { value: 'sin_azucar', label: 'Sin azúcar' },
+  { value: 'sin_lactosa', label: 'Sin lactosa' },
+  { value: 'keto', label: 'Keto' },
+  { value: 'vegetariano', label: 'Vegetariano' },
+  { value: 'plant_based', label: 'Plant-based' },
 ];
 
-const INTOLERANCES_OPTIONS = [
-  'Gluten', 'Lactosa', 'Frutos secos', 'Maní', 'Soja', 
-  'Huevo', 'Mariscos', 'Pescado', 'Trigo'
+const PRODUCTION_OPTIONS = [
+  'Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sustentable', 'Sin ultraprocesados'
+];
+
+const PRODUCT_CATEGORIES = [
+  'Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'
+];
+
+const DELIVERY_OPTIONS = [
+  'Retiro en local', 'Entrega a domicilio'
 ];
 
 interface UserProfile {
@@ -67,9 +71,11 @@ export default function MiCuentaPage() {
     locality: '',
     province: '',
     dietary_type: '',
-    delivery_preference: 'ambos',
+    delivery_preference: 'Ambos',
     preferred_zones: [] as string[],
-    intolerances: [] as string[],
+    intolerances: [] as string[], // We'll map this to 'Alimentación'
+    preferences: [] as string[],   // We'll map this to 'Producción'
+    categories_interest: [] as string[],
   });
 
   useEffect(() => {
@@ -100,9 +106,11 @@ export default function MiCuentaPage() {
           locality: p.locality || '',
           province: p.province || '',
           dietary_type: p.dietary_type || '',
-          delivery_preference: p.delivery_preference || 'ambos',
+          delivery_preference: p.delivery_preference || 'Ambos',
           preferred_zones: Array.isArray(p.preferred_zones) ? p.preferred_zones : [],
           intolerances: Array.isArray(p.intolerances) ? p.intolerances : [],
+          preferences: Array.isArray(p.preferences) ? p.preferences : [],
+          categories_interest: (p as any).categories_interest || [],
         });
       }
       setLoading(false);
@@ -126,6 +134,8 @@ export default function MiCuentaPage() {
         delivery_preference: editForm.delivery_preference,
         preferred_zones: editForm.preferred_zones,
         intolerances: editForm.intolerances,
+        preferences: editForm.preferences,
+        categories_interest: editForm.categories_interest,
       })
       .eq('id', user.id);
 
@@ -142,6 +152,8 @@ export default function MiCuentaPage() {
         delivery_preference: editForm.delivery_preference,
         preferred_zones: editForm.preferred_zones,
         intolerances: editForm.intolerances,
+        preferences: editForm.preferences,
+        categories_interest: editForm.categories_interest,
       } : null);
       setEditing(false);
       setSaveSuccess(true);
@@ -188,14 +200,13 @@ export default function MiCuentaPage() {
   const memberSince = user?.created_at ? new Date(user.created_at).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }) : 'Reciente';
 
   const deliveryLabel = (v: string | null) => {
-    if (v === 'retiro') return '📦 Solo Retiro';
-    if (v === 'entrega') return '🚚 Solo Entrega';
-    return '📦🚚 Retiro y Entrega';
+    if (!v) return 'No especificado';
+    return v;
   };
 
   const dietaryLabel = (v: string | null) => {
     const opt = DIETARY_OPTIONS.find(o => o.value === v);
-    return opt ? opt.label : 'Sin especificar';
+    return opt ? opt.label : v || 'Sin especificar';
   };
 
   const filteredZones = ZONE_OPTIONS.filter(z => z.toLowerCase().includes(zoneSearch.toLowerCase()));
@@ -360,27 +371,19 @@ export default function MiCuentaPage() {
 
         {editing ? (
           <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
-            {[
-              { value: 'retiro', label: '📦 Retiro en local', desc: 'Voy a buscar yo' },
-              { value: 'entrega', label: '🚚 Entrega / Delivery', desc: 'Que me lo traigan' },
-              { value: 'ambos', label: '📦🚚 Ambos', desc: 'Retiro o entrega' },
-            ].map(opt => (
+            {DELIVERY_OPTIONS.map(opt => (
               <button 
-                key={opt.value}
-                onClick={() => setEditForm(p => ({ ...p, delivery_preference: opt.value }))}
+                key={opt}
+                onClick={() => setEditForm(p => ({ ...p, delivery_preference: opt }))}
                 style={{ 
                   flex: isMobile ? '1 1 100%' : '1',
                   padding: '1rem', borderRadius: '16px', cursor: 'pointer',
-                  border: editForm.delivery_preference === opt.value ? '2px solid #5F7D4A' : '1px solid #E4EBDD',
-                  background: editForm.delivery_preference === opt.value ? '#F0F4ED' : 'white',
+                  border: editForm.delivery_preference === opt ? '2px solid #5F7D4A' : '1px solid #E4EBDD',
+                  background: editForm.delivery_preference === opt ? '#F0F4ED' : 'white',
                   textAlign: 'left', transition: 'all 0.15s'
                 }}
               >
-                <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#2D3A20', marginBottom: '4px' }}>{opt.label}</div>
-                <div style={{ fontSize: '0.75rem', color: '#6B7C5E' }}>{opt.desc}</div>
-                {editForm.delivery_preference === opt.value && (
-                  <Check size={16} color="#5F7D4A" style={{ position: 'absolute', top: '10px', right: '10px' }} />
-                )}
+                <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#2D3A20' }}>{opt}</div>
               </button>
             ))}
           </div>
@@ -466,21 +469,26 @@ export default function MiCuentaPage() {
           <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Leaf size={16} color="#059669" />
           </div>
-          Tipo de Alimentación
+          Mi Alimentación
         </h3>
 
         {editing ? (
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: '0.6rem' }}>
-            {DIETARY_OPTIONS.filter(o => o.value).map(opt => {
-              const selected = editForm.dietary_type === opt.value;
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {DIETARY_OPTIONS.map(opt => {
+              const selected = editForm.intolerances.includes(opt.label);
               return (
                 <button 
-                  key={opt.value} onClick={() => setEditForm(p => ({ ...p, dietary_type: opt.value }))}
+                  key={opt.value} onClick={() => {
+                    const newI = editForm.intolerances.includes(opt.label)
+                      ? editForm.intolerances.filter(i => i !== opt.label)
+                      : [...editForm.intolerances, opt.label];
+                    setEditForm(p => ({ ...p, intolerances: newI }));
+                  }}
                   style={{ 
-                    padding: '0.8rem 1rem', borderRadius: '14px', cursor: 'pointer', textAlign: 'left',
+                    padding: '0.6rem 1rem', borderRadius: '14px', cursor: 'pointer',
                     border: selected ? '2px solid #059669' : '1px solid #E4EBDD',
                     background: selected ? '#ECFDF5' : 'white',
-                    color: '#2D3A20', fontSize: '0.85rem', fontWeight: '700',
+                    color: '#2D3A20', fontSize: '0.8rem', fontWeight: '700',
                     transition: 'all 0.15s'
                   }}
                 >
@@ -490,45 +498,99 @@ export default function MiCuentaPage() {
             })}
           </div>
         ) : (
-          <div style={{ padding: '1rem', background: '#F8F9F5', borderRadius: '16px', fontSize: '1rem', fontWeight: '700', color: '#2D3A20' }}>
-            {dietaryLabel(profile?.dietary_type)}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {(profile?.intolerances && profile.intolerances.length > 0)
+              ? profile.intolerances.map((i: string) => (
+                <span key={i} style={{ padding: '0.4rem 1rem', borderRadius: '20px', background: '#ECFDF5', color: '#059669', fontSize: '0.8rem', fontWeight: '700', border: '1px solid #D1FAE5' }}>
+                  {i}
+                </span>
+              ))
+              : <p style={{ color: '#999', fontSize: '0.85rem', fontStyle: 'italic' }}>Sin especificar</p>
+            }
           </div>
         )}
 
-        {/* Intolerancias */}
-        <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#2D3A20', marginTop: '1.5rem', marginBottom: '0.8rem' }}>
-          Intolerancias / Alergias
+        {/* Producción */}
+        <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#2D3A20', marginTop: '2rem', marginBottom: '0.8rem' }}>
+          Calidad y Producción
         </h4>
         {editing ? (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {INTOLERANCES_OPTIONS.map(item => {
-              const selected = editForm.intolerances.includes(item);
+            {PRODUCTION_OPTIONS.map(item => {
+              const selected = editForm.preferences.includes(item);
               return (
                 <button 
-                  key={item} onClick={() => toggleIntolerance(item)}
+                  key={item} onClick={() => {
+                    const newP = editForm.preferences.includes(item)
+                      ? editForm.preferences.filter(p => p !== item)
+                      : [...editForm.preferences, item];
+                    setEditForm(p => ({ ...p, preferences: newP }));
+                  }}
                   style={{ 
-                    padding: '0.4rem 0.9rem', borderRadius: '20px', cursor: 'pointer',
-                    border: selected ? '2px solid #E11D48' : '1px solid #E4EBDD',
-                    background: selected ? '#FEF2F2' : 'white',
-                    color: selected ? '#E11D48' : '#6B7C5E',
-                    fontSize: '0.8rem', fontWeight: '700', transition: 'all 0.15s',
-                    display: 'flex', alignItems: 'center', gap: '4px'
+                    padding: '0.5rem 1rem', borderRadius: '20px', cursor: 'pointer',
+                    border: selected ? '2px solid #5F7D4A' : '1px solid #E4EBDD',
+                    background: selected ? '#F0F4ED' : 'white',
+                    color: selected ? '#5F7D4A' : '#6B7C5E',
+                    fontSize: '0.8rem', fontWeight: '700', transition: 'all 0.15s'
                   }}
                 >
-                  {selected && <X size={12} />} {item}
+                  {item}
                 </button>
               );
             })}
           </div>
         ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {(profile?.intolerances && profile.intolerances.length > 0)
-              ? profile.intolerances.map((i: string) => (
-                <span key={i} style={{ padding: '0.3rem 0.8rem', borderRadius: '20px', background: '#FEF2F2', color: '#E11D48', fontSize: '0.8rem', fontWeight: '700', border: '1px solid #FEE2E2' }}>
-                  ⚠️ {i}
+            {(profile?.preferences && profile.preferences.length > 0)
+              ? profile.preferences.map((p: string) => (
+                <span key={p} style={{ padding: '0.3rem 0.8rem', borderRadius: '20px', background: '#F0F4ED', color: '#5F7D4A', fontSize: '0.8rem', fontWeight: '700', border: '1px solid #D4E0CC' }}>
+                  {p}
                 </span>
               ))
-              : <p style={{ color: '#999', fontSize: '0.85rem', fontStyle: 'italic' }}>Ninguna</p>
+              : <p style={{ color: '#999', fontSize: '0.85rem', fontStyle: 'italic' }}>Sin especificar</p>
+            }
+          </div>
+        )}
+
+        {/* Productos de Interés */}
+        <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#2D3A20', marginTop: '2rem', marginBottom: '0.8rem' }}>
+          Categorías de Interés
+        </h4>
+        {editing ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {PRODUCT_CATEGORIES.map(item => {
+              const selected = (editForm as any).categories_interest?.includes(item);
+              return (
+                <button 
+                  key={item} onClick={() => {
+                    const current = (editForm as any).categories_interest || [];
+                    const next = current.includes(item)
+                      ? current.filter((i: string) => i !== item)
+                      : [...current, item];
+                    setEditForm(p => ({ ...p, categories_interest: next }));
+                  }}
+                  style={{ 
+                    padding: '0.5rem 1rem', borderRadius: '20px', cursor: 'pointer',
+                    border: selected ? '2px solid #2D3A20' : '1px solid #E4EBDD',
+                    background: selected ? '#2D3A20' : 'white',
+                    color: selected ? 'white' : '#6B7C5E',
+                    fontSize: '0.8rem', fontWeight: '700', transition: 'all 0.15s'
+                  }}
+                >
+                  {item}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {((profile as any)?.categories_interest && (profile as any).categories_interest.length > 0)
+              ? (profile as any).categories_interest.map((i: string) => (
+                <span key={i} style={{ padding: '0.3rem 0.8rem', borderRadius: '20px', background: '#eee', color: '#2D3A20', fontSize: '0.8rem', fontWeight: '700', border: '1px solid #ddd' }}>
+                  {i}
+                </span>
+              ))
+              : <p style={{ color: '#999', fontSize: '0.85rem', fontStyle: 'italic' }}>Sin especificar</p>
             }
           </div>
         )}
