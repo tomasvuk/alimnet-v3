@@ -634,11 +634,16 @@ export default function ExplorarPage() {
           <button 
             className="hamburger-btn"
             onClick={() => setShowHamburger(!showHamburger)}
-            style={{ background: 'none', border: 'none', color: '#2D3A20', cursor: 'pointer', padding: '4px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}
+            style={{ 
+              background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
+              padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: '5px',
+              alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s',
+              width: '45px', justifyContent: 'center'
+            }}
           >
-            <div style={{ width: '12px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
-            <div style={{ width: '20px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
-            <div style={{ width: '28px', height: '2.5px', background: 'currentColor', borderRadius: '10px' }}></div>
+            <div style={{ width: showHamburger ? '22px' : '10px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
+            <div style={{ width: '16px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
+            <div style={{ width: showHamburger ? '10px' : '22px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
           </button>
         </div>
 

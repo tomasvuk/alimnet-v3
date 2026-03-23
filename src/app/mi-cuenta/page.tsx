@@ -106,14 +106,14 @@ export default function MiCuentaPage() {
           position: 'fixed', top: '25px', left: '25px', zIndex: 100, 
           background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
           padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: '5px',
-          alignItems: 'flex-start', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          alignItems: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          width: '45px'
+          width: '45px', justifyContent: 'center'
         }}
       >
-        <div style={{ width: showSidebar ? '22px' : '12px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
-        <div style={{ width: '18px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
-        <div style={{ width: showSidebar ? '12px' : '22px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
+        <div style={{ width: showSidebar ? '22px' : '10px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
+        <div style={{ width: '16px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
+        <div style={{ width: showSidebar ? '10px' : '22px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
       </button>
 
       {/* SIDEBAR IZQUIERDA (COLAPSABLE UNIFICADA) */}
