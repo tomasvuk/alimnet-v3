@@ -7,7 +7,7 @@ import {
   Bell, Award, TrendingUp, Check, X, Plus, Search,
   Map as MapIcon, Loader2, AlertCircle, MessageSquare, 
   ExternalLink, ShieldCheck, LayoutDashboard, History,
-  Activity
+  Activity, Users, Share2, Eye
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -80,6 +80,7 @@ export default function MiCuentaPage() {
     { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
     { id: 'perfil', label: 'Mi Perfil', icon: User },
     { id: 'validaciones', label: 'Validaciones', icon: Heart },
+    { id: 'referentes', label: 'Referentes', icon: Users },
     { id: 'favoritos', label: 'Favoritos', icon: Star },
     { id: 'configuracion', label: 'Ajustes', icon: Settings },
   ];
@@ -220,6 +221,63 @@ export default function MiCuentaPage() {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === 'referentes' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Mis Referentes</h2>
+              <p style={{ color: '#888', fontWeight: '600' }}>Los guías en los que confiás para descubrir comida real.</p>
+            </div>
+            
+            {/* REFERENTE 1: Carlos (Mockup Premium) */}
+            <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '22px', background: '#F4F1E6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', border: '2px solid #E4EBDD' }}>
+                  <User size={32} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Carlos Prueba</h3>
+                  <p style={{ color: '#5F7D4A', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>MIEMBRO FUNDADOR</p>
+                </div>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
+                  <button style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', border: 'none', background: '#F0F4ED', color: '#5F7D4A', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}><Eye size={16} style={{ marginRight: '6px' }} /> Ver Perfil</button>
+                  <button style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>Remover</button>
+                </div>
+              </div>
+
+              <div style={{ background: '#F8F9F5', padding: '1.5rem', borderRadius: '24px' }}>
+                <p style={{ fontSize: '0.85rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  ÚLTIMAS VALIDACIONES DE CARLOS:
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                  {/* Mock de lo que Carlos validó */}
+                  {['Sana Sana', 'Feria Itinerante'].map((loc, idx) => (
+                    <div key={idx} style={{ background: 'white', padding: '1rem', borderRadius: '18px', border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A' }}>
+                        <ShieldCheck size={18} />
+                      </div>
+                      <div>
+                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '950', color: '#2D3A20' }}>{loc}</p>
+                        <p style={{ margin: 0, fontSize: '0.7rem', color: '#888', fontWeight: '700' }}>Agroecológico</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* BUSCADOR DE REFERENTES */}
+            <div style={{ padding: '3rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
+               <Users size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
+               <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Descubrí nuevos Referentes</h3>
+               <p style={{ color: '#888', marginTop: '1rem' }}>Seguí a las personas cuya confianza alimentaria te inspire.</p>
+               <div style={{ maxWidth: '400px', margin: '2rem auto 0', position: 'relative' }}>
+                 <input type="text" placeholder="Buscar por nombre o ciudad..." style={{ width: '100%', padding: '1rem 1.5rem 1rem 3rem', borderRadius: '16px', border: '1.5px solid #E4EBDD', fontSize: '0.9rem', outline: 'none' }} />
+                 <Search size={18} color="#888" style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)' }} />
+               </div>
+            </div>
           </div>
         )}
 
