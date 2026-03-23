@@ -1209,16 +1209,18 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                 <span style={{ fontSize: '0.65rem', fontWeight: '950', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Validación Comunitaria</span>
                 <div style={{ marginTop: '5px', fontSize: '0.85rem', fontWeight: '700', color: '#2D3A20', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <CheckCircle size={16} color="#5F7D4A" /> 
-                  {validators && validators.length > 0 ? (
-                    <span style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
-                      Validado por {validators.map((v: any, i: number) => (
-                        <strong key={v.user_id + i} style={{ color: '#5F7D4A' }}>{v.profiles?.first_name || 'Alimneter'}{i < validators.length - 1 ? ', ' : ''}</strong>
-                      ))}
-                      {othersCount > 0 && <span style={{ color: '#888' }}>{` y ${othersCount} más`}</span>}
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: '0.8rem', color: '#888' }}>Sin validaciones aún</span>
-                  )}
+                {displayValidators && displayValidators.length > 0 ? (
+                  <span style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
+                    Validado por {displayValidators.map((v: any, i: number) => (
+                      <strong key={v.user_id + (v.profiles?.first_name || 'Alimneter') + i} style={{ color: '#5F7D4A' }}>
+                        {v.profiles?.first_name || 'Alimneter'}{i < displayValidators.length - 1 ? ', ' : ''}
+                      </strong>
+                    ))}
+                    {othersCount > 0 && <span style={{ color: '#888' }}>{` y ${othersCount} más`}</span>}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.8rem', color: '#888' }}>Sin validaciones aún</span>
+                )}
                 </div>
              </div>
           </div>
