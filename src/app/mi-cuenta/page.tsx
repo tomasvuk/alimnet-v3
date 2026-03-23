@@ -99,7 +99,7 @@ export default function MiCuentaPage() {
   return (
     <div style={{ height: '100vh', display: 'flex', background: '#F8F9F5', overflow: 'hidden' }}>
       
-      {/* BOTÓN HAMBURGUESA UNIFICADO (TIPO MAPA) */}
+      {/* BOTÓN HAMBURGUESA UNIFICADO (SÓLO MOBILE) */}
       <button 
         onClick={() => setShowSidebar(!showSidebar)}
         style={{ 
@@ -110,27 +110,26 @@ export default function MiCuentaPage() {
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           width: '45px', justifyContent: 'center'
         }}
+        className="mobile-only"
       >
         <div style={{ width: showSidebar ? '22px' : '10px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
         <div style={{ width: '16px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
         <div style={{ width: showSidebar ? '10px' : '22px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
       </button>
 
-      {/* SIDEBAR IZQUIERDA (COLAPSABLE UNIFICADA) */}
+      {/* SIDEBAR IZQUIERDA (PERSISTENTE EN WEB / COLAPSABLE EN MOBILE) */}
       <aside 
         style={{ 
           width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', 
           display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem',
-          transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           zIndex: 90,
           position: 'fixed',
           left: 0,
           top: 0,
           height: '100vh',
-          transform: showSidebar ? 'translateX(0)' : 'translateX(-100%)',
-          boxShadow: showSidebar ? '20px 0 60px rgba(0,0,0,0.05)' : 'none'
+          boxShadow: 'none'
         }}
-        className="sidebar-dashboard"
+        className={`sidebar-dashboard ${showSidebar ? 'open' : ''}`}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '4rem' }}>
           <div onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
@@ -196,53 +195,53 @@ export default function MiCuentaPage() {
         {activeTab === 'dashboard' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
             {/* Quick Stats Grid - Horizontal Elegant Style */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem', width: '100%' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
               
               <div 
                 onClick={() => setActiveTab('validaciones')}
-                style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }}
+                style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
-                <div style={{ color: '#5F7D4A', display: 'flex' }}><ShieldCheck size={22} /></div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.validations}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>VALIDACIONES</span>
+                <div style={{ color: '#5F7D4A', display: 'flex' }}><ShieldCheck size={20} /></div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                  <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.validations}</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>VALIDACIONES</span>
                 </div>
               </div>
               
               <div 
                 onClick={() => setActiveTab('referentes')}
-                style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }}
+                style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
-                <div style={{ color: '#FF7043', display: 'flex' }}><Users size={22} /></div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.referents}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>REFERENTES</span>
+                <div style={{ color: '#FF7043', display: 'flex' }}><Users size={20} /></div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                  <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.referents}</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>REFERENTES</span>
                 </div>
               </div>
 
               <div 
                 onClick={() => setActiveTab('favoritos')}
-                style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }}
+                style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
-                <div style={{ color: '#E9C46A', display: 'flex' }}><Star size={22} /></div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.saved}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>GUARDADOS</span>
+                <div style={{ color: '#E9C46A', display: 'flex' }}><Star size={20} /></div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                  <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.saved}</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>GUARDADOS</span>
                 </div>
               </div>
 
               <div 
                 onClick={() => setActiveTab('recientes')}
-                style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }}
+                style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
-                <div style={{ color: '#2A9D8F', display: 'flex' }}><History size={22} /></div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.recent}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>RECIENTES</span>
+                <div style={{ color: '#2A9D8F', display: 'flex' }}><History size={20} /></div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                  <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.recent}</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>RECIENTES</span>
                 </div>
               </div>
             </div>
@@ -492,10 +491,21 @@ export default function MiCuentaPage() {
         .desktop-only { display: flex; }
 
         @media (max-width: 900px) {
-          .mobile-only { display: block !important; }
+          .mobile-only { display: flex !important; }
           .desktop-only { display: none !important; }
+          .sidebar-dashboard {
+             transform: translateX(-100%);
+             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+          .sidebar-dashboard.open {
+             transform: translateX(0);
+             box-shadow: 20px 0 60px rgba(0,0,0,0.1);
+          }
+          .main-content {
+             margin-left: 0 !important;
+             padding: 5rem 1rem !important; 
+          }
           main { 
-            padding: 5rem 1rem !important; 
             overflow-x: hidden !important;
             width: 100vw !important;
           }
@@ -503,6 +513,13 @@ export default function MiCuentaPage() {
           .stat-bar { 
             padding: 1rem !important; 
             min-width: 0 !important;
+            width: auto !important;
+          }
+        }
+        
+        @media (min-width: 901px) {
+          .main-content {
+            margin-left: 280px;
           }
         }
       `}</style>
