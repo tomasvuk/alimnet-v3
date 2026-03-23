@@ -872,7 +872,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
               <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '6px' }}>
                 {visibleProducts.map(pt => (
                   <span key={pt} style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--primary-dark)', background: '#f5f5f5', padding: '2px 6px', borderRadius: '6px' }}>
-                    📦 {pt}
+                    {pt}
                   </span>
                 ))}
                 {!isHovered && hiddenProductsCount > 0 && (
