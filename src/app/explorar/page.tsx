@@ -244,9 +244,9 @@ export default function ExplorarPage() {
 
       // Control mobile header/pills visibility
       if (isMobile) {
-        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        if (currentScrollY > lastScrollY && currentScrollY > 50) {
           // Scrolling down
-          setIsHeaderVisible(false);
+          setIsHeaderVisible(false); // Hide the top ALIMNET bar
         } else {
           // Scrolling up
           setIsHeaderVisible(true);
@@ -481,7 +481,7 @@ export default function ExplorarPage() {
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F4ED' }}>
       
-      {/* 1. HEADER PRINCIPAL (Extra fino, sin logo gráfico) */}
+      {/* 1. HEADER PRINCIPAL (ALIMNET) */}
       <header className="main-header" style={{ 
         padding: "0.4rem 1.5rem", 
         display: "flex", 
@@ -489,9 +489,13 @@ export default function ExplorarPage() {
         alignItems: "center",
         background: "#F4F1E6", 
         zIndex: 1000,
-        position: 'relative',
+        position: isMobile ? 'sticky' : 'relative',
+        top: 0,
         borderBottom: '1px solid rgba(0,0,0,0.05)',
-        height: '52px'
+        height: '52px',
+        transform: (isMobile && !isHeaderVisible) ? 'translateY(-100%)' : 'translateY(0)',
+        transition: 'transform 0.3s ease-in-out',
+        marginBottom: (isMobile && !isHeaderVisible) ? '-52px' : '0'
       }}>
         <div 
           onClick={() => window.location.href = '/'}
@@ -535,7 +539,7 @@ export default function ExplorarPage() {
         background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
         position: 'sticky',
-        top: 0,
+        top: isMobile ? 0 : 0, // Se pega arriba cuando el header ALIMNET se va
         zIndex: 900,
         display: 'flex',
         flexDirection: 'column',
