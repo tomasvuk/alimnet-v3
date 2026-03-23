@@ -229,7 +229,7 @@ export default function MiCuentaPage() {
                 style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
-                <div style={{ color: '#FF7043', display: 'flex' }}><Users size={20} /></div>
+                <div style={{ color: '#8EA87D', display: 'flex' }}><Users size={20} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
                   <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.referents}</span>
                   <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>REFERENTES</span>
@@ -241,7 +241,7 @@ export default function MiCuentaPage() {
                 style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
-                <div style={{ color: '#E9C46A', display: 'flex' }}><Star size={20} /></div>
+                <div style={{ color: '#2D3A20', display: 'flex' }}><Star size={20} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
                   <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.saved}</span>
                   <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>GUARDADOS</span>
@@ -253,7 +253,7 @@ export default function MiCuentaPage() {
                 style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
-                <div style={{ color: '#2A9D8F', display: 'flex' }}><History size={20} /></div>
+                <div style={{ color: '#B8C6B1', display: 'flex' }}><History size={20} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
                   <span style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>{counts.recent}</span>
                   <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>RECIENTES</span>
