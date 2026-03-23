@@ -120,7 +120,7 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
     const isLast = key === 'productos';
     return (
       <div key={key} style={{ padding: '2.2rem 0', borderBottom: isLast ? 'none' : '2px solid #f5f5f5' }}>
-        <h4 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1.5rem', letterSpacing: '-0.01em' }}>{section.label}</h4>
+        <h4 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2D3A20', marginBottom: '1.5rem', letterSpacing: '-0.02em', opacity: 0.9 }}>{section.label}</h4>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
           {section.options.map((opt) => {
             const isCategory = section.label === 'Tipo de actor';
@@ -134,10 +134,10 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   padding: '0.9rem 1.4rem', cursor: 'pointer', borderRadius: '30px',
-                  border: '1.2px solid ' + (isActive ? '#2D3A20' : '#ddd'),
-                  background: isActive ? '#2D3A20' : 'white',
-                  color: isActive ? 'white' : '#2D3A20',
-                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  border: '1.5px solid ' + (isActive ? '#3F5232' : 'transparent'),
+                  background: isActive ? '#5F7D4A' : '#F0F4ED',
+                  color: isActive ? 'white' : '#3F5232',
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                   fontSize: '0.85rem', fontWeight: '800', textAlign: 'center',
                   width: 'auto', minWidth: 'fit-content'
                 }}
@@ -186,9 +186,9 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
           <button 
             onClick={onClose} 
             style={{ 
-              background: '#2D3A20', color: 'white', border: 'none', borderRadius: '12px', 
-              padding: '1rem 2rem', fontWeight: '950', fontSize: '0.9rem', cursor: 'pointer',
-              boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
+              background: '#5F7D4A', color: 'white', border: 'none', borderRadius: '12px', 
+              padding: '1rem 2.5rem', fontWeight: '950', fontSize: '0.9rem', cursor: 'pointer',
+              boxShadow: '0 10px 20px rgba(95, 125, 74, 0.2)', transition: 'all 0.2s'
             }}
           >
             Ver {resultCount} locales
