@@ -30,6 +30,7 @@ export default function MiCuentaPage() {
     delivery_pref: 'Retiro y Entrega',
     production_interest: [] as string[]
   });
+  const [validatedMerchants, setValidatedMerchants] = useState<any[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -53,6 +54,25 @@ export default function MiCuentaPage() {
 
       const { count } = await supabase.from('validations').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
       setValidationCount(count || 0);
+
+      // Traer los locales validados reales
+      const { data: vData } = await supabase
+        .from('validations')
+        .select(`
+          merchant_id,
+          merchants (
+            id,
+            name,
+            type,
+            locations (locality)
+          )
+        `)
+        .eq('user_id', user.id);
+      
+      if (vData) {
+        setValidatedMerchants(vData.map((v: any) => v.merchants).filter(Boolean));
+      }
+
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
 
@@ -150,11 +170,64 @@ export default function MiCuentaPage() {
           </div>
         )}
 
+        {activeTab === 'validaciones' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Mis Validaciones</h2>
+              <p style={{ color: '#888', fontWeight: '600' }}>Los proyectos que apoyaste con tu validación social.</p>
+            </div>
+            
+            {validatedMerchants.length > 0 ? (
+              validatedMerchants.map(m => (
+                <div 
+                  key={m.id}
+                  onClick={() => window.location.href = `/explorar?id=${m.id}`}
+                  style={{ 
+                    background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', 
+                    cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    display: 'flex', flexDirection: 'column', gap: '12px',
+                    position: 'relative'
+                  }}
+                  className="card-hover"
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A' }}>
+                      <ShieldCheck size={24} />
+                    </div>
+                    <div style={{ padding: '4px 10px', background: '#2D3A20', color: 'white', borderRadius: '8px', fontSize: '0.6rem', fontWeight: '900' }}>{m.type?.split(',')[0]}</div>
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>{m.name}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#888', fontSize: '0.8rem', fontWeight: '700' }}>
+                      <MapPin size={14} /> {m.locations?.[0]?.locality || 'Zona Norte'}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f5f5f5', display: 'flex', alignItems: 'center', gap: '8px', color: '#5F7D4A', fontSize: '0.8rem', fontWeight: '800' }}>
+                    Ver en el mapa <ChevronRight size={16} />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', padding: '5rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
+                <Heart size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
+                <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Aún no has validado ningún proyecto</h3>
+                <p style={{ color: '#888', marginTop: '1rem' }}>Explorá el mapa y validá a tus productores de confianza.</p>
+                <button 
+                  onClick={() => window.location.href = '/explorar'} 
+                  style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '800', cursor: 'pointer' }}
+                >
+                  Ir al Mapa
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* OTROS TABS (Placeholder para mantener diseño) */}
-        {activeTab !== 'dashboard' && (
+        {['perfil', 'favoritos', 'configuracion'].includes(activeTab) && (
           <div style={{ background: 'white', padding: '4rem', borderRadius: '32px', border: '1px solid #E4EBDD', textAlign: 'center' }}>
             <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Próximamente: {activeTab.toUpperCase()}</h3>
-            <p style={{ color: '#888', marginTop: '1rem' }}>Estamos puliendo esta sección en el checklist de Validaciones.</p>
+            <p style={{ color: '#888', marginTop: '1rem' }}>Estamos puliendo esta sección en el checklist de Alimnet.</p>
           </div>
         )}
 
@@ -162,6 +235,11 @@ export default function MiCuentaPage() {
 
       <style jsx>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .card-hover:hover {
+          transform: translateY(-8px);
+          boxShadow: 0 20px 40px rgba(0,0,0,0.05);
+          border-color: #5F7D4A;
+        }
       `}</style>
     </div>
   );
