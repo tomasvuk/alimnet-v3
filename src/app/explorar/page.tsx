@@ -1117,22 +1117,24 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
             </div>
           )}
           
-          {/* TOMAS'S BADGES */}
+          {/* TOMAS'S BADGES: Same line hierarchy */}
           {(merchant.validation_count || 0) > 0 ? (
             <div style={{ 
-              fontSize: '0.55rem', fontWeight: '950', background: '#F0F4ED', color: '#5F7D4A', 
-              padding: '2px 8px', borderRadius: '20px', border: '1px solid #5F7D4A', marginTop: '2px',
-              display: 'flex', alignItems: 'center', gap: '3px'
+              fontSize: '0.6rem', fontWeight: '950', background: '#5F7D4A', color: 'white', 
+              padding: '3px 10px', borderRadius: '20px', 
+              display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
+              boxShadow: '0 4px 10px rgba(95, 125, 74, 0.2)'
             }}>
-              <CheckCircle size={8} /> VALIDADO +{merchant.validation_count}
+              <CheckCircle size={10} strokeWidth={3} /> VALIDADO +{merchant.validation_count}
             </div>
           ) : (
             <div style={{ 
-              fontSize: '0.55rem', fontWeight: '950', background: '#FFF8F1', color: '#FF7043', 
-              padding: '2px 8px', borderRadius: '20px', border: '1px solid #FF7043', marginTop: '2px',
-              display: 'flex', alignItems: 'center', gap: '3px'
+              fontSize: '0.6rem', fontWeight: '950', background: 'transparent', color: '#FF7043', 
+              padding: '2px 9px', borderRadius: '20px', border: '1.2px solid #FF7043', 
+              display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
+              opacity: 0.85
             }}>
-              <Heart size={8} /> VALÍDALO
+              <Heart size={10} strokeWidth={3} /> VALIDAR
             </div>
           )}
         </div>
