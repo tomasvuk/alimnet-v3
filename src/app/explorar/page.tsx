@@ -243,17 +243,17 @@ export default function ExplorarPage() {
       setStickyFilters(currentScrollY > 80);
 
       if (isMobile) {
-        // Alimnet Header hides only when scrolling down past a threshold
-        if (currentScrollY > lastScrollY && currentScrollY > 60) {
-          setIsHeaderVisible(false);
+        if (currentScrollY > lastScrollY && currentScrollY > 10) {
+          // Scrolling DOWN: Hide elements in order
+          if (currentScrollY > 40) setIsPillsVisible(false); // First go products
+          if (currentScrollY > 90) setIsRolesVisible(false); // Then go roles
+          if (currentScrollY > 150) setIsHeaderVisible(false); // Finally Alimnet header
         } else if (currentScrollY < lastScrollY) {
+          // Scrolling UP: Show everything back
           setIsHeaderVisible(true);
+          setIsRolesVisible(true);
+          setIsPillsVisible(true);
         }
-        
-        // Staged visibility for pills based on scroll thresholds
-        // Fluidez: Se van desvaneciendo progresivamente
-        setIsPillsVisible(currentScrollY < 60);
-        setIsRolesVisible(currentScrollY < 120);
       } else {
         setIsHeaderVisible(true);
         setIsRolesVisible(true);
@@ -494,13 +494,11 @@ export default function ExplorarPage() {
         alignItems: "center",
         background: "#F4F1E6", 
         zIndex: 1000,
-        position: isMobile ? 'sticky' : 'relative',
-        top: 0,
-        borderBottom: '1px solid rgba(0,0,0,0.05)',
         height: '52px',
         transform: (isMobile && !isHeaderVisible) ? 'translateY(-100%)' : 'translateY(0)',
         transition: 'transform 0.3s ease-in-out',
-        marginBottom: (isMobile && !isHeaderVisible) ? '-52px' : '0'
+        position: isMobile ? 'fixed' : 'relative',
+        width: '100%'
       }}>
         <div 
           onClick={() => window.location.href = '/'}
@@ -544,8 +542,9 @@ export default function ExplorarPage() {
         background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
         position: 'sticky',
-        top: isMobile ? 0 : 0, // Se pega arriba cuando el header ALIMNET se va
+        top: (isMobile && !isHeaderVisible) ? 0 : (isMobile ? '52px' : 0), 
         zIndex: 900,
+        marginTop: isMobile ? '52px' : 0, 
         display: 'flex',
         flexDirection: 'column',
         gap: '0.8rem',
