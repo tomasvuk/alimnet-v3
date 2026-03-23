@@ -14,10 +14,10 @@ import {
   UtensilsCrossed
 } from 'lucide-react';
 
-// Carga dinámica del mapa
+// Carga dinámica del mapa para evitar error "window is not defined"
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { 
   ssr: false,
-  loading: () => <div style={{ height: '100%', width: '100%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Cargando mapa...</div>
+  loading: () => <div style={{ height: '100%', width: '100%', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', fontWeight: '800' }}>Cargando mapa...</div>
 });
 
 const normalizeString = (str: string) => {
@@ -91,7 +91,6 @@ export default function ExplorarPage() {
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [validatedMerchantIds, setValidatedMerchantIds] = useState<Set<string>>(new Set());
-  const [searchMode, setSearchMode] = useState<'perfil' | 'libre'>('perfil');
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'abastecedor', 'restaurante', 'chef']);
@@ -99,16 +98,7 @@ export default function ExplorarPage() {
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list'); 
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  
-  // Header Visibility States (Mobile)
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [isRolesVisible, setIsRolesVisible] = useState(true);
-  const [isPillsVisible, setIsPillsVisible] = useState(true);
-  
-  const resultsRef = useRef<HTMLElement>(null);
-  const mapSectionRef = useRef<HTMLDivElement>(null);
-  const touchStartY = useRef<number>(0);
-  const cumulativeSwipe = useRef<number>(0);
+  const [searchMode, setSearchMode] = useState<'perfil' | 'libre'>('perfil');
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -117,196 +107,120 @@ export default function ExplorarPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Auth & Profile Fetch
   useEffect(() => {
-    const checkAuth = async () => {
+    const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
         setIsLoggedIn(true);
-        
-        // Cargar Perfil
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
         if (profile) {
           setUserProfile(profile);
-          if (profile.locality && searchMode === 'perfil') setSearchLocation(profile.locality);
+          if (profile.locality) setSearchLocation(profile.locality);
           
-          // Cargar Validaciones realizadas por este usuario
-          const { data: vData } = await supabase
-            .from('validations')
-            .select('merchant_id')
-            .eq('user_id', user.id);
-          
+          const { data: vData } = await supabase.from('validations').select('merchant_id').eq('user_id', user.id);
           if (vData) setValidatedMerchantIds(new Set(vData.map(v => v.merchant_id)));
         }
       }
-    };
-    checkAuth();
-  }, []);
 
-  // Fetch Data
-  useEffect(() => {
-    const fetchMerchants = async () => {
-      setLoading(true);
-      const { data, error } = await supabase.from('merchants').select('*, locations(*)').eq('status', 'active');
-      if (data) setMerchants(data);
+      const { data: mData } = await supabase.from('merchants').select('*, locations(*)').eq('status', 'active');
+      if (mData) setMerchants(mData);
       setLoading(false);
     };
-    fetchMerchants();
-  }, []);
+    init();
+  }, [searchMode]);
 
-  // Filtering Logic
   useEffect(() => {
     let result = merchants.filter(m => selectedCategories.includes((m.type || '').toLowerCase()));
-
+    
     if (searchLocation.trim().length > 0) {
-      const loc = normalizeString(searchLocation);
-      result = result.filter(m => m.locations?.some(l => normalizeString(l.locality).includes(loc)));
+      const q = normalizeString(searchLocation);
+      result = result.filter(m => m.locations?.some(l => normalizeString(l.locality).includes(q)));
     }
 
-    const tagsToFilter = selectedFilters.filter(f => 
-       !['Productor', 'Abastecedor', 'Restaurante', 'Chef'].includes(f)
-    );
-
+    const tagsToFilter = selectedFilters.filter(f => !['Productor', 'Abastecedor', 'Restaurante', 'Chef'].includes(f));
     if (tagsToFilter.length > 0) {
       result = result.filter(m => tagsToFilter.every(f => (m.tags || []).includes(f)));
     }
 
     setFilteredMerchants(result);
-  }, [selectedCategories, selectedFilters, merchants, searchLocation]);
+  }, [merchants, selectedCategories, selectedFilters, searchLocation]);
 
   const handleValidate = async (merchantId: string) => {
-    if (!user) {
-      alert("Debes iniciar sesión para validar proyectos.");
-      window.location.href = '/login';
-      return;
-    }
-
+    if (!user) { alert("Iniciá sesión para validar."); window.location.href='/login'; return; }
     if (validatedMerchantIds.has(merchantId)) return;
 
     try {
-      const { error: valError } = await supabase
-        .from('validations')
-        .insert([{ merchant_id: merchantId, user_id: user.id }]);
+      const { error } = await supabase.from('validations').insert({ merchant_id: merchantId, user_id: user.id });
+      if (error) throw error;
 
-      if (valError) throw valError;
-
-      const currentMerchant = merchants.find(m => m.id === merchantId);
-      if (currentMerchant) {
-        const newCount = (currentMerchant.validation_count || 0) + 1;
-        await supabase.from('merchants').update({ validation_count: newCount }).eq('id', merchantId);
-        
+      const m = merchants.find(x => x.id === merchantId);
+      if (m) {
+        const nc = (m.validation_count || 0) + 1;
+        await supabase.from('merchants').update({ validation_count: nc }).eq('id', merchantId);
         setValidatedMerchantIds(prev => new Set(prev).add(merchantId));
-        setMerchants(prev => prev.map(m => m.id === merchantId ? { ...m, validation_count: newCount } : m));
-        if (selectedMerchant?.id === merchantId) setSelectedMerchant({ ...selectedMerchant, validation_count: newCount });
+        setMerchants(prev => prev.map(x => x.id === merchantId ? { ...x, validation_count: nc } : x));
       }
-    } catch (e) {
-      console.error("Error validando:", e);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  const toggleCategory = (id: string) => {
-    const normId = id.toLowerCase();
-    const isCurrentlySelected = selectedCategories.includes(normId);
-    
-    setSelectedCategories(prev => isCurrentlySelected ? prev.filter(c => c !== normId) : [...prev, normId]);
-    
-    const label = id.charAt(0).toUpperCase() + id.slice(1);
-    setSelectedFilters(prev => isCurrentlySelected ? prev.filter(f => f !== label) : [...prev, label]);
-  };
+  if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Cargando Alimnet...</div>;
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F4ED' }}>
-      
-      {/* 1. HEADER */}
-      <header style={{ 
-        padding: "0.6rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F4F1E6", 
-        height: '52px', borderBottom: '1px solid #ddd', zIndex: 1000, 
-        position: 'relative'
-      }}>
-        <span onClick={() => window.location.href = '/'} style={{ fontSize: "1.1rem", fontWeight: "950", color: "#2D3A20", cursor: 'pointer' }}>ALIMNET</span>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          {isLoggedIn ? (
-            <div onClick={() => window.location.href = '/mi-cuenta'} style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#5F7D4A', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', cursor: 'pointer' }}>
-               {userProfile?.first_name?.[0] || 'U'}
-            </div>
-          ) : (
-            <button onClick={() => window.location.href = '/login'} style={{ background: '#2D3A20', color: 'white', padding: '6px 15px', borderRadius: '10px', fontSize: '0.8rem', fontWeight: '800', border: 'none' }}>Entrar</button>
-          )}
+      <header style={{ height: '52px', background: '#F4F1E6', padding: '0 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ddd', zIndex: 1000 }}>
+        <span onClick={() => window.location.href='/'} style={{ fontWeight: '950', cursor: 'pointer', color: '#2D3A20' }}>ALIMNET</span>
+        <div onClick={() => window.location.href='/mi-cuenta'} style={{ cursor: 'pointer' }}>
+           {isLoggedIn ? <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: '#5F7D4A', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900' }}>{userProfile?.first_name?.[0] || 'U'}</div> : <LogIn size={20} />}
         </div>
       </header>
 
-      {/* 2. BARRA DE BÚSQUEDA & FILTROS */}
-      <div style={{ padding: '0.8rem 1rem', background: 'white', borderBottom: '1px solid #eee' }}>
+      <div style={{ background: 'white', padding: '1rem', borderBottom: '1px solid #eee' }}>
         <div style={{ position: 'relative', maxWidth: '600px', margin: '0 auto' }}>
           <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-          <input 
-            type="text" value={searchLocation} onChange={(e) => setSearchLocation(e.target.value)}
-            placeholder="¿En qué zona buscás?" 
-            style={{ width: '100%', padding: '0.8rem 0.8rem 0.8rem 2.5rem', borderRadius: '16px', border: '2px solid #F0F4ED', outline: 'none', fontWeight: '600' }}
-          />
+          <input type="text" value={searchLocation} onChange={(e) => setSearchLocation(e.target.value)} placeholder="¿Qué zona buscás?" style={{ width: '100%', padding: '0.8rem 2.5rem', borderRadius: '16px', border: '2px solid #F0F4ED', outline: 'none' }} />
         </div>
       </div>
 
-      {/* 3. ROLES (CATEGORÍAS) */}
-      <div style={{ padding: '0.8rem 1rem', background: '#F8F9F5', display: 'flex', gap: '8px', overflowX: 'auto' }} className="no-scrollbar">
-        {CATEGORIES.map(cat => {
-          const active = selectedCategories.includes(cat.id);
-          return (
-            <button key={cat.id} onClick={() => toggleCategory(cat.id)} style={{ padding: '0.6rem 1rem', borderRadius: '14px', border: active ? '2px solid #5F7D4A' : '1px solid #ddd', background: active ? '#F0F4ED' : 'white', color: '#2D3A20', fontWeight: '800', fontSize: '0.8rem', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <cat.icon size={16} /> {cat.label}
-            </button>
-          );
+      <div style={{ background: '#F8F9F5', padding: '0.8rem', display: 'flex', gap: '8px', overflowX: 'auto' }} className="no-scrollbar">
+        {CATEGORIES.map(c => {
+          const active = selectedCategories.includes(c.id);
+          return <button key={c.id} onClick={() => {
+            setSelectedCategories(p => p.includes(c.id) ? p.filter(x => x !== c.id) : [...p, c.id]);
+            setSelectedFilters(p => p.includes(c.label) ? p.filter(x => x !== c.label) : [...p, c.label]);
+          }} style={{ padding: '0.5rem 1rem', borderRadius: '14px', border: active ? '2px solid #5F7D4A' : '1px solid #ddd', background: active ? '#F0F4ED' : 'white', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}><c.icon size={16}/> {c.label}</button>
         })}
-        <button onClick={() => setShowAdvancedFilters(true)} style={{ padding: '0.6rem 1rem', borderRadius: '14px', border: '1px solid #ddd', background: 'white', color: '#2D3A20', fontWeight: '800' }}>+ Filtros</button>
+        <button onClick={() => setShowAdvancedFilters(true)} style={{ padding: '0.5rem 1rem', borderRadius: '14px', border: '1px solid #ddd', background: 'white', fontWeight: '800' }}>+ Filtros</button>
       </div>
 
-      {/* 4. CONTENIDO PRINCIPAL (LISTA/MAPA) */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* LISTA */}
-        <section className="no-scrollbar" style={{ flex: mobileView === 'list' || !isMobile ? 1 : 0, overflowY: 'auto', padding: '1rem', background: 'white', display: mobileView === 'map' && isMobile ? 'none' : 'block' }}>
-          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-             <p style={{ fontSize: '0.75rem', fontWeight: '800', color: '#999', marginBottom: '1rem' }}>{filteredMerchants.length} locales encontrados</p>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-               {filteredMerchants.map(m => (
-                 <div key={m.id} onClick={() => setSelectedMerchant(m)} style={{ padding: '1rem', borderRadius: '24px', border: '1px solid #E4EBDD', cursor: 'pointer' }}>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                      <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>{m.name}</h3>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: '800', color: '#5F7D4A', background: '#F0F4ED', padding: '2px 8px', borderRadius: '10px' }}>
-                        <CheckCircle size={12} /> {m.validation_count || 0}
-                      </div>
-                   </div>
-                   <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>{m.bio_short}</p>
-                 </div>
-               ))}
-             </div>
+        <section style={{ flex: (isMobile && mobileView === 'map') ? 0 : 1, overflowY: 'auto', padding: '1rem', display: (isMobile && mobileView === 'map') ? 'none' : 'block' }}>
+          <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {filteredMerchants.map(m => (
+              <div key={m.id} onClick={() => setSelectedMerchant(m)} style={{ padding: '1rem', background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <h3 style={{ fontWeight: '950' }}>{m.name}</h3>
+                  <div style={{ background: '#F0F4ED', color: '#5F7D4A', padding: '4px 8px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <CheckCircle size={12} /> {m.validation_count || 0}
+                  </div>
+                </div>
+                <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>{m.bio_short}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* MAPA */}
-        <section style={{ flex: mobileView === 'map' || !isMobile ? 1.5 : 0, display: mobileView === 'list' && isMobile ? 'none' : 'block' }}>
-          <MapComponent 
-            merchants={filteredMerchants} 
-            selectedId={selectedMerchant?.id} 
-            onMerchantClick={(m) => setSelectedMerchant(m)}
-          />
+        <section style={{ flex: (isMobile && mobileView === 'list') ? 0 : 1.5, display: (isMobile && mobileView === 'list') ? 'none' : 'block' }}>
+          <MapComponent merchants={filteredMerchants} selectedId={selectedMerchant?.id} onMerchantClick={m => setSelectedMerchant(m)} />
         </section>
       </div>
 
-      {/* TOOGLE MÓVIL (MAPA/LISTA) */}
       {isMobile && (
-        <button onClick={() => setMobileView(prev => prev === 'list' ? 'map' : 'list')} style={{ position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', background: '#2D3A20', color: 'white', padding: '0.8rem 1.5rem', borderRadius: '30px', fontWeight: '900', zIndex: 1100, display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 16px rgba(0,0,0,0.2)' }}>
+        <button onClick={() => setMobileView(v => v === 'list' ? 'map' : 'list')} style={{ position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)', background: '#2D3A20', color: 'white', padding: '0.8rem 1.5rem', borderRadius: '30px', fontWeight: '900', zIndex: 1100, display: 'flex', alignItems: 'center', gap: '8px' }}>
           {mobileView === 'list' ? <><MapIcon size={18} /> Ver Mapa</> : <><List size={18} /> Ver Lista</>}
         </button>
       )}
 
-      {/* FICHA DETALLE */}
       {selectedMerchant && (
         <DetailPanel 
           merchant={selectedMerchant} 
@@ -317,87 +231,72 @@ export default function ExplorarPage() {
         />
       )}
 
-      {/* MODAL FILTROS */}
       {showAdvancedFilters && (
-        <AdvancedFiltersModal 
-          isOpen={showAdvancedFilters}
+        <FiltersModal 
+          selected={selectedFilters}
           onClose={() => setShowAdvancedFilters(false)}
-          selectedFilters={selectedFilters}
-          toggleFilter={(f) => setSelectedFilters(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])}
-          clearAll={() => setSelectedFilters([])}
-          resultCount={filteredMerchants.length}
+          onToggle={f => setSelectedFilters(p => p.includes(f) ? p.filter(x => x !== f) : [...p, f])}
+          count={filteredMerchants.length}
         />
       )}
     </div>
   );
 }
 
-function DetailPanel({ merchant, isLoggedIn, hasValidated, onClose, onValidate }: { merchant: Merchant, isLoggedIn: boolean, hasValidated: boolean, onClose: () => void, onValidate: (id: string) => void }) {
+function DetailPanel({ merchant, isLoggedIn, hasValidated, onClose, onValidate }: any) {
   return (
-    <div style={{ position: 'fixed', top: 0, right: 0, width: '100%', maxWidth: '420px', height: '100%', background: 'white', zIndex: 2000, display: 'flex', flexDirection: 'column', boxShadow: '-10px 0 30px rgba(0,0,0,0.1)' }}>
-      <div style={{ padding: '1.2rem', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee' }}>
-        <h2 style={{ fontWeight: '950' }}>{merchant.name}</h2>
-        <button onClick={onClose} style={{ background: 'none', border: 'none' }}><X /></button>
-      </div>
-      <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
-        <div style={{ background: 'linear-gradient(135deg, #5F7D4A, #2D3A20)', height: '180px', borderRadius: '20px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-          <Leaf size={60} />
-        </div>
-        
-        <div style={{ background: '#F8F9F5', padding: '1.2rem', borderRadius: '24px', marginBottom: '1.5rem', border: '1px solid #E4EBDD' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A' }}>VALIDACIÓN COMUNITARIA</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '900', color: '#2D3A20' }}>
-               <CheckCircle size={18} color="#5F7D4A" /> {merchant.validation_count || 0}
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000 }}>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'white', borderTopLeftRadius: '32px', borderTopRightRadius: '32px', padding: '2rem', maxHeight: '90vh', overflowY: 'auto', animation: 'slideUp 0.3s ease-out' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '1rem', right: '1rem', background: '#eee', border: 'none', borderRadius: '50%', padding: '8px' }}><X size={20}/></button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1.5rem' }}>
+          <div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '950' }}>{merchant.name}</h2>
+            <div style={{ display: 'flex', gap: '8px', color: '#5F7D4A', fontWeight: '800', fontSize: '0.85rem', marginTop: '4px' }}>
+               <CheckCircle size={16} /> {merchant.validation_count || 0} validaciones comunitarias
             </div>
           </div>
-          <button 
-            onClick={() => onValidate(merchant.id)}
-            disabled={hasValidated}
-            style={{ 
-              width: '100%', padding: '1rem', borderRadius: '16px', border: 'none', 
-              background: hasValidated ? '#F0F4ED' : '#5F7D4A', 
-              color: hasValidated ? '#5F7D4A' : 'white', fontWeight: '900',
-              cursor: hasValidated ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
-            }}
-          >
-            {hasValidated ? <><CheckCircle size={18} /> Proyecto Validado</> : <><Heart size={18} /> Validar Proyecto</>}
-          </button>
-          {hasValidated && <p style={{ fontSize: '0.7rem', textAlign: 'center', marginTop: '10px', color: '#6B7C5E', fontWeight: '700' }}>¡Gracias por validar la calidad de este proyecto!</p>}
         </div>
 
-        <h4 style={{ textTransform: 'uppercase', fontSize: '0.7rem', fontWeight: '950', color: '#999', marginBottom: '0.5rem' }}>Bio y Propósito</h4>
-        <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: '#2D3A20' }}>{merchant.bio_long || merchant.bio_short}</p>
+        <button 
+          onClick={() => onValidate(merchant.id)}
+          disabled={hasValidated}
+          style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: 'none', background: hasValidated ? '#F0F4ED' : '#5F7D4A', color: hasValidated ? '#5F7D4A' : 'white', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '1rem' }}
+        >
+          {hasValidated ? <><CheckCircle size={20} /> ¡Proyecto Validado!</> : <><Heart size={20} /> Validar Proyecto</>}
+        </button>
+
+        <div style={{ marginTop: '2rem' }}>
+          <h4 style={{ textTransform: 'uppercase', fontSize: '0.7rem', fontWeight: '950', color: '#999', marginBottom: '0.5rem' }}>Historia y Propósito</h4>
+          <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#2D3A20' }}>{merchant.bio_long || merchant.bio_short}</p>
+        </div>
       </div>
+      <style jsx>{` @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } } `}</style>
     </div>
   );
 }
 
-function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount }: any) {
-  if (!isOpen) return null;
+function FiltersModal({ selected, onClose, onToggle, count }: any) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div style={{ background: 'white', width: '100%', maxWidth: '600px', maxHeight: '80vh', borderRadius: '32px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '1.2rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between' }}>
-           <h2 style={{ fontWeight: '950' }}>Filtros Avanzados</h2>
-           <button onClick={onClose}><X /></button>
+      <div style={{ background: 'white', width: '100%', maxWidth: '500px', borderRadius: '32px', overflow: 'hidden', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '1.2rem', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee' }}>
+           <h3 style={{ fontWeight: '950' }}>Filtros Avanzados</h3>
+           <button onClick={onClose}><X/></button>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
           {Object.entries(ADVANCED_CATEGORIES).map(([key, section]) => (
-            <div key={key} style={{ marginBottom: '2rem' }}>
-              <h4 style={{ fontWeight: '800', marginBottom: '1rem', color: '#5F7D4A' }}>{section.label}</h4>
+            <div key={key} style={{ marginBottom: '1.5rem' }}>
+              <h4 style={{ fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', textTransform: 'uppercase', marginBottom: '0.8rem' }}>{section.label}</h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {section.options.map(opt => (
-                  <button key={opt} onClick={() => toggleFilter(opt)} style={{ padding: '0.6rem 1rem', borderRadius: '15px', border: selectedFilters.includes(opt) ? '2px solid #5F7D4A' : '1px solid #ddd', background: selectedFilters.includes(opt) ? '#F0F4ED' : 'white', fontSize: '0.8rem', fontWeight: '700' }}>{opt}</button>
+                {section.options.map(o => (
+                  <button key={o} onClick={() => onToggle(o)} style={{ padding: '0.5rem 1rem', borderRadius: '14px', border: selected.includes(o) ? '2px solid #5F7D4A' : '1px solid #ddd', background: selected.includes(o) ? '#F0F4ED' : 'white', fontWeight: '700', fontSize: '0.8rem' }}>{o}</button>
                 ))}
               </div>
             </div>
           ))}
         </div>
-        <div style={{ padding: '1.5rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between' }}>
-          <button onClick={clearAll} style={{ fontWeight: '800', color: '#999', textDecoration: 'underline' }}>Limpiar todos</button>
-          <button onClick={onClose} style={{ background: '#5F7D4A', color: 'white', padding: '0.8rem 2rem', borderRadius: '15px', fontWeight: '900' }}>Ver {resultCount} resultados</button>
+        <div style={{ padding: '1.5rem', borderTop: '1px solid #eee' }}>
+          <button onClick={onClose} style={{ width: '100%', padding: '1rem', borderRadius: '16px', background: '#5F7D4A', color: 'white', fontWeight: '900', border: 'none' }}>Ver {count} resultados</button>
         </div>
       </div>
     </div>

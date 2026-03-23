@@ -4,336 +4,311 @@ import React, { useState, useEffect } from 'react';
 import { 
   User, Settings, Heart, MapPin, LogOut, ChevronRight, 
   Edit3, Shield, Star, Clock, Leaf, Package, Truck,
-  Bell, Award, TrendingUp, Check, X, Plus, Search
+  Bell, Award, TrendingUp, Check, X, Plus, Search,
+  Map as MapIcon, Loader2, AlertCircle, MessageSquare, 
+  ExternalLink, ShieldCheck
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-const ZONE_OPTIONS = [
-  'Pilar', 'Escobar', 'Tigre', 'San Isidro', 'Vicente López', 'San Fernando',
-  'San Martín', 'Tres de Febrero', 'Morón', 'Ituzaingó', 'Hurlingham',
-  'Capital Federal', 'La Plata', 'Quilmes', 'Lanús', 'Avellaneda',
-  'Campana', 'Zárate', 'Luján', 'San Miguel', 'José C. Paz', 'Malvinas Argentinas'
+// --- Constantes / Opciones ---
+const PRODUCTION_OPTIONS = ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable', 'Pastura'];
+const PREFERENCE_OPTIONS = ['Frutas y Verduras', 'Cereales y Legumbres', 'Lácteos y Quesos', 'Carnes de Pastura', 'Huevos de campo', 'Aceites y Condimentos', 'Panificados y Pastelería', 'Bebidas Fermentadas'];
+const DIETARY_OPTIONS = ['Celiaco / Sin Gluten', 'Vegano', 'Vegetariano', 'Keto / Low Carb', 'Paleo', 'Sin Azúcar', 'Sin Lactosa'];
+const DELIVERY_PREFERENCES = [
+  { id: 'Retiro y Entrega', label: 'Retiro y Entrega', description: 'Ambas modalidades disponibles' },
+  { id: 'Solo Entrega', label: 'Solo Entrega', description: 'Recibir en mi domicilio' },
+  { id: 'Solo Retiro', label: 'Solo Retiro', description: 'Retiro por el local' }
 ];
-
-const DIETARY_OPTIONS = [
-  { value: 'sin_gluten', label: 'Sin gluten' },
-  { value: 'sin_azucar', label: 'Sin azúcar' },
-  { value: 'sin_lactosa', label: 'Sin lactosa' },
-  { value: 'keto', label: 'Keto' },
-  { value: 'vegetariano', label: 'Vegetariano' },
-  { value: 'plant_based', label: 'Plant-based' },
-];
-
-const PRODUCTION_OPTIONS = [
-  'Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sustentable', 'Sin ultraprocesados', 'Pastura'
-];
-
-const PRODUCT_CATEGORIES = [
-  'Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'
-];
-
-const DELIVERY_OPTIONS = [
-  'Retiro en local', 'Entrega a domicilio', 'Retiro y Entrega'
-];
-
-interface UserProfile {
-  id: string;
-  first_name: string | null;
-  last_name: string | null;
-  full_name: string | null;
-  locality: string | null;
-  district: string | null;
-  province: string | null;
-  country: string | null;
-  role: string | null;
-  dietary_type: string | null;
-  intolerances: string[];
-  preferences: string[];
-  is_public: boolean;
-  delivery_preference: string | null;
-  preferred_zones: string[];
-  search_radius_km: number | null;
-  categories_interest: string[];
-}
 
 export default function MiCuentaPage() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('perfil');
-  const [isMobile, setIsMobile] = useState(false);
-  const [editing, setEditing] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [zoneSearch, setZoneSearch] = useState('');
-  const [editForm, setEditForm] = useState({
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  // Form states
+  const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
     locality: '',
-    province: '',
-    dietary_type: '',
-    delivery_preference: 'Retiro y Entrega',
-    preferred_zones: [] as string[],
-    intolerances: [] as string[],
-    preferences: [] as string[],
+    delivery_pref: 'Retiro y Entrega',
+    dietary_type: [] as string[],
     categories_interest: [] as string[],
+    production_interest: [] as string[]
   });
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    fetchProfile();
   }, []);
 
-  useEffect(() => {
-    const getUser = async () => {
+  const fetchProfile = async () => {
+    try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = '/login'; return; }
-      setUser(user);
+      if (!user) {
+        window.location.href = '/login';
+        return;
+      }
 
-      const { data: profileData } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (profileData) {
-        const p = profileData as UserProfile;
-        setProfile(p);
-        setEditForm({
-          first_name: p.first_name || '',
-          last_name: p.last_name || '',
-          locality: p.locality || '',
-          province: p.province || '',
-          dietary_type: p.dietary_type || '',
-          delivery_preference: p.delivery_preference || 'Retiro y Entrega',
-          preferred_zones: Array.isArray(p.preferred_zones) ? p.preferred_zones : [],
-          intolerances: Array.isArray(p.intolerances) ? p.intolerances : [],
-          preferences: Array.isArray(p.preferences) ? p.preferences : [],
-          categories_interest: Array.isArray(p.categories_interest) ? p.categories_interest : [],
+      if (data) {
+        setProfile(data);
+        setFormData({
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
+          locality: data.locality || '',
+          delivery_pref: data.delivery_pref || 'Retiro y Entrega',
+          dietary_type: data.dietary_type || [],
+          categories_interest: data.categories_interest || [],
+          production_interest: data.production_interest || []
         });
       }
+    } catch (err) {
+      console.error(err);
+    } finally {
       setLoading(false);
-    };
-    getUser();
-  }, []);
+    }
+  };
 
-  const handleSaveProfile = async () => {
-    if (!user) return;
+  const handleSave = async () => {
     setSaving(true);
+    setMessage(null);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          first_name: editForm.first_name,
-          last_name: editForm.last_name,
-          full_name: `${editForm.first_name} ${editForm.last_name}`.trim(),
-          locality: editForm.locality,
-          province: editForm.province,
-          dietary_type: editForm.dietary_type,
-          delivery_preference: editForm.delivery_preference,
-          preferred_zones: editForm.preferred_zones,
-          intolerances: editForm.intolerances,
-          preferences: editForm.preferences,
-          categories_interest: editForm.categories_interest,
-        })
+        .update(formData)
         .eq('id', user.id);
 
       if (error) throw error;
-
-      setProfile(prev => prev ? {
-        ...prev,
-        ...editForm,
-        full_name: `${editForm.first_name} ${editForm.last_name}`.trim()
-      } : null);
       
-      setEditing(false);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      setProfile({ ...profile, ...formData });
+      setIsEditing(false);
+      setMessage({ type: 'success', text: 'Perfil actualizado con éxito 🌿' });
+      setTimeout(() => setMessage(null), 3000);
     } catch (err) {
-      console.error("Save error:", err);
-      alert("Hubo un problema al guardar. Intentá de nuevo.");
+      console.error(err);
+      setMessage({ type: 'error', text: 'Error al guardar los cambios' });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/';
+  const toggleOption = (field: keyof typeof formData, value: string) => {
+    const current = formData[field] as string[];
+    const updated = current.includes(value)
+      ? current.filter(v => v !== value)
+      : [...current, value];
+    setFormData({ ...formData, [field]: updated });
   };
 
-  const toggleZone = (zone: string) => {
-    setEditForm(prev => ({
-      ...prev,
-      preferred_zones: prev.preferred_zones.includes(zone)
-        ? prev.preferred_zones.filter(z => z !== zone)
-        : [...prev.preferred_zones, zone]
-    }));
-  };
-
-  const filteredZones = ZONE_OPTIONS.filter(z => z.toLowerCase().includes(zoneSearch.toLowerCase()));
-
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ width: '50px', height: '50px', border: '4px solid #E4EBDD', borderTopColor: '#5F7D4A', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 1rem' }} />
-          <p style={{ color: '#6B7C5E', fontWeight: '700' }}>Cargando tu perfil...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const displayName = profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : user?.email?.split('@')[0] || 'Usuario';
-  const initials = profile?.first_name ? `${profile.first_name[0]}${profile.last_name?.[0] || ''}`.toUpperCase() : 'U';
-  const memberSince = user?.created_at ? new Date(user.created_at).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }) : 'Reciente';
-
-  const renderProfileTab = () => (
-    <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
-      {/* Success Toast */}
-      {saveSuccess && (
-        <div style={{ 
-          position: 'fixed', top: '70px', left: '50%', transform: 'translateX(-50%)',
-          background: '#065F46', color: 'white', padding: '0.8rem 1.5rem', borderRadius: '16px',
-          fontWeight: '800', fontSize: '0.85rem', zIndex: 999, display: 'flex', alignItems: 'center', gap: '8px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.2)', animation: 'slideDown 0.3s ease-out'
-        }}>
-          <Check size={18} /> ¡Perfil actualizado correctamente!
-        </div>
-      )}
-
-      {/* HERO: PROFILE CARD */}
-      <div style={{ background: 'white', borderRadius: '32px', border: '1px solid #E4EBDD', overflow: 'hidden', marginBottom: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
-        <div style={{ height: isMobile ? '100px' : '120px', background: 'linear-gradient(135deg, #2D3A20, #5F7D4A, #7FA05B)', position: 'relative' }}>
-          <Leaf size={120} style={{ position: 'absolute', right: '20px', top: '-20px', opacity: 0.12, color: 'white' }} />
-        </div>
-        <div style={{ padding: isMobile ? '0 1.5rem 1.5rem' : '0 2.5rem 2rem', marginTop: '-45px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'flex-end', flexDirection: isMobile ? 'column' : 'row', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.2rem' }}>
-              <div style={{ width: '90px', height: '90px', borderRadius: '28px', background: 'linear-gradient(135deg, #5F7D4A, #7FA05B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2rem', fontWeight: '950', border: '4px solid white', boxShadow: '0 8px 20px rgba(0,0,0,0.1)', flexShrink: 0 }}>{initials}</div>
-              <div style={{ paddingBottom: '4px' }}>
-                <h1 style={{ fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: '950', color: '#2D3A20', lineHeight: 1.2 }}>{displayName}</h1>
-                <p style={{ color: '#6B7C5E', fontSize: '0.8rem', marginTop: '4px' }}>{user?.email}</p>
-              </div>
-            </div>
-            <button onClick={() => editing ? handleSaveProfile() : setEditing(true)} disabled={saving} style={{ padding: '0.8rem 1.8rem', borderRadius: '16px', border: 'none', background: editing ? (saving ? '#94a88a' : '#5F7D4A') : 'linear-gradient(135deg, #5F7D4A, #4A6B35)', color: 'white', fontWeight: '900', cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 6px 20px rgba(95,125,74,0.3)', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s', flexShrink: 0 }}>
-              {saving ? 'Guardando...' : editing ? <><Check size={18} /> Guardar</> : <><Edit3 size={18} /> Editar Perfil</>}
-            </button>
-          </div>
-          {editing && <button onClick={() => setEditing(false)} style={{ marginTop: '0.5rem', background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700' }}>✕ Cancelar edición</button>}
-        </div>
-      </div>
-
-      {/* DATOS PERSONALES */}
-      <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}><User size={16} color="#5F7D4A" /> Datos Personales</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.2rem' }}>
-          <div>
-            <label style={labelStyle}>Nombre</label>
-            {editing ? <input type="text" value={editForm.first_name} onChange={(e) => setEditForm(p => ({ ...p, first_name: e.target.value }))} style={inputStyle} /> : <p style={valueStyle}>{profile?.first_name || '—'}</p>}
-          </div>
-          <div>
-            <label style={labelStyle}>Apellido</label>
-            {editing ? <input type="text" value={editForm.last_name} onChange={(e) => setEditForm(p => ({ ...p, last_name: e.target.value }))} style={inputStyle} /> : <p style={valueStyle}>{profile?.last_name || '—'}</p>}
-          </div>
-          <div>
-            <label style={labelStyle}>Ubicación</label>
-            {editing ? <input type="text" value={editForm.locality} onChange={(e) => setEditForm(p => ({ ...p, locality: e.target.value }))} style={inputStyle} /> : <p style={valueStyle}><MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} /> {profile?.locality || '—'}</p>}
-          </div>
-          <div>
-            <label style={labelStyle}>Provincia</label>
-            {editing ? <input type="text" value={editForm.province} onChange={(e) => setEditForm(p => ({ ...p, province: e.target.value }))} style={inputStyle} /> : <p style={valueStyle}>{profile?.province || '—'}</p>}
-          </div>
-        </div>
-      </div>
-
-      {/* ENTREGA */}
-      <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}><Truck size={16} color="#2563EB" /> ¿Cómo preferís recibir?</h3>
-        {editing ? (
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {DELIVERY_OPTIONS.map(opt => (
-              <button key={opt} onClick={() => setEditForm(p => ({ ...p, delivery_preference: opt }))} style={{ padding: '0.8rem 1rem', borderRadius: '12px', border: editForm.delivery_preference === opt ? '2px solid #5F7D4A' : '1px solid #E4EBDD', background: editForm.delivery_preference === opt ? '#F0F4ED' : 'white', cursor: 'pointer', fontWeight: '800', fontSize: '0.85rem' }}>{opt}</button>
-            ))}
-          </div>
-        ) : (
-          <p style={valueStyle}>{profile?.delivery_preference || 'No especificado'}</p>
-        )}
-      </div>
-
-      {/* ZONAS */}
-      <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}><MapPin size={16} color="#D97706" /> Zonas de entrega</h3>
-        {editing ? (
-          <div>
-             <div style={{ position: 'relative', marginBottom: '0.8rem' }}>
-              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-              <input type="text" value={zoneSearch} onChange={(e) => setZoneSearch(e.target.value)} placeholder="Buscar zona..." style={{ width: '100%', padding: '0.5rem' , paddingLeft: '2rem', borderRadius: '10px', border: '1px solid #ddd' }} />
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {filteredZones.map(z => (
-                <button key={z} onClick={() => toggleZone(z)} style={{ padding: '0.4rem 0.8rem', borderRadius: '20px', border: editForm.preferred_zones.includes(z) ? '2px solid #5F7D4A' : '1px solid #ddd', background: editForm.preferred_zones.includes(z) ? '#F0F4ED' : 'white', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700' }}>{z}</button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {profile?.preferred_zones.map(z => <span key={z} style={{ padding: '0.3rem 0.8rem', background: '#F0F4ED', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700' }}>{z}</span>)}
-          </div>
-        )}
-      </div>
-
-      {/* ALIMENTACIÓN & OTROS */}
-      <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}><Leaf size={16} color="#059669" /> Preferencias y Alimentación</h3>
-        
-        <label style={labelStyle}>Mi Alimentación</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '1rem' }}>
-          {editing ? DIETARY_OPTIONS.map(opt => {
-            const sel = editForm.intolerances.includes(opt.label);
-            return <button key={opt.value} onClick={() => setEditForm(p => ({ ...p, intolerances: sel ? p.intolerances.filter(i=>i!==opt.label) : [...p.intolerances, opt.label] }))} style={{ padding: '0.4rem 0.8rem', borderRadius: '14px', border: sel ? '2px solid #059669' : '1px solid #ddd', background: sel ? '#ECFDF5' : 'white', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700' }}>{opt.label}</button>
-          }) : profile?.intolerances.map(i => <span key={i} style={{ padding: '0.3rem 0.8rem', background: '#ECFDF5', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700' }}>{i}</span>)}
-        </div>
-
-        <label style={labelStyle}>Producción</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-          {editing ? PRODUCTION_OPTIONS.map(opt => {
-            const sel = editForm.preferences.includes(opt);
-            return <button key={opt} onClick={() => setEditForm(p => ({ ...p, preferences: sel ? p.preferences.filter(i=>i!==opt) : [...p.preferences, opt] }))} style={{ padding: '0.4rem 0.8rem', borderRadius: '14px', border: sel ? '2px solid #5F7D4A' : '1px solid #ddd', background: sel ? '#F0F4ED' : 'white', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '700' }}>{opt}</button>
-          }) : profile?.preferences.map(i => <span key={i} style={{ padding: '0.3rem 0.8rem', background: '#F0F4ED', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700' }}>{i}</span>)}
-        </div>
-      </div>
+  if (loading) return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}>
+      <Loader2 className="animate-spin" size={40} color="#5F7D4A" />
+      <p style={{ marginTop: '1rem', fontWeight: '800', color: '#5F7D4A' }}>Cargando tu cuenta...</p>
     </div>
   );
 
-  const renderContent = () => {
-    if (activeTab === 'perfil') return renderProfileTab();
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Próximamente...</div>;
-  };
+  const initials = profile?.first_name ? profile.first_name[0].toUpperCase() : 'U';
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9F5', paddingBottom: '80px' }}>
-      <header style={{ padding: '1rem', background: '#F4F1E6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span onClick={()=>window.location.href='/'} style={{ fontWeight: '950', cursor:'pointer' }}>ALIMNET</span>
-        <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#5F7D4A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900' }}>{initials}</div>
-      </header>
-      
-      <main style={{ maxWidth: '600px', margin: '0 auto', padding: '1rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-          {['perfil', 'favoritos', 'config'].map(t => <button key={t} onClick={()=>setActiveTab(t)} style={{ padding: '0.5rem 1rem', borderRadius: '12px', border: 'none', background: activeTab === t ? '#5F7D4A' : 'transparent', color: activeTab === t ? 'white' : '#6B7C5E', fontWeight: '800', cursor: 'pointer' }}>{t.toUpperCase()}</button>)}
+      {/* Header */}
+      <header style={{ padding: '1rem 1.5rem', background: '#F4F1E6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ddd' }}>
+        <span onClick={() => window.location.href = '/'} style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20', cursor: 'pointer', letterSpacing: '-0.02em' }}>ALIMNET</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+          <button 
+            onClick={() => window.location.href = '/explorar'} 
+            style={{ 
+              background: '#5F7D4A', color: 'white', border: 'none', borderRadius: '12px', 
+              padding: '0.5rem 1rem', fontWeight: '800', fontSize: '0.85rem', 
+              display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' 
+            }}
+          >
+            <MapIcon size={16} /> Mapa
+          </button>
+          <div style={{ width: '38px', height: '38px', borderRadius: '14px', background: '#2D3A20', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '950' }}>{initials}</div>
         </div>
-        {renderContent()}
+      </header>
+
+      <main style={{ maxWidth: '600px', margin: '0 auto', padding: '1.5rem 1rem' }}>
+        {/* Welcome Section */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>¡Hola, {profile?.first_name || 'Alimneter'}!</h1>
+          <p style={{ color: '#666', fontWeight: '600', marginTop: '4px' }}>Gestionar tus preferencias y actividad.</p>
+        </div>
+
+        {message && (
+          <div style={{ 
+            padding: '1rem', borderRadius: '16px', marginBottom: '1.5rem', 
+            background: message.type === 'success' ? '#E8F5E9' : '#FFEBEE',
+            color: message.type === 'success' ? '#2E7D32' : '#C62828',
+            display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800', fontSize: '0.9rem'
+          }}>
+            {message.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
+            {message.text}
+          </div>
+        )}
+
+        {/* Action List (Carlos Profile) */}
+        {!isEditing ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Stats Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ background: 'white', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
+                 <div style={{ color: '#5F7D4A', marginBottom: '8px' }}><Award size={24} /></div>
+                 <div style={{ fontSize: '1.2rem', fontWeight: '950' }}>Miembro</div>
+                 <div style={{ fontSize: '0.75rem', color: '#888', fontWeight: '700' }}>FUNDADOR</div>
+              </div>
+              <div style={{ background: 'white', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
+                 <div style={{ color: '#FF7043', marginBottom: '8px' }}><Heart size={24} /></div>
+                 <div style={{ fontSize: '1.2rem', fontWeight: '950' }}>0</div>
+                 <div style={{ fontSize: '0.75rem', color: '#888', fontWeight: '700' }}>VALIDACIONES</div>
+              </div>
+            </div>
+
+            <button onClick={() => setIsEditing(true)} style={{ background: 'white', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ background: '#F0F4ED', padding: '10px', borderRadius: '12px', color: '#5F7D4A' }}><User size={20} /></div>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: '800' }}>Editar Perfil</div>
+                    <div style={{ fontSize: '0.75rem', color: '#888' }}>Nombre, lugar y alimentación</div>
+                  </div>
+               </div>
+               <ChevronRight size={18} color="#999" />
+            </button>
+
+            <button style={{ background: 'white', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ background: '#F0F4ED', padding: '10px', borderRadius: '12px', color: '#5F7D4A' }}><Clock size={20} /></div>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: '800' }}>Locales Visitados</div>
+                    <div style={{ fontSize: '0.75rem', color: '#888' }}>Últimas búsquedas y aperturas</div>
+                  </div>
+               </div>
+               <ChevronRight size={18} color="#999" />
+            </button>
+
+            <button style={{ background: 'white', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ background: '#F0F4ED', padding: '10px', borderRadius: '12px', color: '#5F7D4A' }}><Star size={20} /></div>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: '800' }}>Favoritos</div>
+                    <div style={{ fontSize: '0.75rem', color: '#888' }}>Tus proyectos guardados</div>
+                  </div>
+               </div>
+               <ChevronRight size={18} color="#999" />
+            </button>
+
+            <button onClick={() => supabase.auth.signOut().then(() => window.location.href = '/')} style={{ marginTop: '2rem', background: 'transparent', border: '1px solid #FFCDD2', color: '#D32F2F', padding: '1rem', borderRadius: '16px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+               <LogOut size={18} /> Cerrar Sesión
+            </button>
+          </div>
+        ) : (
+          /* EDIT FORM */
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', animation: 'fadeIn 0.3s ease' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: '950' }}>Editar Información</h2>
+              <button onClick={() => setIsEditing(false)} style={{ background: '#F5F5F5', border: 'none', borderRadius: '50%', padding: '6px' }}><X size={18}/></button>
+            </div>
+
+            {/* Basic Info */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#999', marginBottom: '8px', textTransform: 'uppercase' }}>Nombre</label>
+              <input 
+                type="text" 
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F0F4ED', fontSize: '1rem', fontWeight: '700', outline: 'none' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#999', marginBottom: '8px', textTransform: 'uppercase' }}>Ubicación (Donde quiero recibir)</label>
+              <div style={{ position: 'relative' }}>
+                <MapPin size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#5F7D4A' }} />
+                <input 
+                  type="text" 
+                  value={formData.locality}
+                  onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
+                  placeholder="Ej: Nordelta, Tigre..."
+                  style={{ width: '100%', padding: '1rem 1rem 1rem 2.5rem', borderRadius: '16px', border: '2px solid #F0F4ED', fontSize: '1rem', fontWeight: '700', outline: 'none' }}
+                />
+              </div>
+            </div>
+
+            {/* Delivery Preferences */}
+            <div style={{ marginBottom: '2rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#999', marginBottom: '12px', textTransform: 'uppercase' }}>Preferencia de Entrega</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {DELIVERY_PREFERENCES.map(pref => (
+                  <button 
+                    key={pref.id}
+                    onClick={() => setFormData({ ...formData, delivery_pref: pref.id })}
+                    style={{ 
+                      padding: '1rem', borderRadius: '16px', border: '2px solid', 
+                      borderColor: formData.delivery_pref === pref.id ? '#5F7D4A' : '#F0F4ED',
+                      background: formData.delivery_pref === pref.id ? '#F0F4ED' : 'white',
+                      textAlign: 'left', cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ fontWeight: '800', color: '#2D3A20' }}>{pref.label}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#666' }}>{pref.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quality Preference */}
+            <div style={{ marginBottom: '2rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#999', marginBottom: '12px', textTransform: 'uppercase' }}>Calidad y Producción</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {PRODUCTION_OPTIONS.map(opt => (
+                  <button 
+                    key={opt}
+                    onClick={() => toggleOption('production_interest', opt)}
+                    style={{ 
+                      padding: '0.6rem 1rem', borderRadius: '12px', border: '1.5px solid',
+                      borderColor: formData.production_interest.includes(opt) ? '#5F7D4A' : '#F0F4ED',
+                      background: formData.production_interest.includes(opt) ? '#5F7D4A' : 'white',
+                      color: formData.production_interest.includes(opt) ? 'white' : '#2D3A20',
+                      fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer'
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <button 
+              onClick={handleSave}
+              disabled={saving}
+              style={{ 
+                width: '100%', padding: '1.2rem', borderRadius: '20px', border: 'none',
+                background: '#2D3A20', color: 'white', fontWeight: '950', fontSize: '1.1rem',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+              }}
+            >
+              {saving ? <Loader2 className="animate-spin" size={20} /> : 'Guardar Cambios'}
+            </button>
+          </div>
+        )}
       </main>
 
-      <style jsx>{` @keyframes spin { to { transform: rotate(360deg); } } `}</style>
+      <style jsx>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+      `}</style>
     </div>
   );
 }
-
-const sectionStyle: React.CSSProperties = { background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD', marginBottom: '1rem' };
-const sectionTitleStyle: React.CSSProperties = { fontSize: '0.9rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' };
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#6B7C5E', marginBottom: '0.3rem', textTransform: 'uppercase' };
-const inputStyle: React.CSSProperties = { width: '100%', padding: '0.5rem', borderRadius: '10px', border: '1px solid #ddd' };
-const valueStyle: React.CSSProperties = { fontSize: '0.95rem', fontWeight: '700', color: '#2D3A20' };
