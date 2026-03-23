@@ -343,26 +343,28 @@ function MiCuentaContent() {
             </div>
             
             {/* REFERENTE 1: Carlos (Mockup Premium) */}
-            <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '22px', background: '#F4F1E6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', border: '2px solid #E4EBDD' }}>
-                  <User size={32} />
+            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', minWidth: '200px' }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '22px', background: '#F4F1E6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', border: '2px solid #E4EBDD', flexShrink: 0 }}>
+                    <User size={32} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Carlos Prueba</h3>
+                    <p style={{ color: '#5F7D4A', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>MIEMBRO FUNDADOR</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Carlos Prueba</h3>
-                  <p style={{ color: '#5F7D4A', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>MIEMBRO FUNDADOR</p>
-                </div>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
-                  <button style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', border: 'none', background: '#F0F4ED', color: '#5F7D4A', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}><Eye size={16} style={{ marginRight: '6px' }} /> Ver Perfil</button>
-                  <button style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>Remover</button>
+                <div style={{ display: 'flex', gap: '10px', width: '100%', justifyContent: 'flex-start' }} className="referente-actions">
+                  <button style={{ flex: 1, padding: '0.6rem 1.2rem', borderRadius: '12px', border: 'none', background: '#F0F4ED', color: '#5F7D4A', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><Eye size={16} /> Ver Perfil</button>
+                  <button style={{ flex: 1, padding: '0.6rem 1.2rem', borderRadius: '12px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>Remover</button>
                 </div>
               </div>
 
-              <div style={{ background: '#F8F9F5', padding: '1.5rem', borderRadius: '24px' }}>
+              <div style={{ background: '#F8F9F5', padding: '1.2rem', borderRadius: '24px' }}>
                 <p style={{ fontSize: '0.85rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   ÚLTIMAS VALIDACIONES DE CARLOS:
                 </p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
                   {/* Mock de lo que Carlos validó */}
                   {['Sana Sana', 'Feria Itinerante'].map((loc, idx) => (
                     <div key={idx} style={{ background: 'white', padding: '1rem', borderRadius: '18px', border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -380,10 +382,10 @@ function MiCuentaContent() {
             </div>
 
             {/* BUSCADOR DE REFERENTES */}
-            <div style={{ padding: '3rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
-               <Users size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
-               <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Descubrí nuevos Referentes</h3>
-               <p style={{ color: '#888', marginTop: '1rem' }}>Seguí a las personas cuya confianza alimentaria te inspire.</p>
+            <div style={{ padding: '2rem 1.5rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
+               <Users size={40} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
+               <h3 style={{ fontWeight: '950', color: '#2D3A20', fontSize: '1.1rem' }}>Descubrí nuevos Referentes</h3>
+               <p style={{ color: '#888', marginTop: '0.5rem', fontSize: '0.9rem' }}>Seguí a las personas cuya confianza alimentaria te inspire.</p>
                <div style={{ maxWidth: '400px', margin: '2rem auto 0', position: 'relative' }}>
                  <input type="text" placeholder="Buscar por nombre o ciudad..." style={{ width: '100%', padding: '1rem 1.5rem 1rem 3rem', borderRadius: '16px', border: '1.5px solid #E4EBDD', fontSize: '0.9rem', outline: 'none' }} />
                  <Search size={18} color="#888" style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)' }} />
@@ -540,6 +542,10 @@ function MiCuentaContent() {
           .main-content {
              margin-left: 0 !important;
              padding: 5rem 1rem !important; 
+          }
+          .referente-actions {
+             margin-left: 0 !important;
+             width: 100% !important;
           }
           main { 
             overflow-x: hidden !important;
