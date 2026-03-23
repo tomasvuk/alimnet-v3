@@ -303,6 +303,15 @@ export default function ExplorarPage() {
       );
     }
 
+    // Filtrado por Productos (Verduras, Frutas, Carne...)
+    const selectedProducts = selectedFilters.filter(f => PRODUCT_OPTIONS.includes(f));
+    if (selectedProducts.length > 0) {
+      result = result.filter(m => {
+        const merchantTags = m.tags || [];
+        return selectedProducts.some(p => merchantTags.includes(p));
+      });
+    }
+
     // Filtrado por Modalidad (Delivery vs Retiro)
     if (deliveryType === 'Entrega a domicilio') {
       result = result.filter(m => (m.tags || []).includes('Entrega a domicilio'));
