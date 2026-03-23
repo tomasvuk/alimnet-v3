@@ -1,32 +1,66 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Leaf, Mail, Lock, ArrowRight, Instagram, Linkedin } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulación de login para UX inmediata
-    setTimeout(() => {
-      window.location.href = '/explorar';
-    }, 1500);
+    setError('');
+
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        if (authError.message.includes('Invalid login')) {
+          setError('Email o contraseña incorrectos. Intentá de nuevo.');
+        } else {
+          setError(authError.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        // Check if user has a merchant profile or is a consumer
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profile?.role === 'merchant') {
+          window.location.href = '/perfil';
+        } else {
+          window.location.href = '/mi-cuenta';
+        }
+      }
+    } catch (err) {
+      setError('Error de conexión. Intentá de nuevo.');
+      setLoading(false);
+    }
   };
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Header simplificado */}
+      {/* Header simplificado - SIN hojita */}
       <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
         <div 
           onClick={() => window.location.href = '/'}
           style={{ fontSize: "1.4rem", fontWeight: "950", color: "var(--primary-dark)", display: "flex", alignItems: "center", gap: "8px", cursor: 'pointer', letterSpacing: '-0.03em' }}
         >
-          <Leaf size={28} fill="var(--primary)" fillOpacity={0.25} /> ALIMNET
+          ALIMNET
         </div>
       </header>
 
@@ -37,6 +71,18 @@ export default function LoginPage() {
             <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>¡Hola de nuevo!</h1>
             <p style={{ color: 'var(--text-secondary)', fontWeight: '550' }}>Ingresá a la red de alimentos cuidados.</p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div style={{ 
+              padding: '0.8rem 1rem', background: '#FEF2F2', border: '1px solid #FEE2E2', 
+              borderRadius: '12px', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', 
+              gap: '10px', color: '#991B1B', fontSize: '0.85rem', fontWeight: '600',
+              animation: 'fadeIn 0.3s ease-out'
+            }}>
+              <AlertCircle size={16} /> {error}
+            </div>
+          )}
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             {/* Google Login Option */}
@@ -128,6 +174,10 @@ export default function LoginPage() {
         @keyframes scaleUp {
           from { opacity: 0; transform: scale(0.95) translateY(10px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
