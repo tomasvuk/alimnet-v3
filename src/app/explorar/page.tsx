@@ -553,31 +553,33 @@ export default function ExplorarPage() {
   };
 
   const handleValidate = async (merchantId: string) => {
+    if (!isLoggedIn || !user) { window.location.href = '/login'; return; }
+    
     try {
+      // 1. Guardar con el ID de Tomas real
       const { error: valError } = await supabase
         .from('validations')
-        .insert([{ merchant_id: merchantId }]);
+        .insert([{ merchant_id: merchantId, user_id: user.id }]);
 
-      if (valError) throw valError;
+      if (valError) {
+        if (valError.code === '23505') {
+          setValidatedMerchantIds(prev => new Set(prev).add(merchantId));
+          return;
+        }
+        throw valError;
+      }
 
+      // 2. Incrementar contador en merchants (Persistencia total)
       const currentMerchant = merchants.find(m => m.id === merchantId);
       if (currentMerchant) {
         const newCount = (currentMerchant.validation_count || 0) + 1;
-        
-        await supabase
-          .from('merchants')
-          .update({ validation_count: newCount })
-          .eq('id', merchantId);
+        await supabase.from('merchants').update({ validation_count: newCount }).eq('id', merchantId);
 
-        const updatedMerchants = merchants.map(m => 
-          m.id === merchantId ? { ...m, validation_count: newCount } : m
-        );
-        setMerchants(updatedMerchants);
+        setMerchants(prev => prev.map(m => m.id === merchantId ? { ...m, validation_count: newCount } : m));
+        setValidatedMerchantIds(prev => new Set(prev).add(merchantId));
         if (selectedMerchant?.id === merchantId) {
           setSelectedMerchant({ ...selectedMerchant, validation_count: newCount });
         }
-        
-        trackClick('VALIDATE_MERCHANT', { id: merchantId, name: currentMerchant.name });
       }
     } catch (e) {
       console.error("Error validando:", e);
@@ -1112,6 +1114,25 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
           {secondaryType && (
             <div style={{ fontSize: '0.55rem', fontWeight: '800', background: '#5F7D4A15', color: '#5F7D4A', padding: '2px 8px', borderRadius: '20px', textTransform: 'uppercase' }}>
               + {secondaryType}
+            </div>
+          )}
+          
+          {/* TOMAS'S BADGES */}
+          {(merchant.validation_count || 0) > 0 ? (
+            <div style={{ 
+              fontSize: '0.55rem', fontWeight: '950', background: '#F0F4ED', color: '#5F7D4A', 
+              padding: '2px 8px', borderRadius: '20px', border: '1px solid #5F7D4A', marginTop: '2px',
+              display: 'flex', alignItems: 'center', gap: '3px'
+            }}>
+              <CheckCircle size={8} /> VALIDADO +{merchant.validation_count}
+            </div>
+          ) : (
+            <div style={{ 
+              fontSize: '0.55rem', fontWeight: '950', background: '#FFF8F1', color: '#FF7043', 
+              padding: '2px 8px', borderRadius: '20px', border: '1px solid #FF7043', marginTop: '2px',
+              display: 'flex', alignItems: 'center', gap: '3px'
+            }}>
+              <Heart size={8} /> VÁLIDALO
             </div>
           )}
         </div>
