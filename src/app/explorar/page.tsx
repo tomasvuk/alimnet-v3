@@ -681,19 +681,21 @@ export default function ExplorarPage() {
       <div className="main-content" style={{ flex: 1, display: 'flex', overflow: 'visible', position: 'relative' }}>
         
         {/* Toggle Flotante Mobile SOLAMENTE */}
-        <button 
-          className="mobile-only toggle-view-btn"
-          onClick={() => setMobileView(mobileView === 'list' ? 'map' : 'list')}
-          style={{ 
-            position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', zIndex: 3000, 
-            background: '#2D3A20', color: 'white', border: 'none', borderRadius: '30px', padding: '1rem 2rem',
-            boxShadow: '0 12px 30px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: '10px',
-            fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.05em'
-          }}
-        >
-          {mobileView === 'list' ? <MapIcon size={18} /> : <SearchIcon size={18} />}
-          {mobileView === 'list' ? 'VER MAPA' : 'VER LISTADO'}
-        </button>
+        <div className="mobile-only" style={{ display: isMobile ? 'flex' : 'none' }}>
+          <button 
+            className="toggle-view-btn"
+            onClick={() => setMobileView(mobileView === 'list' ? 'map' : 'list')}
+            style={{ 
+              position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', zIndex: 3000, 
+              background: '#2D3A20', color: 'white', border: 'none', borderRadius: '30px', padding: '1rem 2rem',
+              boxShadow: '0 12px 30px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: '10px',
+              fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.05em'
+            }}
+          >
+            {mobileView === 'list' ? <MapIcon size={18} /> : <SearchIcon size={18} />}
+            {mobileView === 'list' ? 'VER MAPA' : 'VER LISTADO'}
+          </button>
+        </div>
 
         {/* LISTA DE RESULTADOS */}
         <section 
@@ -1169,7 +1171,8 @@ function DetailPanel({ merchant, isLoggedIn, onClose, trackClick, onValidate }: 
           .sidebar { 
             width: 300px !important; 
             max-width: 85%;
-        @media (max-width: 768px) {
+          }
+
           .mobile-only { display: flex; }
           .desktop-only { display: none !important; }
           
