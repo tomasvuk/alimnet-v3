@@ -121,7 +121,7 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
     return (
       <div key={key} style={{ padding: '2.2rem 0', borderBottom: isLast ? 'none' : '2px solid #f5f5f5' }}>
         <h4 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1.5rem', letterSpacing: '-0.01em' }}>{section.label}</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
           {section.options.map((opt) => {
             const isCategory = section.label === 'Tipo de actor';
             const isActive = isCategory 
@@ -132,13 +132,14 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
                 key={opt}
                 onClick={() => toggleFilter(opt)}
                 style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  padding: '0.8rem 1rem', cursor: 'pointer', borderRadius: '12px',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0.9rem 1.4rem', cursor: 'pointer', borderRadius: '30px',
                   border: '1.2px solid ' + (isActive ? '#2D3A20' : '#ddd'),
                   background: isActive ? '#2D3A20' : 'white',
                   color: isActive ? 'white' : '#2D3A20',
                   transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  fontSize: '0.85rem', fontWeight: '800', textAlign: 'center'
+                  fontSize: '0.85rem', fontWeight: '800', textAlign: 'center',
+                  width: 'auto', minWidth: 'fit-content'
                 }}
               >
                 {opt}
