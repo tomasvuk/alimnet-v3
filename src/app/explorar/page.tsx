@@ -211,6 +211,7 @@ export default function ExplorarPage() {
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [validators, setValidators] = useState<any[]>([]);
+  const [validatedMerchantIds, setValidatedMerchantIds] = useState<Set<string>>(new Set());
   const [hasMounted, setHasMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
@@ -242,8 +243,16 @@ export default function ExplorarPage() {
     setHasMounted(true);
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      setIsLoggedIn(!!user);
+      if (user) {
+        setUser(user);
+        setIsLoggedIn(true);
+        // Perfil
+        const { data: pData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        setUserProfile(pData);
+        // Validaciones del usuario
+        const { data: vData } = await supabase.from('validations').select('merchant_id').eq('user_id', user.id);
+        if (vData) setValidatedMerchantIds(new Set(vData.map(v => v.merchant_id)));
+      }
     };
     checkAuth();
     
@@ -949,7 +958,10 @@ export default function ExplorarPage() {
         <DetailPanel 
           merchant={selectedMerchant as Merchant} 
           isLoggedIn={isLoggedIn}
+          user={user}
+          userProfile={userProfile}
           validators={validators}
+          hasValidatedInitial={validatedMerchantIds.has(selectedMerchant.id)}
           onClose={() => setSelectedMerchant(null)} 
           trackClick={trackClick}
           onValidate={handleValidate}
@@ -1114,9 +1126,16 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
   );
 }
 
-function DetailPanel({ merchant, isLoggedIn, validators, onClose, trackClick, onValidate }: { merchant: Merchant, isLoggedIn: boolean, validators: any[], onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void }) {
-  const othersCount = (merchant.validation_count || 0) - (validators?.length || 0);
-  const [hasValidated, setHasValidated] = useState(false);
+function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasValidatedInitial, onClose, trackClick, onValidate }: { merchant: Merchant, isLoggedIn: boolean, user: any, userProfile: any, validators: any[], hasValidatedInitial: boolean, onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void }) {
+  const [hasValidated, setHasValidated] = useState(hasValidatedInitial);
+  
+  // Lógica inteligente de visualización:
+  const displayValidators = [...validators];
+  if (hasValidated && !displayValidators.some(v => v.user_id === user?.id)) {
+    displayValidators.unshift({ user_id: user?.id, profiles: { first_name: userProfile?.first_name || 'Tomas' } });
+  }
+
+  const othersCount = Math.max(0, (merchant.validation_count || 0) - (displayValidators.length));
   const [feedback, setFeedback] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
 
