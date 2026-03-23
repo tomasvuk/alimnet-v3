@@ -243,17 +243,17 @@ export default function ExplorarPage() {
       setStickyFilters(currentScrollY > 80);
 
       if (isMobile) {
-        if (currentScrollY > lastScrollY && currentScrollY > 20) {
-          // SCROLLING DOWN -> Hide in order
-          if (currentScrollY > 40) setIsPillsVisible(false); // First: Products
-          if (currentScrollY > 80) setIsRolesVisible(false); // Second: Roles
-          if (currentScrollY > 120) setIsHeaderVisible(false); // Last: Alimnet Header
+        // Alimnet Header hides only when scrolling down past a threshold
+        if (currentScrollY > lastScrollY && currentScrollY > 60) {
+          setIsHeaderVisible(false);
         } else if (currentScrollY < lastScrollY) {
-          // SCROLLING UP -> Restore all
           setIsHeaderVisible(true);
-          setIsRolesVisible(true);
-          setIsPillsVisible(true);
         }
+        
+        // Staged visibility for pills based on scroll thresholds
+        // Fluidez: Se van desvaneciendo progresivamente
+        setIsPillsVisible(currentScrollY < 60);
+        setIsRolesVisible(currentScrollY < 120);
       } else {
         setIsHeaderVisible(true);
         setIsRolesVisible(true);
@@ -690,10 +690,9 @@ export default function ExplorarPage() {
           width: '100%', display: 'flex', justifyContent: 'center',
           maxHeight: (isMobile && !isRolesVisible) ? '0' : '100px',
           opacity: (isMobile && !isRolesVisible) ? 0 : 1,
-          transform: (isMobile && !isRolesVisible) ? 'scaleY(0)' : 'scaleY(1)',
-          transformOrigin: 'top',
+          transform: (isMobile && !isRolesVisible) ? 'translateY(-15px)' : 'translateY(0)',
           overflow: 'hidden',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
           pointerEvents: (isMobile && !isRolesVisible) ? 'none' : 'auto'
         }}>
           <div style={{ 
@@ -733,10 +732,9 @@ export default function ExplorarPage() {
           width: '100%', display: 'flex', justifyContent: 'center',
           maxHeight: (isMobile && !isPillsVisible) ? '0' : '200px',
           opacity: (isMobile && !isPillsVisible) ? 0 : 1,
-          transform: (isMobile && !isPillsVisible) ? 'scaleY(0)' : 'scaleY(1)',
-          transformOrigin: 'top',
+          transform: (isMobile && !isPillsVisible) ? 'translateY(-15px)' : 'translateY(0)',
           overflow: 'hidden',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           pointerEvents: (isMobile && !isPillsVisible) ? 'none' : 'auto'
         }}>
           <div style={{ 
@@ -765,7 +763,7 @@ export default function ExplorarPage() {
               )
             })}
           </div>
-              </div>
+        </div>
       </div>
 
       {/* 3. CONTENIDO PRINCIPAL */}
