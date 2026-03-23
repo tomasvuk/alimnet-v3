@@ -162,7 +162,9 @@ function MiCuentaContent() {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '4rem' }}>
           <div onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
-            <span style={{ fontWeight: '950', fontSize: '1.4rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>ALIMNET</span>
+            <span style={{ fontWeight: '950', fontSize: '1.4rem', color: '#2D3A20', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
+              {profile?.first_name || 'ALIMNET'}
+            </span>
           </div>
         </div>
 
@@ -211,13 +213,9 @@ function MiCuentaContent() {
         minHeight: '100vh'
       }}>
         
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '5rem' }}>
           {/* Header Content */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '1rem' }}>
-             <div>
-               <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
-               <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
-             </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '3rem', paddingTop: '1rem' }}>
              <button 
                onClick={() => window.location.href = '/explorar'} 
                style={{ padding: '0.8rem 1.5rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(95, 125, 74, 0.2)' }}
@@ -230,6 +228,12 @@ function MiCuentaContent() {
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
+            
+            <div style={{ marginBottom: '1rem' }}>
+               <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
+               <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
+            </div>
+
             {/* Quick Stats Grid - 2x2 on Mobile, 2x2 or 4x1 on wider */}
             <div style={{ 
               display: 'grid', 
@@ -498,6 +502,15 @@ function MiCuentaContent() {
           </div>
         )}
 
+        {/* BRANDING PERSISTENTE ABAJO A LA DERECHA */}
+        <div style={{ 
+          position: 'fixed', bottom: '2rem', right: '3rem', 
+          opacity: 0.1, fontWeight: '950', fontSize: '1.4rem', 
+          letterSpacing: '0.1em', pointerEvents: 'none', color: '#2D3A20',
+          zIndex: 1
+        }} className="desktop-only">
+          ALIMNET
+        </div>
       </main>
 
       <style jsx>{`
