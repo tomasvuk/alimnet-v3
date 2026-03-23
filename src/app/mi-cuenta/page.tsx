@@ -99,34 +99,43 @@ export default function MiCuentaPage() {
   return (
     <div style={{ height: '100vh', display: 'flex', background: '#F8F9F5', overflow: 'hidden' }}>
       
-      {/* BOTÓN MENÚ MÓVIL */}
+      {/* BOTÓN HAMBURGUESA UNIFICADO (TIPO MAPA) */}
       <button 
         onClick={() => setShowSidebar(!showSidebar)}
         style={{ 
-          position: 'fixed', top: '20px', left: '20px', zIndex: 100, 
-          background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', padding: '10px',
-          display: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+          position: 'fixed', top: '25px', left: '25px', zIndex: 100, 
+          background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
+          padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: '5px',
+          alignItems: 'flex-start', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          width: '45px'
         }}
-        className="mobile-menu-btn"
       >
-        <Activity size={20} color="#5F7D4A" />
+        <div style={{ width: showSidebar ? '22px' : '12px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
+        <div style={{ width: '18px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
+        <div style={{ width: showSidebar ? '12px' : '22px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
       </button>
 
-      {/* SIDEBAR IZQUIERDA */}
+      {/* SIDEBAR IZQUIERDA (COLAPSABLE UNIFICADA) */}
       <aside 
         style={{ 
           width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', 
           display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem',
-          transition: 'transform 0.3s ease',
-          zIndex: 90
+          transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+          zIndex: 90,
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          height: '100vh',
+          transform: showSidebar ? 'translateX(0)' : 'translateX(-100%)',
+          boxShadow: showSidebar ? '20px 0 60px rgba(0,0,0,0.05)' : 'none'
         }}
-        className={`sidebar-dashboard ${showSidebar ? 'open' : ''}`}
+        className="sidebar-dashboard"
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '4rem' }}>
           <div onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
             <span style={{ fontWeight: '950', fontSize: '1.4rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>ALIMNET</span>
           </div>
-          <button className="mobile-only" onClick={() => setShowSidebar(false)} style={{ background: 'none', border: 'none', color: '#666' }}><X size={24} /></button>
         </div>
 
         <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -158,17 +167,26 @@ export default function MiCuentaPage() {
       </aside>
 
       {/* CONTENIDO CENTRAL */}
-      <main style={{ flex: 1, overflowY: 'auto', padding: '3rem', position: 'relative' }}>
+      <main style={{ 
+        flex: 1, 
+        overflowY: 'auto', 
+        padding: '3rem 5rem', 
+        position: 'relative', 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        width: '100%' 
+      }}>
         
         {/* Header Content */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '1rem' }}>
            <div>
              <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
-             <p style={{ color: '#888', fontWeight: '600' }}>Bienvenido a tu panel de control alimentario.</p>
+             <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
            </div>
            <button 
              onClick={() => window.location.href = '/explorar'} 
              style={{ padding: '0.8rem 1.5rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(95, 125, 74, 0.2)' }}
+             className="desktop-only"
            >
              <MapIcon size={18} /> Ir al Mapa
            </button>
@@ -457,21 +475,12 @@ export default function MiCuentaPage() {
           box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
         .mobile-only { display: none; }
+        .desktop-only { display: flex; }
 
         @media (max-width: 900px) {
-          .sidebar-dashboard {
-             position: fixed;
-             left: 0;
-             top: 0;
-             height: 100vh;
-             transform: translateX(-100%);
-          }
-          .sidebar-dashboard.open {
-             transform: translateX(0);
-          }
-          .mobile-menu-btn { display: block !important; }
           .mobile-only { display: block !important; }
-          main { padding: 4rem 1.5rem !important; }
+          .desktop-only { display: none !important; }
+          main { padding: 5rem 1.5rem !important; }
           h1 { font-size: 1.8rem !important; }
         }
       `}</style>
