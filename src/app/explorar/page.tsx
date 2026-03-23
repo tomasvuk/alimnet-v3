@@ -229,6 +229,7 @@ export default function ExplorarPage() {
   const [isRolesVisible, setIsRolesVisible] = useState(true);
   const [isPillsVisible, setIsPillsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const resultsRef = React.useRef<HTMLElement>(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -238,34 +239,41 @@ export default function ExplorarPage() {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setStickyFilters(currentScrollY > 80);
+    if (!isMobile) return;
+    const el = resultsRef.current;
+    if (!el) return;
+    let prevScrollTop = 0;
 
-      if (isMobile) {
-        if (currentScrollY > lastScrollY && currentScrollY > 10) {
-          // Scrolling DOWN: Hide elements in order
-          if (currentScrollY > 40) setIsPillsVisible(false); // First go products
-          if (currentScrollY > 90) setIsRolesVisible(false); // Then go roles
-          if (currentScrollY > 150) setIsHeaderVisible(false); // Finally Alimnet header
-        } else if (currentScrollY < lastScrollY) {
-          // Scrolling UP: Show everything back
-          setIsHeaderVisible(true);
-          setIsRolesVisible(true);
-          setIsPillsVisible(true);
-        }
-      } else {
+    const handleScroll = () => {
+      const st = el.scrollTop;
+      const goingDown = st > prevScrollTop && st > 10;
+      const goingUp = st < prevScrollTop;
+
+      if (goingDown) {
+        // Scrolling DOWN: hide in order — products first, roles second, header last
+        if (st > 30) setIsPillsVisible(false);
+        if (st > 80) setIsRolesVisible(false);
+        if (st > 140) setIsHeaderVisible(false);
+      } else if (goingUp) {
+        // Scrolling UP: restore everything
         setIsHeaderVisible(true);
         setIsRolesVisible(true);
         setIsPillsVisible(true);
       }
-      
-      setLastScrollY(currentScrollY);
+      prevScrollTop = st;
     };
 
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [isMobile]);
+
+  // Desktop scroll (window-based for sticky shadows)
+  useEffect(() => {
+    if (isMobile) return;
+    const handleScroll = () => setStickyFilters(window.scrollY > 80);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, isMobile]);
+  }, [isMobile]);
 
   // 1. Cargar datos filtrados (Zona Norte Activa)
   const getActiveMerchants = async () => {
@@ -536,21 +544,22 @@ export default function ExplorarPage() {
         )}
       </header>
 
-      {/* 2. BARRA DE FILTROS (STICKY + DUAL ROW) */}
+      {/* 2. BARRA DE FILTROS (FIXED on mobile, STICKY on desktop) */}
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
         padding: isMobile ? '0.6rem 1rem' : '1rem 1.5rem', 
         background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
-        position: 'sticky',
-        top: (isMobile && !isHeaderVisible) ? 0 : (isMobile ? '52px' : 0), 
+        position: isMobile ? 'fixed' : 'sticky',
+        top: isMobile ? (isHeaderVisible ? '52px' : '0') : 0, 
+        left: isMobile ? 0 : undefined,
+        right: isMobile ? 0 : undefined,
         zIndex: 900,
-        marginTop: isMobile ? '52px' : 0, 
         display: 'flex',
         flexDirection: 'column',
         gap: '0.8rem',
         boxShadow: stickyFilters ? '0 10px 30px rgba(0,0,0,0.08)' : 'none',
         alignItems: 'center',
-        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: 'top 0.3s ease-in-out',
       }}>
 
         
@@ -787,6 +796,7 @@ export default function ExplorarPage() {
 
         {/* LISTA DE RESULTADOS */}
         <section 
+          ref={resultsRef}
           className="results-section" 
           style={{ 
             width: isMobile ? '100%' : '35%', 
@@ -794,8 +804,9 @@ export default function ExplorarPage() {
             display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
             padding: '1rem', background: '#F8F9F5',
             borderRight: isMobile ? 'none' : '1px solid var(--border)', 
-            height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)', 
-            overflowY: 'auto'
+            height: isMobile ? '100vh' : 'calc(100vh - 120px)', 
+            overflowY: 'auto',
+            paddingTop: isMobile ? '1rem' : '1rem'
           }}
         >
           <div style={{ 
