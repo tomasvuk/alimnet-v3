@@ -203,7 +203,7 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
 // (LOGO REMOVIDO POR PEDIDO DEL USUARIO - SE MANTIENE SOLO TEXTO)
 
 export default function ExplorarPage() {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'abastecedor', 'restaurante', 'chef']);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
@@ -213,7 +213,7 @@ export default function ExplorarPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
   // Sincronizar selectedFilters con selectedCategories para el Modal
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(['Productor', 'Abastecedor', 'Restaurante', 'Chef']);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list'); 
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showHamburger, setShowHamburger] = useState(false);
@@ -226,6 +226,8 @@ export default function ExplorarPage() {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isRolesVisible, setIsRolesVisible] = useState(true);
+  const [isPillsVisible, setIsPillsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
@@ -238,21 +240,24 @@ export default function ExplorarPage() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
-      // Control sticky styling
       setStickyFilters(currentScrollY > 80);
 
-      // Control mobile header/pills visibility
       if (isMobile) {
-        if (currentScrollY > lastScrollY && currentScrollY > 50) {
-          // Scrolling down
-          setIsHeaderVisible(false); // Hide the top ALIMNET bar
-        } else {
-          // Scrolling up
+        if (currentScrollY > lastScrollY && currentScrollY > 20) {
+          // SCROLLING DOWN -> Hide in order
+          if (currentScrollY > 40) setIsPillsVisible(false); // First: Products
+          if (currentScrollY > 80) setIsRolesVisible(false); // Second: Roles
+          if (currentScrollY > 120) setIsHeaderVisible(false); // Last: Alimnet Header
+        } else if (currentScrollY < lastScrollY) {
+          // SCROLLING UP -> Restore all
           setIsHeaderVisible(true);
+          setIsRolesVisible(true);
+          setIsPillsVisible(true);
         }
       } else {
         setIsHeaderVisible(true);
+        setIsRolesVisible(true);
+        setIsPillsVisible(true);
       }
       
       setLastScrollY(currentScrollY);
@@ -669,7 +674,6 @@ export default function ExplorarPage() {
               </div>
             </div>
           </div>
-
           <button 
             onClick={() => setShowAdvancedFilters(true)}
             style={{ 
@@ -681,82 +685,87 @@ export default function ExplorarPage() {
             <Filter size={isMobile ? 14 : 16} /> Filtros
           </button>
         </div>
-
-        {/* CONTENEDOR DE PILLS (CON ESCALONAMIENTO AL SCROLLEAR) */}
+        {/* CONTENEDOR DE ROLES (PROVEEDORES, etc) */}
         <div style={{
-          display: 'flex', flexDirection: 'column', gap: '0.8rem', width: '100%', alignItems: 'center',
-          maxHeight: (isMobile && !isHeaderVisible) ? '0' : '500px',
-          opacity: (isMobile && !isHeaderVisible) ? 0 : 1,
-          transform: (isMobile && !isHeaderVisible) ? 'scaleY(0)' : 'scaleY(1)',
+          width: '100%', display: 'flex', justifyContent: 'center',
+          maxHeight: (isMobile && !isRolesVisible) ? '0' : '100px',
+          opacity: (isMobile && !isRolesVisible) ? 0 : 1,
+          transform: (isMobile && !isRolesVisible) ? 'scaleY(0)' : 'scaleY(1)',
           transformOrigin: 'top',
           overflow: 'hidden',
-          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-          pointerEvents: (isMobile && !isHeaderVisible) ? 'none' : 'auto'
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          pointerEvents: (isMobile && !isRolesVisible) ? 'none' : 'auto'
         }}>
-
-
-
-        {/* ROW CATEGORÍAS (Roles) - CENTRADO */}
-        <div style={{ 
-          display: 'flex', gap: isMobile ? '6px' : '8px', alignItems: 'center', 
-          flexWrap: isMobile ? 'wrap' : 'nowrap',
-          overflowX: isMobile ? 'visible' : 'auto', 
-          width: '100%', maxWidth: '850px', justifyContent: 'center' 
-        }} className="no-scrollbar">
-          {CATEGORIES.map(cat => {
-            const isActive = selectedCategories.includes(cat.id);
-            const CatIcon = cat.id === 'productor' ? ProductorIcon : cat.icon;
-            return (
-              <button 
-                key={cat.id}
-                onClick={() => toggleCategory(cat.id)}
-                style={{
-                  padding: isMobile ? '0.4rem 0.8rem' : '0.45rem 1rem', 
-                  fontSize: isMobile ? '0.7rem' : '0.8rem', 
-                  fontWeight: '900', borderRadius: '30px',
-                  display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                  border: '1.2px solid ' + (isActive ? 'var(--primary-dark)' : '#ddd'),
-                  background: isActive ? 'var(--primary-dark)' : 'white',
-                  color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap',
-                  boxShadow: isActive ? '0 10px 20px rgba(63, 82, 50, 0.15)' : 'none',
-                  transform: isActive ? 'translateY(-1px)' : 'translateY(0)'
-                }}
-              >
-                <CatIcon size={isMobile ? 14 : 16} />
-                {cat.label}
-              </button>
-            );
-          })}
+          <div style={{ 
+            display: 'flex', gap: isMobile ? '6px' : '8px', alignItems: 'center', 
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+            width: '100%', maxWidth: '850px', justifyContent: 'center' 
+          }} className="no-scrollbar">
+            {CATEGORIES.map(cat => {
+              const isActive = selectedCategories.includes(cat.id);
+              const CatIcon = cat.id === 'productor' ? ProductorIcon : cat.icon;
+              return (
+                <button 
+                  key={cat.id}
+                  onClick={() => toggleCategory(cat.id)}
+                  style={{
+                    padding: isMobile ? '0.4rem 0.8rem' : '0.45rem 1rem', 
+                    fontSize: isMobile ? '0.7rem' : '0.8rem', 
+                    fontWeight: '900', borderRadius: '30px',
+                    display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    border: '1.2px solid ' + (isActive ? 'var(--primary-dark)' : '#ddd'),
+                    background: isActive ? 'var(--primary-dark)' : 'white',
+                    color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap',
+                    boxShadow: isActive ? '0 10px 20px rgba(63, 82, 50, 0.15)' : 'none',
+                    transform: isActive ? 'translateY(-1px)' : 'translateY(0)'
+                  }}
+                >
+                  <CatIcon size={isMobile ? 14 : 16} />
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* ROW PRODUCTOS - CENTRADO */}
-        <div style={{ 
-          display: 'flex', gap: isMobile ? '4px' : '6px', 
-          flexWrap: 'wrap',
-          width: '100%', maxWidth: '950px', justifyContent: 'center',
-          padding: '0 10px'
-        }} className="no-scrollbar">
-          {PRODUCT_OPTIONS.map(prod => {
-            const isActive = selectedFilters.includes(prod);
-            return (
-              <button 
-                key={prod} onClick={() => toggleFilter(prod)}
-                style={{
-                  padding: isMobile ? '0.3rem 0.7rem' : '0.35rem 0.9rem', 
-                  fontSize: isMobile ? '0.7rem' : '0.75rem', 
-                  fontWeight: '800', borderRadius: '30px',
-                  display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s',
-                  border: isActive ? '1.2px solid var(--primary-dark)' : '1px solid #c9d2c4',
-                  background: isActive ? 'var(--primary-dark)' : '#eaeee6',
-                  color: isActive ? 'white' : 'var(--primary-dark)', whiteSpace: 'nowrap'
-                }}
-              >
-                {prod}
-              </button>
-            )
-          })}
-        </div>
-        </div>
+        {/* CONTENEDOR DE PRODUCTOS (VERDURAS, etc) */}
+        <div style={{
+          width: '100%', display: 'flex', justifyContent: 'center',
+          maxHeight: (isMobile && !isPillsVisible) ? '0' : '200px',
+          opacity: (isMobile && !isPillsVisible) ? 0 : 1,
+          transform: (isMobile && !isPillsVisible) ? 'scaleY(0)' : 'scaleY(1)',
+          transformOrigin: 'top',
+          overflow: 'hidden',
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          pointerEvents: (isMobile && !isPillsVisible) ? 'none' : 'auto'
+        }}>
+          <div style={{ 
+            display: 'flex', gap: isMobile ? '4px' : '6px', 
+            flexWrap: 'wrap',
+            width: '100%', maxWidth: '950px', justifyContent: 'center',
+            padding: '0 10px'
+          }} className="no-scrollbar">
+            {PRODUCT_OPTIONS.map(prod => {
+              const isActive = selectedFilters.includes(prod);
+              return (
+                <button 
+                  key={prod} onClick={() => toggleFilter(prod)}
+                  style={{
+                    padding: isMobile ? '0.3rem 0.7rem' : '0.35rem 0.9rem', 
+                    fontSize: isMobile ? '0.7rem' : '0.75rem', 
+                    fontWeight: '800', borderRadius: '30px',
+                    display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s',
+                    border: isActive ? '1.2px solid var(--primary-dark)' : '1px solid #c9d2c4',
+                    background: isActive ? 'var(--primary-dark)' : '#eaeee6',
+                    color: isActive ? 'white' : 'var(--primary-dark)', whiteSpace: 'nowrap'
+                  }}
+                >
+                  {prod}
+                </button>
+              )
+            })}
+          </div>
+              </div>
       </div>
 
       {/* 3. CONTENIDO PRINCIPAL */}
