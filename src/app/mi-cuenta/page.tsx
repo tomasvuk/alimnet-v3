@@ -91,6 +91,7 @@ export default function MiCuentaPage() {
     { id: 'referentes', label: 'Referentes', icon: Users },
     { id: 'favoritos', label: 'Guardados', icon: Star },
     { id: 'recientes', label: 'Recientes', icon: History },
+    { id: 'sostener', label: 'Sostener Alimnet', icon: Heart, special: true },
     { id: 'configuracion', label: 'Ajustes', icon: Settings },
   ];
 
@@ -141,14 +142,22 @@ export default function MiCuentaPage() {
           {menuItems.map(item => (
             <button 
               key={item.id}
-              onClick={() => { setActiveTab(item.id); setShowSidebar(false); }}
+              onClick={() => { 
+                if (item.id === 'sostener') {
+                  window.location.href = '/sostener';
+                  return;
+                }
+                setActiveTab(item.id); 
+                setShowSidebar(false); 
+              }}
               style={{ 
                 padding: '1rem', borderRadius: '16px', border: 'none', 
-                background: activeTab === item.id ? '#F0F4ED' : 'transparent',
-                color: activeTab === item.id ? '#5F7D4A' : '#666',
+                background: item.special ? '#FDF1ED' : (activeTab === item.id ? '#F0F4ED' : 'transparent'),
+                color: item.special ? '#FF7043' : (activeTab === item.id ? '#5F7D4A' : '#666'),
                 display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer',
-                fontWeight: activeTab === item.id ? '900' : '700', fontSize: '0.9rem',
-                transition: 'all 0.2s', width: '100%', textAlign: 'left'
+                fontWeight: (activeTab === item.id || item.special) ? '900' : '700', fontSize: '0.9rem',
+                transition: 'all 0.2s', width: '100%', textAlign: 'left',
+                marginTop: item.special ? 'auto' : '0'
               }}
             >
               <item.icon size={20} />
@@ -187,7 +196,7 @@ export default function MiCuentaPage() {
              style={{ padding: '0.8rem 1.5rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(95, 125, 74, 0.2)' }}
              className="desktop-only"
            >
-             <MapIcon size={18} /> Ir al Mapa
+             <MapIcon size={18} /> Explorar
            </button>
         </div>
 
