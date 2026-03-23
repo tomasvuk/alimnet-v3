@@ -225,6 +225,8 @@ export default function ExplorarPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -235,11 +237,30 @@ export default function ExplorarPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setStickyFilters(window.scrollY > 80);
+      const currentScrollY = window.scrollY;
+      
+      // Control sticky styling
+      setStickyFilters(currentScrollY > 80);
+
+      // Control mobile header/pills visibility
+      if (isMobile) {
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          // Scrolling down
+          setIsHeaderVisible(false);
+        } else {
+          // Scrolling up
+          setIsHeaderVisible(true);
+        }
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY, isMobile]);
 
   // 1. Cargar datos filtrados (Zona Norte Activa)
   const getActiveMerchants = async () => {
@@ -510,7 +531,7 @@ export default function ExplorarPage() {
 
       {/* 2. BARRA DE FILTROS (STICKY + DUAL ROW) */}
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
-        padding: '1rem 1.5rem', 
+        padding: isMobile ? '0.6rem 1rem' : '1rem 1.5rem', 
         background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
         position: 'sticky',
@@ -520,7 +541,11 @@ export default function ExplorarPage() {
         flexDirection: 'column',
         gap: '0.8rem',
         boxShadow: stickyFilters ? '0 10px 30px rgba(0,0,0,0.08)' : 'none',
-        alignItems: 'center'
+        alignItems: 'center',
+        transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-200%)',
+        transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s',
+        opacity: isHeaderVisible ? 1 : 0,
+        pointerEvents: isHeaderVisible ? 'auto' : 'none'
       }}>
         
         {/* LA CÁPSULA AIRBNB CENTRADA */}
@@ -532,70 +557,112 @@ export default function ExplorarPage() {
           <div 
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={() => isMobile && setIsSearchFocused(true)}
             style={{ 
               flex: 1, position: 'relative', 
               zIndex: isSearchFocused ? 1001 : 100,
               transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              transform: (isSearchFocused || isHovered) ? 'translateY(-2px)' : 'translateY(0)'
+              transform: (isSearchFocused || (isHovered && !isMobile)) ? 'translateY(-2px)' : 'translateY(0)',
+              cursor: isMobile ? 'pointer' : 'default'
             }}
           >
-            {/* NO OVERLAY HERE */}
-            
             <div style={{ 
-              display: 'flex', background: 'white', borderRadius: isMobile ? '20px' : '40px', border: '1px solid #ddd', 
+              display: 'flex', background: 'white', borderRadius: isMobile ? '30px' : '40px', border: '1px solid #ddd', 
               flexDirection: isMobile ? 'column' : 'row',
               boxShadow: (isSearchFocused || isHovered) ? '0 15px 40px rgba(0,0,0,0.12)' : '0 4px 12px rgba(0,0,0,0.05)',
-              transition: 'all 0.2s', padding: '1px', alignItems: isMobile ? 'stretch' : 'center'
+              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', 
+              padding: '1px', 
+              alignItems: isMobile ? 'stretch' : 'center',
+              overflow: 'hidden',
+              maxHeight: isMobile ? (isSearchFocused ? '500px' : '56px') : '1000px'
             }} className="search-capsule">
               
-              {/* SECCIÓN 1: BUSCAR */}
-              <div style={{ flex: 1.5, position: 'relative', padding: isMobile ? '8px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
-                <label style={{ display: 'block', fontSize: isMobile ? '0.55rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Buscar</label>
-                <input 
-                  type="text" 
-                  placeholder="Alimentos, lugares..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
-                />
-              </div>
-
-              {!isMobile && <div style={{ width: '1px', height: '24px', background: '#ddd' }}></div>}
-
-              {/* SECCIÓN 2: UBICACIÓN */}
-              <div style={{ flex: 1, position: 'relative', padding: isMobile ? '8px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
-                <label style={{ display: 'block', fontSize: isMobile ? '0.55rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Ubicación</label>
-                <input 
-                  type="text" 
-                  placeholder="¿A dónde?" 
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                  style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
-                />
-              </div>
-
-              {!isMobile && <div style={{ width: '1px', height: '24px', background: '#ddd' }}></div>}
-
-              {/* SECCIÓN 3: MODALIDAD */}
-              <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: isMobile ? '20px' : '24px', paddingRight: '6px', paddingBottom: isMobile ? '8px' : '0' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: isMobile ? '0.55rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Modalidad</label>
-                  <select 
-                    value={deliveryType}
-                    onChange={(e) => setDeliveryType(e.target.value as any)}
-                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.85rem' : '0.8rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
-                  >
-                    <option value="Retiro en local">Retiro en local</option>
-                    <option value="Entrega a domicilio">Entrega a domicilio</option>
-                  </select>
+              {/* MOBILE COMPACT VIEW HEADER */}
+              {isMobile && !isSearchFocused && (
+                <div style={{ 
+                  display: 'flex', alignItems: 'center', padding: '0 16px', height: '54px', width: '100%', gap: '12px'
+                }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                    <SearchIcon size={14} strokeWidth={3} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '850', color: '#2D3A20' }}>¿Qué estás buscando?</p>
+                    <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600' }}>{searchQuery || 'Alimentos'} · {searchLocation || 'Cerca tuyo'} · {deliveryType}</p>
+                  </div>
                 </div>
-                
-                <div style={{ width: isMobile ? '32px' : '36px', height: isMobile ? '32px' : '36px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                  <SearchIcon size={isMobile ? 14 : 16} strokeWidth={3} />
+              )}
+
+              {/* FULL SECTIONS (VISIBLE ON DESKTOP OR EXPANDED MOBILE) */}
+              <div style={{ 
+                display: (isMobile && !isSearchFocused) ? 'none' : 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                width: '100%'
+              }}>
+                {/* SECCIÓN 1: BUSCAR */}
+                <div style={{ flex: 1.5, position: 'relative', padding: isMobile ? '12px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
+                  <label style={{ display: 'block', fontSize: isMobile ? '0.6rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Buscar</label>
+                  <input 
+                    type="text" autoFocus={isMobile}
+                    placeholder="Alimentos, lugares..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => !isMobile && setTimeout(() => setIsSearchFocused(false), 200)}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
+                  />
+                </div>
+
+                <div style={{ width: isMobile ? '90%' : '1px', height: isMobile ? '1px' : '24px', background: '#ddd', alignSelf: 'center' }}></div>
+
+                {/* SECCIÓN 2: UBICACIÓN */}
+                <div style={{ flex: 1, position: 'relative', padding: isMobile ? '12px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
+                  <label style={{ display: 'block', fontSize: isMobile ? '0.6rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Ubicación</label>
+                  <input 
+                    type="text" 
+                    placeholder="¿A dónde?" 
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => !isMobile && setTimeout(() => setIsSearchFocused(false), 200)}
+                    style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
+                  />
+                </div>
+
+                <div style={{ width: isMobile ? '90%' : '1px', height: isMobile ? '1px' : '24px', background: '#ddd', alignSelf: 'center' }}></div>
+
+                {/* SECCIÓN 3: MODALIDAD */}
+                <div style={{ 
+                  flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+                  paddingLeft: isMobile ? '20px' : '24px', paddingRight: '12px', 
+                  paddingTop: isMobile ? '12px' : '0', paddingBottom: isMobile ? '12px' : '0' 
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: isMobile ? '0.6rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Modalidad</label>
+                    <select 
+                      value={deliveryType}
+                      onChange={(e) => setDeliveryType(e.target.value as any)}
+                      style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
+                    >
+                      <option value="Retiro en local">Retiro en local</option>
+                      <option value="Entrega a domicilio">Entrega a domicilio</option>
+                    </select>
+                  </div>
+                  
+                  <div 
+                    onClick={(e) => {
+                      if (isMobile && isSearchFocused) {
+                        e.stopPropagation();
+                        setIsSearchFocused(false);
+                      }
+                    }}
+                    style={{ 
+                      width: isMobile ? '40px' : '36px', height: isMobile ? '40px' : '36px', 
+                      borderRadius: '50%', background: 'var(--primary)', display: 'flex', 
+                      alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' 
+                    }}
+                  >
+                    {isMobile && isSearchFocused ? <CheckCircle size={20} strokeWidth={3} /> : <SearchIcon size={isMobile ? 14 : 16} strokeWidth={3} />}
+                  </div>
                 </div>
               </div>
             </div>
