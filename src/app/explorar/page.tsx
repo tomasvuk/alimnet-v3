@@ -14,32 +14,21 @@ import {
   UtensilsCrossed
 } from 'lucide-react';
 
-// Carga dinámica del mapa
+// Carga dinámica del mapa con fallback robusto
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { 
   ssr: false,
-  loading: () => <div style={{ height: '100%', width: '100%', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', fontWeight: '800' }}>Cargando mapa...</div>
+  loading: () => <div style={{ height: '100%', width: '100%', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', fontWeight: '800' }}>Iniciando Mapa...</div>
 });
 
 const normalizeString = (str: string) => {
   return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
 };
 
-interface Merchant {
-  id: string;
-  name: string;
-  type: string;
-  bio_short?: string;
-  bio_long?: string;
-  validation_count: number;
-  status: string;
-  tags?: string[];
-  locations?: any[];
-}
-
 export default function ExplorarPage() {
-  const [merchants, setMerchants] = useState<Merchant[]>([]);
-  const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
-  const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
+  const [merchants, setMerchants] = useState<any[]>([]);
+  const [filteredMerchants, setFilteredMerchants] = useState<any[]>([]);
+  const [selectedMerchant, setSelectedMerchant] = useState<any | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -49,16 +38,18 @@ export default function ExplorarPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'abastecedor', 'restaurante', 'chef']);
   const [selectedFilters, setSelectedFilters] = useState<string[]>(['Productor', 'Abastecedor', 'Restaurante', 'Chef']);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list'); 
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  // 1. Barrera contra errores de hidratación (Crucial para Leaflet)
   useEffect(() => {
+    setHasMounted(true);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // 2. Carga de datos
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -84,11 +75,12 @@ export default function ExplorarPage() {
     init();
   }, []);
 
+  // 3. Filtros
   useEffect(() => {
-    let result = merchants.filter(m => selectedCategories.includes((m.type || '').toLowerCase()));
+    let result = (merchants || []).filter(m => selectedCategories.includes((m.type || '').toLowerCase()));
     if (searchLocation.trim().length > 0) {
       const q = normalizeString(searchLocation);
-      result = result.filter(m => m.locations?.some(l => normalizeString(l.locality).includes(q)));
+      result = result.filter(m => m.locations?.some((l: any) => normalizeString(l.locality || '').includes(q)));
     }
     const tagsToFilter = selectedFilters.filter(f => !['Productor', 'Abastecedor', 'Restaurante', 'Chef'].includes(f));
     if (tagsToFilter.length > 0) {
@@ -98,8 +90,7 @@ export default function ExplorarPage() {
   }, [merchants, selectedCategories, selectedFilters, searchLocation]);
 
   const handleValidate = async (merchantId: string) => {
-    if (!user) { alert("Iniciá sesión para validar."); window.location.href='/login'; return; }
-    if (validatedMerchantIds.has(merchantId)) return;
+    if (!user) return;
     try {
       await supabase.from('validations').insert({ merchant_id: merchantId, user_id: user.id });
       const m = merchants.find(x => x.id === merchantId);
@@ -112,9 +103,9 @@ export default function ExplorarPage() {
     } catch (e) { console.error(e); }
   };
 
-  // --- TRANSFORMACIÓN PARA EL MAPCOMPONET ---
+  // 4. Transformación de datos para el Mapa
   const mapProviders = filteredMerchants.flatMap(m => 
-    (m.locations || []).map(l => ({
+    (m.locations || []).map((l: any) => ({
       id: `${m.id}-${l.id}`,
       name: m.name,
       type: m.type,
@@ -126,7 +117,7 @@ export default function ExplorarPage() {
     }))
   );
 
-  if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Cargando Alimnet...</div>;
+  if (loading || !hasMounted) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5', fontWeight: '800' }}>Iniciando Alimnet...</div>;
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F4ED' }}>
@@ -176,8 +167,8 @@ export default function ExplorarPage() {
           </div>
         </section>
 
-        <section style={{ flex: (isMobile && mobileView === 'list') ? 0 : 1.5, display: (isMobile && mobileView === 'list') ? 'none' : 'block', height: '100%' }}>
-          <MapComponent providers={mapProviders} />
+        <section style={{ flex: (isMobile && mobileView === 'list') ? 0 : 1.5, display: (isMobile && mobileView === 'list') ? 'none' : 'block' }}>
+           {hasMounted && <MapComponent providers={mapProviders} />}
         </section>
       </div>
 
@@ -188,14 +179,16 @@ export default function ExplorarPage() {
       )}
 
       {selectedMerchant && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000 }}>
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'white', borderTopLeftRadius: '32px', borderTopRightRadius: '32px', padding: '2rem', maxHeight: '90vh', overflowY: 'auto' }}>
-            <button onClick={() => setSelectedMerchant(null)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: '#eee', border: 'none', borderRadius: '50%', padding: '8px' }}><X size={20}/></button>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '950', marginBottom: '1rem' }}>{selectedMerchant.name}</h2>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ background: 'white', width: '100%', borderTopLeftRadius: '32px', borderTopRightRadius: '32px', padding: '2rem', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: '950' }}>{selectedMerchant.name}</h2>
+              <button onClick={() => setSelectedMerchant(null)}><X /></button>
+            </div>
             <button 
               onClick={() => handleValidate(selectedMerchant.id)}
               disabled={validatedMerchantIds.has(selectedMerchant.id)}
-              style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: 'none', background: validatedMerchantIds.has(selectedMerchant.id) ? '#F0F4ED' : '#5F7D4A', color: validatedMerchantIds.has(selectedMerchant.id) ? '#5F7D4A' : 'white', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              style={{ width: '100%', padding: '1rem', borderRadius: '16px', background: validatedMerchantIds.has(selectedMerchant.id) ? '#F0F4ED' : '#5F7D4A', color: validatedMerchantIds.has(selectedMerchant.id) ? '#5F7D4A' : 'white', fontWeight: '900', border: 'none' }}
             >
               {validatedMerchantIds.has(selectedMerchant.id) ? '¡Proyecto Validado!' : 'Validar Proyecto'}
             </button>
