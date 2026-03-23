@@ -1136,8 +1136,8 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
             </div>
           ) : (
             <div style={{ 
-              fontSize: '0.6rem', fontWeight: '950', background: 'transparent', color: '#FF7043', 
-              padding: '2px 9px', borderRadius: '20px', border: '1.2px solid #FF7043', 
+              fontSize: '0.6rem', fontWeight: '950', background: 'transparent', color: '#5F7D4A', 
+              padding: '2px 9px', borderRadius: '20px', border: '1.2px solid #5F7D4A', 
               display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
               opacity: 0.85
             }}>

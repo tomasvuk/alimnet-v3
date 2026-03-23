@@ -171,13 +171,6 @@ export default function MiCuentaPage() {
             </button>
           ))}
         </nav>
-
-        <button 
-          onClick={() => supabase.auth.signOut().then(() => window.location.href = '/')}
-          style={{ padding: '1rem', borderRadius: '16px', border: 'none', background: 'transparent', color: '#CC4B4B', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '800', cursor: 'pointer' }}
-        >
-          <LogOut size={20} /> Cerrar Sesión
-        </button>
       </aside>
 
       {/* CONTENIDO CENTRAL */}
