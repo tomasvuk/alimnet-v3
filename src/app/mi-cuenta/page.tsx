@@ -132,6 +132,7 @@ function MiCuentaContent() {
           position: 'fixed', top: '25px', left: '25px', zIndex: 100, 
           background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
           padding: '12px 10px', 
+          display: 'flex', flexDirection: 'column',
           gap: '5px',
           alignItems: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -139,9 +140,9 @@ function MiCuentaContent() {
         }}
         className="mobile-only"
       >
-        <div style={{ width: showSidebar ? '22px' : '10px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
-        <div style={{ width: '16px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
-        <div style={{ width: showSidebar ? '10px' : '22px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
+        <div style={{ width: showSidebar ? '28px' : '15px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
+        <div style={{ width: '22px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
+        <div style={{ width: showSidebar ? '15px' : '30px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
       </button>
 
       {/* SIDEBAR IZQUIERDA (PERSISTENTE EN WEB / COLAPSABLE EN MOBILE) */}
@@ -241,7 +242,7 @@ function MiCuentaContent() {
                 <div style={{ color: '#5F7D4A', display: 'flex' }}><ShieldCheck size={22} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                   <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.validations}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="desktop-only">VALIDACIONES</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="stat-label">VALIDACIONES</span>
                 </div>
               </div>
               
@@ -249,7 +250,7 @@ function MiCuentaContent() {
                 <div style={{ color: '#8EA87D', display: 'flex' }}><Users size={22} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                   <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.referents}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="desktop-only">REFERENTES</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="stat-label">REFERENTES</span>
                 </div>
               </div>
 
@@ -257,7 +258,7 @@ function MiCuentaContent() {
                 <div style={{ color: '#2D3A20', display: 'flex' }}><Star size={22} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                   <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.saved}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="desktop-only">GUARDADOS</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="stat-label">GUARDADOS</span>
                 </div>
               </div>
 
@@ -265,7 +266,7 @@ function MiCuentaContent() {
                 <div style={{ color: '#B8C6B1', display: 'flex' }}><History size={22} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                   <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.recent}</span>
-                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="desktop-only">RECIENTES</span>
+                  <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="stat-label">RECIENTES</span>
                 </div>
               </div>
             </div>
@@ -409,10 +410,10 @@ function MiCuentaContent() {
               className="card-hover"
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: '#FFF8F1', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF7043' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A' }}>
                   <Star size={24} />
                 </div>
-                <div style={{ padding: '4px 10px', background: '#FF7043', color: 'white', borderRadius: '8px', fontSize: '0.6rem', fontWeight: '900' }}>PROYECTO</div>
+                <div style={{ padding: '4px 10px', background: '#5F7D4A', color: 'white', borderRadius: '8px', fontSize: '0.6rem', fontWeight: '900' }}>PROYECTO</div>
               </div>
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>Raíz Vivo 42</h3>
@@ -420,11 +421,11 @@ function MiCuentaContent() {
                   <MapPin size={14} /> Escobar, Prov. Buenos Aires
                 </div>
               </div>
-              <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f5f5f5', display: 'flex', alignItems: 'center', gap: '8px', color: '#FF7043', fontSize: '0.8rem', fontWeight: '800' }}>
+              <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f5f5f5', display: 'flex', alignItems: 'center', gap: '8px', color: '#5F7D4A', fontSize: '0.8rem', fontWeight: '800' }}>
                 Ver en el mapa <ChevronRight size={16} />
               </div>
               
-              <button style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: '#CC4B4B', cursor: 'pointer' }}>
+              <button style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: '#888', cursor: 'pointer', opacity: 0.6 }}>
                 <X size={18} />
               </button>
             </div>
@@ -526,6 +527,16 @@ function MiCuentaContent() {
              transform: translateX(0);
              box-shadow: 20px 0 60px rgba(0,0,0,0.1);
           }
+          .stat-label { font-size: 0.55rem !important; }
+          .stat-bar { 
+            padding: 0.8rem !important; 
+            min-width: 0 !important;
+            width: auto !important;
+            gap: 10px !important;
+          }
+          .stat-bar span:last-child {
+            display: block !important;
+          }
           .main-content {
              margin-left: 0 !important;
              padding: 5rem 1rem !important; 
@@ -535,11 +546,6 @@ function MiCuentaContent() {
             width: 100vw !important;
           }
           h1 { font-size: 1.8rem !important; }
-          .stat-bar { 
-            padding: 0.8rem 1rem !important; 
-            min-width: 0 !important;
-            width: auto !important;
-          }
         }
         
         @media (min-width: 901px) {
