@@ -122,7 +122,10 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
         <h4 style={{ fontSize: '1.2rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1.5rem', letterSpacing: '-0.01em' }}>{section.label}</h4>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
           {section.options.map((opt) => {
-            const isActive = selectedFilters.includes(opt);
+            const isCategory = section.label === 'Tipo de actor';
+            const isActive = isCategory 
+              ? selectedFilters.some(f => f.toLowerCase() === opt.toLowerCase())
+              : selectedFilters.includes(opt);
             return (
               <button
                 key={opt}
@@ -206,7 +209,9 @@ export default function ExplorarPage() {
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  
+  // Sincronizar selectedFilters con selectedCategories para el Modal
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(['Productor', 'Abastecedor', 'Restaurante', 'Chef']);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list'); 
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showHamburger, setShowHamburger] = useState(false);
@@ -365,14 +370,32 @@ export default function ExplorarPage() {
   };
 
   const toggleCategory = (id: string) => {
-    const newCategories = selectedCategories.includes(id)
-      ? selectedCategories.filter(c => c !== id)
-      : [...selectedCategories, id];
+    const normId = id.toLowerCase();
+    const newCategories = selectedCategories.includes(normId)
+      ? selectedCategories.filter(c => c !== normId)
+      : [...selectedCategories, normId];
     
     setSelectedCategories(newCategories);
+    
+    // También actualizar selectedFilters para el Modal
+    const label = id.charAt(0).toUpperCase() + id.slice(1);
+    const newFilters = selectedFilters.includes(label)
+      ? selectedFilters.filter(f => f !== label)
+      : [...selectedFilters, label];
+    setSelectedFilters(newFilters);
   };
 
   const toggleFilter = (type: string) => {
+    // Si es una categoría (actor), sincronizar con selectedCategories
+    const categoryMatch = CATEGORIES.find(c => c.label.toLowerCase() === type.toLowerCase());
+    if (categoryMatch) {
+      const normId = categoryMatch.id.toLowerCase();
+      const newCategories = selectedCategories.includes(normId)
+        ? selectedCategories.filter(c => c !== normId)
+        : [...selectedCategories, normId];
+      setSelectedCategories(newCategories);
+    }
+
     const newTypes = selectedFilters.includes(type)
       ? selectedFilters.filter(t => t !== type)
       : [...selectedFilters, type];
