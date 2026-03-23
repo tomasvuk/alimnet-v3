@@ -82,6 +82,7 @@ export default function MiCuentaPage() {
     { id: 'validaciones', label: 'Validaciones', icon: Heart },
     { id: 'referentes', label: 'Referentes', icon: Users },
     { id: 'favoritos', label: 'Guardados', icon: Star },
+    { id: 'recientes', label: 'Recientes', icon: History },
     { id: 'configuracion', label: 'Ajustes', icon: Settings },
   ];
 
@@ -330,6 +331,49 @@ export default function MiCuentaPage() {
                 >
                   Ir al Mapa
                 </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'recientes' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Vistos Recientemente</h2>
+              <p style={{ color: '#888', fontWeight: '600' }}>Los locales que exploraste en el mapa durante tu última sesión.</p>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderLeft: '2px solid #E4EBDD', paddingLeft: '2rem', marginLeft: '1rem' }}>
+              {/* Ejemplo de Historial */}
+              {['Proyecto Bio-Sustentable', 'Mercado Saludable', 'Cooperativa del Campo'].map((loc, idx) => (
+                <div 
+                  key={idx}
+                  onClick={() => window.location.href = '/explorar'}
+                  style={{ 
+                    background: 'white', padding: '1.2rem 1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD', 
+                    cursor: 'pointer', transition: 'all 0.3s',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    position: 'relative'
+                  }}
+                  className="card-hover"
+                >
+                  <div style={{ position: 'absolute', left: '-2.65rem', top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', borderRadius: '50%', background: '#5F7D4A', border: '3px solid white', boxShadow: '0 0 0 4px #F0F4ED' }}></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F8F9F5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+                      <Clock size={20} />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '900', color: '#2D3A20' }}>{loc}</h4>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: '#999', fontWeight: '700' }}>Visto hace {idx * 15 + 5} min</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={20} color="#E4EBDD" />
+                </div>
+              ))}
+            </div>
+
+            <div style={{ padding: '3rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px dashed #E4EBDD', marginTop: '1rem' }}>
+               <Loader2 size={32} color="#E4EBDD" className="animate-spin" style={{ marginBottom: '1rem' }} />
+               <p style={{ color: '#888', fontWeight: '700', fontSize: '0.85rem' }}>Tu historial se actualiza en tiempo real mientras navegás.</p>
             </div>
           </div>
         )}
