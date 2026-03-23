@@ -628,10 +628,10 @@ export default function ExplorarPage() {
                 key={cat.id}
                 onClick={() => toggleCategory(cat.id)}
                 style={{
-                  padding: isMobile ? '0.6rem 1.2rem' : '0.8rem 1.6rem', 
-                  fontSize: isMobile ? '0.75rem' : '0.85rem', 
+                  padding: isMobile ? '0.25rem 0.6rem' : '0.35rem 0.9rem', 
+                  fontSize: isMobile ? '0.65rem' : '0.75rem', 
                   fontWeight: '900', borderRadius: '30px',
-                  display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                  display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                   border: '1.2px solid ' + (isActive ? 'var(--primary-dark)' : '#ddd'),
                   background: isActive ? 'var(--primary-dark)' : 'white',
                   color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap',
@@ -659,8 +659,8 @@ export default function ExplorarPage() {
               <button 
                 key={prod} onClick={() => toggleFilter(prod)}
                 style={{
-                  padding: isMobile ? '0.4rem 1rem' : '0.55rem 1.2rem', 
-                  fontSize: isMobile ? '0.7rem' : '0.8rem', 
+                  padding: isMobile ? '0.2rem 0.5rem' : '0.25rem 0.75rem', 
+                  fontSize: isMobile ? '0.6rem' : '0.7rem', 
                   fontWeight: '800', borderRadius: '30px',
                   display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s',
                   border: isActive ? '1.2px solid var(--primary-dark)' : '1px solid #c9d2c4',
