@@ -850,34 +850,38 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       onMouseLeave={() => setIsHovered(false)}
       style={{
         padding: '1.2rem', borderRadius: '24px', background: 'white', cursor: 'pointer',
-        border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-        display: 'flex', flexDirection: 'column', gap: '8px', transition: 'all 0.2s',
+        border: '1px solid #eee', boxShadow: isHovered ? '0 20px 40px rgba(0,0,0,0.08)' : '0 4px 12px rgba(0,0,0,0.02)',
+        display: 'flex', flexDirection: 'column', gap: '10px', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+        height: 'auto'
       }}
       className="merchant-card-pro"
     >
       <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-          <div style={{ 
-            width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', flexShrink: 0, marginTop: '2px'
-          }}>
-            <IconComponent size={20} />
-          </div>
+        <div style={{ display: 'flex', gap: '0', alignItems: 'flex-start' }}>
+          {/* ICONO REMOVIDO POR PEDIDO DEL USUARIO */}
           <div style={{ overflow: 'hidden' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20', margin: 0, lineHeight: '1.2', marginBottom: '4px' }}>{merchant.name}</h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <MapPin size={10} /> {displayLocation}
             </p>
             {productTags.length > 0 && (
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '6px' }}>
-                {visibleProducts.map(pt => (
-                  <span key={pt} style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--primary-dark)', background: '#f5f5f5', padding: '2px 6px', borderRadius: '6px' }}>
-                    📦 {pt}
+              <div style={{ 
+                display: 'flex', gap: '6px', alignItems: 'center', marginTop: '10px', 
+                flexWrap: isHovered ? 'wrap' : 'nowrap'
+              }}>
+                {(isHovered ? productTags : productTags.slice(0, 2)).map(pt => (
+                  <span key={pt} style={{ 
+                    fontSize: '0.7rem', fontWeight: '900', color: '#2D3A20', 
+                    background: '#F0F4ED', padding: '6px 12px', borderRadius: '10px',
+                    border: '1px solid #c9d2c4', whiteSpace: 'nowrap'
+                  }}>
+                    {pt}
                   </span>
                 ))}
-                {!isHovered && hiddenProductsCount > 0 && (
-                    <span style={{ fontSize: '0.65rem', fontWeight: '900', color: 'var(--text-secondary)', padding: '2px 4px' }}>
-                      +{hiddenProductsCount}
+                {!isHovered && productTags.length > 2 && (
+                    <span style={{ fontSize: '0.65rem', fontWeight: '900', color: '#999', padding: '2px 4px' }}>
+                      +{productTags.length - 2}
                     </span>
                 )}
               </div>
@@ -900,15 +904,21 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       </p>
       
       {(visibleOtherTags.length > 0 || isDirect) && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+        <div style={{ 
+          display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px',
+          borderTop: '1px solid #f5f5f5', paddingTop: '10px'
+        }}>
           {isDirect && (
-            <span style={{ fontSize: '0.65rem', fontWeight: '800', background: '#e8f5e9', color: '#2e7d32', padding: '3px 8px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-              <Leaf size={10} strokeWidth={2.5} /> Del campo a la mesa
+            <span style={{ fontSize: '0.65rem', fontWeight: '900', background: 'transparent', color: '#2e7d32', padding: '4px 10px', borderRadius: '20px', border: '1px solid #e8f5e9', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Leaf size={10} strokeWidth={2.5} /> VENTA DIRECTA
             </span>
           )}
           {visibleOtherTags.map(tag => (
-            <span key={tag} style={{ fontSize: '0.65rem', fontWeight: '700', background: 'transparent', color: 'var(--text-secondary)', padding: '3px 8px', borderRadius: '12px', border: '1px solid #eee' }}>
-              {tag}
+            <span key={tag} style={{ 
+              fontSize: '0.6rem', fontWeight: '800', background: 'transparent', color: '#777', 
+              padding: '3px 10px', borderRadius: '20px', border: '1px solid #eee', letterSpacing: '0.02em'
+            }}>
+              {tag.toUpperCase()}
             </span>
           ))}
           {!isHovered && hiddenTagsCount > 0 && (
