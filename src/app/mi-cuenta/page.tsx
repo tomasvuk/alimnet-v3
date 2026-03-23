@@ -9,6 +9,7 @@ import {
   ExternalLink, ShieldCheck, LayoutDashboard, History,
   Activity, Users, Share2, Eye
 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 // --- Opciones de Configuración ---
@@ -16,6 +17,8 @@ const PRODUCTION_OPTIONS = ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin 
 const DELIVERY_PREFERENCES = ['Retiro y Entrega', 'Solo Entrega', 'Solo Retiro'];
 
 export default function MiCuentaPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [profile, setProfile] = useState<any>(null);
   const [validationCount, setValidationCount] = useState(0);
@@ -42,6 +45,20 @@ export default function MiCuentaPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    } else {
+      setActiveTab('dashboard');
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    router.push(`/mi-cuenta?tab=${tabId}`, { scroll: false });
+  };
 
   const fetchData = async () => {
     try {
@@ -151,7 +168,7 @@ export default function MiCuentaPage() {
                   supabase.auth.signOut().then(() => window.location.href = '/');
                   return;
                 }
-                setActiveTab(item.id); 
+                handleTabChange(item.id); 
                 setShowSidebar(false); 
               }}
               style={{ 
@@ -206,7 +223,7 @@ export default function MiCuentaPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
               
               <div 
-                onClick={() => setActiveTab('validaciones')}
+                onClick={() => handleTabChange('validaciones')}
                 style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
@@ -218,7 +235,7 @@ export default function MiCuentaPage() {
               </div>
               
               <div 
-                onClick={() => setActiveTab('referentes')}
+                onClick={() => handleTabChange('referentes')}
                 style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
@@ -230,7 +247,7 @@ export default function MiCuentaPage() {
               </div>
 
               <div 
-                onClick={() => setActiveTab('favoritos')}
+                onClick={() => handleTabChange('favoritos')}
                 style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
@@ -242,7 +259,7 @@ export default function MiCuentaPage() {
               </div>
 
               <div 
-                onClick={() => setActiveTab('recientes')}
+                onClick={() => handleTabChange('recientes')}
                 style={{ background: 'white', padding: '0.8rem 1.4rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', width: 'fit-content' }}
                 className="stat-bar"
               >
