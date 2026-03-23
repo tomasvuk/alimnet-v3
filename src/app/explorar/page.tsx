@@ -542,11 +542,9 @@ export default function ExplorarPage() {
         gap: '0.8rem',
         boxShadow: stickyFilters ? '0 10px 30px rgba(0,0,0,0.08)' : 'none',
         alignItems: 'center',
-        transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-200%)',
-        transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s',
-        opacity: isHeaderVisible ? 1 : 0,
-        pointerEvents: isHeaderVisible ? 'auto' : 'none'
+        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
+
         
         {/* LA CÁPSULA AIRBNB CENTRADA */}
         <div style={{ 
@@ -683,13 +681,15 @@ export default function ExplorarPage() {
         {/* CONTENEDOR DE PILLS (CON ESCALONAMIENTO AL SCROLLEAR) */}
         <div style={{
           display: 'flex', flexDirection: 'column', gap: '0.8rem', width: '100%', alignItems: 'center',
-          maxHeight: (isMobile && !isHeaderVisible) ? '0' : '200px',
+          maxHeight: (isMobile && !isHeaderVisible) ? '0' : '500px',
           opacity: (isMobile && !isHeaderVisible) ? 0 : 1,
-          transform: (isMobile && !isHeaderVisible) ? 'translateY(-20px)' : 'translateY(0)',
+          transform: (isMobile && !isHeaderVisible) ? 'scaleY(0)' : 'scaleY(1)',
+          transformOrigin: 'top',
           overflow: 'hidden',
           transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           pointerEvents: (isMobile && !isHeaderVisible) ? 'none' : 'auto'
         }}>
+
 
 
         {/* ROW CATEGORÍAS (Roles) - CENTRADO */}
