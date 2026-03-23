@@ -577,7 +577,12 @@ export default function ExplorarPage() {
         </div>
 
         {/* ROW CATEGORÍAS (Roles) - CENTRADO */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', overflowX: 'auto', width: '100%', maxWidth: '850px', justifyContent: 'center' }} className="no-scrollbar">
+        <div style={{ 
+          display: 'flex', gap: isMobile ? '6px' : '8px', alignItems: 'center', 
+          flexWrap: isMobile ? 'wrap' : 'nowrap',
+          overflowX: isMobile ? 'visible' : 'auto', 
+          width: '100%', maxWidth: '850px', justifyContent: 'center' 
+        }} className="no-scrollbar">
           {CATEGORIES.map(cat => {
             const isActive = selectedCategories.includes(cat.id);
             const CatIcon = cat.id === 'productor' ? ProductorIcon : cat.icon;
@@ -586,14 +591,16 @@ export default function ExplorarPage() {
                 key={cat.id}
                 onClick={() => toggleCategory(cat.id)}
                 style={{
-                  padding: '0.5rem 1rem', fontSize: '0.75rem', fontWeight: '800', borderRadius: '10px',
+                  padding: isMobile ? '0.4rem 0.7rem' : '0.5rem 1rem', 
+                  fontSize: isMobile ? '0.7rem' : '0.75rem', 
+                  fontWeight: '800', borderRadius: '10px',
                   display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s',
                   border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
                   background: isActive ? 'var(--primary)' : 'white',
                   color: isActive ? 'white' : '#2D3A20', whiteSpace: 'nowrap'
                 }}
               >
-                <CatIcon size={14} />
+                <CatIcon size={isMobile ? 12 : 14} />
                 {cat.label}
               </button>
             );
@@ -601,14 +608,21 @@ export default function ExplorarPage() {
         </div>
 
         {/* ROW PRODUCTOS - CENTRADO */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px', width: '100%', maxWidth: '850px', justifyContent: 'center' }} className="no-scrollbar">
+        <div style={{ 
+          display: 'flex', gap: isMobile ? '6px' : '8px', 
+          flexWrap: isMobile ? 'wrap' : 'nowrap',
+          overflowX: isMobile ? 'visible' : 'auto', 
+          paddingBottom: '2px', width: '100%', maxWidth: '850px', justifyContent: 'center' 
+        }} className="no-scrollbar">
           {PRODUCT_OPTIONS.map(prod => {
             const isActive = selectedFilters.includes(prod);
             return (
               <button 
                 key={prod} onClick={() => toggleFilter(prod)}
                 style={{
-                  padding: '0.45rem 1.2rem', fontSize: '0.85rem', fontWeight: '800', borderRadius: '20px',
+                  padding: isMobile ? '0.35rem 0.8rem' : '0.45rem 1.2rem', 
+                  fontSize: isMobile ? '0.75rem' : '0.85rem', 
+                  fontWeight: '800', borderRadius: '20px',
                   display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.15s',
                   border: isActive ? '1px solid var(--primary-dark)' : '1px solid #c9d2c4',
                   background: isActive ? 'var(--primary-dark)' : '#eaeee6',
