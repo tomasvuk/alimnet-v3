@@ -81,7 +81,7 @@ export default function MiCuentaPage() {
     { id: 'perfil', label: 'Mi Perfil', icon: User },
     { id: 'validaciones', label: 'Validaciones', icon: Heart },
     { id: 'referentes', label: 'Referentes', icon: Users },
-    { id: 'favoritos', label: 'Favoritos', icon: Star },
+    { id: 'favoritos', label: 'Guardados', icon: Star },
     { id: 'configuracion', label: 'Ajustes', icon: Settings },
   ];
 
@@ -281,8 +281,61 @@ export default function MiCuentaPage() {
           </div>
         )}
 
+        {activeTab === 'favoritos' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Mis Guardados</h2>
+              <p style={{ color: '#888', fontWeight: '600' }}>Los proyectos que tenés planeado visitar pronto.</p>
+            </div>
+            
+            {/* Ejemplo de Guardado: Raíz Vivo 42 */}
+            <div 
+              style={{ 
+                background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', 
+                cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                display: 'flex', flexDirection: 'column', gap: '12px',
+                position: 'relative'
+              }}
+              className="card-hover"
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: '#FFF8F1', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF7043' }}>
+                  <Star size={24} />
+                </div>
+                <div style={{ padding: '4px 10px', background: '#FF7043', color: 'white', borderRadius: '8px', fontSize: '0.6rem', fontWeight: '900' }}>PROYECTO</div>
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>Raíz Vivo 42</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#888', fontSize: '0.8rem', fontWeight: '700' }}>
+                  <MapPin size={14} /> Escobar, Prov. Buenos Aires
+                </div>
+              </div>
+              <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #f5f5f5', display: 'flex', alignItems: 'center', gap: '8px', color: '#FF7043', fontSize: '0.8rem', fontWeight: '800' }}>
+                Ver en el mapa <ChevronRight size={16} />
+              </div>
+              
+              <button style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: '#CC4B4B', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* SECCIÓN VACÍA MÁS ABAJO */}
+            <div style={{ gridColumn: '1 / -1', padding: '5rem', textAlign: 'center', border: '1px dashed #E4EBDD', borderRadius: '32px' }}>
+                <History size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
+                <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>¿Todavía no encontraste tu próximo destino?</h3>
+                <p style={{ color: '#888', marginTop: '1rem' }}>Explorá el mapa y guardá los proyectos con el ícono de estrella.</p>
+                <button 
+                  onClick={() => window.location.href = '/explorar'} 
+                  style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '800', cursor: 'pointer' }}
+                >
+                  Ir al Mapa
+                </button>
+            </div>
+          </div>
+        )}
+
         {/* OTROS TABS (Placeholder para mantener diseño) */}
-        {['perfil', 'favoritos', 'configuracion'].includes(activeTab) && (
+        {['perfil', 'configuracion'].includes(activeTab) && (
           <div style={{ background: 'white', padding: '4rem', borderRadius: '32px', border: '1px solid #E4EBDD', textAlign: 'center' }}>
             <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Próximamente: {activeTab.toUpperCase()}</h3>
             <p style={{ color: '#888', marginTop: '1rem' }}>Estamos puliendo esta sección en el checklist de Alimnet.</p>
