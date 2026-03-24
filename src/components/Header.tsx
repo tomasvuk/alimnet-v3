@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home } from 'lucide-react';
+import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function Header() {
@@ -148,11 +148,17 @@ export default function Header() {
             <MenuItem href="/sostener" icon={<HelpCircle size={16} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
             <MenuItem href="/mi-cuenta" icon={<User size={16} />} label="Mi Perfil" onClick={() => setShowMenu(false)} />
             {user && (
-              <MenuItem href="/perfil" icon={<MapIcon size={16} />} label="MI PERFIL COMERCIAL" onClick={() => setShowMenu(false)} highlight />
+              <MenuItem 
+                href={isMerchant ? "/perfil" : "/registro-comercio"} 
+                icon={isMerchant ? <MapIcon size={16} /> : <Store size={16} />} 
+                label={isMerchant ? "MI PERFIL COMERCIAL" : "REGISTRAR MI COMERCIO"} 
+                onClick={() => setShowMenu(false)} 
+                highlight 
+              />
             )}
             <div style={{ height: '1px', background: '#f0f0f0', margin: '0.5rem 0' }} />
             {!isMerchant && (
-              <MenuItem href="/unirse" icon={<LogIn size={16} />} label="Sumar mi comercio" onClick={() => setShowMenu(false)} />
+              <MenuItem href="/registro-comercio" icon={<Plus size={16} />} label="Sumar mi proyecto" onClick={() => setShowMenu(false)} />
             )}
           </div>
         </>
