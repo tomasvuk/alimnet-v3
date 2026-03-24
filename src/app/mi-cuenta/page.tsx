@@ -148,23 +148,49 @@ function MiCuentaContent() {
   return (
     <div style={{ height: '100vh', display: 'flex', background: '#F8F9F5', overflow: 'hidden' }}>
       
+      <div style={{ 
+        position: 'fixed', top: '25px', left: '25px', zIndex: 100, 
+        display: 'flex', alignItems: 'center', gap: '15px' 
+      }}>
+        <button 
+          onClick={() => setShowSidebar(!showSidebar)}
+          style={{ 
+            background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
+            padding: '12px 10px', 
+            flexDirection: 'column',
+            gap: '5px',
+            alignItems: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            width: '45px', justifyContent: 'center', display: 'flex'
+          }}
+          className="mobile-only"
+        >
+          <div style={{ width: showSidebar ? '28px' : '15px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
+          <div style={{ width: '22px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
+          <div style={{ width: showSidebar ? '15px' : '30px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
+        </button>
+
+        <div 
+          onClick={() => window.location.href = '/'}
+          style={{ cursor: 'pointer', fontWeight: '950', fontSize: '1.4rem', color: '#5F7D4A', letterSpacing: '0.05em' }}
+          className="mobile-only"
+        >
+          ALIMNET
+        </div>
+      </div>
+
       <button 
-        onClick={() => setShowSidebar(!showSidebar)}
+        onClick={() => window.location.href = '/explorar'} 
         style={{ 
-          position: 'fixed', top: '25px', left: '25px', zIndex: 100, 
-          background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
-          padding: '12px 10px', 
-          flexDirection: 'column',
-          gap: '5px',
-          alignItems: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          width: '45px', justifyContent: 'center'
+          position: 'fixed', top: '25px', right: '25px', zIndex: 100, 
+          background: 'white', border: '1px solid #E4EBDD', borderRadius: '16px', 
+          padding: '10px 15px', display: 'flex', alignItems: 'center', gap: '8px', 
+          cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          fontWeight: '950', fontSize: '0.8rem', color: '#5F7D4A'
         }}
         className="mobile-only"
       >
-        <div style={{ width: showSidebar ? '28px' : '15px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
-        <div style={{ width: '22px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
-        <div style={{ width: showSidebar ? '15px' : '30px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
+        <MapIcon size={18} /> Explorar
       </button>
 
       {/* SIDEBAR IZQUIERDA (PERSISTENTE EN WEB / COLAPSABLE EN MOBILE) */}
@@ -305,7 +331,6 @@ function MiCuentaContent() {
             </div>
           </div>
         )}
-        </div>
 
         {activeTab === 'validaciones' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
@@ -522,6 +547,8 @@ function MiCuentaContent() {
             <p style={{ color: '#888', marginTop: '1rem' }}>Estamos puliendo esta sección en el checklist de Alimnet.</p>
           </div>
         )}
+
+        </div> {/* Final de maxWidth container - ENVUELVE TODO PARA ALINEACIÓN PERFECTA */}
 
         {/* BRANDING PERSISTENTE ABAJO A LA DERECHA */}
         <div style={{ 
