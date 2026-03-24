@@ -25,13 +25,14 @@ export default function Header() {
           .single();
         if (profile) setProfile(profile);
 
-        // 2. ¿Es mercante?
+        // 2. ¿Es mercante? (Cambiamos .single() por una consulta que soporte múltiples comercios)
         const { data: mData } = await supabase
           .from('merchants')
           .select('id')
           .eq('owner_id', session.user.id)
-          .single();
-        if (mData) setIsMerchant(true);
+          .limit(1);
+        
+        if (mData && mData.length > 0) setIsMerchant(true);
       }
       setLoading(false);
     };
@@ -123,7 +124,7 @@ export default function Header() {
             <MenuItem href="/sostener" icon={<HelpCircle size={16} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
             <MenuItem href="/mi-cuenta" icon={<User size={16} />} label="Mi Perfil" onClick={() => setShowMenu(false)} />
             {isMerchant && (
-              <MenuItem href="/perfil" icon={<MapIcon size={16} />} label="Mis comercios ✨" onClick={() => setShowMenu(false)} highlight />
+              <MenuItem href="/perfil" icon={<MapIcon size={16} />} label="MI PERFIL COMERCIAL ✨" onClick={() => setShowMenu(false)} highlight />
             )}
             <div style={{ height: '1px', background: '#f0f0f0', margin: '0.5rem 0' }} />
             {!isMerchant && (

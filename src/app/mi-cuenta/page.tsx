@@ -604,7 +604,7 @@ function MiCuentaContent() {
           h1 { font-size: 1.8rem !important; }
         }
         @media (min-width: 901px) {
-          .main-content { margin-left: 280px; }
+          .main-content { margin-left: 0; }
           .sidebar-dashboard { transform: none !important; }
         }
       `}</style>
