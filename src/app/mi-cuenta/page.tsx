@@ -554,7 +554,7 @@ function MiCuentaContent() {
           }
           .main-content {
              margin-left: 0 !important;
-             padding: 5rem 1rem !important; 
+             padding: 4.5rem 1rem 3rem !important; 
           }
           .referente-actions {
              margin-left: 0 !important;
