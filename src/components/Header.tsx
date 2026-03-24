@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store } from 'lucide-react';
+import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store, Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function Header() {
