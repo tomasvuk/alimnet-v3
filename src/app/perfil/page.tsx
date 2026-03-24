@@ -29,7 +29,9 @@ import {
   Fingerprint,
   Shield,
   Eye,
-  LogOut
+  LogOut,
+  Image as ImageIcon,
+  Palette
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
@@ -191,6 +193,7 @@ export default function MerchantProfilePage() {
               </div>
             </div>
 
+            {/* ESTADISTICAS */}
             <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
               {[
                 { label: 'Validaciones', value: merchant?.validation_count || '0', icon: ShieldCheck, color: '#5F7D4A' },
@@ -230,12 +233,29 @@ export default function MerchantProfilePage() {
                   </div>
                 </div>
               </div>
+              
+              {/* NUEVO BLOQUE DE RECURSOS DE MARCA */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                 <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1rem' }}>Reportes Mensuales</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.8rem 1rem', background: '#F8F9F5', borderRadius: '14px' }}>
-                       <span style={{ fontSize: '0.75rem', fontWeight: '850', color: '#3F5232' }}>Correo estadístico</span>
-                       <div onClick={() => setEmailStatsEnabled(!emailStatsEnabled)} style={{ width: '40px', height: '20px', background: emailStatsEnabled ? '#5F7D4A' : '#ccc', borderRadius: '20px', padding: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: emailStatsEnabled ? 'flex-end' : 'flex-start' }}><div style={{ width: '14px', height: '14px', background: 'white', borderRadius: '50%' }} /></div>
+                 <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '2px dashed #E4EBDD', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                       <Palette size={20} color="#5F7D4A" />
+                       <h3 style={{ fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20' }}>Recursos Alimnet</h3>
+                    </div>
+                    <p style={{ fontSize: '0.75rem', color: '#666', lineHeight: '1.5' }}>Descargá los recursos oficiales para que todos sepan que sos parte de la red.</p>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                       <button style={{ width: '100%', padding: '0.7rem 1rem', background: '#F8F9F5', border: '1px solid #E4EBDD', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A' }}>Logos Oficiales (Kit)</span>
+                          <Download size={14} color="#5F7D4A" />
+                       </button>
+                       <button style={{ width: '100%', padding: '0.7rem 1rem', background: '#F8F9F5', border: '1px solid #E4EBDD', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A' }}>Plantillas Historias IG</span>
+                          <ImageIcon size={14} color="#5F7D4A" />
+                       </button>
+                    </div>
+                    <div style={{ marginTop: '0.2rem', padding: '0.8rem', background: '#F0F4ED', borderRadius: '12px', border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                       <Instagram size={14} color="#5F7D4A" />
+                       <span style={{ fontSize: '0.65rem', fontWeight: '1000', color: '#2D3A20' }}>¡Mencionanos: @alimnet.ar!</span>
                     </div>
                  </div>
               </div>
@@ -337,7 +357,6 @@ export default function MerchantProfilePage() {
             <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Administrá tu cuenta y preferencias de seguridad.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-               {/* AJUSTES DE CUENTA */}
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#5F7D4A', marginBottom: '1.5rem' }}>
                      <Fingerprint size={20} />
@@ -359,7 +378,6 @@ export default function MerchantProfilePage() {
                   </div>
                </div>
 
-               {/* NOTIFICACIONES Y PRIVACIDAD */}
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#5F7D4A', marginBottom: '2rem' }}>
                      <Bell size={20} />
@@ -383,7 +401,6 @@ export default function MerchantProfilePage() {
                   </div>
                </div>
 
-               {/* ACCIONES DE RIESGO */}
                <div style={{ border: '1px solid #fee2e2', borderRadius: '24px', padding: '2rem', background: '#fef2f2' }}>
                   <h3 style={{ fontSize: '0.9rem', fontWeight: '950', color: '#dc2626', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><LogOut size={18} /> Zona de Peligro</h3>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -460,3 +477,4 @@ export default function MerchantProfilePage() {
   );
 }
 const isMicroMobile = false; // dummy for compilation
+const isMicroMobile_dummy = false; // duplicate for safety
