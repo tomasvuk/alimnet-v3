@@ -39,11 +39,11 @@ export default function MerchantProfilePage() {
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
 
   // Estados del Formulario (Completo)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     name: '',
     bio_short: '',
     bio_long: '',
-    type: 'Productor',
+    types: [], // Cambiamos a array para multiselección
     categories: '',
     whatsapp: '',
     email_public: '',
@@ -53,6 +53,13 @@ export default function MerchantProfilePage() {
     delivery_info: '',
     working_hours: ''
   });
+
+  const availableTypes = [
+    { id: 'Productor', label: 'Productor', sub: '🌿 Producción primaria' },
+    { id: 'Abastecedor', label: 'Abastecedor', sub: '🛒 Almacén, dietética, proveedor, distribución' },
+    { id: 'Restaurante', label: 'Restaurante', sub: '🍽️ Gastronomía con local' },
+    { id: 'Chef', label: 'Chef', sub: '👨‍🍳 A domicilio, eventos o freelance' }
+  ];
 
   useEffect(() => {
     const checkMobile = () => setIsMobileView(window.innerWidth <= 900);
@@ -74,11 +81,14 @@ export default function MerchantProfilePage() {
       
       if (mData && mData.length > 0) {
         setMerchant(mData[0]);
+        // Manejamos el tipo como array (si viene como string separado por comas, lo convertimos)
+        const dbTypes = mData[0].type ? (typeof mData[0].type === 'string' ? mData[0].type.split(',') : mData[0].type) : [];
+        
         setFormData({
           name: mData[0].name || '',
           bio_short: mData[0].bio_short || '',
           bio_long: mData[0].bio_long || '',
-          type: mData[0].type || 'Productor',
+          types: dbTypes,
           categories: mData[0].categories || '',
           whatsapp: mData[0].whatsapp || '',
           email_public: mData[0].email || '',
@@ -94,14 +104,26 @@ export default function MerchantProfilePage() {
           validation_count: 24,
           bio_short: 'Productores de hortalizas orgánicas y miel de monte.',
           website_url: 'https://linktr.ee/esperanza',
-          instagram_url: '@huerta_esperanza'
+          instagram_url: '@huerta_esperanza',
+          type: ['Productor', 'Abastecedor']
         });
+        setFormData((prev: any) => ({ ...prev, types: ['Productor', 'Abastecedor'] }));
       }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleType = (id: string) => {
+    setFormData((prev: any) => {
+      const current = prev.types || [];
+      const next = current.includes(id) 
+        ? current.filter((t: string) => t !== id)
+        : [...current, id];
+      return { ...prev, types: next };
+    });
   };
 
   const InputField = ({ label, value, onChange, placeholder = '', icon: Icon }: any) => (
@@ -193,33 +215,44 @@ export default function MerchantProfilePage() {
       case 'perfil':
         return (
           <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1rem' }}>Editar Perfil Público</h1>
-            <p style={{ color: '#666', marginBottom: '3rem' }}>Esta información es la que verán los consumidores en Alimnet.</p>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.03em' }}>Editar Perfil Público</h1>
+            <p style={{ color: '#666', marginBottom: '3rem' }}>Actualizá como te ve la comunidad cuidados de Alimnet.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                {/* 1. IDENTIDAD */}
                <div style={{ background: 'white', borderRadius: '40px', padding: '2.5rem', border: '1px solid #E4EBDD' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#5F7D4A', marginBottom: '2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#5F7D4A', marginBottom: '2.5rem' }}>
                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#5F7D4A' }} />
                      <h3 style={{ fontSize: '1.2rem', fontWeight: '950' }}>Identidad del Comercio</h3>
                   </div>
+                  
                   <InputField label="Nombre Oficial" value={formData.name} onChange={(v: string) => setFormData({...formData, name: v})} placeholder="Ej: Huerta La Esperanza" />
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1.5fr 1fr', gap: '1.5rem' }}>
-                     <InputField label="Descripción corta (1 línea)" value={formData.bio_short} onChange={(v: string) => setFormData({...formData, bio_short: v})} placeholder="Ej: Hortalizas orgánicas en las sierras" />
-                     <div style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.9rem' }}>Tipo de comercio</label>
-                        <select 
-                          value={formData.type} 
-                          onChange={(e) => setFormData({...formData, type: e.target.value})}
-                          style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1.5px solid #F0F4ED', outline: 'none', background: '#F8F9F5', fontWeight: '700', color: '#2D3A20' }}
-                        >
-                          <option>Productor</option>
-                          <option>Distribuidora</option>
-                          <option>Restaurante</option>
-                        </select>
-                     </div>
+                  
+                  <div style={{ marginBottom: '2.5rem' }}>
+                    <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '1rem', fontSize: '1rem' }}>Tipo de comercio (Podés elegir varios)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: '1rem' }}>
+                       {availableTypes.map(type => (
+                         <div 
+                           key={type.id}
+                           onClick={() => toggleType(type.id)}
+                           style={{ 
+                             padding: '1.2rem', borderRadius: '20px', border: '2px solid', 
+                             borderColor: formData.types?.includes(type.id) ? '#5F7D4A' : '#F0F4ED',
+                             background: formData.types?.includes(type.id) ? '#F0F4ED' : 'white', cursor: 'pointer',
+                             transition: 'all 0.2s', display: 'flex', flexDirection: 'column', gap: '4px'
+                           }}
+                         >
+                            <span style={{ fontWeight: '950', color: formData.types?.includes(type.id) ? '#2D3A20' : '#888', fontSize: '1.05rem' }}>{type.label}</span>
+                            <span style={{ fontSize: '0.75rem', color: '#999', fontWeight: '700' }}>{type.sub}</span>
+                         </div>
+                       ))}
+                    </div>
                   </div>
-                  <InputField label="Categorías" value={formData.categories} onChange={(v: string) => setFormData({...formData, categories: v})} placeholder="Ej: Verduras, Frutas, Miel" />
+
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1.5fr 1fr', gap: '1.5rem' }}>
+                     <InputField label="Descripción muy corta (1 línea)" value={formData.bio_short} onChange={(v: string) => setFormData({...formData, bio_short: v})} placeholder="Ej: Hortalizas orgánicas en las sierras" />
+                     <InputField label="Categorías" value={formData.categories} onChange={(v: string) => setFormData({...formData, categories: v})} placeholder="Ej: Verduras, Frutas, Miel" />
+                  </div>
                </div>
 
                {/* 2. LOGO Y GALERIA */}
@@ -232,10 +265,6 @@ export default function MerchantProfilePage() {
                      <div style={{ aspectRatio: '1', background: '#F8F9F5', borderRadius: '24px', border: '2px dashed #E4EBDD', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer' }}>
                         <Camera size={24} color="#A8C3A2" />
                         <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#A8C3A2' }}>Logo Oficial</span>
-                     </div>
-                     <div style={{ aspectRatio: '1', background: '#F8F9F5', borderRadius: '24px', border: '2px dashed #E4EBDD', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: 0.6 }}>
-                        <Plus size={24} color="#A8C3A2" />
-                        <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#A8C3A2' }}>Añadir Foto</span>
                      </div>
                   </div>
                </div>
@@ -321,22 +350,6 @@ export default function MerchantProfilePage() {
            {renderContent()}
         </div>
       </div>
-      {showChat && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.1)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '400px', borderRadius: '32px', boxShadow: '0 30px 60px rgba(0,0,0,0.2)', border: '1px solid #E4EBDD', overflow: 'hidden' }}>
-             <div style={{ background: '#2D3A20', padding: '1.8rem', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: '950' }}>Soporte Humano ✨</h4>
-                <button onClick={() => setShowChat(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><X size={22} /></button>
-             </div>
-             <div style={{ padding: '2rem', textAlign: 'center' }}>
-                <p style={{ color: '#666', fontSize: '0.9rem', lineHeight: '1.6' }}>¿Preferís hablar por WhatsApp?</p>
-                <button style={{ marginTop: '1.5rem', width: '100%', padding: '1.2rem', background: '#25D366', color: 'white', border: 'none', borderRadius: '16px', fontWeight: '950', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                   <MessageSquare size={18} fill="white" /> WHATSAPP SOPORTE
-                </button>
-             </div>
-          </div>
-        </div>
-      )}
       <style jsx>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
