@@ -251,7 +251,7 @@ function MiCuentaContent() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
             
             <div style={{ marginBottom: '1rem' }}>
-               <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
+               <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#2D3A20', margin: 0, marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
                <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
             </div>
 
@@ -310,8 +310,8 @@ function MiCuentaContent() {
         {activeTab === 'validaciones' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
             <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Mis Validaciones</h2>
-              <p style={{ color: '#888', fontWeight: '600' }}>Los proyectos que apoyaste con tu validación social.</p>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Mis Validaciones</h2>
+              <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los proyectos que apoyaste con tu validación social.</p>
             </div>
             
             {validatedMerchants.length > 0 ? (
@@ -363,8 +363,8 @@ function MiCuentaContent() {
         {activeTab === 'referentes' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Mis Referentes</h2>
-              <p style={{ color: '#888', fontWeight: '600' }}>Los guías en los que confiás para descubrir comida real.</p>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Mis Referentes</h2>
+              <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los guías en los que confiás para descubrir comida real.</p>
             </div>
             
             {/* REFERENTE 1: Carlos (Mockup Premium) */}
@@ -422,8 +422,8 @@ function MiCuentaContent() {
         {activeTab === 'favoritos' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
             <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Mis Guardados</h2>
-              <p style={{ color: '#888', fontWeight: '600' }}>Los proyectos que tenés planeado visitar pronto.</p>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Mis Guardados</h2>
+              <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los proyectos que tenés planeado visitar pronto.</p>
             </div>
             
             {/* Ejemplo de Guardado: Raíz Vivo 42 */}
@@ -475,8 +475,8 @@ function MiCuentaContent() {
         {activeTab === 'recientes' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20' }}>Vistos Recientemente</h2>
-              <p style={{ color: '#888', fontWeight: '600' }}>Los locales que exploraste en el mapa durante tu última sesión.</p>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Vistos Recientemente</h2>
+              <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los locales que exploraste en el mapa durante tu última sesión.</p>
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderLeft: '2px solid #E4EBDD', paddingLeft: '2rem', marginLeft: '1rem' }}>
@@ -575,7 +575,7 @@ function MiCuentaContent() {
           }
           .main-content {
              margin-left: 0 !important;
-             padding: 3.5rem 1rem 3rem !important; 
+             padding: 6.5rem 1rem 3rem !important; 
           }
           .referente-actions {
              margin-left: 0 !important;
