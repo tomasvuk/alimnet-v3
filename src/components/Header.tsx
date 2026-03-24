@@ -74,7 +74,7 @@ export default function Header() {
       width: '100%',
       height: '56px'
     }}>
-      {/* Brand Logo (IZQUIERDA) */}
+      {/* Brand Logo */}
       <div 
         onClick={() => window.location.href = '/'} 
         style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em", cursor: 'pointer' }}
@@ -82,10 +82,9 @@ export default function Header() {
         ALIMNET
       </div>
 
-      {/* Acciones (DERECHA) */}
+      {/* Acciones */}
       <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
         
-        {/* 1. EXPLORAR / MAPA (Preeminencia B2C) */}
         <button 
           onClick={() => window.location.href = '/explorar'}
           style={{ 
@@ -97,7 +96,6 @@ export default function Header() {
           {!isMobileView && <span>EXPLORAR</span>}
         </button>
 
-        {/* 2. PERSONITA / LOGIN */}
         {loading ? (
           <Loader2 className="animate-spin" size={18} color="#5F7D4A" />
         ) : !user ? (
@@ -116,7 +114,7 @@ export default function Header() {
           </div>
         )}
 
-        {/* 3. HAMBURGUESA */}
+        {/* HAMBURGUESA BOLD */}
         <button 
           onClick={() => setShowMenu(!showMenu)}
           style={{ 
@@ -125,36 +123,42 @@ export default function Header() {
             alignItems: 'center', cursor: 'pointer', width: '42px', height: '36px', justifyContent: 'center'
           }}
         >
-          <div style={{ width: showMenu ? '20px' : '12px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
-          <div style={{ width: '18px', height: '2px', background: '#2D3A20', borderRadius: '2px' }}></div>
-          <div style={{ width: showMenu ? '12px' : '20px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
+          <div style={{ width: showMenu ? '20px' : '15px', height: '2.5px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
+          <div style={{ width: '20px', height: '2.5px', background: '#2D3A20', borderRadius: '2px' }}></div>
+          <div style={{ width: showMenu ? '15px' : '20px', height: '2.5px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
         </button>
       </div>
 
-      {/* DROPDOWN HAMBURGUESA INFRAESTRUCTURA PREMIUM */}
+      {/* DROPDOWN JERÁRQUICO */}
       {showMenu && (
         <>
           <div onClick={() => setShowMenu(false)} style={{ position: 'fixed', inset: 0, zIndex: 4998 }} />
           <div style={{ 
             position: 'absolute', top: 'calc(100% + 10px)', right: '1.5rem', width: '280px', 
-            background: 'white', borderRadius: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.18)', 
-            padding: '1rem', zIndex: 4999, display: 'flex', flexDirection: 'column', gap: '0.4rem',
-            border: '1px solid rgba(0,0,0,0.05)',
-            transform: 'translateY(0)',
-            opacity: 1,
-            transition: 'all 0.2s ease-out'
+            background: 'white', borderRadius: '30px', boxShadow: '0 25px 60px rgba(0,0,0,0.15)', 
+            padding: '1.2rem 1rem', zIndex: 4999, display: 'flex', flexDirection: 'column', gap: '0.4rem',
+            border: '1px solid rgba(0,0,0,0.04)',
           }}>
-            {/* SECCION B2C (USUARIO FINAL) - MÁS VISIBLES/CLAROS */}
-            <MenuItem href="/" icon={<Home size={16} />} label="Home" onClick={() => setShowMenu(false)} />
-            <MenuItem href="/explorar" icon={<MapIcon size={16} />} label="Mapa de Alimentos" onClick={() => setShowMenu(false)} />
-            <MenuItem href="/mi-cuenta" icon={<User size={16} />} label="Mi Perfil de Usuario" onClick={() => setShowMenu(false)} />
-            <MenuItem href="/sostener" icon={<HelpCircle size={16} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
+            {/* 1. MI PERFIL (DESTACADO B2C) */}
+            <MenuItem 
+               href="/mi-cuenta" 
+               icon={<User size={18} />} 
+               label="Mi Perfil de Usuario" 
+               onClick={() => setShowMenu(false)} 
+               variant="button"
+            />
             
-            <div style={{ height: '1.5px', background: '#f8f9f5', margin: '0.6rem 0' }} />
+            {/* 2, 3, 4 (NORMALES) */}
+            <MenuItem href="/explorar" icon={<MapIcon size={18} />} label="Mapa de Alimentos" onClick={() => setShowMenu(false)} />
+            <MenuItem href="/sostener" icon={<HelpCircle size={18} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
+            <MenuItem href="/" icon={<Home size={18} />} label="Home" onClick={() => setShowMenu(false)} />
             
-            {/* SECCION B2B (COMERCIANTE) - UN SOLO RENGLÓN COMPACTO */}
-            <MenuItem href="/perfil" icon={<MapIcon size={16} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} highlight />
-            <MenuItem href="/registro-comercio" icon={<Plus size={16} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} highlight />
+            {/* LÍNEA DIVISORA SUTIL */}
+            <div style={{ height: '1.5px', background: '#F8F9F5', margin: '0.8rem 0.5rem' }} />
+            
+            {/* 5, 6 (COMERCIALES COLOR DESTACADO / SIN BOTÓN) */}
+            <MenuItem href="/perfil" icon={<MapIcon size={18} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} variant="text-only" />
+            <MenuItem href="/registro-comercio" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="text-only" />
             
           </div>
         </>
@@ -163,22 +167,27 @@ export default function Header() {
   );
 }
 
-function MenuItem({ href, icon, label, onClick, highlight = false }: { href: string, icon: any, label: string, onClick: () => void, highlight?: boolean }) {
+function MenuItem({ href, icon, label, onClick, variant = 'normal' }: { href: string, icon: any, label: string, onClick: () => void, variant?: 'normal' | 'button' | 'text-only' }) {
+  const isButton = variant === 'button';
+  const isTextOnly = variant === 'text-only';
+  
   return (
     <a 
       href={href} 
       onClick={onClick}
       style={{ 
-        display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', 
-        borderRadius: '16px', textDecoration: 'none', color: highlight ? '#5F7D4A' : '#2D3A20', 
-        fontWeight: highlight ? '950' : '750', fontSize: highlight ? '0.78rem' : '0.82rem', 
-        transition: 'all 0.2s',
-        background: highlight ? 'rgba(95, 125, 74, 0.05)' : 'transparent',
-        whiteSpace: 'nowrap', // FUERZA UN SOLO RENGLON
-        letterSpacing: highlight ? '0.02em' : 'normal'
+        display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 18px', 
+        borderRadius: '18px', textDecoration: 'none', 
+        color: (isButton || isTextOnly) ? '#5F7D4A' : '#2D3A20', 
+        fontWeight: (isButton || isTextOnly) ? '950' : '850', 
+        fontSize: '0.85rem', transition: 'all 0.2s',
+        background: isButton ? '#F0F4ED' : 'transparent',
+        whiteSpace: 'nowrap',
+        letterSpacing: (isButton || isTextOnly) ? '0.02em' : 'normal'
       }}
     >
-      {icon} {label}
+      {React.cloneElement(icon, { size: 18, strokeWidth: (isButton || isTextOnly) ? 2.5 : 2 })} 
+      {label}
     </a>
   );
 }
