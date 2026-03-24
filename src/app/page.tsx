@@ -31,7 +31,6 @@ export default function Home() {
         zIndex: 100
       }}>
         <div style={{ fontSize: "1.55rem", fontWeight: "950", color: "var(--primary-dark)", letterSpacing: "-0.05em", display: "flex", alignItems: "center", gap: "8px" }}>
-          <Leaf size={28} className="text-primary" fill="var(--primary)" fillOpacity={0.25} />
           ALIMNET
         </div>
         <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>

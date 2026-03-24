@@ -173,7 +173,6 @@ function MiCuentaContent() {
         <div 
           onClick={() => window.location.href = '/'}
           style={{ cursor: 'pointer', fontWeight: '950', fontSize: '1.4rem', color: '#5F7D4A', letterSpacing: '0.05em' }}
-          className="mobile-only"
         >
           ALIMNET
         </div>
@@ -277,7 +276,7 @@ function MiCuentaContent() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
             
             <div style={{ marginBottom: '1rem' }}>
-               <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#2D3A20', margin: 0, marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
+               <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0, marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
                <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
             </div>
 
@@ -292,7 +291,7 @@ function MiCuentaContent() {
               <div onClick={() => handleTabChange('validaciones')} style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
                 <div style={{ color: '#5F7D4A', display: 'flex' }}><ShieldCheck size={22} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.validations}</span>
+                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.validations}</span>
                   <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="stat-label">VALIDACIONES</span>
                 </div>
               </div>
@@ -300,15 +299,15 @@ function MiCuentaContent() {
               <div onClick={() => handleTabChange('referentes')} style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
                 <div style={{ color: '#8EA87D', display: 'flex' }}><Users size={22} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.referents}</span>
+                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.referents}</span>
                   <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="stat-label">REFERENTES</span>
                 </div>
               </div>
 
               <div onClick={() => handleTabChange('favoritos')} style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
-                <div style={{ color: '#2D3A20', display: 'flex' }}><Star size={22} /></div>
+                <div style={{ color: '#5F7D4A', display: 'flex' }}><Star size={22} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.saved}</span>
+                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.saved}</span>
                   <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="stat-label">GUARDADOS</span>
                 </div>
               </div>
@@ -316,7 +315,7 @@ function MiCuentaContent() {
               <div onClick={() => handleTabChange('recientes')} style={{ background: 'white', padding: '1rem 1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
                 <div style={{ color: '#B8C6B1', display: 'flex' }}><History size={22} /></div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20' }}>{counts.recent}</span>
+                  <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.recent}</span>
                   <span style={{ color: '#888', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} className="stat-label">RECIENTES</span>
                 </div>
               </div>
@@ -324,7 +323,7 @@ function MiCuentaContent() {
 
             {/* Activity Timeline Placeholder - Full Width */}
             <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', width: '100%', minHeight: '300px' }}>
-               <h3 style={{ fontSize: '1.1rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1.5rem' }}>Actividad Reciente</h3>
+               <h3 style={{ fontSize: '1.1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Actividad Reciente</h3>
                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', color: '#888' }}>
                  <p style={{ fontWeight: '700', fontSize: '0.9rem' }}>Aquí aparecerán tus últimas validaciones y descubrimientos.</p>
                </div>
@@ -335,7 +334,7 @@ function MiCuentaContent() {
         {activeTab === 'validaciones' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
             <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Mis Validaciones</h2>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Validaciones</h2>
               <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los proyectos que apoyaste con tu validación social.</p>
             </div>
             
@@ -359,7 +358,7 @@ function MiCuentaContent() {
                     <div style={{ padding: '4px 10px', background: '#2D3A20', color: 'white', borderRadius: '8px', fontSize: '0.6rem', fontWeight: '900' }}>{m.type?.split(',')[0]}</div>
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>{m.name}</h3>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '4px' }}>{m.name}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#888', fontSize: '0.8rem', fontWeight: '700' }}>
                       <MapPin size={14} /> {m.locations?.[0]?.locality || 'Zona Norte'}
                     </div>
@@ -372,7 +371,7 @@ function MiCuentaContent() {
             ) : (
               <div style={{ gridColumn: '1 / -1', padding: '5rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
                 <Heart size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
-                <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Aún no has validado ningún proyecto</h3>
+                <h3 style={{ fontWeight: '950', color: '#5F7D4A' }}>Aún no has validado ningún proyecto</h3>
                 <p style={{ color: '#888', marginTop: '1rem' }}>Explorá el mapa y validá a tus productores de confianza.</p>
                 <button 
                   onClick={() => window.location.href = '/explorar'} 
@@ -388,7 +387,7 @@ function MiCuentaContent() {
         {activeTab === 'referentes' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Mis Referentes</h2>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Referentes</h2>
               <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los guías en los que confiás para descubrir comida real.</p>
             </div>
             
@@ -400,7 +399,7 @@ function MiCuentaContent() {
                     <User size={32} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Carlos Prueba</h3>
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Carlos Prueba</h3>
                     <p style={{ color: '#5F7D4A', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>MIEMBRO FUNDADOR</p>
                   </div>
                 </div>
@@ -411,7 +410,7 @@ function MiCuentaContent() {
               </div>
 
               <div style={{ background: '#F8F9F5', padding: '1.2rem', borderRadius: '24px' }}>
-                <p style={{ fontSize: '0.85rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <p style={{ fontSize: '0.85rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   ÚLTIMAS VALIDACIONES DE CARLOS:
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
@@ -422,7 +421,7 @@ function MiCuentaContent() {
                         <ShieldCheck size={18} />
                       </div>
                       <div>
-                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '950', color: '#2D3A20' }}>{loc}</p>
+                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '950', color: '#5F7D4A' }}>{loc}</p>
                         <p style={{ margin: 0, fontSize: '0.7rem', color: '#888', fontWeight: '700' }}>Agroecológico</p>
                       </div>
                     </div>
@@ -434,7 +433,7 @@ function MiCuentaContent() {
             {/* BUSCADOR DE REFERENTES */}
             <div style={{ padding: '2rem 1.5rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
                <Users size={40} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
-               <h3 style={{ fontWeight: '950', color: '#2D3A20', fontSize: '1.1rem' }}>Descubrí nuevos Referentes</h3>
+               <h3 style={{ fontWeight: '950', color: '#5F7D4A', fontSize: '1.1rem' }}>Descubrí nuevos Referentes</h3>
                <p style={{ color: '#888', marginTop: '0.5rem', fontSize: '0.9rem' }}>Seguí a las personas cuya confianza alimentaria te inspire.</p>
                <div style={{ maxWidth: '400px', margin: '2rem auto 0', position: 'relative' }}>
                  <input type="text" placeholder="Buscar por nombre o ciudad..." style={{ width: '100%', padding: '1rem 1.5rem 1rem 3rem', borderRadius: '16px', border: '1.5px solid #E4EBDD', fontSize: '0.9rem', outline: 'none' }} />
@@ -447,7 +446,7 @@ function MiCuentaContent() {
         {activeTab === 'favoritos' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
             <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Mis Guardados</h2>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Guardados</h2>
               <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los proyectos que tenés planeado visitar pronto.</p>
             </div>
             
@@ -468,7 +467,7 @@ function MiCuentaContent() {
                 <div style={{ padding: '4px 10px', background: '#5F7D4A', color: 'white', borderRadius: '8px', fontSize: '0.6rem', fontWeight: '900' }}>PROYECTO</div>
               </div>
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '4px' }}>Raíz Vivo 42</h3>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '4px' }}>Raíz Vivo 42</h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#888', fontSize: '0.8rem', fontWeight: '700' }}>
                   <MapPin size={14} /> Escobar, Prov. Buenos Aires
                 </div>
@@ -485,11 +484,11 @@ function MiCuentaContent() {
             {/* SECCIÓN VACÍA MÁS ABAJO */}
             <div style={{ gridColumn: '1 / -1', padding: '5rem', textAlign: 'center', border: '1px dashed #E4EBDD', borderRadius: '32px' }}>
                 <History size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
-                <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>¿Todavía no encontraste tu próximo destino?</h3>
+                <h3 style={{ fontWeight: '950', color: '#5F7D4A' }}>¿Todavía no encontraste tu próximo destino?</h3>
                 <p style={{ color: '#888', marginTop: '1rem' }}>Explorá el mapa y guardá los proyectos con el ícono de estrella.</p>
                 <button 
                   onClick={() => window.location.href = '/explorar'} 
-                  style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '800', cursor: 'pointer' }}
+                  style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '800', cursor: 'pointer' }}
                 >
                   Ir al Mapa
                 </button>
@@ -500,7 +499,7 @@ function MiCuentaContent() {
         {activeTab === 'recientes' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>Vistos Recientemente</h2>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Vistos Recientemente</h2>
               <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los locales que exploraste en el mapa durante tu última sesión.</p>
             </div>
             
