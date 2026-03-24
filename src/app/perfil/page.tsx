@@ -7,7 +7,7 @@ import {
   MessageSquare, 
   BarChart3, 
   Loader2,
-  Map as MapIcon,
+  MapPin,
   Clock,
   ShieldCheck,
   Instagram,
@@ -49,6 +49,7 @@ export default function MerchantProfilePage() {
     email_public: '',
     instagram_url: '',
     website_url: '',
+    google_maps_url: '', // Nuevo campo
     locality: '',
     delivery_info: '',
     working_hours: ''
@@ -93,6 +94,7 @@ export default function MerchantProfilePage() {
           email_public: mData[0].email || '',
           instagram_url: mData[0].instagram_url || '',
           website_url: mData[0].website_url || '',
+          google_maps_url: mData[0].google_maps_url || '',
           locality: mData[0].locations?.[0]?.locality || '',
           delivery_info: mData[0].delivery_info || '',
           working_hours: mData[0].working_hours || ''
@@ -104,9 +106,14 @@ export default function MerchantProfilePage() {
           bio_short: 'Productores de hortalizas orgánicas y miel de monte.',
           website_url: 'https://linktr.ee/esperanza',
           instagram_url: '@huerta_esperanza',
+          google_maps_url: 'https://goo.gl/maps/example',
           type: ['Productor']
         });
-        setFormData((prev: any) => ({ ...prev, types: ['Productor'] }));
+        setFormData((prev: any) => ({ 
+          ...prev, 
+          types: ['Productor'],
+          google_maps_url: 'https://goo.gl/maps/example'
+        }));
       }
     } catch (err) {
       console.error(err);
@@ -190,6 +197,11 @@ export default function MerchantProfilePage() {
                        <h4 style={{ fontSize: '1.2rem', fontWeight: '1000', color: '#2D3A20', marginTop: '1rem', marginBottom: '0.3rem' }}>{merchant?.name}</h4>
                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#5F7D4A', fontSize: '0.75rem', fontWeight: '900' }}><ShieldCheck size={14} fill="#5F7D4A" color="white" /> {merchant?.validation_count} Validaciones</div>
                        <p style={{ color: '#666', fontSize: '0.75rem', marginTop: '0.8rem', lineHeight: '1.4' }}>{merchant?.bio_short}</p>
+                       <div style={{ display: 'flex', gap: '8px', marginTop: '1.2rem' }}>
+                          <Instagram size={16} color="#A8C3A2" />
+                          <ExternalLink size={16} color="#A8C3A2" />
+                          <MapPin size={16} color="#A8C3A2" />
+                       </div>
                     </div>
                   </div>
                 </div>
@@ -243,13 +255,12 @@ export default function MerchantProfilePage() {
                </div>
 
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Contacto</h3>
+                  <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Redes y Contacto</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: '1.2rem' }}>
                      <InputField label="WhatsApp" icon={Send} value={formData.whatsapp} onChange={(v: string) => setFormData({...formData, whatsapp: v})} placeholder="+54 9..." />
                      <InputField label="Instagram" icon={Instagram} value={formData.instagram_url} onChange={(v: string) => setFormData({...formData, instagram_url: v})} placeholder="@usuario" />
-                     <div style={{ gridColumn: isMobileView ? 'auto' : 'span 2' }}>
-                        <InputField label="Web / Linktree" icon={Globe} value={formData.website_url} onChange={(v: string) => setFormData({...formData, website_url: v})} placeholder="https://..." />
-                     </div>
+                     <InputField label="Web / Linktree" icon={Globe} value={formData.website_url} onChange={(v: string) => setFormData({...formData, website_url: v})} placeholder="https://..." />
+                     <InputField label="Enlace Google Maps" icon={MapPin} value={formData.google_maps_url} onChange={(v: string) => setFormData({...formData, google_maps_url: v})} placeholder="https://goo.gl/maps/..." />
                   </div>
                </div>
 
