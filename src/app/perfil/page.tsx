@@ -535,7 +535,7 @@ export default function MerchantProfilePage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column', paddingTop: '56px' }}>
       
       <Header />
 

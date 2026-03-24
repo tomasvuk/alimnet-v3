@@ -47,8 +47,9 @@ export default function Header() {
       alignItems: "center",
       borderBottom: "1px solid #E4EBDD",
       background: "#F4F1E6", 
-      position: "sticky",
+      position: "fixed",
       top: 0,
+      left: 0,
       zIndex: 5000,
       width: '100%',
       height: '56px'

@@ -201,7 +201,7 @@ function MiCuentaContent() {
   if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>;
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F8F9F5', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F8F9F5', overflow: 'hidden', paddingTop: '56px' }}>
       
       <Header />
 

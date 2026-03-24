@@ -651,7 +651,7 @@ export default function ExplorarPage() {
         background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
         position: isMobile ? 'fixed' : 'sticky',
-        top: isMobile ? '52px' : 0, 
+        top: '56px', 
         left: isMobile ? 0 : undefined,
         right: isMobile ? 0 : undefined,
         zIndex: 900,
