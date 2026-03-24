@@ -1,25 +1,37 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { LogIn, User, Map as MapIcon, HelpCircle, Loader2 } from 'lucide-react';
+import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [isMerchant, setIsMerchant] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        
+        // 1. Perfil
         const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, last_name, avatar_url')
-          .eq('user_id', user.id)
+          .select('*')
+          .eq('user_id', session.user.id)
           .single();
         if (profile) setProfile(profile);
+
+        // 2. ¿Es mercante?
+        const { data: mData } = await supabase
+          .from('merchants')
+          .select('id')
+          .eq('owner_id', session.user.id)
+          .single();
+        if (mData) setIsMerchant(true);
       }
       setLoading(false);
     };
@@ -28,93 +40,122 @@ export default function Header() {
 
   return (
     <header style={{ 
-      padding: "1rem 2rem", 
+      padding: "0.6rem 1.5rem", 
       display: "flex", 
       justifyContent: "space-between", 
       alignItems: "center",
       borderBottom: "1px solid #E4EBDD",
-      background: "rgba(255, 255, 255, 0.9)",
-      backdropFilter: "blur(10px)",
+      background: "#F4F1E6", 
       position: "sticky",
       top: 0,
-      zIndex: 100,
-      width: '100%'
+      zIndex: 5000,
+      width: '100%',
+      height: '56px'
     }}>
-      {/* Brand Logo */}
+      {/* Brand Logo (IZQUIERDA) */}
       <div 
         onClick={() => window.location.href = '/'} 
-        style={{ fontSize: "1.55rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em", cursor: 'pointer' }}
+        style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em", cursor: 'pointer' }}
       >
         ALIMNET
       </div>
 
-      {/* Main Navigation */}
-      <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }} className="desktop-only">
-        <a href="/explorar" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", color: '#666', fontWeight: '800', textDecoration: 'none' }}><MapIcon size={16} /> Explorar</a>
-        <a href="/sostener" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", color: '#666', fontWeight: '800', textDecoration: 'none' }}><HelpCircle size={16} /> Sostener Alimnet</a>
-        <a href="/#como-funciona" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", color: '#666', fontWeight: '800', textDecoration: 'none' }}>¿Cómo funciona?</a>
-      </nav>
+      {/* Acciones (DERECHA) */}
+      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+        
+        {/* 1. EXPLORAR / MAPA */}
+        <button 
+          onClick={() => window.location.href = '/explorar'}
+          style={{ 
+            display: 'flex', alignItems: 'center', gap: '8px', background: 'transparent', 
+            border: 'none', cursor: 'pointer', color: '#5F7D4A', fontWeight: '850', fontSize: '0.8rem'
+          }}
+        >
+          <MapIcon size={18} />
+          <span className="desktop-only">EXPLORAR</span>
+        </button>
 
-      {/* User Actions / Avatar */}
-      <div style={{ display: "flex", gap: "0.8rem", alignItems: "center" }}>
+        {/* 2. PERSONITA / LOGIN */}
         {loading ? (
-          <Loader2 className="animate-spin" size={20} color="#5F7D4A" />
-        ) : user ? (
-          <div 
-            onClick={() => window.location.href = '/mi-cuenta'}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer',
-              padding: '6px 12px', borderRadius: '50px', border: '1px solid #E4EBDD',
-              background: 'white', transition: 'all 0.3s'
-            }}
-            className="header-avatar-btn"
+          <Loader2 className="animate-spin" size={18} color="#5F7D4A" />
+        ) : !user ? (
+          <button 
+            onClick={() => window.location.href = '/login'} 
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '12px', border: '1.5px solid #5F7D4A', background: 'transparent', color: '#5F7D4A', fontWeight: '900', cursor: 'pointer', fontSize: '0.75rem' }}
           >
-            <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#2D3A20' }} className="desktop-only">
-              {profile?.first_name || user.email?.split('@')[0]}
-            </span>
-            <div style={{ 
-              width: '32px', height: '32px', borderRadius: '50%', background: '#F0F4ED',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
-              border: '1.5px solid #5F7D4A', overflow: 'hidden'
-            }}>
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <User size={18} />
-              )}
-            </div>
-          </div>
+            INGRESAR
+          </button>
         ) : (
-          <>
-            <button 
-              onClick={() => window.location.href = '/login'}
-              style={{ color: "#2D3A20", fontWeight: "750", background: "none", border: "none", padding: "0.4rem 0.8rem", cursor: "pointer", fontSize: "0.85rem" }}
-            >
-              Ingresar
-            </button>
-            <button 
-              onClick={() => window.location.href = '/registro'}
-              style={{ 
-                padding: "0.65rem 1.5rem", borderRadius: "14px", fontSize: "0.85rem",
-                background: '#5F7D4A', color: 'white', border: 'none', fontWeight: '900',
-                cursor: 'pointer', boxShadow: '0 8px 16px rgba(95, 125, 74, 0.2)'
-              }}
-            >
-              Crear cuenta
-            </button>
-          </>
+          <div 
+            onClick={() => window.location.href = '/mi-cuenta'} 
+            style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5F7D4A', border: '1px solid #E4EBDD' }}
+          >
+            <User size={20} />
+          </div>
         )}
+
+        {/* 3. HAMBURGUESA */}
+        <button 
+          onClick={() => setShowMenu(!showMenu)}
+          style={{ 
+            background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
+            padding: '10px', display: 'flex', flexDirection: 'column', gap: '4px',
+            alignItems: 'center', cursor: 'pointer', width: '42px', height: '36px', justifyContent: 'center'
+          }}
+        >
+          <div style={{ width: showMenu ? '20px' : '12px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
+          <div style={{ width: '18px', height: '2px', background: '#2D3A20', borderRadius: '2px' }}></div>
+          <div style={{ width: showMenu ? '12px' : '20px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.3s' }}></div>
+        </button>
       </div>
 
+      {/* DROPDOWN HAMBURGUESA */}
+      {showMenu && (
+        <>
+          <div onClick={() => setShowMenu(false)} style={{ position: 'fixed', inset: 0, zIndex: 4998 }} />
+          <div style={{ 
+            position: 'absolute', top: 'calc(100% + 10px)', right: '1.5rem', width: '240px', 
+            background: 'white', borderRadius: '24px', boxShadow: '0 15px 50px rgba(0,0,0,0.15)', 
+            padding: '1rem', zIndex: 4999, display: 'flex', flexDirection: 'column', gap: '0.5rem',
+            border: '1px solid rgba(0,0,0,0.05)', animation: 'slideDown 0.2s ease-out'
+          }}>
+            <MenuItem href="/" icon={<Home size={16} />} label="Home" onClick={() => setShowMenu(false)} />
+            <MenuItem href="/sostener" icon={<HelpCircle size={16} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
+            <MenuItem href="/mi-cuenta" icon={<User size={16} />} label="Mi Perfil" onClick={() => setShowMenu(false)} />
+            {isMerchant && (
+              <MenuItem href="/perfil" icon={<MapIcon size={16} />} label="Mis comercios ✨" onClick={() => setShowMenu(false)} highlight />
+            )}
+            <div style={{ height: '1px', background: '#f0f0f0', margin: '0.5rem 0' }} />
+            {!isMerchant && (
+              <MenuItem href="/unirse" icon={<LogIn size={16} />} label="Sumar mi comercio" onClick={() => setShowMenu(false)} />
+            )}
+          </div>
+        </>
+      )}
+
       <style jsx>{`
-        .header-avatar-btn:hover {
-          border-color: #5F7D4A;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        @media (max-width: 768px) {
-          .desktop-only { display: none !important; }
-        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .desktop-only { display: none !important; } }
       `}</style>
     </header>
+  );
+}
+
+function MenuItem({ href, icon, label, onClick, highlight = false }: { href: string, icon: any, label: string, onClick: () => void, highlight?: boolean }) {
+  return (
+    <a 
+      href={href} 
+      onClick={onClick}
+      style={{ 
+        display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', 
+        borderRadius: '16px', textDecoration: 'none', color: highlight ? 'var(--primary)' : '#2D3A20', 
+        fontWeight: highlight ? '900' : '750', fontSize: '0.85rem', transition: 'all 0.2s',
+        background: highlight ? 'rgba(95, 125, 74, 0.05)' : 'transparent'
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
+      onMouseLeave={(e) => e.currentTarget.style.background = highlight ? 'rgba(95, 125, 74, 0.05)' : 'transparent'}
+    >
+      {icon} {label}
+    </a>
   );
 }

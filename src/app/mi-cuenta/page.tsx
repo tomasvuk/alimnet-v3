@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import Header from '@/components/Header';
 
 // --- Opciones de Configuración ---
 const PRODUCTION_OPTIONS = ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable', 'Pastura'];
@@ -42,7 +43,16 @@ function MiCuentaContent() {
     delivery_pref: 'Retiro y Entrega',
     production_interest: [] as string[]
   });
+  const [merchantFormData, setMerchantFormData] = useState<any>({
+    name: '',
+    bio_short: '',
+    bio_long: '',
+    instagram_url: '',
+    whatsapp: '',
+    preferred_contact_channel: 'whatsapp'
+  });
   const [validatedMerchants, setValidatedMerchants] = useState<any[]>([]);
+  const [merchantData, setMerchantData] = useState<any>(null); // Datos del emprendimiento si es dueño
   const [showSidebar, setShowSidebar] = useState(false);
   const [counts, setCounts] = useState({
     validations: 0,
@@ -122,11 +132,63 @@ function MiCuentaContent() {
         setValidatedMerchants(vData.map((v: any) => v.merchants).filter(Boolean));
       }
 
+      // --- 3. DETECTAR SI ES PRODUCTOR ---
+      const { data: mData } = await supabase
+        .from('merchants')
+        .select('*')
+        .eq('owner_id', user.id)
+        .single();
+      
+      if (mData) {
+        setMerchantData(mData);
+        setMerchantFormData({
+          name: mData.name || '',
+          bio_short: mData.bio_short || '',
+          bio_long: mData.bio_long || '',
+          instagram_url: mData.instagram_url || '',
+          whatsapp: mData.whatsapp || '',
+          preferred_contact_channel: mData.preferred_contact_channel || 'whatsapp'
+        });
+      }
+
     } catch (err) { console.error(err); } finally { setLoading(false); }
+  };
+
+  const handleSaveMerchant = async () => {
+    if (!merchantData) return;
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      const { error } = await supabase
+        .from('merchants')
+        .update({
+          name: merchantFormData.name,
+          bio_short: merchantFormData.bio_short,
+          bio_long: merchantFormData.bio_long,
+          instagram_url: merchantFormData.instagram_url,
+          whatsapp: merchantFormData.whatsapp,
+          preferred_contact_channel: merchantFormData.preferred_contact_channel,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', merchantData.id);
+
+      if (error) throw error;
+      
+      setMerchantData({ ...merchantData, ...merchantFormData });
+      setMessage({ type: 'success', text: '¡Cambios guardados con éxito! 🎉' });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err: any) {
+      console.error(err);
+      setMessage({ type: 'error', text: 'Error al guardar cambios: ' + err.message });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const menuItems = [
     { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
+    ...(merchantData ? [{ id: 'mi-emprendimiento', label: 'Mi Emprendimiento', icon: Package }] : []),
     { id: 'perfil', label: 'Mi Perfil', icon: User },
     { id: 'validaciones', label: 'Validaciones', icon: ShieldCheck },
     { id: 'referentes', label: 'Referentes', icon: Users },
@@ -139,81 +201,44 @@ function MiCuentaContent() {
   if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>;
 
   return (
-    <div style={{ height: '100vh', display: 'flex', background: '#F8F9F5', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F8F9F5', overflow: 'hidden' }}>
       
-      <div style={{ 
-        position: 'fixed', top: '25px', left: '25px', zIndex: 100, 
-        display: 'flex', alignItems: 'center', gap: '15px' 
-      }} className="mobile-only">
-        <button 
-          onClick={() => setShowSidebar(!showSidebar)}
+      <Header />
+
+      <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
+        
+        {/* SIDEBAR IZQUIERDA */}
+        <aside 
           style={{ 
-            background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
-            padding: '12px 10px', 
-            flexDirection: 'column',
-            gap: '5px',
-            alignItems: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-            width: '45px', justifyContent: 'center', display: 'flex'
+            width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', 
+            display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem',
+            zIndex: 90,
+            height: 'calc(100vh - 56px)',
+            transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
+          className={`sidebar-dashboard ${showSidebar ? 'open' : ''}`}
         >
-          <div style={{ width: showSidebar ? '28px' : '15px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
-          <div style={{ width: '22px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
-          <div style={{ width: showSidebar ? '15px' : '30px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
-        </button>
-
-        <div 
-          onClick={() => window.location.href = '/'}
-          style={{ cursor: 'pointer', fontWeight: '950', fontSize: '1.4rem', color: '#5F7D4A', letterSpacing: '0.05em' }}
-        >
-          ALIMNET
-        </div>
-      </div>
-
-      <button 
-        onClick={() => window.location.href = '/explorar'} 
-        style={{ 
-          position: 'fixed', top: '25px', right: '25px', zIndex: 100, 
-          background: 'white', border: '1px solid #E4EBDD', borderRadius: '16px', 
-          padding: '10px 15px', display: 'flex', alignItems: 'center', gap: '8px', 
-          cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-          fontWeight: '950', fontSize: '0.8rem', color: '#5F7D4A'
-        }}
-        className="explorar-fixed"
-      >
-        <MapIcon size={18} /> Explorar
-      </button>
-
-      {/* SIDEBAR IZQUIERDA */}
-      <aside 
-        style={{ 
-          width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', 
-          display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem',
-          zIndex: 90,
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          height: '100vh',
-          boxShadow: 'none',
-          transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}
-        className={`sidebar-dashboard ${showSidebar ? 'open' : ''}`}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingTop: '4rem' }}>
-          <div onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
-            <span style={{ fontWeight: '950', fontSize: '1.4rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>
-              {profile ? `${profile.first_name} ${profile.last_name || ''}` : 'Tomas Vukojicic'}
-            </span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontWeight: '950', fontSize: '1.2rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>
+                {profile ? `${profile.first_name} ${profile.last_name || ''}` : 'Tomas Vukojicic'}
+              </span>
+              {merchantData && (
+                <span style={{ fontSize: '0.6rem', fontWeight: '950', color: '#5F7D4A', background: '#F0F4ED', padding: '4px 8px', borderRadius: '6px', width: 'fit-content', marginTop: '4px' }}>
+                  PRODUCTOR ALIMNET
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {menuItems.map(item => (
             <button 
               key={item.id}
               onClick={() => { 
                 if (item.id === 'sostener') { window.location.href = '/sostener'; return; }
                 if (item.id === 'logout') { supabase.auth.signOut().then(() => window.location.href = '/'); return; }
+                if (item.id === 'mi-emprendimiento') { window.location.href = '/perfil'; return; }
                 handleTabChange(item.id); 
                 setShowSidebar(false); 
               }}
@@ -419,6 +444,134 @@ function MiCuentaContent() {
             </div>
           )}
 
+          {activeTab === 'mi-emprendimiento' && merchantData && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Gestión de Mi Proyecto</h2>
+                <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Actualizá la información de tu emprendimiento para la comunidad.</p>
+              </div>
+
+              <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '22px', background: 'rgba(95, 125, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A' }}>
+                      <Package size={32} />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>{merchantData.name}</h3>
+                      <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: '850', background: '#2D3A20', color: 'white', padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>{merchantData.type?.split(',')[0]}</span>
+                        <span style={{ fontSize: '0.65rem', fontWeight: '850', background: '#F0F4ED', color: '#5F7D4A', padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>{merchantData.status}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A' }}>{merchantData.validation_count}</div>
+                    <div style={{ fontSize: '0.65rem', fontWeight: '800', color: '#888', textTransform: 'uppercase' }}>Validaciones Reales</div>
+                  </div>
+                </div>
+
+                <hr style={{ border: 'none', height: '1px', background: '#E4EBDD', margin: '1rem 0' }} />
+
+                {/* FORMULARIO SIMPLE */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Nombre del Proyecto</label>
+                      <input 
+                        type="text" 
+                        value={merchantFormData.name}
+                        onChange={(e) => setMerchantFormData({...merchantFormData, name: e.target.value})}
+                        style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Instagram (sin @)</label>
+                      <div style={{ position: 'relative' }}>
+                        <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#888', fontWeight: '600' }}>@</span>
+                        <input 
+                          type="text" 
+                          value={merchantFormData.instagram_url}
+                          onChange={(e) => setMerchantFormData({...merchantFormData, instagram_url: e.target.value})}
+                          style={{ width: '100%', padding: '1rem 1rem 1rem 2rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Descripción Corta (Max 80 caracteres)</label>
+                    <input 
+                      type="text" 
+                      value={merchantFormData.bio_short}
+                      onChange={(e) => setMerchantFormData({...merchantFormData, bio_short: e.target.value})}
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Historia Completa</label>
+                    <textarea 
+                      rows={4}
+                      value={merchantFormData.bio_long}
+                      onChange={(e) => setMerchantFormData({...merchantFormData, bio_long: e.target.value})}
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600', resize: 'none' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>WhatsApp (Formato: 1122334455)</label>
+                      <input 
+                        type="text" 
+                        value={merchantFormData.whatsapp}
+                        onChange={(e) => setMerchantFormData({...merchantFormData, whatsapp: e.target.value})}
+                        style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Punto de contacto preferido</label>
+                      <select 
+                        value={merchantFormData.preferred_contact_channel}
+                        onChange={(e) => setMerchantFormData({...merchantFormData, preferred_contact_channel: e.target.value})}
+                        style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                      >
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="email">Email</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {message && (
+                    <div style={{ 
+                      padding: '1rem', borderRadius: '12px', 
+                      background: message.type === 'success' ? 'rgba(95, 125, 74, 0.1)' : 'rgba(255, 0, 0, 0.05)',
+                      color: message.type === 'success' ? '#5F7D4A' : '#D32F2F',
+                      fontWeight: '700', fontSize: '0.9rem', textAlign: 'center'
+                    }}>
+                      {message.text}
+                    </div>
+                  )}
+
+                  <button 
+                    onClick={handleSaveMerchant}
+                    disabled={saving}
+                    style={{ 
+                      marginTop: '1rem', padding: '1.2rem', borderRadius: '20px', border: 'none', 
+                      background: saving ? '#888' : '#2D3A20', color: 'white', fontWeight: '950', fontSize: '1rem',
+                      cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 10px 25px rgba(45, 58, 32, 0.2)', transition: 'all 0.3s',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                    }}
+                  >
+                    {saving ? <Loader2 className="animate-spin" size={20} /> : null}
+                    {saving ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {['perfil', 'configuracion'].includes(activeTab) && (
             <div style={{ background: 'white', padding: '4rem', borderRadius: '32px', border: '1px solid #E4EBDD', textAlign: 'center' }}>
               <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Próximamente: {activeTab.toUpperCase()}</h3>
@@ -455,6 +608,7 @@ function MiCuentaContent() {
           .sidebar-dashboard { transform: none !important; }
         }
       `}</style>
+      </div>
     </div>
   );
 }

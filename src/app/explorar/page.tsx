@@ -33,8 +33,10 @@ import {
   ShieldCheck,
   User,
   Filter,
-  Lock
+  Lock,
+  Menu
 } from 'lucide-react';
+import Header from '@/components/Header';
 
 // Carga dinámica del mapa para evitar error "window is not defined" en SSR
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { 
@@ -234,11 +236,9 @@ export default function ExplorarPage() {
   const [hasMounted, setHasMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
   // Sincronizar selectedFilters con selectedCategories para el Modal
   const [selectedFilters, setSelectedFilters] = useState<string[]>(['Productor', 'Abastecedor', 'Restaurante', 'Chef']);
-  const [mobileView, setMobileView] = useState<'list' | 'map'>('list'); 
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showHamburger, setShowHamburger] = useState(false);
   const [stickyFilters, setStickyFilters] = useState(false);
@@ -248,11 +248,14 @@ export default function ExplorarPage() {
   const [deliveryType, setDeliveryType] = useState<'Retiro en local' | 'Entrega a domicilio'>('Retiro en local');
   const [searchQuery, setSearchQuery] = useState('');
   const [isHovered, setIsHovered] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isRolesVisible, setIsRolesVisible] = useState(true);
   const [isPillsVisible, setIsPillsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMerchant, setIsMerchant] = useState(false);
   const resultsRef = React.useRef<HTMLElement>(null);
   const mapSectionRef = React.useRef<HTMLDivElement>(null);
   const touchStartY = React.useRef<number>(0);
@@ -260,16 +263,16 @@ export default function ExplorarPage() {
 
   useEffect(() => {
     setHasMounted(true);
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
         setIsLoggedIn(true);
-        // Perfil - Usamos user_id para ser consistente con onboarding
-        const { data: pData } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
+        setUser(session.user);
+        
+        // 1. Perfil
+        const { data: pData } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
         if (pData) {
           setUserProfile(pData);
-          
           // --- INTELIGENCIA DE MAPA ALIMNET ---
           // 1. Centrar en localidad si existe
           if (pData.locality) {
@@ -299,11 +302,16 @@ export default function ExplorarPage() {
           }
         }
         // Validaciones del usuario
-        const { data: vData } = await supabase.from('validations').select('merchant_id').eq('user_id', user.id);
+        const { data: vData } = await supabase.from('validations').select('merchant_id').eq('user_id', session.user.id);
         if (vData) setValidatedMerchantIds(new Set(vData.map(v => v.merchant_id)));
+
+        // 2. ¿Es mercante?
+        const { data: mData } = await supabase.from('merchants').select('id').eq('owner_id', session.user.id).single();
+        if (mData) setIsMerchant(true);
       }
     };
-    checkAuth();
+    
+    checkSession();
     
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -640,75 +648,7 @@ export default function ExplorarPage() {
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F4ED' }}>
       
-      {/* 1. HEADER PRINCIPAL (ALIMNET) */}
-      <header className="main-header" style={{ 
-        padding: "0.4rem 1.5rem", 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center",
-        background: "#F4F1E6", 
-        zIndex: 1000,
-        height: '52px',
-        transform: (isMobile && !isHeaderVisible) ? 'translateY(-100%)' : 'translateY(0)',
-        transition: 'transform 0.3s ease-in-out',
-        position: isMobile ? 'fixed' : 'relative',
-        width: '100%'
-      }}>
-        <div 
-          onClick={() => window.location.href = '/'}
-          style={{ display: "flex", alignItems: "center", gap: "10px", cursor: 'pointer' }}
-        >
-          <span style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em" }}>ALIMNET</span>
-        </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
-          {!isLoggedIn ? (
-            <button 
-              onClick={() => window.location.href = '/login'} 
-              style={{ padding: '0.4rem 1rem', borderRadius: '14px', border: '1.5px solid #5F7D4A', background: 'transparent', color: '#5F7D4A', fontWeight: '900', cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.05em' }}
-            >
-              INGRESAR
-            </button>
-          ) : (
-            <div 
-              onClick={() => window.location.href = '/mi-cuenta'} 
-              style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5F7D4A' }}
-            >
-              <User size={18} />
-            </div>
-          )}
-          
-          <button 
-            className="hamburger-btn"
-            onClick={() => setShowHamburger(!showHamburger)}
-            style={{ 
-              background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
-              padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: '5px',
-              alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s',
-              width: '45px', justifyContent: 'center'
-            }}
-          >
-            <div style={{ width: showHamburger ? '22px' : '10px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
-            <div style={{ width: '16px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
-            <div style={{ width: showHamburger ? '10px' : '22px', height: '2px', background: '#2D3A20', borderRadius: '2px', transition: 'all 0.4s' }}></div>
-          </button>
-        </div>
-
-        {showHamburger && (
-          <div style={{ 
-            position: 'absolute', top: 'calc(100% + 5px)', right: '1rem', width: '220px', 
-            background: 'white', borderRadius: '20px', boxShadow: '0 15px 40px rgba(0,0,0,0.12)', 
-            padding: '1.2rem', zIndex: 2000, display: 'flex', flexDirection: 'column', gap: '1.2rem',
-            border: '1px solid rgba(0,0,0,0.05)', animation: 'slideDown 0.2s ease-out'
-          }}>
-            <a href="/" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Home</a>
-            <a href="/sostener" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Sostener Alimnet</a>
-            <a href="/perfil" style={{ textDecoration: 'none', color: '#2D3A20', fontWeight: '800', fontSize: '0.85rem' }}>Mi Perfil</a>
-            <div style={{ height: '1px', background: '#eee', margin: '0.2rem 0' }}></div>
-            <a href="/unirse" style={{ textDecoration: 'none', color: 'var(--primary)', fontWeight: '900', fontSize: '0.85rem' }}>Sumar mi comercio</a>
-          </div>
-        )}
-      </header>
+      <Header />
 
       {/* 2. BARRA DE FILTROS (FIXED on mobile, STICKY on desktop) */}
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
@@ -996,32 +936,34 @@ export default function ExplorarPage() {
 
         {/* MAPA */}
         <section 
-          ref={mapSectionRef}
           className="map-section" 
           style={{ 
             flex: 1, 
-            position: 'relative',
-            display: (isMobile && mobileView !== 'map') ? 'none' : 'block'
+            position: isMobile ? (mobileView === 'map' ? 'relative' : 'absolute') : 'relative',
+            left: (isMobile && mobileView !== 'map') ? '-9999px' : '0',
+            width: '100%',
+            height: isMobile ? '600px' : 'calc(100vh - 120px)',
+            minHeight: isMobile ? '500px' : 'auto',
+            background: '#EAEDE8'
           }}
         >
-          <div style={{ position: 'sticky', top: 0, height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)', width: '100%' }}>
-            {hasMounted && (
-              <MapComponent 
-                providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
-                  id: m.id,
-                  name: m.name,
-                  category: m.type,
-                  type: m.type,
-                  location_lat: m.locations?.[0]?.lat || -34.4586,
-                  location_lng: m.locations?.[0]?.lng || -58.9142,
-                  is_exact_location: true,
-                  city_zone: m.locations?.[0]?.locality || 'Zona Norte'
-                }))} 
-                center={[-34.4586, -58.9142]} 
-                zoom={11}
-              />
-            )}
-          </div>
+          {hasMounted && (
+            <MapComponent 
+              key={`${isMobile ? mobileView : 'desktop'}-${filteredMerchants.length}`}
+              providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
+                id: m.id,
+                name: m.name,
+                category: m.type,
+                type: m.type,
+                location_lat: m.locations?.[0]?.lat || -34.4586,
+                location_lng: m.locations?.[0]?.lng || -58.9142,
+                is_exact_location: true,
+                city_zone: m.locations?.[0]?.locality || 'Zona Norte'
+              }))} 
+              center={[-34.4586, -58.9142]} 
+              zoom={11}
+            />
+          )}
         </section>
       </div>
 
@@ -1055,8 +997,11 @@ export default function ExplorarPage() {
           .results-section { width: 100% !important; min-width: 0 !important; }
           .results-section.hidden { display: none; }
 
-          .map-section { display: none; }
-          .map-section.active { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; }
+          .map-section { 
+            width: 100%; 
+            display: flex;
+            flex-direction: column;
+          }
           
           .detail-panel { 
             width: 100% !important; 
@@ -1064,8 +1009,8 @@ export default function ExplorarPage() {
             top: 6% !important;
             border-radius: 30px 30px 0 0;
             z-index: 4000;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           }
-          .detail-panel { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
           
           .is-sticky { border-bottom: 2px solid var(--primary); }
         }
@@ -1145,8 +1090,25 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <MapPin size={10} /> {displayLocation}
             </p>
-            {productTags.length > 0 && (
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '6px' }}>
+          </div>
+        </div>
+
+        {/* --- VALIDATION BADGE --- */}
+        {merchant.validation_count > 0 && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '10px',
+            background: 'rgba(95, 125, 74, 0.08)', border: '1px solid rgba(95, 125, 74, 0.15)',
+            color: '#5F7D4A', flexShrink: 0
+          }} title="Proyectos validados por la comunidad">
+            <ShieldCheck size={14} />
+            <span style={{ fontSize: '0.7rem', fontWeight: '900' }}>{merchant.validation_count}</span>
+          </div>
+        )}
+      </div>
+
+      <div style={{ marginTop: '4px' }}>
+        {productTags.length > 0 && (
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '6px' }}>
                 {visibleProducts.map(pt => (
                   <span key={pt} style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--primary-dark)', background: '#f5f5f5', padding: '2px 6px', borderRadius: '6px' }}>
                     {pt}
@@ -1160,7 +1122,6 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
               </div>
             )}
           </div>
-        </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
           <div style={{ fontSize: '0.6rem', fontWeight: '900', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>
             {mainType}
@@ -1192,7 +1153,6 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
             </div>
           )}
         </div>
-      </div>
       <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, margin: '4px 0 0 0', lineHeight: '1.4' }}>
         {merchant.bio_short?.substring(0, 85)}...
       </p>

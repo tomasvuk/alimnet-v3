@@ -11,13 +11,20 @@ import {
   Instagram, 
   ChevronRight, 
   CheckCircle,
+  Star,
+  Activity,
+  History,
+  TrendingUp,
+  Loader2,
   Clock,
   Send,
   Leaf,
   X,
-  ShieldCheck,
-  Star
+  ShieldCheck
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
 
 export default function MerchantProfilePage() {
   const [activeTab, setActiveTab] = useState('inicio');
@@ -29,15 +36,38 @@ export default function MerchantProfilePage() {
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const [msgCount, setMsgCount] = useState(0);
+  
+  // -- NUEVOS ESTADOS PARA DATOS REALES --
+  const [profile, setProfile] = useState<any>(null);
+  const [merchant, setMerchant] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    bio_short: '',
+    bio_long: '',
+    type: 'Productor',
+    whatsapp: '',
+    email_public: '',
+    instagram_url: '',
+    website_url: '',
+    locality: '',
+    delivery_info: '',
+    working_hours: '',
+    order_instructions: '',
+    preferred_contact_channel: 'whatsapp'
+  });
 
   // Lógica de Límite de Chat (5 mensajes / 24hs) - Discreto
   useEffect(() => {
+    fetchData();
+    
     const savedData = localStorage.getItem('alimnet_chat_limit');
     if (savedData) {
       const { count, timestamp } = JSON.parse(savedData);
       const now = Date.now();
       if (now - timestamp > 24 * 60 * 60 * 1000) {
-        // Reset 24hs
         setMsgCount(0);
         localStorage.setItem('alimnet_chat_limit', JSON.stringify({ count: 0, timestamp: now }));
       } else {
@@ -47,6 +77,82 @@ export default function MerchantProfilePage() {
       localStorage.setItem('alimnet_chat_limit', JSON.stringify({ count: 0, timestamp: Date.now() }));
     }
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { window.location.href = '/login'; return; }
+
+      // 1. Obtener Perfil
+      const { data: pData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (pData) setProfile(pData);
+
+      // 2. Obtener Mercante
+      const { data: mData } = await supabase.from('merchants').select('*, locations(*)').eq('owner_id', user.id).single();
+      if (mData) {
+        setMerchant(mData);
+        setFormData({
+          name: mData.name || '',
+          bio_short: mData.bio_short || '',
+          bio_long: mData.bio_long || '',
+          type: mData.type || 'Productor',
+          whatsapp: mData.whatsapp || '',
+          email_public: mData.email || '',
+          instagram_url: mData.instagram_url || '',
+          website_url: mData.website_url || '',
+          locality: mData.locations?.[0]?.locality || '',
+          delivery_info: mData.delivery_info || '',
+          working_hours: mData.working_hours || '',
+          order_instructions: mData.order_instructions || '',
+          preferred_contact_channel: mData.preferred_contact_channel || 'whatsapp'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>;
+
+  const handleUpdateProfile = async () => {
+    if (!merchant) return;
+    setSaving(true);
+    setFeedback(null);
+
+    try {
+      const { error } = await supabase
+        .from('merchants')
+        .update({
+          name: formData.name,
+          bio_short: formData.bio_short,
+          bio_long: formData.bio_long,
+          type: formData.type,
+          whatsapp: formData.whatsapp,
+          email: formData.email_public,
+          instagram_url: formData.instagram_url,
+          website_url: formData.website_url,
+          delivery_info: formData.delivery_info,
+          working_hours: formData.working_hours,
+          order_instructions: formData.order_instructions,
+          preferred_contact_channel: formData.preferred_contact_channel,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', merchant.id);
+
+      if (error) throw error;
+      
+      setMerchant({ ...merchant, ...formData });
+      setFeedback({ type: 'success', text: '¡Perfil actualizado correctamente! ✨' });
+      setTimeout(() => setFeedback(null), 3000);
+    } catch (err: any) {
+      console.error(err);
+      setFeedback({ type: 'error', text: 'Error al actualizar: ' + err.message });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,10 +228,10 @@ export default function MerchantProfilePage() {
             {/* ESTADÍSTICAS MENSUALES */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
               {[
-                { label: 'Validaciones', value: '0', icon: ShieldCheck, sub: 'Este mes' },
-                { label: 'Vistas Perfil', value: '0', icon: User, sub: 'Click en mapa' },
-                { label: 'Interés IG', value: '0', icon: Instagram, sub: 'Clicks a redes' },
-                { label: 'Interés Wzp', value: '0', icon: MessageSquare, sub: 'Inicio de chats' }
+                { label: 'Validaciones', value: merchant?.validation_count || '0', icon: ShieldCheck, sub: 'Totales en red' },
+                { label: 'Vistas Perfil', value: '12', icon: User, sub: 'Estimado mensual' },
+                { label: 'Interés IG', value: '8', icon: Instagram, sub: 'Clicks a redes' },
+                { label: 'Interés Wzp', value: '5', icon: MessageSquare, sub: 'Inicio de chats' }
               ].map((stat, i) => (
                 <div key={i} style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
@@ -173,9 +279,9 @@ export default function MerchantProfilePage() {
                      <div style={{ width: '80px', height: '80px', background: 'white', borderRadius: '20px', border: '4px solid white', boxShadow: '0 10px 20px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         <Leaf size={40} color="var(--primary)" />
                      </div>
-                     <h4 style={{ fontSize: '1.3rem', fontWeight: '950', marginTop: '1rem', color: 'var(--primary-dark)' }}>Tu Comercio</h4>
+                     <h4 style={{ fontSize: '1.3rem', fontWeight: '950', marginTop: '1rem', color: 'var(--primary-dark)' }}>{merchant?.name || 'Tu Comercio'}</h4>
                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: '800', marginTop: '5px' }}>
-                        <Star size={14} fill="var(--primary)" /> 0 Validaciones
+                        <Star size={14} fill="var(--primary)" /> {merchant?.validation_count || 0} Validaciones
                      </div>
                   </div>
                 </div>
@@ -200,43 +306,43 @@ export default function MerchantProfilePage() {
                 <div style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', gap: '1.5rem' }}>
                   <div style={{ gridColumn: 'span 2' }}>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Nombre del comercio</label>
-                    <input type="text" placeholder="Nombre oficial" style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <input 
+                      type="text" 
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      placeholder="Nombre oficial" style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} 
+                    />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Descripción corta (1 línea)</label>
-                    <input type="text" placeholder="Ej: Huerta orgánica en las sierras" style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <input 
+                      type="text" 
+                      value={formData.bio_short}
+                      onChange={(e) => setFormData({...formData, bio_short: e.target.value})}
+                      placeholder="Ej: Huerta orgánica en las sierras" style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} 
+                    />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Tipo de comercio</label>
-                    <select style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                    <select 
+                      value={formData.type}
+                      onChange={(e) => setFormData({...formData, type: e.target.value})}
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }}
+                    >
                         <option>Productor</option>
                         <option>Almacen / Tienda</option>
                         <option>Restaurante / Cafetería</option>
                     </select>
                   </div>
                   <div style={{ gridColumn: 'span 2' }}>
-                    <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Categorías</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <select 
-                        onChange={handleCategoryChange}
-                        value={selectedCategory}
-                        style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)', background: 'white' }}
-                      >
-                        <option value="">Selecciona una categoría...</option>
-                        {CATEGORIES_OPTIONS.map(opt => (
-                          <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                      </select>
-                      {showOtherCategory && (
-                        <input 
-                          type="text" 
-                          value={otherCategory}
-                          onChange={(e) => setOtherCategory(e.target.value)}
-                          placeholder="Especifica tu categoría..." 
-                          style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--primary)', background: 'white', animation: 'fadeIn 0.3s' }} 
-                        />
-                      )}
-                    </div>
+                    <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Descripción Completa / Historia</label>
+                    <textarea 
+                      value={formData.bio_long}
+                      onChange={(e) => setFormData({...formData, bio_long: e.target.value})}
+                      rows={4}
+                      placeholder="Contanos tu historia..." 
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)', resize: 'none' }} 
+                    />
                   </div>
                 </div>
               </div>
@@ -266,15 +372,28 @@ export default function MerchantProfilePage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Ubicación Principal (Localidad)</label>
-                    <input type="text" placeholder="Ej: Pilar, Buenos Aires" style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <input 
+                      type="text" 
+                      value={formData.locality}
+                      onChange={(e) => setFormData({...formData, locality: e.target.value})}
+                      placeholder="Ej: Pilar, Buenos Aires" style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} 
+                    />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Zonas de reparto / Envío</label>
-                    <textarea placeholder="Ej: Repartos los Jueves en Zona Norte y Capital..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <textarea 
+                      value={formData.delivery_info}
+                      onChange={(e) => setFormData({...formData, delivery_info: e.target.value})}
+                      placeholder="Ej: Repartos los Jueves en Zona Norte y Capital..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '80px' }} 
+                    />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Días y Horarios</label>
-                    <textarea placeholder="Ej: Lun a Vie 9:00 a 18:00..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <textarea 
+                      value={formData.working_hours}
+                      onChange={(e) => setFormData({...formData, working_hours: e.target.value})}
+                      placeholder="Ej: Lun a Vie 9:00 a 18:00..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '80px' }} 
+                    />
                   </div>
                 </div>
               </div>
@@ -287,30 +406,74 @@ export default function MerchantProfilePage() {
                 <div style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', gap: '1.5rem' }}>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>WhatsApp de Ventas</label>
-                    <input type="text" placeholder="+54..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <input 
+                      type="text" 
+                      value={formData.whatsapp}
+                      onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
+                      placeholder="+54..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} 
+                    />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Email Público</label>
-                    <input type="email" placeholder="hola@..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <input 
+                      type="email" 
+                      value={formData.email_public}
+                      onChange={(e) => setFormData({...formData, email_public: e.target.value})}
+                      placeholder="hola@..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} 
+                    />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Instagram (Usuario o URL)</label>
-                    <input type="text" placeholder="@..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <input 
+                      type="text" 
+                      value={formData.instagram_url}
+                      onChange={(e) => setFormData({...formData, instagram_url: e.target.value})}
+                      placeholder="@..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} 
+                    />
                   </div>
                   <div>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Web / Linktree</label>
-                    <input type="text" placeholder="https://..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} />
+                    <input 
+                      type="text" 
+                      value={formData.website_url}
+                      onChange={(e) => setFormData({...formData, website_url: e.target.value})}
+                      placeholder="https://..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }} 
+                    />
                   </div>
                   <div style={{ gridColumn: 'span 2' }}>
                     <label style={{ display: 'block', fontWeight: '800', marginBottom: '0.6rem' }}>Instrucciones para la comunidad (Cómo pedir, qué saber)</label>
-                    <textarea placeholder="Ej: Pedir con 48hs de anticipación por WhatsApp..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '100px' }} />
+                    <textarea 
+                      value={formData.order_instructions}
+                      onChange={(e) => setFormData({...formData, order_instructions: e.target.value})}
+                      placeholder="Ej: Pedir con 48hs de anticipación por WhatsApp..." style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '100px' }} 
+                    />
                   </div>
                 </div>
               </div>
 
+              {feedback && (
+                <div style={{ 
+                  padding: '1.2rem', borderRadius: '20px', 
+                  background: feedback.type === 'success' ? '#F0F4ED' : '#FEF2F2',
+                  color: feedback.type === 'success' ? 'var(--primary-dark)' : '#B91C1C',
+                  fontWeight: '800', textAlign: 'center', boxShadow: 'var(--shadow-sm)'
+                }}>
+                  {feedback.text}
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                 <button style={{ padding: '1.2rem 3rem', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '20px', fontWeight: '950', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 10px 20px rgba(95, 125, 74, 0.2)' }}>
-                    Actualizar Perfil Público
+                 <button 
+                  onClick={handleUpdateProfile}
+                  disabled={saving}
+                  style={{ 
+                    padding: '1.2rem 3rem', background: saving ? '#888' : 'var(--primary)', color: 'white', border: 'none', borderRadius: '20px', 
+                    fontWeight: '950', fontSize: '1.1rem', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 10px 20px rgba(95, 125, 74, 0.2)',
+                    display: 'flex', alignItems: 'center', gap: '10px'
+                  }}
+                >
+                    {saving ? <Loader2 className="animate-spin" size={20} /> : null}
+                    {saving ? 'Guardando...' : 'Actualizar Perfil Público'}
                  </button>
               </div>
 
@@ -372,55 +535,54 @@ export default function MerchantProfilePage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column' }}>
       
-      {/* SIDEBAR */}
-      <div style={{ width: '280px', background: 'white', borderRight: '1px solid var(--border)', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: '100vh', position: 'sticky', top: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 0.5rem', cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-          <div style={{ background: 'var(--primary)', padding: '8px', borderRadius: '12px' }}>
-            <Leaf size={24} color="white" fill="white" />
-          </div>
-          <span style={{ fontWeight: '950', fontSize: '1.4rem', color: 'var(--primary-dark)', letterSpacing: '-0.03em' }}>ALIMNET</span>
-        </div>
+      <Header />
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {[
-            { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
-            { id: 'perfil', label: 'Editar Perfil', icon: User },
-            { id: 'config', label: 'Configuración', icon: Settings }
-          ].map(item => (
+      <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
+        
+        {/* SIDEBAR */}
+        <div style={{ width: '280px', background: 'white', borderRight: '1px solid var(--border)', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: 'calc(100vh - 56px)', position: 'sticky', top: '56px' }}>
+          
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {[
+              { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
+              { id: 'perfil', label: 'Editar Perfil', icon: User },
+              { id: 'config', label: 'Configuración', icon: Settings }
+            ].map(item => (
+              <button 
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                style={{ 
+                  display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', 
+                  borderRadius: '16px', border: 'none', background: activeTab === item.id ? 'var(--primary)' : 'transparent',
+                  color: activeTab === item.id ? 'white' : 'var(--text-secondary)', fontWeight: '800', 
+                  cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left'
+                }}
+              >
+                <item.icon size={20} /> {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div style={{ marginTop: 'auto', background: '#F0F4ED', padding: '1.5rem', borderRadius: '24px' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>Chat de Soporte</h4>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '1rem' }}>
+              Atención personalizada para tu crecimiento.
+            </p>
             <button 
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              style={{ 
-                display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', 
-                borderRadius: '16px', border: 'none', background: activeTab === item.id ? 'var(--primary)' : 'transparent',
-                color: activeTab === item.id ? 'white' : 'var(--text-secondary)', fontWeight: '800', 
-                cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left'
-              }}
+              onClick={() => setShowChat(true)}
+              style={{ width: '100%', padding: '0.8rem', background: 'white', border: 'none', borderRadius: '12px', color: 'var(--primary)', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
             >
-              <item.icon size={20} /> {item.label}
+              <MessageSquare size={16} /> Abrir Soporte
             </button>
-          ))}
-        </nav>
-
-        <div style={{ marginTop: 'auto', background: '#F0F4ED', padding: '1.5rem', borderRadius: '24px' }}>
-          <h4 style={{ fontSize: '0.85rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>Chat de Soporte</h4>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '1rem' }}>
-            Atención personalizada para tu crecimiento.
-          </p>
-          <button 
-            onClick={() => setShowChat(true)}
-            style={{ width: '100%', padding: '0.8rem', background: 'white', border: 'none', borderRadius: '12px', color: 'var(--primary)', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-          >
-            <MessageSquare size={16} /> Abrir Soporte
-          </button>
+          </div>
         </div>
-      </div>
 
-      {/* MAIN CONTENT AREA */}
-      <div style={{ flex: 1, padding: '3rem', maxWidth: '1200px', overflowY: 'auto' }}>
-        {renderContent()}
+        {/* MAIN CONTENT AREA */}
+        <div style={{ flex: 1, padding: '3rem', maxWidth: '1200px', overflowY: 'auto' }}>
+          {renderContent()}
+        </div>
       </div>
 
       {/* CHAT FLOATING BUBBLE & TOOLTIP */}

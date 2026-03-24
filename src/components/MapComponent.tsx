@@ -6,15 +6,39 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useMap } from 'react-leaflet';
 
-// Subcomponente para arreglar el re-dibujado en smartphones
+// Subcomponente para arreglar el re-dibujado en smartphones (Múltiples disparos para asegurar el área)
 const MapResizer = () => {
   const map = useMap();
   React.useEffect(() => {
-    // Forzamos el redibujado después de un pequeño delay para que el contenedor esté listo
-    const timer = setTimeout(() => {
+    if (!map) return;
+
+    const trigger = () => {
       map.invalidateSize();
-    }, 450);
-    return () => clearTimeout(timer);
+      map.panBy([0, 0], { animate: false }); // Forzar carga de tiles
+    };
+
+    // 1. Observer para detectar cambios reales en el tamaño del contenedor (display: none -> block)
+    const resizeObserver = new ResizeObserver(() => {
+      trigger();
+    });
+
+    const container = map.getContainer();
+    if (container) resizeObserver.observe(container);
+
+    // 2. Disparos manuales preventivos
+    const timers = [
+      setTimeout(trigger, 100),
+      setTimeout(trigger, 500),
+      setTimeout(trigger, 1500)
+    ];
+
+    window.addEventListener('resize', trigger);
+    
+    return () => {
+      resizeObserver.disconnect();
+      timers.forEach(t => clearTimeout(t));
+      window.removeEventListener('resize', trigger);
+    };
   }, [map]);
   return null;
 };
@@ -75,12 +99,12 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: M
         center={center} 
         zoom={zoom} 
         scrollWheelZoom={true}
+        attributionControl={false}
         style={{ height: '100%', width: '100%' }}
       >
         <MapResizer />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
         {providers.map((p) => {
