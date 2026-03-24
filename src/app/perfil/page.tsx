@@ -39,10 +39,10 @@ export default function MerchantProfilePage() {
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
 
-  // Categorías Predefinidas
+  // Categorías Exactas de la Captura (Alineación con el Mapa)
   const officialCategories = [
-    'Frutas y Verduras', 'Miel y Derivados', 'Aceites y Olivas', 'Panificados', 'Lácteos y Quesos', 
-    'Semillas y Granos', 'Dulces y Conservas', 'Bebidas Fermentadas', 'Vivero y Plantas', 'Artesanías'
+    'Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 
+    'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'
   ];
 
   // Estados del Formulario (Completo)
@@ -51,8 +51,8 @@ export default function MerchantProfilePage() {
     bio_short: '',
     bio_long: '',
     types: [], 
-    categories: [], // Cambiamos a array
-    custom_category: '', // Para la opción "Otro"
+    categories: [], 
+    custom_category: '', 
     whatsapp: '',
     email_public: '',
     instagram_url: '',
@@ -118,12 +118,12 @@ export default function MerchantProfilePage() {
           instagram_url: '@huerta_esperanza',
           google_maps_url: 'https://goo.gl/maps/example',
           type: ['Productor'],
-          categories: ['Frutas y Verduras', 'Miel y Derivados']
+          categories: ['Verduras', 'Frutas']
         });
         setFormData((prev: any) => ({ 
           ...prev, 
           types: ['Productor'],
-          categories: ['Frutas y Verduras', 'Miel y Derivados'],
+          categories: ['Verduras', 'Frutas'],
           google_maps_url: 'https://goo.gl/maps/example'
         }));
       }
@@ -175,7 +175,7 @@ export default function MerchantProfilePage() {
       case 'inicio':
         return (
           <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexDirection: isMobileView ? 'column' : 'row', gap: '1rem', textAlign: isMobileView ? 'center' : 'left' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexDirection: isMobileView ? 'column' : 'row', gap: '1rem', textAlign: isMicroMobile ? 'center' : 'left' }}>
               <div>
                 <h1 style={{ fontSize: isMobileView ? '1.5rem' : '2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.3rem', letterSpacing: '-0.02em' }}>Mi Panel</h1>
                 <p style={{ color: '#666', fontSize: '0.85rem' }}>Resumen del impacto de <strong>{merchant?.name}</strong>.</p>
@@ -240,10 +240,10 @@ export default function MerchantProfilePage() {
         return (
           <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <h1 style={{ fontSize: '2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Editar Perfil</h1>
-            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Personaliza tu presencia en la red.</p>
+            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Asegúrate de que tus datos estén al día.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-               <div style={{ background: 'white', borderRadius: '24px', padding: '2.5rem', border: '1px solid #E4EBDD' }}>
+               <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
                   <InputField label="Nombre Oficial" value={formData.name} onChange={(v: string) => setFormData({...formData, name: v})} placeholder="Nombre de tu negocio" />
                   
                   {/* TIPO DE COMERCIO */}
@@ -267,9 +267,9 @@ export default function MerchantProfilePage() {
                     </div>
                   </div>
 
-                  {/* CATEGORIAS DINAMICAS */}
+                  {/* CATEGORIAS ACTUALIZADAS SEGUN CAPTURA */}
                   <div style={{ marginBottom: '2.5rem' }}>
-                    <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '1rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Categorías (Una o varias)</label>
+                    <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '1rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Categorías del Mapa (Selección múltiple)</label>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '1.2rem' }}>
                        {officialCategories.map(cat => (
                          <div 
@@ -294,7 +294,7 @@ export default function MerchantProfilePage() {
                             transition: 'all 0.1s', fontSize: '0.85rem', fontWeight: '900', color: formData.categories?.includes('Otro') ? '#5F7D4A' : '#999'
                           }}
                         >
-                           Específicar otro...
+                           Especificar otro...
                         </div>
                     </div>
 
@@ -307,13 +307,13 @@ export default function MerchantProfilePage() {
                            placeholder="¿Qué producto ofrecés?" 
                          />
                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '1rem', background: '#FFFBEB', borderRadius: '12px', border: '1px solid #FEF3C7', color: '#92400E', fontSize: '0.75rem', fontWeight: '700' }}>
-                            <AlertCircle size={16} /> Tu sugerencia pasará por validación para activarse en el mapa global.
+                            <AlertCircle size={16} /> Tu sugerencia pasará por validación administrativa.
                          </div>
                       </div>
                     )}
                   </div>
 
-                  <InputField label="Descripción muy corta" value={formData.bio_short} onChange={(v: string) => setFormData({...formData, bio_short: v})} placeholder="Una frase que te identifique" />
+                  <InputField label="Descripción" value={formData.bio_short} onChange={(v: string) => setFormData({...formData, bio_short: v})} placeholder="Una frase que te identifique" />
                </div>
 
                {/* REDES Y CONTACTO */}
@@ -400,3 +400,4 @@ export default function MerchantProfilePage() {
     </div>
   );
 }
+const isMicroMobile = false; // dummy for compilation
