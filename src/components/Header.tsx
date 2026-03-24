@@ -131,7 +131,7 @@ export default function Header() {
         </button>
       </div>
 
-      {/* DROPDOWN HAMBURGUESA */}
+      {/* DROPDOWN HAMBURGUESA (DERECHA) */}
       {showMenu && (
         <>
           <div onClick={() => setShowMenu(false)} style={{ position: 'fixed', inset: 0, zIndex: 4998 }} />
@@ -147,19 +147,13 @@ export default function Header() {
             <MenuItem href="/" icon={<Home size={16} />} label="Home" onClick={() => setShowMenu(false)} />
             <MenuItem href="/sostener" icon={<HelpCircle size={16} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
             <MenuItem href="/mi-cuenta" icon={<User size={16} />} label="Mi Perfil" onClick={() => setShowMenu(false)} />
-            {user && (
-              <MenuItem 
-                href={isMerchant ? "/perfil" : "/registro-comercio"} 
-                icon={isMerchant ? <MapIcon size={16} /> : <Store size={16} />} 
-                label={isMerchant ? "MI PERFIL COMERCIAL" : "REGISTRAR MI COMERCIO"} 
-                onClick={() => setShowMenu(false)} 
-                highlight 
-              />
-            )}
-            <div style={{ height: '1px', background: '#f0f0f0', margin: '0.5rem 0' }} />
-            {!isMerchant && (
-              <MenuItem href="/registro-comercio" icon={<Plus size={16} />} label="Sumar mi proyecto" onClick={() => setShowMenu(false)} />
-            )}
+            
+            <div style={{ height: '1.5px', background: '#f8f9f5', margin: '0.5rem 0' }} />
+            
+            {/* OPCIONES DE TESTEO FORZADAS */}
+            <MenuItem href="/perfil" icon={<MapIcon size={16} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} highlight />
+            <MenuItem href="/registro-comercio" icon={<Plus size={16} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} highlight />
+            
           </div>
         </>
       )}
