@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, ZoomControl } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, ZoomControl, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -89,9 +89,19 @@ interface MapProps {
   providers: MapProvider[];
   center?: [number, number];
   zoom?: number;
+  onInteraction?: () => void;
 }
 
-const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: MapProps) => {
+const MapEvents = ({ onInteraction }: { onInteraction?: () => void }) => {
+  useMapEvents({
+    dragstart: () => onInteraction?.(),
+    zoomstart: () => onInteraction?.(),
+    mousedown: () => onInteraction?.(),
+  });
+  return null;
+};
+
+const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onInteraction }: MapProps) => {
   return (
     <div style={{ height: '100%', width: '100%', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
       <MapContainer 
@@ -102,6 +112,7 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: M
         attributionControl={false}
         style={{ height: '100%', width: '100%' }}
       >
+        <MapEvents onInteraction={onInteraction} />
         <MapResizer />
         <ZoomControl position="bottomright" />
         <TileLayer

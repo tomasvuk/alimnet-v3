@@ -250,7 +250,6 @@ export default function ExplorarPage() {
   const [isHovered, setIsHovered] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isRolesVisible, setIsRolesVisible] = useState(true);
   const [isPillsVisible, setIsPillsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -355,12 +354,11 @@ export default function ExplorarPage() {
       const goingUp = st < prevScrollTop;
 
       if (goingDown) {
-        // Scrolling DOWN (Swiping UP): hide filters only, KEEP search and header
+        // Scrolling DOWN (Swiping UP): hide filters only
         if (st > 30) setIsPillsVisible(false);
         if (st > 80) setIsRolesVisible(false);
       } else if (goingUp) {
         // Scrolling UP: restore everything
-        setIsHeaderVisible(true);
         setIsRolesVisible(true);
         setIsPillsVisible(true);
       }
@@ -402,7 +400,6 @@ export default function ExplorarPage() {
         if (s > 60) setIsRolesVisible(false);
       } else if (deltaY < -2) {
         // Swiping DOWN: restore all
-        setIsHeaderVisible(true);
         setIsRolesVisible(true);
         setIsPillsVisible(true);
         cumulativeSwipe.current = 0;
@@ -654,7 +651,7 @@ export default function ExplorarPage() {
         background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
         position: isMobile ? 'fixed' : 'sticky',
-        top: isMobile ? (isHeaderVisible ? '52px' : '0') : 0, 
+        top: isMobile ? '52px' : 0, 
         left: isMobile ? 0 : undefined,
         right: isMobile ? 0 : undefined,
         zIndex: 900,
@@ -663,7 +660,6 @@ export default function ExplorarPage() {
         gap: '0.8rem',
         boxShadow: stickyFilters ? '0 10px 30px rgba(0,0,0,0.08)' : 'none',
         alignItems: 'center',
-        transition: 'top 0.3s ease-in-out',
       }}>
 
         
@@ -948,6 +944,12 @@ export default function ExplorarPage() {
           {hasMounted && (
             <MapComponent 
               key={`${isMobile ? mobileView : 'desktop'}-${filteredMerchants.length}`}
+              onInteraction={() => {
+                if (isMobile) {
+                  setIsPillsVisible(false);
+                  setIsRolesVisible(false);
+                }
+              }}
               providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
                 id: m.id,
                 name: m.name,
