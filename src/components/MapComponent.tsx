@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useMap } from 'react-leaflet';
 
 // Subcomponente para arreglar el re-dibujado en smartphones (Múltiples disparos para asegurar el área)
 const MapResizer = () => {
@@ -99,12 +98,15 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: M
         center={center} 
         zoom={zoom} 
         scrollWheelZoom={true}
+        zoomControl={false}
         attributionControl={false}
         style={{ height: '100%', width: '100%' }}
       >
         <MapResizer />
+        <ZoomControl position="bottomright" />
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
         
         {providers.map((p) => {
