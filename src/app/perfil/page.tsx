@@ -31,7 +31,8 @@ import {
   Eye,
   LogOut,
   Image as ImageIcon,
-  Palette
+  Palette,
+  Upload
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
@@ -47,13 +48,13 @@ export default function MerchantProfilePage() {
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
   const [showMapValidation, setShowMapValidation] = useState(true);
 
-  // Categorías Exactas de la Captura (Alineación con el Mapa)
+  // Categorías Exactas (Alineación con el Mapa)
   const officialCategories = [
     'Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 
     'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'
   ];
 
-  // Estados del Formulario (Completo)
+  // Estados del Formulario
   const [formData, setFormData] = useState<any>({
     name: '',
     bio_short: '',
@@ -118,6 +119,7 @@ export default function MerchantProfilePage() {
           working_hours: mData[0].working_hours || ''
         });
       } else {
+        // Fallback para visualización
         setMerchant({
           name: 'Agroecología La Esperanza',
           validation_count: 24,
@@ -128,12 +130,7 @@ export default function MerchantProfilePage() {
           type: ['Productor'],
           categories: ['Verduras', 'Frutas']
         });
-        setFormData((prev: any) => ({ 
-          ...prev, 
-          types: ['Productor'],
-          categories: ['Verduras', 'Frutas'],
-          google_maps_url: 'https://goo.gl/maps/example'
-        }));
+        setFormData((prev: any) => ({ ...prev, types: ['Productor'], categories: ['Verduras', 'Frutas'] }));
       }
     } catch (err) {
       console.error(err);
@@ -193,7 +190,6 @@ export default function MerchantProfilePage() {
               </div>
             </div>
 
-            {/* ESTADISTICAS */}
             <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
               {[
                 { label: 'Validaciones', value: merchant?.validation_count || '0', icon: ShieldCheck, color: '#5F7D4A' },
@@ -214,8 +210,7 @@ export default function MerchantProfilePage() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1.3fr 1fr', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD' }}>
+              <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD' }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Smartphone size={18} /> Previsualización</h3>
                   <div style={{ border: '1px solid #eee', borderRadius: '20px', overflow: 'hidden', maxWidth: '300px', margin: isMobileView ? '0 auto' : '0', background: 'white' }}>
                     <div style={{ height: '100px', background: '#F4F1E6' }}></div>
@@ -231,18 +226,14 @@ export default function MerchantProfilePage() {
                        </div>
                     </div>
                   </div>
-                </div>
               </div>
               
-              {/* NUEVO BLOQUE DE RECURSOS DE MARCA */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                  <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '2px dashed #E4EBDD', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                        <Palette size={20} color="#5F7D4A" />
                        <h3 style={{ fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20' }}>Recursos Alimnet</h3>
                     </div>
-                    <p style={{ fontSize: '0.75rem', color: '#666', lineHeight: '1.5' }}>Descargá los recursos oficiales para que todos sepan que sos parte de la red.</p>
-                    
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                        <button style={{ width: '100%', padding: '0.7rem 1rem', background: '#F8F9F5', border: '1px solid #E4EBDD', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A' }}>Logos Oficiales (Kit)</span>
@@ -252,10 +243,6 @@ export default function MerchantProfilePage() {
                           <span style={{ fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A' }}>Plantillas Historias IG</span>
                           <ImageIcon size={14} color="#5F7D4A" />
                        </button>
-                    </div>
-                    <div style={{ marginTop: '0.2rem', padding: '0.8rem', background: '#F0F4ED', borderRadius: '12px', border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                       <Instagram size={14} color="#5F7D4A" />
-                       <span style={{ fontSize: '0.65rem', fontWeight: '1000', color: '#2D3A20' }}>¡Mencionanos: @alimnet.ar!</span>
                     </div>
                  </div>
               </div>
@@ -269,6 +256,36 @@ export default function MerchantProfilePage() {
             <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Asegúrate de que tus datos estén al día.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+               
+               {/* NUEVA SECCION MULTIMEDIA */}
+               <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#5F7D4A', marginBottom: '2rem' }}>
+                     <ImageIcon size={20} />
+                     <h3 style={{ fontSize: '1rem', fontWeight: '950' }}>Identidad Visual</h3>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '150px 1fr', gap: '2rem' }}>
+                     <div>
+                        <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Logo Oficial</label>
+                        <div style={{ width: '120px', height: '120px', background: '#f8f9f5', border: '2px dashed #E4EBDD', borderRadius: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#A8C3A2', cursor: 'pointer' }}>
+                           <Camera size={24} />
+                           <span style={{ fontSize: '0.6rem', fontWeight: '1000', marginTop: '8px' }}>LOGO</span>
+                        </div>
+                     </div>
+                     <div>
+                        <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Galería de Imágenes (Máx 3)</label>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                           {[1, 2, 3].map(i => (
+                             <div key={i} style={{ width: '100px', height: '100px', background: '#f8f9f5', border: '1px solid #E4EBDD', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A8C3A2', cursor: 'pointer', position: 'relative' }}>
+                                <Plus size={20} />
+                             </div>
+                           ))}
+                        </div>
+                        <p style={{ fontSize: '0.7rem', color: '#AAA', marginTop: '1rem' }}>Sugerimos imágenes de tus productos o local.</p>
+                     </div>
+                  </div>
+               </div>
+
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
                   <InputField label="Nombre Oficial" value={formData.name} onChange={(v: string) => setFormData({...formData, name: v})} placeholder="Nombre de tu negocio" />
                   
@@ -294,7 +311,7 @@ export default function MerchantProfilePage() {
 
                   <div style={{ marginBottom: '2.5rem' }}>
                     <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '1rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Categorías del Mapa</label>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '1.2rem' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                        {officialCategories.map(cat => (
                          <div 
                            key={cat}
@@ -309,33 +326,19 @@ export default function MerchantProfilePage() {
                             {cat}
                          </div>
                        ))}
-                       <div 
-                          onClick={() => toggleCategory('Otro')}
-                          style={{ 
-                            padding: '0.6rem 1rem', borderRadius: '12px', border: '1.5px solid', 
-                            borderColor: formData.categories?.includes('Otro') ? '#5F7D4A' : '#f0f0f0',
-                            background: formData.categories?.includes('Otro') ? '#F0F4ED' : 'white', cursor: 'pointer',
-                            transition: 'all 0.1s', fontSize: '0.85rem', fontWeight: '900', color: formData.categories?.includes('Otro') ? '#5F7D4A' : '#999'
-                          }}
-                        >
-                           Otro...
-                        </div>
                     </div>
-                    {formData.categories?.includes('Otro') && (
-                      <InputField label="Nueva Categoría sugerida" value={formData.custom_category} onChange={(v: string) => setFormData({...formData, custom_category: v})} placeholder="Especificar..." />
-                    )}
                   </div>
 
                   <InputField label="Descripción" value={formData.bio_short} onChange={(v: string) => setFormData({...formData, bio_short: v})} placeholder="Una frase que te identifique" />
                </div>
 
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Contacto</h3>
+                  <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Contacto y Maps</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: '1.2rem' }}>
                      <InputField label="WhatsApp" icon={Send} value={formData.whatsapp} onChange={(v: string) => setFormData({...formData, whatsapp: v})} placeholder="+54 9..." />
-                     <InputField label="Instagram" icon={Instagram} value={formData.instagram_url} onChange={(v: string) => setFormData({...formData, instagram_url: v})} placeholder="@usuario" />
-                     <InputField label="Web / Linktree" icon={Globe} value={formData.website_url} onChange={(v: string) => setFormData({...formData, website_url: v})} placeholder="https://..." />
+                     <InputField label="Instagram" icon={Instagram} value={formData.instagram_url} onChange={(v: string) => setFormData({...formData, instagram_url: v})} placeholder="usuario" />
                      <InputField label="Google Maps" icon={MapPin} value={formData.google_maps_url} onChange={(v: string) => setFormData({...formData, google_maps_url: v})} placeholder="https://goo.gl/maps/..." />
+                     <InputField label="Web / Linktree" icon={Globe} value={formData.website_url} onChange={(v: string) => setFormData({...formData, website_url: v})} placeholder="https://..." />
                   </div>
                </div>
 
@@ -369,13 +372,6 @@ export default function MerchantProfilePage() {
                      </div>
                      <button style={{ padding: '0.5rem 1rem', background: 'white', border: '1px solid #E4EBDD', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A' }}>Cambiar</button>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem', background: '#F8F9F5', borderRadius: '16px' }}>
-                     <div>
-                        <div style={{ fontSize: '0.7rem', color: '#999', fontWeight: '900', textTransform: 'uppercase' }}>Tipo de Perfil</div>
-                        <div style={{ fontSize: '0.9rem', color: '#2D3A20', fontWeight: '700' }}>Comerciante Profesional</div>
-                     </div>
-                     <Shield size={20} color="#5F7D4A" />
-                  </div>
                </div>
 
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
@@ -387,26 +383,15 @@ export default function MerchantProfilePage() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                      <div>
                         <div style={{ fontSize: '0.9rem', color: '#2D3A20', fontWeight: '850' }}>Reportes Estadísticos</div>
-                        <div style={{ fontSize: '0.75rem', color: '#777' }}>Recibir un resumen mensual de visitas y clics.</div>
+                        <div style={{ fontSize: '0.75rem', color: '#777' }}>Recibir un resumen mensual de visitas.</div>
                      </div>
                      <div onClick={() => setEmailStatsEnabled(!emailStatsEnabled)} style={{ width: '45px', height: '24px', background: emailStatsEnabled ? '#5F7D4A' : '#ccc', borderRadius: '20px', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: emailStatsEnabled ? 'flex-end' : 'flex-start' }}><div style={{ width: '16px', height: '16px', background: 'white', borderRadius: '50%' }} /></div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                     <div>
-                        <div style={{ fontSize: '0.9rem', color: '#2D3A20', fontWeight: '850' }}>Visibilidad en el Mapa</div>
-                        <div style={{ fontSize: '0.75rem', color: '#777' }}>Ocultar temporalmente mi negocio de Alimnet.</div>
-                     </div>
-                     <div onClick={() => setShowMapValidation(!showMapValidation)} style={{ width: '45px', height: '24px', background: !showMapValidation ? '#5F7D4A' : '#ccc', borderRadius: '20px', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: !showMapValidation ? 'flex-end' : 'flex-start' }}><div style={{ width: '16px', height: '16px', background: 'white', borderRadius: '50%' }} /></div>
                   </div>
                </div>
 
                <div style={{ border: '1px solid #fee2e2', borderRadius: '24px', padding: '2rem', background: '#fef2f2' }}>
                   <h3 style={{ fontSize: '0.9rem', fontWeight: '950', color: '#dc2626', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><LogOut size={18} /> Zona de Peligro</h3>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                     <span style={{ fontSize: '0.8rem', color: '#991b1b', fontWeight: '700' }}>Cerrar sesión en todos los dispositivos</span>
-                     <button style={{ padding: '0.6rem 1.2rem', background: 'white', border: '1px solid #fecaca', borderRadius: '12px', color: '#dc2626', fontWeight: '900', fontSize: '0.75rem' }}>Cerrar Sesión</button>
-                  </div>
+                  <button style={{ width: '100%', padding: '1rem', background: 'white', border: '1px solid #fecaca', borderRadius: '12px', color: '#dc2626', fontWeight: '900', fontSize: '0.8rem' }}>Cerrar Sesión</button>
                </div>
             </div>
           </div>
@@ -432,7 +417,7 @@ export default function MerchantProfilePage() {
           ))}
         </div>
       )}
-      <div style={{ flex: 1, display: 'flex' }}>
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {!isMobileView && (
           <div style={{ width: '240px', background: 'white', borderRight: '1px solid #E4EBDD', padding: '2rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', position: 'sticky', top: '56px', height: 'calc(100vh - 56px)' }}>
              {[
@@ -476,5 +461,4 @@ export default function MerchantProfilePage() {
     </div>
   );
 }
-const isMicroMobile = false; // dummy for compilation
-const isMicroMobile_dummy = false; // duplicate for safety
+const isMicroMobile = false; // dummy
