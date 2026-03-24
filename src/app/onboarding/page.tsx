@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { User, MapPin, Sparkles, ChevronRight, Loader2, CheckCircle } from 'lucide-react';
+import { User, MapPin, Sparkles, ChevronRight, ChevronLeft, Loader2, CheckCircle } from 'lucide-react';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -52,7 +52,15 @@ export default function OnboardingPage() {
   };
 
   const handleNext = () => setStep(step + 1);
+  const handleBack = () => setStep(Math.max(1, step - 1));
   
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      if (step === 1 && firstName) handleNext();
+      else if (step === 2 && locality) handleNext();
+    }
+  };
+
   const handleFinish = async () => {
     setSaving(true);
     try {
@@ -85,6 +93,16 @@ export default function OnboardingPage() {
          <div style={{ width: `${(step / 3) * 100}%`, height: '100%', background: '#5F7D4A', transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }} />
       </div>
 
+      {/* Back Button (Floating top-left) */}
+      {step > 1 && (
+        <button 
+          onClick={handleBack}
+          style={{ position: 'fixed', top: '30px', left: '30px', background: 'none', border: 'none', color: '#888', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: '800', fontSize: '0.9rem' }}
+        >
+          <ChevronLeft size={20} /> Volver
+        </button>
+      )}
+
       <div style={{ maxWidth: '450px', width: '100%', textAlign: 'center' }}>
         
         {step === 1 && (
@@ -99,12 +117,15 @@ export default function OnboardingPage() {
                <label style={{ fontSize: '0.85rem', fontWeight: '900', color: '#5F7D4A', marginLeft: '1rem' }}>NOMBRE</label>
                <input 
                  type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
+                 onKeyDown={handleKeyDown}
                  placeholder="Ej: Carlos" 
                  style={{ width: '100%', padding: '1.2rem 1.5rem', borderRadius: '20px', border: '2px solid #E4EBDD', outline: 'none', fontSize: '1.1rem', fontWeight: '500' }}
+                 autoFocus
                />
                <label style={{ fontSize: '0.85rem', fontWeight: '900', color: '#5F7D4A', marginLeft: '1rem', marginTop: '1rem' }}>APELLIDO</label>
                <input 
                  type="text" value={lastName} onChange={(e) => setLastName(e.target.value)}
+                 onKeyDown={handleKeyDown}
                  placeholder="Ej: Prueba" 
                  style={{ width: '100%', padding: '1.2rem 1.5rem', borderRadius: '20px', border: '2px solid #E4EBDD', outline: 'none', fontSize: '1.1rem', fontWeight: '500' }}
                />
@@ -131,6 +152,7 @@ export default function OnboardingPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left' }}>
                <input 
                  type="text" value={locality} onChange={(e) => setLocality(e.target.value)}
+                 onKeyDown={handleKeyDown}
                  placeholder="Ej: Pilar, Buenos Aires" 
                  style={{ width: '100%', padding: '1.2rem 1.5rem', borderRadius: '20px', border: '2px solid #E4EBDD', outline: 'none', fontSize: '1.1rem', fontWeight: '500' }}
                  autoFocus
