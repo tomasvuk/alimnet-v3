@@ -137,7 +137,7 @@ export default function Header() {
             <MenuItem href="/" icon={<Home size={16} />} label="Home" onClick={() => setShowMenu(false)} />
             <MenuItem href="/sostener" icon={<HelpCircle size={16} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
             <MenuItem href="/mi-cuenta" icon={<User size={16} />} label="Mi Perfil" onClick={() => setShowMenu(false)} />
-            {isMerchant && (
+            {user && (
               <MenuItem href="/perfil" icon={<MapIcon size={16} />} label="MI PERFIL COMERCIAL ✨" onClick={() => setShowMenu(false)} highlight />
             )}
             <div style={{ height: '1px', background: '#f0f0f0', margin: '0.5rem 0' }} />
