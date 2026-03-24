@@ -66,14 +66,24 @@ function MiCuentaContent() {
 
   // Reset scroll on tab change
   useEffect(() => {
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-      mainContent.scrollTo({ top: 0, behavior: 'instant' });
-    }
+    const handleScrollReset = () => {
+      // Intentar subir el contenedor principal
+      const mainContent = document.querySelector('.main-content');
+      if (mainContent) mainContent.scrollTo(0, 0);
+      
+      // Asegurarse de subir toda la ventana por si acaso
+      window.scrollTo(0, 0);
+    };
+
+    // Un pequeño delay para que el render termine
+    const timer = setTimeout(handleScrollReset, 50);
+
     // Also close sidebar on mobile after selecting tab
     if (window.innerWidth <= 900) {
       setShowSidebar(false);
     }
+
+    return () => clearTimeout(timer);
   }, [activeTab]);
 
   const handleTabChange = (tabId: string) => {
