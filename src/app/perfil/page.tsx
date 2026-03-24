@@ -24,7 +24,12 @@ import {
   Globe,
   Truck,
   Plus,
-  AlertCircle
+  AlertCircle,
+  Bell,
+  Fingerprint,
+  Shield,
+  Eye,
+  LogOut
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
@@ -38,6 +43,7 @@ export default function MerchantProfilePage() {
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
+  const [showMapValidation, setShowMapValidation] = useState(true);
 
   // Categorías Exactas de la Captura (Alineación con el Mapa)
   const officialCategories = [
@@ -175,7 +181,7 @@ export default function MerchantProfilePage() {
       case 'inicio':
         return (
           <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexDirection: isMobileView ? 'column' : 'row', gap: '1rem', textAlign: isMicroMobile ? 'center' : 'left' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexDirection: isMobileView ? 'column' : 'row', gap: '1rem' }}>
               <div>
                 <h1 style={{ fontSize: isMobileView ? '1.5rem' : '2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.3rem', letterSpacing: '-0.02em' }}>Mi Panel</h1>
                 <p style={{ color: '#666', fontSize: '0.85rem' }}>Resumen del impacto de <strong>{merchant?.name}</strong>.</p>
@@ -226,9 +232,9 @@ export default function MerchantProfilePage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                  <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD' }}>
-                    <h3 style={{ fontSize: '0.9rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1rem' }}>Reportes</h3>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: '900', color: '#2D3A20', marginBottom: '1rem' }}>Reportes Mensuales</h3>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.8rem 1rem', background: '#F8F9F5', borderRadius: '14px' }}>
-                       <span style={{ fontSize: '0.75rem', fontWeight: '850', color: '#3F5232' }}>Correo mensual</span>
+                       <span style={{ fontSize: '0.75rem', fontWeight: '850', color: '#3F5232' }}>Correo estadístico</span>
                        <div onClick={() => setEmailStatsEnabled(!emailStatsEnabled)} style={{ width: '40px', height: '20px', background: emailStatsEnabled ? '#5F7D4A' : '#ccc', borderRadius: '20px', padding: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: emailStatsEnabled ? 'flex-end' : 'flex-start' }}><div style={{ width: '14px', height: '14px', background: 'white', borderRadius: '50%' }} /></div>
                     </div>
                  </div>
@@ -246,7 +252,6 @@ export default function MerchantProfilePage() {
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
                   <InputField label="Nombre Oficial" value={formData.name} onChange={(v: string) => setFormData({...formData, name: v})} placeholder="Nombre de tu negocio" />
                   
-                  {/* TIPO DE COMERCIO */}
                   <div style={{ marginBottom: '2rem' }}>
                     <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Tipo de comercio</label>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -267,9 +272,8 @@ export default function MerchantProfilePage() {
                     </div>
                   </div>
 
-                  {/* CATEGORIAS ACTUALIZADAS SEGUN CAPTURA */}
                   <div style={{ marginBottom: '2.5rem' }}>
-                    <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '1rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Categorías del Mapa (Selección múltiple)</label>
+                    <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '1rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Categorías del Mapa</label>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '1.2rem' }}>
                        {officialCategories.map(cat => (
                          <div 
@@ -294,36 +298,24 @@ export default function MerchantProfilePage() {
                             transition: 'all 0.1s', fontSize: '0.85rem', fontWeight: '900', color: formData.categories?.includes('Otro') ? '#5F7D4A' : '#999'
                           }}
                         >
-                           Especificar otro...
+                           Otro...
                         </div>
                     </div>
-
                     {formData.categories?.includes('Otro') && (
-                      <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
-                         <InputField 
-                           label="Nueva Categoría sugerida" 
-                           value={formData.custom_category} 
-                           onChange={(v: string) => setFormData({...formData, custom_category: v})} 
-                           placeholder="¿Qué producto ofrecés?" 
-                         />
-                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '1rem', background: '#FFFBEB', borderRadius: '12px', border: '1px solid #FEF3C7', color: '#92400E', fontSize: '0.75rem', fontWeight: '700' }}>
-                            <AlertCircle size={16} /> Tu sugerencia pasará por validación administrativa.
-                         </div>
-                      </div>
+                      <InputField label="Nueva Categoría sugerida" value={formData.custom_category} onChange={(v: string) => setFormData({...formData, custom_category: v})} placeholder="Especificar..." />
                     )}
                   </div>
 
                   <InputField label="Descripción" value={formData.bio_short} onChange={(v: string) => setFormData({...formData, bio_short: v})} placeholder="Una frase que te identifique" />
                </div>
 
-               {/* REDES Y CONTACTO */}
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
                   <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Contacto</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: '1.2rem' }}>
                      <InputField label="WhatsApp" icon={Send} value={formData.whatsapp} onChange={(v: string) => setFormData({...formData, whatsapp: v})} placeholder="+54 9..." />
                      <InputField label="Instagram" icon={Instagram} value={formData.instagram_url} onChange={(v: string) => setFormData({...formData, instagram_url: v})} placeholder="@usuario" />
                      <InputField label="Web / Linktree" icon={Globe} value={formData.website_url} onChange={(v: string) => setFormData({...formData, website_url: v})} placeholder="https://..." />
-                     <InputField label="Google Maps Link" icon={MapPin} value={formData.google_maps_url} onChange={(v: string) => setFormData({...formData, google_maps_url: v})} placeholder="https://goo.gl/maps/..." />
+                     <InputField label="Google Maps" icon={MapPin} value={formData.google_maps_url} onChange={(v: string) => setFormData({...formData, google_maps_url: v})} placeholder="https://goo.gl/maps/..." />
                   </div>
                </div>
 
@@ -334,6 +326,70 @@ export default function MerchantProfilePage() {
                   >
                     {saving ? <Loader2 className="animate-spin" size={18} /> : 'GUARDAR CAMBIOS'}
                   </button>
+               </div>
+            </div>
+          </div>
+        );
+      case 'config':
+        return (
+          <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Configuración</h1>
+            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Administrá tu cuenta y preferencias de seguridad.</p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+               {/* AJUSTES DE CUENTA */}
+               <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#5F7D4A', marginBottom: '1.5rem' }}>
+                     <Fingerprint size={20} />
+                     <h3 style={{ fontSize: '1rem', fontWeight: '950' }}>Cuenta y Acceso</h3>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem', background: '#F8F9F5', borderRadius: '16px', marginBottom: '1rem' }}>
+                     <div>
+                        <div style={{ fontSize: '0.7rem', color: '#999', fontWeight: '900', textTransform: 'uppercase' }}>Email de acceso</div>
+                        <div style={{ fontSize: '0.9rem', color: '#2D3A20', fontWeight: '700' }}>{profile?.email || 'usuario@alimnet.com'}</div>
+                     </div>
+                     <button style={{ padding: '0.5rem 1rem', background: 'white', border: '1px solid #E4EBDD', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A' }}>Cambiar</button>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem', background: '#F8F9F5', borderRadius: '16px' }}>
+                     <div>
+                        <div style={{ fontSize: '0.7rem', color: '#999', fontWeight: '900', textTransform: 'uppercase' }}>Tipo de Perfil</div>
+                        <div style={{ fontSize: '0.9rem', color: '#2D3A20', fontWeight: '700' }}>Comerciante Profesional</div>
+                     </div>
+                     <Shield size={20} color="#5F7D4A" />
+                  </div>
+               </div>
+
+               {/* NOTIFICACIONES Y PRIVACIDAD */}
+               <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#5F7D4A', marginBottom: '2rem' }}>
+                     <Bell size={20} />
+                     <h3 style={{ fontSize: '1rem', fontWeight: '950' }}>Preferencias</h3>
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                     <div>
+                        <div style={{ fontSize: '0.9rem', color: '#2D3A20', fontWeight: '850' }}>Reportes Estadísticos</div>
+                        <div style={{ fontSize: '0.75rem', color: '#777' }}>Recibir un resumen mensual de visitas y clics.</div>
+                     </div>
+                     <div onClick={() => setEmailStatsEnabled(!emailStatsEnabled)} style={{ width: '45px', height: '24px', background: emailStatsEnabled ? '#5F7D4A' : '#ccc', borderRadius: '20px', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: emailStatsEnabled ? 'flex-end' : 'flex-start' }}><div style={{ width: '16px', height: '16px', background: 'white', borderRadius: '50%' }} /></div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                     <div>
+                        <div style={{ fontSize: '0.9rem', color: '#2D3A20', fontWeight: '850' }}>Visibilidad en el Mapa</div>
+                        <div style={{ fontSize: '0.75rem', color: '#777' }}>Ocultar temporalmente mi negocio de Alimnet.</div>
+                     </div>
+                     <div onClick={() => setShowMapValidation(!showMapValidation)} style={{ width: '45px', height: '24px', background: !showMapValidation ? '#5F7D4A' : '#ccc', borderRadius: '20px', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: !showMapValidation ? 'flex-end' : 'flex-start' }}><div style={{ width: '16px', height: '16px', background: 'white', borderRadius: '50%' }} /></div>
+                  </div>
+               </div>
+
+               {/* ACCIONES DE RIESGO */}
+               <div style={{ border: '1px solid #fee2e2', borderRadius: '24px', padding: '2rem', background: '#fef2f2' }}>
+                  <h3 style={{ fontSize: '0.9rem', fontWeight: '950', color: '#dc2626', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><LogOut size={18} /> Zona de Peligro</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                     <span style={{ fontSize: '0.8rem', color: '#991b1b', fontWeight: '700' }}>Cerrar sesión en todos los dispositivos</span>
+                     <button style={{ padding: '0.6rem 1.2rem', background: 'white', border: '1px solid #fecaca', borderRadius: '12px', color: '#dc2626', fontWeight: '900', fontSize: '0.75rem' }}>Cerrar Sesión</button>
+                  </div>
                </div>
             </div>
           </div>
@@ -397,6 +453,9 @@ export default function MerchantProfilePage() {
           </div>
         </div>
       )}
+      <style jsx>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
     </div>
   );
 }
