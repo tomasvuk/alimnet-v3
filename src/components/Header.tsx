@@ -139,24 +139,21 @@ export default function Header() {
             padding: '1.2rem 1rem', zIndex: 4999, display: 'flex', flexDirection: 'column', gap: '0.4rem',
             border: '1px solid rgba(0,0,0,0.04)',
           }}>
-            {/* 1. MI PERFIL (DESTACADO B2C) */}
+            {/* 1. MI PERFIL (DESTACADO B2C - SIMPLIFICADO) */}
             <MenuItem 
                href="/mi-cuenta" 
                icon={<User size={18} />} 
-               label="Mi Perfil de Usuario" 
+               label="Mi Perfil" 
                onClick={() => setShowMenu(false)} 
                variant="button"
             />
             
-            {/* 2, 3, 4 (NORMALES) */}
             <MenuItem href="/explorar" icon={<MapIcon size={18} />} label="Mapa de Alimentos" onClick={() => setShowMenu(false)} />
             <MenuItem href="/sostener" icon={<HelpCircle size={18} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
             <MenuItem href="/" icon={<Home size={18} />} label="Home" onClick={() => setShowMenu(false)} />
             
-            {/* LÍNEA DIVISORA SUTIL */}
             <div style={{ height: '1.5px', background: '#F8F9F5', margin: '0.8rem 0.5rem' }} />
             
-            {/* 5, 6 (COMERCIALES COLOR DESTACADO / SIN BOTÓN) */}
             <MenuItem href="/perfil" icon={<MapIcon size={18} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} variant="text-only" />
             <MenuItem href="/registro-comercio" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="text-only" />
             
