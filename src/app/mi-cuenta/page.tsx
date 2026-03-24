@@ -151,7 +151,7 @@ function MiCuentaContent() {
       <div style={{ 
         position: 'fixed', top: '25px', left: '25px', zIndex: 100, 
         display: 'flex', alignItems: 'center', gap: '15px' 
-      }}>
+      }} className="mobile-only">
         <button 
           onClick={() => setShowSidebar(!showSidebar)}
           style={{ 
@@ -163,7 +163,6 @@ function MiCuentaContent() {
             transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
             width: '45px', justifyContent: 'center', display: 'flex'
           }}
-          className="mobile-only"
         >
           <div style={{ width: showSidebar ? '28px' : '15px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
           <div style={{ width: '22px', height: '2.5px', background: '#5F7D4A', borderRadius: '10px', transition: 'all 0.3s' }} />
@@ -187,7 +186,7 @@ function MiCuentaContent() {
           cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
           fontWeight: '950', fontSize: '0.8rem', color: '#5F7D4A'
         }}
-        className="mobile-only"
+        className="explorar-fixed"
       >
         <MapIcon size={18} /> Explorar
       </button>
@@ -261,15 +260,7 @@ function MiCuentaContent() {
       }}>
         
         <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '5rem' }}>
-          {/* Header Content - Hidden on mobile to save space */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '3rem', paddingTop: '1rem' }} className="desktop-only">
-             <button 
-               onClick={() => window.location.href = '/explorar'} 
-               style={{ padding: '0.8rem 1.5rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(95, 125, 74, 0.2)' }}
-             >
-               <MapIcon size={18} /> Explorar
-             </button>
-          </div>
+          {/* Header Content - Hidden on mobile, unified Explore button fixed top-right */}
 
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
@@ -548,16 +539,6 @@ function MiCuentaContent() {
         )}
 
         </div> {/* Final de maxWidth container - ENVUELVE TODO PARA ALINEACIÓN PERFECTA */}
-
-        {/* BRANDING PERSISTENTE ABAJO A LA DERECHA */}
-        <div style={{ 
-          position: 'fixed', bottom: '2rem', right: '3rem', 
-          opacity: 0.5, fontWeight: '950', fontSize: '1.4rem', 
-          letterSpacing: '0.1em', pointerEvents: 'none', color: '#5F7D4A',
-          zIndex: 1
-        }} className="desktop-only">
-          ALIMNET
-        </div>
       </main>
 
       <style jsx>{`
