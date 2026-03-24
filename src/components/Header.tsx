@@ -85,7 +85,7 @@ export default function Header() {
       {/* Acciones (DERECHA) */}
       <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
         
-        {/* 1. EXPLORAR / MAPA */}
+        {/* 1. EXPLORAR / MAPA (Preeminencia B2C) */}
         <button 
           onClick={() => window.location.href = '/explorar'}
           style={{ 
@@ -131,26 +131,28 @@ export default function Header() {
         </button>
       </div>
 
-      {/* DROPDOWN HAMBURGUESA (DERECHA) */}
+      {/* DROPDOWN HAMBURGUESA INFRAESTRUCTURA PREMIUM */}
       {showMenu && (
         <>
           <div onClick={() => setShowMenu(false)} style={{ position: 'fixed', inset: 0, zIndex: 4998 }} />
           <div style={{ 
-            position: 'absolute', top: 'calc(100% + 10px)', right: '1.5rem', width: '240px', 
-            background: 'white', borderRadius: '24px', boxShadow: '0 15px 50px rgba(0,0,0,0.15)', 
-            padding: '1rem', zIndex: 4999, display: 'flex', flexDirection: 'column', gap: '0.5rem',
+            position: 'absolute', top: 'calc(100% + 10px)', right: '1.5rem', width: '280px', 
+            background: 'white', borderRadius: '28px', boxShadow: '0 20px 60px rgba(0,0,0,0.18)', 
+            padding: '1rem', zIndex: 4999, display: 'flex', flexDirection: 'column', gap: '0.4rem',
             border: '1px solid rgba(0,0,0,0.05)',
             transform: 'translateY(0)',
             opacity: 1,
             transition: 'all 0.2s ease-out'
           }}>
+            {/* SECCION B2C (USUARIO FINAL) - MÁS VISIBLES/CLAROS */}
             <MenuItem href="/" icon={<Home size={16} />} label="Home" onClick={() => setShowMenu(false)} />
+            <MenuItem href="/explorar" icon={<MapIcon size={16} />} label="Mapa de Alimentos" onClick={() => setShowMenu(false)} />
+            <MenuItem href="/mi-cuenta" icon={<User size={16} />} label="Mi Perfil de Usuario" onClick={() => setShowMenu(false)} />
             <MenuItem href="/sostener" icon={<HelpCircle size={16} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
-            <MenuItem href="/mi-cuenta" icon={<User size={16} />} label="Mi Perfil" onClick={() => setShowMenu(false)} />
             
-            <div style={{ height: '1.5px', background: '#f8f9f5', margin: '0.5rem 0' }} />
+            <div style={{ height: '1.5px', background: '#f8f9f5', margin: '0.6rem 0' }} />
             
-            {/* OPCIONES DE TESTEO FORZADAS */}
+            {/* SECCION B2B (COMERCIANTE) - UN SOLO RENGLÓN COMPACTO */}
             <MenuItem href="/perfil" icon={<MapIcon size={16} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} highlight />
             <MenuItem href="/registro-comercio" icon={<Plus size={16} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} highlight />
             
@@ -169,8 +171,11 @@ function MenuItem({ href, icon, label, onClick, highlight = false }: { href: str
       style={{ 
         display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', 
         borderRadius: '16px', textDecoration: 'none', color: highlight ? '#5F7D4A' : '#2D3A20', 
-        fontWeight: highlight ? '900' : '750', fontSize: '0.85rem', transition: 'all 0.2s',
-        background: highlight ? 'rgba(95, 125, 74, 0.05)' : 'transparent'
+        fontWeight: highlight ? '950' : '750', fontSize: highlight ? '0.78rem' : '0.82rem', 
+        transition: 'all 0.2s',
+        background: highlight ? 'rgba(95, 125, 74, 0.05)' : 'transparent',
+        whiteSpace: 'nowrap', // FUERZA UN SOLO RENGLON
+        letterSpacing: highlight ? '0.02em' : 'normal'
       }}
     >
       {icon} {label}
