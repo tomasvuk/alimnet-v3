@@ -11,7 +11,13 @@ export default function Header() {
   const [loading, setLoading] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
 
+  const [isMobileView, setIsMobileView] = useState(false);
+
   useEffect(() => {
+    const checkMobile = () => setIsMobileView(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       handleAuthChange(session);
@@ -22,14 +28,16 @@ export default function Header() {
     });
 
     initAuth();
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   const handleAuthChange = async (session: any) => {
     if (session?.user) {
       setUser(session.user);
       
-      // 1. Perfil
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -37,7 +45,6 @@ export default function Header() {
         .single();
       if (profile) setProfile(profile);
 
-      // 2. ¿Es mercante? (Soporte Multi-Comercio)
       const { data: mData } = await supabase
         .from('merchants')
         .select('id, name')
@@ -87,7 +94,7 @@ export default function Header() {
           }}
         >
           <MapIcon size={18} />
-          <span className="desktop-only">EXPLORAR</span>
+          {!isMobileView && <span>EXPLORAR</span>}
         </button>
 
         {/* 2. PERSONITA / LOGIN */}
@@ -132,7 +139,10 @@ export default function Header() {
             position: 'absolute', top: 'calc(100% + 10px)', right: '1.5rem', width: '240px', 
             background: 'white', borderRadius: '24px', boxShadow: '0 15px 50px rgba(0,0,0,0.15)', 
             padding: '1rem', zIndex: 4999, display: 'flex', flexDirection: 'column', gap: '0.5rem',
-            border: '1px solid rgba(0,0,0,0.05)', animation: 'slideDown 0.2s ease-out'
+            border: '1px solid rgba(0,0,0,0.05)',
+            transform: 'translateY(0)',
+            opacity: 1,
+            transition: 'all 0.2s ease-out'
           }}>
             <MenuItem href="/" icon={<Home size={16} />} label="Home" onClick={() => setShowMenu(false)} />
             <MenuItem href="/sostener" icon={<HelpCircle size={16} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
@@ -147,11 +157,6 @@ export default function Header() {
           </div>
         </>
       )}
-
-      <style jsx>{`
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 768px) { .desktop-only { display: none !important; } }
-      `}</style>
     </header>
   );
 }
@@ -163,12 +168,10 @@ function MenuItem({ href, icon, label, onClick, highlight = false }: { href: str
       onClick={onClick}
       style={{ 
         display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', 
-        borderRadius: '16px', textDecoration: 'none', color: highlight ? 'var(--primary)' : '#2D3A20', 
+        borderRadius: '16px', textDecoration: 'none', color: highlight ? '#5F7D4A' : '#2D3A20', 
         fontWeight: highlight ? '900' : '750', fontSize: '0.85rem', transition: 'all 0.2s',
         background: highlight ? 'rgba(95, 125, 74, 0.05)' : 'transparent'
       }}
-      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
-      onMouseLeave={(e) => e.currentTarget.style.background = highlight ? 'rgba(95, 125, 74, 0.05)' : 'transparent'}
     >
       {icon} {label}
     </a>
