@@ -113,6 +113,16 @@ const ADVANCED_CATEGORIES = {
 };
 
 function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number }) {
+  // --- Soporte para tecla ESC ---
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const isPlantBased = selectedFilters.includes('Plant-based') || selectedFilters.includes('Vegetariano');
@@ -155,12 +165,19 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
 
   return (
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 3000, backdropFilter: 'blur(3px)' }} />
-      <div style={{
+      <div 
+        onClick={onClose} 
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 3000, backdropFilter: 'blur(3px)' }} 
+      />
+      <div 
+        onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+        tabIndex={0}
+        ref={(el) => { if (el && isOpen) el.focus(); }} // Fuerza el foco al abrir
+        style={{
         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
         width: '94%', maxWidth: '780px', height: '85vh', background: 'white', borderRadius: '32px',
         zIndex: 3001, display: 'flex', flexDirection: 'column', boxShadow: '0 30px 60px rgba(0,0,0,0.25)',
-        overflow: 'hidden'
+        overflow: 'hidden', outline: 'none'
       }}>
         <div style={{ padding: '1.2rem 2rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2D3A20', display: 'flex', padding: '8px' }}><X size={20} /></button>
@@ -248,9 +265,39 @@ export default function ExplorarPage() {
       if (user) {
         setUser(user);
         setIsLoggedIn(true);
-        // Perfil
-        const { data: pData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        setUserProfile(pData);
+        // Perfil - Usamos user_id para ser consistente con onboarding
+        const { data: pData } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
+        if (pData) {
+          setUserProfile(pData);
+          
+          // --- INTELIGENCIA DE MAPA ALIMNET ---
+          // 1. Centrar en localidad si existe
+          if (pData.locality) {
+            setSearchLocation(pData.locality);
+          }
+          
+          // 2. Traducir y pre-activar filtros del Onboarding
+          if (pData.dietary_preferences) {
+            const prefs = pData.dietary_preferences.split(',').map((s: string) => s.trim());
+            const newFilters = [...selectedFilters];
+            
+            const mapping: Record<string, string> = {
+              'Plant Based': 'Plant-based',
+              'Gluten Free': 'Sin gluten',
+              'Sugar Free': 'Sin azúcar',
+              'Pastura / Grass Fed': 'Pastura',
+              'Orgánico / Agroecológico': 'Orgánico'
+            };
+            
+            prefs.forEach((p: string) => {
+              const mapped = mapping[p];
+              if (mapped && !newFilters.includes(mapped)) {
+                newFilters.push(mapped);
+              }
+            });
+            setSelectedFilters(newFilters);
+          }
+        }
         // Validaciones del usuario
         const { data: vData } = await supabase.from('validations').select('merchant_id').eq('user_id', user.id);
         if (vData) setValidatedMerchantIds(new Set(vData.map(v => v.merchant_id)));

@@ -4,6 +4,20 @@ import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { useMap } from 'react-leaflet';
+
+// Subcomponente para arreglar el re-dibujado en smartphones
+const MapResizer = () => {
+  const map = useMap();
+  React.useEffect(() => {
+    // Forzamos el redibujado después de un pequeño delay para que el contenedor esté listo
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
+};
 
 // --- Iconos por Categoría (SVG Paths simplificados y centrados) ---
 const CATEGORY_PATHS: Record<string, string> = {
@@ -63,6 +77,7 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11 }: M
         scrollWheelZoom={true}
         style={{ height: '100%', width: '100%' }}
       >
+        <MapResizer />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
