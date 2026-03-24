@@ -132,7 +132,7 @@ function MiCuentaContent() {
           position: 'fixed', top: '25px', left: '25px', zIndex: 100, 
           background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', 
           padding: '12px 10px', 
-          display: 'flex', flexDirection: 'column',
+          flexDirection: 'column',
           gap: '5px',
           alignItems: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
