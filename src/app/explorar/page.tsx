@@ -355,10 +355,9 @@ export default function ExplorarPage() {
       const goingUp = st < prevScrollTop;
 
       if (goingDown) {
-        // Scrolling DOWN: hide in order — products first, roles second, header last
+        // Scrolling DOWN (Swiping UP): hide filters only, KEEP search and header
         if (st > 30) setIsPillsVisible(false);
         if (st > 80) setIsRolesVisible(false);
-        if (st > 140) setIsHeaderVisible(false);
       } else if (goingUp) {
         // Scrolling UP: restore everything
         setIsHeaderVisible(true);
@@ -398,10 +397,9 @@ export default function ExplorarPage() {
 
       const s = cumulativeSwipe.current;
       if (deltaY > 2) {
-        // Swiping UP: staggered hide
+        // Swiping UP: hide filters only
         if (s > 20) setIsPillsVisible(false);
         if (s > 60) setIsRolesVisible(false);
-        if (s > 110) setIsHeaderVisible(false);
       } else if (deltaY < -2) {
         // Swiping DOWN: restore all
         setIsHeaderVisible(true);
