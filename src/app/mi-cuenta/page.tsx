@@ -64,6 +64,18 @@ function MiCuentaContent() {
     }
   }, [searchParams]);
 
+  // Reset scroll on tab change
+  useEffect(() => {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    // Also close sidebar on mobile after selecting tab
+    if (window.innerWidth <= 900) {
+      setShowSidebar(false);
+    }
+  }, [activeTab]);
+
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     router.push(`/mi-cuenta?tab=${tabId}`, { scroll: false });
