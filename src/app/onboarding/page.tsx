@@ -16,7 +16,7 @@ export default function OnboardingPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [locality, setLocality] = useState('');
-  const [preference, setPreference] = useState('');
+  const [preferences, setPreferences] = useState<string[]>([]);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -43,6 +43,14 @@ export default function OnboardingPage() {
     checkUser();
   }, [router]);
 
+  const togglePreference = (pref: string) => {
+    if (preferences.includes(pref)) {
+      setPreferences(preferences.filter(p => p !== pref));
+    } else {
+      setPreferences([...preferences, pref]);
+    }
+  };
+
   const handleNext = () => setStep(step + 1);
   
   const handleFinish = async () => {
@@ -55,14 +63,14 @@ export default function OnboardingPage() {
           first_name: firstName,
           last_name: lastName,
           locality: locality,
-          dietary_preferences: preference,
+          dietary_preferences: preferences.join(', '),
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'user_id' });
         
       if (error) throw error;
       router.push('/explorar');
     } catch (err) {
-      console.error(err);
+      console.error("Error saving profile:", err);
       setSaving(false);
     }
   };
@@ -84,7 +92,7 @@ export default function OnboardingPage() {
             <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2.5rem', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', color: '#5F7D4A' }}>
               <User size={32} />
             </div>
-            <h1 style={{ fontSize: '2.4rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.02em' }}>¡Hola! 👋</h1>
+            <h1 style={{ fontSize: '2.4rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1rem', letterSpacing: '-0.02em' }}>¡Hola! 👋</h1>
             <p style={{ color: '#888', fontWeight: '600', marginBottom: '3rem' }}>Queremos conocerte un poco mejor para cuidar tu experiencia.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left' }}>
@@ -117,8 +125,8 @@ export default function OnboardingPage() {
             <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2.5rem', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', color: '#5F7D4A' }}>
               <MapPin size={32} />
             </div>
-            <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.02em' }}>Tu Radar 🗺️</h1>
-            <p style={{ color: '#888', fontWeight: '600', marginBottom: '3rem' }}>¿En qué zona buscás alimentos hoy?</p>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1rem', letterSpacing: '-0.02em' }}>Tu Radar 🗺️</h1>
+            <p style={{ color: '#888', fontWeight: '600', marginBottom: '3rem' }}>¿En qué zona buscás comida real?</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left' }}>
                <input 
@@ -145,32 +153,33 @@ export default function OnboardingPage() {
             <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2.5rem', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', color: '#5F7D4A' }}>
               <Sparkles size={32} />
             </div>
-            <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.02em' }}>Tu Estilo 🥗</h1>
-            <p style={{ color: '#888', fontWeight: '600', marginBottom: '3rem' }}>¿Alguna preferencia alimentaria?</p>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1rem', letterSpacing: '-0.02em' }}>Tu Estilo 🥗</h1>
+            <p style={{ color: '#888', fontWeight: '600', marginBottom: '3rem' }}>¿Alguna preferencia alimentaria? (Elegí todas las que quieras)</p>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.8rem', textAlign: 'left' }}>
-               {['Sin Preferencia', 'Celíaco / Sin Gluten', 'Vegano', 'Vegetariano', 'Orgánico / Agroecológico'].map((pref) => (
+               {['Plant Based', 'Gluten Free', 'Sugar Free', 'Pastura / Grass Fed', 'Orgánico / Agroecológico'].map((pref) => (
                  <button
                    key={pref}
-                   onClick={() => setPreference(pref)}
+                   onClick={() => togglePreference(pref)}
                    style={{ 
-                     padding: '1.2rem 1.5rem', borderRadius: '20px', border: preference === pref ? '2px solid #5F7D4A' : '2px solid #E4EBDD',
-                     background: preference === pref ? '#F0F4ED' : 'white', color: preference === pref ? '#5F7D4A' : '#666',
+                     padding: '1.2rem 1.5rem', borderRadius: '20px', border: preferences.includes(pref) ? '2px solid #5F7D4A' : '2px solid #E4EBDD',
+                     background: preferences.includes(pref) ? '#F0F4ED' : 'white', color: preferences.includes(pref) ? '#5F7D4A' : '#666',
                      fontWeight: '800', fontSize: '1rem', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                    }}
                  >
                    {pref}
-                   {preference === pref && <CheckCircle size={18} />}
+                   {preferences.includes(pref) && <CheckCircle size={18} />}
                  </button>
                ))}
                
                <button 
-                 disabled={!preference || saving}
+                 disabled={saving}
                  onClick={handleFinish}
-                 style={{ marginTop: '2.5rem', padding: '1.2rem', borderRadius: '20px', border: 'none', background: preference ? '#5F7D4A' : '#E4EBDD', color: 'white', fontWeight: '950', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: preference ? '0 10px 25px rgba(95, 125, 74, 0.2)' : 'none' }}
+                 style={{ marginTop: '2.5rem', padding: '1.2rem', borderRadius: '20px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '950', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 10px 25px rgba(95, 125, 74, 0.2)' }}
                >
                  {saving ? <Loader2 className="animate-spin" /> : 'Descubrir mi red'}
                </button>
+               <button onClick={handleFinish} style={{ background: 'none', border: 'none', color: '#888', marginTop: '1rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600' }}>Omitir por ahora</button>
             </div>
           </div>
         )}
