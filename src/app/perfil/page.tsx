@@ -43,6 +43,15 @@ export default function MerchantProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  // Detector de pantalla
+  useEffect(() => {
+    const checkMobile = () => setIsMobileView(window.innerWidth <= 900);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [formData, setFormData] = useState({
     name: '',
     bio_short: '',
@@ -540,70 +549,74 @@ export default function MerchantProfilePage() {
       <Header />
 
       {/* SUB-MENU HORIZONTAL (SOLO MÓVIL) */}
-      <div className="mobile-only" style={{ 
-        background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.8rem 1rem', 
-        overflowX: 'auto', whiteSpace: 'nowrap', gap: '10px', display: 'flex',
-        scrollbarWidth: 'none', msOverflowStyle: 'none'
-      }}>
-        {[
-          { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
-          { id: 'perfil', label: 'Editar Perfil', icon: User },
-          { id: 'config', label: 'Configuración', icon: Settings }
-        ].map(item => (
-          <button 
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            style={{ 
-              display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
-              borderRadius: '14px', border: 'none', background: activeTab === item.id ? '#5F7D4A' : '#F0F4ED',
-              color: activeTab === item.id ? 'white' : '#5F7D4A', fontWeight: '900', fontSize: '0.8rem',
-              transition: 'all 0.2s', flexShrink: 0
-            }}
-          >
-            <item.icon size={16} /> {item.label}
-          </button>
-        ))}
-      </div>
+      {isMobileView && (
+        <div style={{ 
+          background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.8rem 1rem', 
+          overflowX: 'auto', whiteSpace: 'nowrap', gap: '10px', display: 'flex',
+          scrollbarWidth: 'none', msOverflowStyle: 'none'
+        }}>
+          {[
+            { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
+            { id: 'perfil', label: 'Editar Perfil', icon: User },
+            { id: 'config', label: 'Configuración', icon: Settings }
+          ].map(item => (
+            <button 
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              style={{ 
+                display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
+                borderRadius: '14px', border: 'none', background: activeTab === item.id ? '#5F7D4A' : '#F0F4ED',
+                color: activeTab === item.id ? 'white' : '#5F7D4A', fontWeight: '900', fontSize: '0.8rem',
+                transition: 'all 0.2s', flexShrink: 0
+              }}
+            >
+              <item.icon size={16} /> {item.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
         
         {/* SIDEBAR (SOLO ESCRITORIO) */}
-        <div style={{ width: '280px', background: 'white', borderRight: '1px solid var(--border)', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: 'calc(100vh - 56px)', position: 'sticky', top: '56px' }} className="desktop-only">
-          
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {[
-              { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
-              { id: 'perfil', label: 'Editar Perfil', icon: User },
-              { id: 'config', label: 'Configuración', icon: Settings }
-            ].map(item => (
-              <button 
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                style={{ 
-                  display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', 
-                  borderRadius: '16px', border: 'none', background: activeTab === item.id ? 'var(--primary)' : 'transparent',
-                  color: activeTab === item.id ? 'white' : 'var(--text-secondary)', fontWeight: '800', 
-                  cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left'
-                }}
-              >
-                <item.icon size={20} /> {item.label}
-              </button>
-            ))}
-          </nav>
+        {!isMobileView && (
+          <div style={{ width: '280px', background: 'white', borderRight: '1px solid var(--border)', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: 'calc(100vh - 56px)', position: 'sticky', top: '56px' }}>
+            
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {[
+                { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
+                { id: 'perfil', label: 'Editar Perfil', icon: User },
+                { id: 'config', label: 'Configuración', icon: Settings }
+              ].map(item => (
+                <button 
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  style={{ 
+                    display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', 
+                    borderRadius: '16px', border: 'none', background: activeTab === item.id ? 'var(--primary)' : 'transparent',
+                    color: activeTab === item.id ? 'white' : 'var(--text-secondary)', fontWeight: '800', 
+                    cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left'
+                  }}
+                >
+                  <item.icon size={20} /> {item.label}
+                </button>
+              ))}
+            </nav>
 
-          <div style={{ marginTop: 'auto', background: '#F0F4ED', padding: '1.5rem', borderRadius: '24px' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>Chat de Soporte</h4>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '1rem' }}>
-              Atención personalizada para tu crecimiento.
-            </p>
-            <button 
-              onClick={() => setShowChat(true)}
-              style={{ width: '100%', padding: '0.8rem', background: 'white', border: 'none', borderRadius: '12px', color: 'var(--primary)', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-            >
-              <MessageSquare size={16} /> Abrir Soporte
-            </button>
+            <div style={{ marginTop: 'auto', background: '#F0F4ED', padding: '1.5rem', borderRadius: '24px' }}>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>Chat de Soporte</h4>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '1rem' }}>
+                Atención personalizada para tu crecimiento.
+              </p>
+              <button 
+                onClick={() => setShowChat(true)}
+                style={{ width: '100%', padding: '0.8rem', background: 'white', border: 'none', borderRadius: '12px', color: 'var(--primary)', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+              >
+                <MessageSquare size={16} /> Abrir Soporte
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* MAIN CONTENT AREA */}
         <div style={{ flex: 1, padding: '3rem', maxWidth: '1200px', overflowY: 'auto' }}>
@@ -702,15 +715,6 @@ export default function MerchantProfilePage() {
         }
         .hover-scale:hover {
           transform: scale(1.1);
-        }
-        .mobile-only { display: none; }
-        @media (max-width: 900px) {
-          .mobile-only { display: flex !important; }
-          .desktop-only { display: none !important; }
-          div[style*="padding: 3rem"] { padding: 2rem 1rem !important; }
-        }
-        @media (min-width: 901px) {
-          .desktop-only { display: flex !important; }
         }
       `}</style>
 
