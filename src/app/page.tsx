@@ -1,7 +1,8 @@
 'use client';
 
 import React from "react";
-import { Leaf, Map as MapIcon, HelpCircle, LogIn, Rocket, UserPlus, MapPin, CheckCircle, Heart, Instagram, Linkedin, Mail, Store, UtensilsCrossed, ChefHat } from "lucide-react";
+import Header from "@/components/Header";
+import { LogIn, Rocket, UserPlus, MapPin, CheckCircle, Heart, Instagram, Linkedin, Mail, Store, UtensilsCrossed, ChefHat } from "lucide-react";
 
 const ProductorIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,42 +18,8 @@ export default function Home() {
   return (
     <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--background)", color: "var(--text-primary)" }}>
       
-      {/* 1. Header Premium (Reducido ~15%) */}
-      <header style={{ 
-        padding: "1rem 2rem", 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center",
-        borderBottom: "1px solid var(--border)",
-        background: "rgba(244, 241, 230, 0.95)",
-        backdropFilter: "blur(10px)",
-        position: "sticky",
-        top: 0,
-        zIndex: 100
-      }}>
-        <div style={{ fontSize: "1.55rem", fontWeight: "950", color: "var(--primary-dark)", letterSpacing: "-0.05em", display: "flex", alignItems: "center", gap: "8px" }}>
-          ALIMNET
-        </div>
-        <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
-          <a href="/explorar" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem" }}><MapIcon size={16} /> Explorar</a>
-          <a href="/sostener" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem" }}><HelpCircle size={16} /> Sostener Alimnet</a>
-          <a href="#como-funciona" className="nav-link" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem" }}>¿Cómo funciona?</a>
-        </nav>
-        <div style={{ display: "flex", gap: "0.8rem", alignItems: "center" }}>
-          <button 
-            onClick={() => window.location.href = '/login'}
-            style={{ color: "var(--primary-dark)", fontWeight: "750", background: "none", border: "none", padding: "0.4rem 0.8rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px", fontSize: "0.85rem" }}
-          >
-            <LogIn size={16} /> Ingresar
-          </button>
-          <button 
-            onClick={() => window.location.href = '/registro'}
-            className="button button-primary" style={{ padding: "0.65rem 1.5rem", borderRadius: "14px", fontSize: "0.85rem" }}
-          >
-            Crear cuenta
-          </button>
-        </div>
-      </header>
+      {/* 1. Header Global con Detección de Usuario */}
+      <Header />
 
       {/* 2. Hero Principal (Alineado a la IZQUIERDA y reducido ~15%) */}
       <section className="hero-section" style={{ 
