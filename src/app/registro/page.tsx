@@ -16,7 +16,7 @@ export default function RegistroPage() {
     setLoading(true);
     // Simulación de registro
     setTimeout(() => {
-      window.location.href = '/explorar';
+      window.location.href = '/onboarding';
     }, 1500);
   };
 
@@ -45,7 +45,7 @@ export default function RegistroPage() {
             {/* Google Signup */}
             <button 
               type="button"
-              onClick={() => window.location.href = '/explorar'}
+              onClick={() => window.location.href = '/onboarding'}
               style={{ 
                 width: '100%', padding: '0.8rem', borderRadius: '16px', border: '1px solid var(--border)', 
                 background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
