@@ -23,7 +23,8 @@ import {
   Camera,
   Globe,
   Truck,
-  Plus
+  Plus,
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
@@ -38,18 +39,25 @@ export default function MerchantProfilePage() {
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
 
+  // Categorías Predefinidas
+  const officialCategories = [
+    'Frutas y Verduras', 'Miel y Derivados', 'Aceites y Olivas', 'Panificados', 'Lácteos y Quesos', 
+    'Semillas y Granos', 'Dulces y Conservas', 'Bebidas Fermentadas', 'Vivero y Plantas', 'Artesanías'
+  ];
+
   // Estados del Formulario (Completo)
   const [formData, setFormData] = useState<any>({
     name: '',
     bio_short: '',
     bio_long: '',
     types: [], 
-    categories: '',
+    categories: [], // Cambiamos a array
+    custom_category: '', // Para la opción "Otro"
     whatsapp: '',
     email_public: '',
     instagram_url: '',
     website_url: '',
-    google_maps_url: '', // Nuevo campo
+    google_maps_url: '',
     locality: '',
     delivery_info: '',
     working_hours: ''
@@ -83,13 +91,15 @@ export default function MerchantProfilePage() {
       if (mData && mData.length > 0) {
         setMerchant(mData[0]);
         const dbTypes = mData[0].type ? (typeof mData[0].type === 'string' ? mData[0].type.split(',') : mData[0].type) : [];
+        const dbCats = mData[0].categories ? (typeof mData[0].categories === 'string' ? mData[0].categories.split(',').map((c: string) => c.trim()) : mData[0].categories) : [];
         
         setFormData({
           name: mData[0].name || '',
           bio_short: mData[0].bio_short || '',
           bio_long: mData[0].bio_long || '',
           types: dbTypes,
-          categories: mData[0].categories || '',
+          categories: dbCats,
+          custom_category: '',
           whatsapp: mData[0].whatsapp || '',
           email_public: mData[0].email || '',
           instagram_url: mData[0].instagram_url || '',
@@ -107,11 +117,13 @@ export default function MerchantProfilePage() {
           website_url: 'https://linktr.ee/esperanza',
           instagram_url: '@huerta_esperanza',
           google_maps_url: 'https://goo.gl/maps/example',
-          type: ['Productor']
+          type: ['Productor'],
+          categories: ['Frutas y Verduras', 'Miel y Derivados']
         });
         setFormData((prev: any) => ({ 
           ...prev, 
           types: ['Productor'],
+          categories: ['Frutas y Verduras', 'Miel y Derivados'],
           google_maps_url: 'https://goo.gl/maps/example'
         }));
       }
@@ -125,10 +137,16 @@ export default function MerchantProfilePage() {
   const toggleType = (id: string) => {
     setFormData((prev: any) => {
       const current = prev.types || [];
-      const next = current.includes(id) 
-        ? current.filter((t: string) => t !== id)
-        : [...current, id];
+      const next = current.includes(id) ? current.filter((t: string) => t !== id) : [...current, id];
       return { ...prev, types: next };
+    });
+  };
+
+  const toggleCategory = (cat: string) => {
+    setFormData((prev: any) => {
+      const current = prev.categories || [];
+      const next = current.includes(cat) ? current.filter((c: string) => c !== cat) : [...current, cat];
+      return { ...prev, categories: next };
     });
   };
 
@@ -222,12 +240,13 @@ export default function MerchantProfilePage() {
         return (
           <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <h1 style={{ fontSize: '2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Editar Perfil</h1>
-            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Asegúrate de que tus datos estén al día.</p>
+            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Personaliza tu presencia en la red.</p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-               <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
+               <div style={{ background: 'white', borderRadius: '24px', padding: '2.5rem', border: '1px solid #E4EBDD' }}>
                   <InputField label="Nombre Oficial" value={formData.name} onChange={(v: string) => setFormData({...formData, name: v})} placeholder="Nombre de tu negocio" />
                   
+                  {/* TIPO DE COMERCIO */}
                   <div style={{ marginBottom: '2rem' }}>
                     <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Tipo de comercio</label>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -248,19 +267,63 @@ export default function MerchantProfilePage() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1.5fr 1fr', gap: '1.2rem' }}>
-                     <InputField label="Descripción" value={formData.bio_short} onChange={(v: string) => setFormData({...formData, bio_short: v})} placeholder="Una frase que te identifique" />
-                     <InputField label="Categorías" value={formData.categories} onChange={(v: string) => setFormData({...formData, categories: v})} placeholder="Ej: Miel, Verduras" />
+                  {/* CATEGORIAS DINAMICAS */}
+                  <div style={{ marginBottom: '2.5rem' }}>
+                    <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '1rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Categorías (Una o varias)</label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '1.2rem' }}>
+                       {officialCategories.map(cat => (
+                         <div 
+                           key={cat}
+                           onClick={() => toggleCategory(cat)}
+                           style={{ 
+                             padding: '0.6rem 1rem', borderRadius: '12px', border: '1.5px solid', 
+                             borderColor: formData.categories?.includes(cat) ? '#5F7D4A' : '#f0f0f0',
+                             background: formData.categories?.includes(cat) ? '#F0F4ED' : 'white', cursor: 'pointer',
+                             transition: 'all 0.1s', fontSize: '0.85rem', fontWeight: '800', color: formData.categories?.includes(cat) ? '#5F7D4A' : '#999'
+                           }}
+                         >
+                            {cat}
+                         </div>
+                       ))}
+                       <div 
+                          onClick={() => toggleCategory('Otro')}
+                          style={{ 
+                            padding: '0.6rem 1rem', borderRadius: '12px', border: '1.5px solid', 
+                            borderColor: formData.categories?.includes('Otro') ? '#5F7D4A' : '#f0f0f0',
+                            background: formData.categories?.includes('Otro') ? '#F0F4ED' : 'white', cursor: 'pointer',
+                            transition: 'all 0.1s', fontSize: '0.85rem', fontWeight: '900', color: formData.categories?.includes('Otro') ? '#5F7D4A' : '#999'
+                          }}
+                        >
+                           Específicar otro...
+                        </div>
+                    </div>
+
+                    {formData.categories?.includes('Otro') && (
+                      <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                         <InputField 
+                           label="Nueva Categoría sugerida" 
+                           value={formData.custom_category} 
+                           onChange={(v: string) => setFormData({...formData, custom_category: v})} 
+                           placeholder="¿Qué producto ofrecés?" 
+                         />
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '1rem', background: '#FFFBEB', borderRadius: '12px', border: '1px solid #FEF3C7', color: '#92400E', fontSize: '0.75rem', fontWeight: '700' }}>
+                            <AlertCircle size={16} /> Tu sugerencia pasará por validación para activarse en el mapa global.
+                         </div>
+                      </div>
+                    )}
                   </div>
+
+                  <InputField label="Descripción muy corta" value={formData.bio_short} onChange={(v: string) => setFormData({...formData, bio_short: v})} placeholder="Una frase que te identifique" />
                </div>
 
+               {/* REDES Y CONTACTO */}
                <div style={{ background: 'white', borderRadius: '24px', padding: '2rem', border: '1px solid #E4EBDD' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Redes y Contacto</h3>
+                  <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Contacto</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: '1.2rem' }}>
                      <InputField label="WhatsApp" icon={Send} value={formData.whatsapp} onChange={(v: string) => setFormData({...formData, whatsapp: v})} placeholder="+54 9..." />
                      <InputField label="Instagram" icon={Instagram} value={formData.instagram_url} onChange={(v: string) => setFormData({...formData, instagram_url: v})} placeholder="@usuario" />
                      <InputField label="Web / Linktree" icon={Globe} value={formData.website_url} onChange={(v: string) => setFormData({...formData, website_url: v})} placeholder="https://..." />
-                     <InputField label="Enlace Google Maps" icon={MapPin} value={formData.google_maps_url} onChange={(v: string) => setFormData({...formData, google_maps_url: v})} placeholder="https://goo.gl/maps/..." />
+                     <InputField label="Google Maps Link" icon={MapPin} value={formData.google_maps_url} onChange={(v: string) => setFormData({...formData, google_maps_url: v})} placeholder="https://goo.gl/maps/..." />
                   </div>
                </div>
 
