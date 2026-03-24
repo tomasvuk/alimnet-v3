@@ -205,9 +205,35 @@ function MiCuentaContent() {
       
       <Header />
 
+      {/* SUB-MENU HORIZONTAL (SOLO MÓVIL) */}
+      <div className="mobile-only" style={{ 
+        background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.8rem 1rem', 
+        overflowX: 'auto', whiteSpace: 'nowrap', gap: '10px', display: 'flex',
+        scrollbarWidth: 'none', msOverflowStyle: 'none'
+      }}>
+        {menuItems.filter(item => item.id !== 'logout').map(item => (
+          <button 
+            key={item.id}
+            onClick={() => {
+              if (item.id === 'sostener') { window.location.href = '/sostener'; return; }
+              if (item.id === 'mi-emprendimiento') { window.location.href = '/perfil'; return; }
+              handleTabChange(item.id);
+            }}
+            style={{ 
+              display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
+              borderRadius: '14px', border: 'none', background: activeTab === item.id ? '#5F7D4A' : '#F0F4ED',
+              color: activeTab === item.id ? 'white' : '#5F7D4A', fontWeight: '900', fontSize: '0.8rem',
+              transition: 'all 0.2s', flexShrink: 0
+            }}
+          >
+            <item.icon size={16} /> {item.label}
+          </button>
+        ))}
+      </div>
+
       <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
         
-        {/* SIDEBAR IZQUIERDA */}
+        {/* SIDEBAR IZQUIERDA (SOLO ESCRITORIO) */}
         <aside 
           style={{ 
             width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', 
@@ -216,7 +242,7 @@ function MiCuentaContent() {
             height: 'calc(100vh - 56px)',
             transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
-          className={`sidebar-dashboard ${showSidebar ? 'open' : ''}`}
+          className="desktop-only"
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -595,17 +621,15 @@ function MiCuentaContent() {
           border-color: #5F7D4A;
           box-shadow: 0 10px 20px rgba(0,0,0,0.03);
         }
-        .mobile-only { display: none; }
-        @media (max-width: 900px) {
+         @media (max-width: 900px) {
           .mobile-only { display: flex !important; }
-          .sidebar-dashboard { transform: translateX(-100%); transition: transform 0.4s; }
-          .sidebar-dashboard.open { transform: translateX(0); box-shadow: 20px 0 60px rgba(0,0,0,0.1); }
-          .main-content { margin-left: 0 !important; padding: 6.2rem 1rem 3rem !important; }
+          .desktop-only { display: none !important; }
+          .main-content { padding: 2rem 1rem !important; }
           h1 { font-size: 1.8rem !important; }
         }
         @media (min-width: 901px) {
           .main-content { margin-left: 0; }
-          .sidebar-dashboard { transform: none !important; }
+          .desktop-only { display: flex !important; }
         }
       `}</style>
       </div>

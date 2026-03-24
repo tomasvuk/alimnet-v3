@@ -539,10 +539,36 @@ export default function MerchantProfilePage() {
       
       <Header />
 
+      {/* SUB-MENU HORIZONTAL (SOLO MÓVIL) */}
+      <div className="mobile-only" style={{ 
+        background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.8rem 1rem', 
+        overflowX: 'auto', whiteSpace: 'nowrap', gap: '10px', display: 'flex',
+        scrollbarWidth: 'none', msOverflowStyle: 'none'
+      }}>
+        {[
+          { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
+          { id: 'perfil', label: 'Editar Perfil', icon: User },
+          { id: 'config', label: 'Configuración', icon: Settings }
+        ].map(item => (
+          <button 
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            style={{ 
+              display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
+              borderRadius: '14px', border: 'none', background: activeTab === item.id ? '#5F7D4A' : '#F0F4ED',
+              color: activeTab === item.id ? 'white' : '#5F7D4A', fontWeight: '900', fontSize: '0.8rem',
+              transition: 'all 0.2s', flexShrink: 0
+            }}
+          >
+            <item.icon size={16} /> {item.label}
+          </button>
+        ))}
+      </div>
+
       <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
         
-        {/* SIDEBAR */}
-        <div style={{ width: '280px', background: 'white', borderRight: '1px solid var(--border)', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: 'calc(100vh - 56px)', position: 'sticky', top: '56px' }}>
+        {/* SIDEBAR (SOLO ESCRITORIO) */}
+        <div style={{ width: '280px', background: 'white', borderRight: '1px solid var(--border)', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: 'calc(100vh - 56px)', position: 'sticky', top: '56px' }} className="desktop-only">
           
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
@@ -676,6 +702,15 @@ export default function MerchantProfilePage() {
         }
         .hover-scale:hover {
           transform: scale(1.1);
+        }
+        .mobile-only { display: none; }
+        @media (max-width: 900px) {
+          .mobile-only { display: flex !important; }
+          .desktop-only { display: none !important; }
+          div[style*="padding: 3rem"] { padding: 2rem 1rem !important; }
+        }
+        @media (min-width: 901px) {
+          .desktop-only { display: flex !important; }
         }
       `}</style>
 
