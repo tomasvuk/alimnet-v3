@@ -12,32 +12,45 @@ export default function Header() {
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        
-        // 1. Perfil
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .single();
-        if (profile) setProfile(profile);
-
-        // 2. ¿Es mercante? (Cambiamos .single() por una consulta que soporte múltiples comercios)
-        const { data: mData } = await supabase
-          .from('merchants')
-          .select('id')
-          .eq('owner_id', session.user.id)
-          .limit(1);
-        
-        if (mData && mData.length > 0) setIsMerchant(true);
-      }
-      setLoading(false);
+      handleAuthChange(session);
     };
-    fetchUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleAuthChange(session);
+    });
+
+    initAuth();
+    return () => subscription.unsubscribe();
   }, []);
+
+  const handleAuthChange = async (session: any) => {
+    if (session?.user) {
+      setUser(session.user);
+      
+      // 1. Perfil
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
+      if (profile) setProfile(profile);
+
+      // 2. ¿Es mercante? (Soporte Multi-Comercio)
+      const { data: mData } = await supabase
+        .from('merchants')
+        .select('id, name')
+        .eq('owner_id', session.user.id);
+      
+      if (mData && mData.length > 0) setIsMerchant(true);
+    } else {
+      setUser(null);
+      setProfile(null);
+      setIsMerchant(false);
+    }
+    setLoading(false);
+  };
 
   return (
     <header style={{ 
