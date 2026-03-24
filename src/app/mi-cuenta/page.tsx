@@ -236,12 +236,11 @@ function MiCuentaContent() {
       }}>
         
         <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '5rem' }}>
-          {/* Header Content */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '3rem', paddingTop: '1rem' }}>
+          {/* Header Content - Hidden on mobile to save space */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '3rem', paddingTop: '1rem' }} className="desktop-only">
              <button 
                onClick={() => window.location.href = '/explorar'} 
                style={{ padding: '0.8rem 1.5rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(95, 125, 74, 0.2)' }}
-               className="desktop-only"
              >
                <MapIcon size={18} /> Explorar
              </button>
@@ -576,7 +575,7 @@ function MiCuentaContent() {
           }
           .main-content {
              margin-left: 0 !important;
-             padding: 4.5rem 1rem 3rem !important; 
+             padding: 3.5rem 1rem 3rem !important; 
           }
           .referente-actions {
              margin-left: 0 !important;
