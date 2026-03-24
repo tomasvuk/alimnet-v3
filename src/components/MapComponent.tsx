@@ -89,14 +89,27 @@ interface MapProps {
   providers: MapProvider[];
   center?: [number, number];
   zoom?: number;
-  onInteraction?: () => void;
+  onInteraction?: (direction: 'up' | 'down') => void;
 }
 
-const MapEvents = ({ onInteraction }: { onInteraction?: () => void }) => {
+const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down') => void }) => {
+  const prevLat = React.useRef<number | null>(null);
+
   useMapEvents({
-    dragstart: () => onInteraction?.(),
-    zoomstart: () => onInteraction?.(),
-    mousedown: () => onInteraction?.(),
+    dragstart: (e) => {
+      prevLat.current = e.target.getCenter().lat;
+    },
+    drag: (e) => {
+      if (prevLat.current === null) return;
+      const currentLat = e.target.getCenter().lat;
+      const diff = currentLat - prevLat.current;
+      
+      if (Math.abs(diff) > 0.0001) { // Pequeño umbral para evitar saltos
+        onInteraction?.(diff < 0 ? 'up' : 'down');
+        prevLat.current = currentLat;
+      }
+    },
+    zoomstart: () => onInteraction?.('up'),
   });
   return null;
 };

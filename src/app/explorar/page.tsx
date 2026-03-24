@@ -944,10 +944,15 @@ export default function ExplorarPage() {
           {hasMounted && (
             <MapComponent 
               key={`${isMobile ? mobileView : 'desktop'}-${filteredMerchants.length}`}
-              onInteraction={() => {
+              onInteraction={(dir) => {
                 if (isMobile) {
-                  setIsPillsVisible(false);
-                  setIsRolesVisible(false);
+                  if (dir === 'up') {
+                    setIsPillsVisible(false);
+                    setIsRolesVisible(false);
+                  } else {
+                    setIsRolesVisible(true);
+                    setIsPillsVisible(true);
+                  }
                 }
               }}
               providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
