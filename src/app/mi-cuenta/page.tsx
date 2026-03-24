@@ -251,7 +251,7 @@ function MiCuentaContent() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
             
             <div style={{ marginBottom: '1rem' }}>
-               <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#2D3A20', margin: 0, marginBottom: '4px', paddingTop: '1.2rem' }} className="mobile-title-pad">¡Hola, {profile?.first_name || 'Tomas'}!</h1>
+               <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#2D3A20', margin: 0, marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
                <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
             </div>
 
@@ -575,7 +575,7 @@ function MiCuentaContent() {
           }
           .main-content {
              margin-left: 0 !important;
-             padding: 5.2rem 1rem 3rem !important; 
+             padding: 6.2rem 1rem 3rem !important; 
           }
           .mobile-title-pad { padding-top: 0 !important; }
           .referente-actions {
