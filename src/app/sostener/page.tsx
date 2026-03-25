@@ -128,10 +128,10 @@ export default function SostenerAlimnetPage() {
              </div>
              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {[
-                  { label: 'Confianza', text: 'Cada estrella eleva el prestigio.' },
-                  { label: 'Visibilidad', text: 'Los mejores aparecen primero.' },
-                  { label: 'Seguridad', text: 'Protegemos a la red.' },
-                  { label: 'Crecimiento', text: 'Somos más cada día.' }
+                  { label: 'Confianza', text: 'Cada validación eleva el prestigio del productor.' },
+                  { label: 'Visibilidad', text: 'Productores validados aparecen primero en el mapa.' },
+                  { label: 'Seguridad', text: 'Protegemos a la comunidad de intermediarios.' },
+                  { label: 'Crecimiento', text: 'Muestra que somos cada vez más en la red.' }
                 ].map((item, i) => (
                   <div key={i} style={{ padding: '1.2rem', background: 'white', borderRadius: '20px', border: '1px solid #E4EBDD' }}>
                     <div style={{ fontWeight: '1000', color: 'var(--primary-dark)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '4px' }}>{item.label}</div>
@@ -142,48 +142,44 @@ export default function SostenerAlimnetPage() {
            </div>
         </div>
 
-        {/* QUIENES ESTÁN DETRÁS (AUTORIDAD) */}
+        {/* QUIENES ESTÁN DETRÁS (OPCIÓN B: CARTA DEL FUNDADOR) */}
         <div style={{ marginBottom: '8rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '5rem', alignItems: 'start' }}>
-            <div style={{ position: 'sticky', top: '120px' }}>
-               <div style={{ 
-                 width: '320px', height: '320px', borderRadius: '24px', overflow: 'hidden', 
-                 filter: 'grayscale(0%)', boxShadow: '0 20px 40px rgba(0,0,0,0.08)',
-                 marginBottom: '1.5rem', border: '8px solid white', background: '#F4F1E6'
-               }}>
-                 <img src="/tomas_profile.jpg" alt="Tomas Vukojicic" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-               </div>
-               <div style={{ paddingLeft: '1rem', borderLeft: '3px solid var(--primary)' }}>
-                 <p style={{ fontStyle: 'italic', fontSize: '1rem', color: 'var(--primary-dark)', fontWeight: '600', lineHeight: '1.4' }}>
-                   "Alimnet nace de la búsqueda de lo real. No hay tecnología que importe más que el vínculo humano con la tierra."
-                 </p>
-               </div>
-            </div>
-            
-            <div style={{ padding: '1rem 0' }}>
-              <div style={{ 
-                display: 'inline-block', padding: '0.4rem 1rem', background: '#2D3A20', color: 'white', 
-                borderRadius: '8px', fontSize: '0.7rem', fontWeight: '1000', textTransform: 'uppercase', 
-                letterSpacing: '0.1em', marginBottom: '1.5rem' 
-              }}>
-                El Fundador
+          <div style={{ 
+            background: 'white', padding: '4rem', borderRadius: '48px', border: '1px solid #E4EBDD',
+            boxShadow: '0 30px 60px rgba(0,0,0,0.03)', position: 'relative', overflow: 'hidden'
+          }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '4rem', alignItems: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                 <div style={{ 
+                   width: '240px', height: '240px', borderRadius: '50%', overflow: 'hidden', 
+                   border: '6px solid #F0F4ED', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                 }}>
+                   <img src="/tomas_profile.jpg" alt="Tomas Vukojicic" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                 </div>
+                 <div style={{ marginTop: '1.5rem' }}>
+                   <h3 style={{ fontSize: '1.4rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Tomas Vukojicic</h3>
+                   <p style={{ fontSize: '0.7rem', fontWeight: '1000', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>Creador de Alimnet</p>
+                 </div>
               </div>
-              <h2 style={{ fontSize: '2.2rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '2rem', letterSpacing: '-0.03em' }}>Tomas Vukojicic</h2>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)', fontWeight: '550' }}>
-                   Como creador de Alimnet, mi misión ha sido transformar una necesidad personal —el acceso a alimentos biodiversos y honestos— en una plataforma colectiva que empodere tanto a quien consume como a quien trabaja la tierra.
-                </p>
-                <div style={{ height: '1px', background: '#E4EBDD', width: '60%' }} />
-                <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#666', fontWeight: '500' }}>
-                  Con un sólido background en tecnología enfocada al impacto social y la descentralización, Tomas ha liderado el desarrollo de Alimnet desde su génesis. Su visión combina la eficiencia digital con la sensibilidad humana, estableciendo a Alimnet no solo como un mapa, sino como un estándar de confianza en la red alimentaria de la región.
-                </p>
-                <div style={{ display: 'flex', gap: '15px', marginTop: '1rem' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: '900', color: 'var(--primary-dark)' }}>
+
+              <div>
+                <quote style={{ display: 'block', fontSize: '1.4rem', fontWeight: '700', color: 'var(--primary-dark)', marginBottom: '2rem', lineHeight: '1.4', fontStyle: 'italic' }}>
+                   "Este proyecto nació de una necesidad personal y familiar: la búsqueda de encontrar alimentos que respeten la biodiversidad, desde quien la consume hasta quienes la trabajan."
+                </quote>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.8', fontWeight: '550' }}>
+                   <p>
+                     Creo en la tecnología como una herramienta de descentralización y conexión humana. Alimnet aspira a ser un lugar de encuentro donde, con conciencia, elegimos lo mejor para nosotros y para nuestro planeta.
+                   </p>
+                   <p style={{ fontSize: '0.9rem', color: '#888' }}>
+                     Con un sólido background en tecnología enfocada al impacto social y la descentralización, Tomas ha liderado el desarrollo de Alimnet desde su génesis. Su visión combina la eficiencia digital con la sensibilidad humana, estableciendo a Alimnet como un estándar de confianza en la red alimentaria.
+                   </p>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.5rem 1rem', background: '#F8F9F5', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '900', color: 'var(--primary-dark)' }}>
                      <Globe size={16} /> Visión Global
                    </div>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: '900', color: 'var(--primary-dark)' }}>
-                     <ShieldCheck size={16} /> Compromiso Ético
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.5rem 1rem', background: '#F8F9F5', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '900', color: 'var(--primary-dark)' }}>
+                     <ShieldCheck size={16} /> Fundamento Ético
                    </div>
                 </div>
               </div>
