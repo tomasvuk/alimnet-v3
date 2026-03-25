@@ -8,13 +8,11 @@ export const OFFICIAL_CATEGORIES = [
   'Huevos', 
   'Lácteos', 
   'Panificados', 
-  'Masa Madre', // Ahora con categoría propia
+  'Masa Madre', 
   'Cereales', 
   'Frutos secos', 
   'Aceites', 
-  'Elaborados',
-  'Bebidas Naturalezas',
-  'Almacén Consciente'
+  'Elaborados'
 ];
 
 export const OFFICIAL_TYPES = [
@@ -32,7 +30,7 @@ export const PRODUCTION_ADN_OPTIONS = [
   'Sin ultraprocesados', 
   'Sustentable', 
   'Pastura',
-  'Sin TACC', // Sumamos opción celíaca/libre de gluten
+  'Sin TACC', 
   'Vegano'
 ];
 
