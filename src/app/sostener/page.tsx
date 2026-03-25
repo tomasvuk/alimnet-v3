@@ -42,8 +42,12 @@ export default function SostenerAlimnetPage() {
           </p>
         </div>
 
-        {/* SECCIÓN 1: SOPORTE ECONÓMICO (SLIM) */}
-        <div style={{ marginBottom: '8rem' }}>
+        {/* SECCIÓN 1: SOPORTE ECONÓMICO (IMÁN VISUAL) */}
+        <div style={{ 
+          marginBottom: '8rem', padding: '4rem', background: 'white', borderRadius: '48px', 
+          border: '1px solid #E4EBDD', boxShadow: '0 40px 100px rgba(45, 58, 32, 0.08)',
+          position: 'relative', zIndex: 10
+        }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <h2 style={{ fontSize: '1.4rem', fontWeight: '950', color: '#2D3A20', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Sustentabilidad y Apoyo
@@ -53,15 +57,15 @@ export default function SostenerAlimnetPage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'stretch' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '2.5rem', alignItems: 'center' }}>
             {/* Aporte Único */}
             <div style={{ 
-              background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD',
-              display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease'
+              background: '#F8F9F5', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD',
+              display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease', opacity: 0.9
             }} className="refined-card">
               <div style={{ 
-                width: '45px', height: '45px', background: '#F0F4ED', color: 'var(--primary)', 
-                borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' 
+                width: '45px', height: '45px', background: 'white', color: 'var(--primary)', 
+                borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', border: '1px solid #E4EBDD'
               }}>
                 <Coffee size={20} />
               </div>
@@ -78,25 +82,26 @@ export default function SostenerAlimnetPage() {
               </button>
             </div>
 
-            {/* Miembro Fundador (Featured) */}
+            {/* Miembro Fundador (Featured - MÁS GRANDE Y ELEVADA) */}
             <div style={{ 
-              background: 'var(--primary-dark)', padding: '2.5rem', borderRadius: '32px', color: 'white',
-              display: 'flex', flexDirection: 'column', border: '1px solid var(--primary)', transition: 'all 0.3s ease'
+              background: 'var(--primary-dark)', padding: '3.5rem', borderRadius: '40px', color: 'white',
+              display: 'flex', flexDirection: 'column', border: '2px solid var(--primary)', 
+              boxShadow: '0 30px 70px rgba(45, 58, 32, 0.4)', transition: 'all 0.3s ease'
             }} className="refined-card featured">
               <div style={{ 
-                width: '45px', height: '45px', background: 'rgba(255,255,255,0.1)', color: 'white', 
-                borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' 
+                width: '55px', height: '55px', background: 'rgba(255,255,255,0.15)', color: 'white', 
+                borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' 
               }}>
-                <Sparkles size={20} />
+                <Sparkles size={24} />
               </div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: 'white', marginBottom: '0.8rem' }}>Miembro Fundador</h3>
-              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '2rem', flex: 1 }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: 'white', marginBottom: '1rem' }}>Miembro Fundador</h3>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', lineHeight: '1.7', marginBottom: '3rem', flex: 1, fontWeight: '500' }}>
                 Sostén la red con un aporte mensual y sé parte activa del equipo que elige el futuro de Alimnet.
               </p>
               <button style={{ 
-                width: 'fit-content', padding: '0.8rem 1.8rem', borderRadius: '12px', 
+                width: 'fit-content', padding: '1rem 2.2rem', borderRadius: '14px', 
                 background: 'white', color: 'var(--primary-dark)', border: 'none', fontWeight: '1000', 
-                fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s' 
+                fontSize: '1rem', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 10px 20px rgba(0,0,0,0.2)'
               }}>
                 Unirme como Fundador
               </button>
@@ -163,15 +168,15 @@ export default function SostenerAlimnetPage() {
               </div>
 
               <div>
-                <quote style={{ display: 'block', fontSize: '1.4rem', fontWeight: '700', color: 'var(--primary-dark)', marginBottom: '2rem', lineHeight: '1.4', fontStyle: 'italic' }}>
-                   "Este proyecto nació de una necesidad personal y familiar: la búsqueda de encontrar alimentos que respeten la biodiversidad, desde quien la consume hasta quienes la trabajan."
-                </quote>
+                <blockquote style={{ display: 'block', fontSize: '1.4rem', fontWeight: '700', color: 'var(--primary-dark)', marginBottom: '2rem', lineHeight: '1.4', fontStyle: 'italic' }}>
+                   "Alimnet nace de una necesidad real que viví con mi familia: dedicar mucho tiempo a encontrar alimentos que estén cuidados desde su origen hasta el momento de consumirlos. <br /><br />Esa búsqueda fue el punto de partida."
+                </blockquote>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.8', fontWeight: '550' }}>
                    <p>
-                     Creo en la tecnología como una herramienta de descentralización y conexión humana. Alimnet aspira a ser un lugar de encuentro donde, con conciencia, elegimos lo mejor para nosotros y para nuestro planeta.
+                     Tomás Vukojicic tiene más de 15 años de experiencia en gastronomía y en los últimos años trabajó en tecnología dentro del mundo de startups.
                    </p>
-                   <p style={{ fontSize: '0.9rem', color: '#888' }}>
-                     Con un sólido background en tecnología enfocada al impacto social y la descentralización, Tomas ha liderado el desarrollo de Alimnet desde su génesis. Su visión combina la eficiencia digital con la sensibilidad humana, estableciendo a Alimnet como un estándar de confianza en la red alimentaria.
+                   <p>
+                     Hoy impulsa Alimnet como una forma de organizar y facilitar el acceso a una alimentación más consciente, conectando personas con productores y espacios alineados a ese cuidado.
                    </p>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
