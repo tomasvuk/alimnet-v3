@@ -29,10 +29,16 @@ export const PRODUCTION_ADN_OPTIONS = [
   'Sin agroquímicos', 
   'Sin ultraprocesados', 
   'Sustentable', 
-  'Pastura',
-  'Gluten Free', // Actualizado de 'Sin TACC'
-  'Sugar Free',  // Sumado formalmente
-  'Plant Based'   // Actualizado de 'Vegano'
+  'Pastura'
+];
+
+export const DIETARY_OPTIONS = [
+  'Gluten Free', 
+  'Sugar Free', 
+  'Plant Based',
+  'Sin Lactosa',
+  'Keto',
+  'Vegetariano'
 ];
 
 export const DELIVERY_PREFERENCES = [

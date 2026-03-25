@@ -40,6 +40,7 @@ import Header from '@/components/Header';
 import { 
   OFFICIAL_CATEGORIES, 
   PRODUCTION_ADN_OPTIONS, 
+  DIETARY_OPTIONS,
   DELIVERY_PREFERENCES 
 } from '@/lib/constants';
 
@@ -109,7 +110,7 @@ const CATEGORIES = [
 
 const ADVANCED_CATEGORIES = {
   modalidad: { label: 'Cómo querés recibir', options: DELIVERY_PREFERENCES },
-  alimentacion: { label: 'Tipo de alimentación', options: ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'] },
+  alimentacion: { label: 'Tipo de alimentación', options: DIETARY_OPTIONS },
   calidad: { label: 'Calidad y Producción', options: PRODUCTION_ADN_OPTIONS },
   animal: { label: 'Producción Animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
   certificaciones: { label: 'Certificaciones / asociaciones', options: ['Demeter', 'AABDA', 'Orgánico Certificado'] },
