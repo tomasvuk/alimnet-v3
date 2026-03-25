@@ -30,8 +30,9 @@ export const PRODUCTION_ADN_OPTIONS = [
   'Sin ultraprocesados', 
   'Sustentable', 
   'Pastura',
-  'Sin TACC', 
-  'Vegano'
+  'Gluten Free', // Actualizado de 'Sin TACC'
+  'Sugar Free',  // Sumado formalmente
+  'Plant Based'   // Actualizado de 'Vegano'
 ];
 
 export const DELIVERY_PREFERENCES = [
