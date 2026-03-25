@@ -155,13 +155,22 @@ export default function SostenerAlimnetPage() {
           }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '4rem', alignItems: 'center' }}>
               <div style={{ textAlign: 'center' }}>
+                 {/* EL BOTÓN 3D (NEOMORFISMO ALIMNET) */}
                  <div style={{ 
-                   width: '240px', height: '240px', borderRadius: '50%', overflow: 'hidden', 
-                   border: '6px solid #F0F4ED', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                   width: '260px', height: '260px', borderRadius: '50%', background: '#F8F9F5', 
+                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                   boxShadow: '15px 15px 35px #d1d9c9, -15px -15px 35px #ffffff',
+                   padding: '12px', margin: '0 auto' 
                  }}>
-                   <img src="/tomas_profile.jpg" alt="Tomas Vukojicic" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                   <div style={{ 
+                     width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', 
+                     border: '4px solid #F8F9F5', background: '#F0F4ED',
+                     boxShadow: 'inset 8px 8px 16px #d1d9c9, inset -8px -8px 16px #ffffff'
+                   }}>
+                     <img src="/tomas_profile.jpg" alt="Tomas Vukojicic" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                   </div>
                  </div>
-                 <div style={{ marginTop: '1.5rem' }}>
+                 <div style={{ marginTop: '2rem' }}>
                    <h3 style={{ fontSize: '1.4rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Tomas Vukojicic</h3>
                    <p style={{ fontSize: '0.7rem', fontWeight: '1000', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>Creador de Alimnet</p>
                  </div>
