@@ -598,9 +598,140 @@ function MiCuentaContent() {
             </div>
           )}
 
-          {['perfil', 'configuracion'].includes(activeTab) && (
+          {activeTab === 'perfil' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mi Perfil</h2>
+                <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Gestioná tu identidad y preferencias en Alimnet.</p>
+              </div>
+
+              <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                
+                {/* 1. SECCION: IDENTIDAD */}
+                <div>
+                   <h4 style={{ fontSize: '0.75rem', fontWeight: '950', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                     <User size={16} /> Datos Personales
+                   </h4>
+                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '850', color: '#666' }}>Nombre Completo</label>
+                        <input 
+                          type="text" 
+                          value={formData.first_name}
+                          onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                          placeholder="Tu nombre..."
+                          style={{ width: '100%', padding: '0.9rem 1.2rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '700', fontSize: '0.9rem', color: '#2D3A20' }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '850', color: '#666' }}>¿Dónde vives? (Localidad/Zona)</label>
+                        <div style={{ position: 'relative' }}>
+                          <MapPin size={16} style={{ position: 'absolute', right: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: '#AAA' }} />
+                          <input 
+                            type="text" 
+                            value={formData.locality}
+                            onChange={(e) => setFormData({...formData, locality: e.target.value})}
+                            placeholder="Ej: Palermo, CABA"
+                            style={{ width: '100%', padding: '0.9rem 1.2rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '700', fontSize: '0.9rem', color: '#2D3A20' }}
+                          />
+                        </div>
+                      </div>
+                   </div>
+                </div>
+
+                {/* 2. SECCION: INTERESES (TAGS) */}
+                <div>
+                  <h4 style={{ fontSize: '0.75rem', fontWeight: '950', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                     <Sparkles size={16} /> Intereses y ADN Productivo
+                  </h4>
+                  <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '1rem', fontWeight: '600' }}>Marcá lo que más buscas encontrar en el mapa.</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                     {PRODUCTION_OPTIONS.map(opt => (
+                       <button 
+                         key={opt}
+                         onClick={() => {
+                           const current = formData.production_interest;
+                           const next = current.includes(opt) ? current.filter(c => c !== opt) : [...current, opt];
+                           setFormData({...formData, production_interest: next});
+                         }}
+                         style={{ 
+                           padding: '0.6rem 1rem', borderRadius: '12px', border: '1.5px solid',
+                           borderColor: formData.production_interest.includes(opt) ? '#5F7D4A' : '#E4EBDD',
+                           background: formData.production_interest.includes(opt) ? 'rgba(95, 125, 74, 0.05)' : 'white',
+                           color: formData.production_interest.includes(opt) ? '#5F7D4A' : '#888',
+                           fontWeight: '850', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s'
+                         }}
+                       >
+                         {opt}
+                       </button>
+                     ))}
+                  </div>
+                </div>
+
+                {/* 3. SECCION: LOGISTICA */}
+                <div>
+                   <h4 style={{ fontSize: '0.75rem', fontWeight: '950', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                     <Truck size={16} /> Logística y Preferencias
+                   </h4>
+                   <div style={{ display: 'flex', gap: '10px' }}>
+                     {DELIVERY_PREFERENCES.map(pref => (
+                       <button 
+                         key={pref}
+                         onClick={() => setFormData({...formData, delivery_pref: pref})}
+                         style={{ 
+                           flex: 1, padding: '1rem', borderRadius: '18px', border: '1.5px solid',
+                           borderColor: formData.delivery_pref === pref ? '#2D3A20' : '#E4EBDD',
+                           background: formData.delivery_pref === pref ? '#F0F4ED' : 'white',
+                           color: '#2D3A20', fontWeight: '1000', fontSize: '0.8rem', cursor: 'pointer',
+                           transition: 'all 0.2s'
+                         }}
+                       >
+                         {pref}
+                       </button>
+                     ))}
+                   </div>
+                </div>
+
+                {/* BOTON DE ACCION */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                   <button 
+                     onClick={async () => {
+                       setSaving(true);
+                       try {
+                         const { data: { user } } = await supabase.auth.getUser();
+                         if (!user) return;
+                         const { error } = await supabase.from('profiles').update({
+                           first_name: formData.first_name,
+                           locality: formData.locality,
+                           delivery_pref: formData.delivery_pref,
+                           production_interest: formData.production_interest,
+                           updated_at: new Date().toISOString()
+                         }).eq('user_id', user.id);
+                         if (error) throw error;
+                         setMessage({ type: 'success', text: '¡Perfil actualizado con éxito! ✨' });
+                         setTimeout(() => setMessage(null), 3000);
+                       } catch (err) { console.error(err); } finally { setSaving(false); }
+                     }}
+                     disabled={saving}
+                     style={{ 
+                       padding: '1.1rem 3rem', background: '#2D3A20', color: 'white', 
+                       border: 'none', borderRadius: '22px', fontWeight: '1000', fontSize: '1rem',
+                       cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                       display: 'flex', alignItems: 'center', gap: '10px'
+                     }}
+                   >
+                     {saving ? <Loader2 className="animate-spin" size={20} /> : null}
+                     {saving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+                   </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'configuracion' && (
             <div style={{ background: 'white', padding: '4rem', borderRadius: '32px', border: '1px solid #E4EBDD', textAlign: 'center' }}>
-              <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Próximamente: {activeTab.toUpperCase()}</h3>
+              <h3 style={{ fontWeight: '950', color: '#2D3A20' }}>Próximamente: CONFIGURACIÓN</h3>
               <p style={{ color: '#888', marginTop: '1rem' }}>Estamos puliendo esta sección.</p>
             </div>
           )}
