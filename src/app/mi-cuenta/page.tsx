@@ -15,6 +15,7 @@ import Header from '@/components/Header';
 import { 
   OFFICIAL_CATEGORIES, 
   PRODUCTION_ADN_OPTIONS, 
+  DIETARY_OPTIONS,
   DELIVERY_PREFERENCES 
 } from '@/lib/constants';
 
@@ -47,6 +48,7 @@ function MiCuentaContent() {
     production_interest: [] as string[],
     display_name_style: 'full' as 'full' | 'initial'
   });
+  const [merchantProducts, setMerchantProducts] = useState<any[]>([]); // NUEVO: Estado de Productos
   const [merchantFormData, setMerchantFormData] = useState<any>({
     name: '',
     bio_short: '',
@@ -54,6 +56,9 @@ function MiCuentaContent() {
     instagram_url: '',
     whatsapp: '',
     preferred_contact_channel: 'whatsapp',
+    tags: [],
+    logo_url: '',
+    website_url: '',
     display_name_style: 'full' // 'full' (Tomas Vukojicic) or 'initial' (Tomas V.)
   });
   const [validatedMerchants, setValidatedMerchants] = useState<any[]>([]);
@@ -153,40 +158,46 @@ function MiCuentaContent() {
           bio_long: mData.bio_long || '',
           instagram_url: mData.instagram_url || '',
           whatsapp: mData.whatsapp || '',
-          preferred_contact_channel: mData.preferred_contact_channel || 'whatsapp'
+          preferred_contact_channel: mData.preferred_contact_channel || 'whatsapp',
+          tags: mData.tags || [],
+          logo_url: mData.logo_url || '',
+          website_url: mData.website_url || ''
         });
+
+        // TRAER PRODUCTOS DEL CATALOGO
+        const { data: pData } = await supabase
+          .from('merchant_products')
+          .select('*')
+          .eq('merchant_id', mData.id)
+          .order('created_at', { ascending: false });
+        if (pData) setMerchantProducts(pData);
       }
 
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
-
   const handleSaveMerchant = async () => {
-    if (!merchantData) return;
     setSaving(true);
-    setMessage(null);
-
     try {
-      const { error } = await supabase
-        .from('merchants')
-        .update({
-          name: merchantFormData.name,
-          bio_short: merchantFormData.bio_short,
-          bio_long: merchantFormData.bio_long,
-          instagram_url: merchantFormData.instagram_url,
-          whatsapp: merchantFormData.whatsapp,
-          preferred_contact_channel: merchantFormData.preferred_contact_channel,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', merchantData.id);
+      const { error } = await supabase.from('merchants').update({
+        name: merchantFormData.name,
+        bio_short: merchantFormData.bio_short,
+        bio_long: merchantFormData.bio_long,
+        instagram_url: merchantFormData.instagram_url,
+        whatsapp: merchantFormData.whatsapp,
+        preferred_contact_channel: merchantFormData.preferred_contact_channel,
+        tags: merchantFormData.tags,
+        logo_url: merchantFormData.logo_url,
+        website_url: merchantFormData.website_url,
+        updated_at: new Date().toISOString()
+      }).eq('id', merchantData.id);
 
       if (error) throw error;
-      
       setMerchantData({ ...merchantData, ...merchantFormData });
-      setMessage({ type: 'success', text: '¡Cambios guardados con éxito! 🎉' });
+      setMessage({ type: 'success', text: '¡Datos comerciales actualizados! 🌿' });
       setTimeout(() => setMessage(null), 3000);
     } catch (err: any) {
       console.error(err);
-      setMessage({ type: 'error', text: 'Error al guardar cambios: ' + err.message });
+      setMessage({ type: 'error', text: 'Error al actualizar datos comerciales.' });
     } finally {
       setSaving(false);
     }
@@ -575,6 +586,170 @@ function MiCuentaContent() {
                     </div>
                   </div>
 
+                  {/* ADN Y CATEGORIAS DEL COMERCIO */}
+                  <div style={{ padding: '1.5rem', background: '#F0F4ED', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
+                    <h4 style={{ fontSize: '0.8rem', fontWeight: '1000', color: '#2D3A20', textTransform: 'uppercase', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <ShieldCheck size={18} /> Identidad y ADN del Proyecto
+                    </h4>
+                    
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <p style={{ fontSize: '0.7rem', color: '#5F7D4A', fontWeight: '900', marginBottom: '1rem', textTransform: 'uppercase' }}>Categorías de Productos (Aparecerás bajo estas en el mapa)</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {OFFICIAL_CATEGORIES.map(cat => (
+                          <button 
+                            key={cat}
+                            onClick={() => {
+                              const current = merchantFormData.tags || [];
+                              const next = current.includes(cat) ? current.filter((t: string) => t !== cat) : [...current, cat];
+                              setMerchantFormData({...merchantFormData, tags: next});
+                            }}
+                            style={{ 
+                              padding: '0.6rem 1rem', borderRadius: '12px', border: '1.5px solid',
+                              borderColor: (merchantFormData.tags || []).includes(cat) ? '#5F7D4A' : '#D1DBC7',
+                              background: (merchantFormData.tags || []).includes(cat) ? '#5F7D4A' : 'white',
+                              color: (merchantFormData.tags || []).includes(cat) ? 'white' : '#5F7D4A',
+                              fontWeight: '900', fontSize: '0.7rem', cursor: 'pointer', transition: 'all 0.2s'
+                            }}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p style={{ fontSize: '0.7rem', color: '#2D3A20', fontWeight: '950', marginBottom: '1rem', textTransform: 'uppercase' }}>Propuesta de Valor y ADN Alimentario</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {[...PRODUCTION_ADN_OPTIONS, ...DIETARY_OPTIONS].map(adn => (
+                          <button 
+                            key={adn}
+                            onClick={() => {
+                              const current = merchantFormData.tags || [];
+                              const next = current.includes(adn) ? current.filter((t: string) => t !== adn) : [...current, adn];
+                              setMerchantFormData({...merchantFormData, tags: next});
+                            }}
+                            style={{ 
+                              padding: '0.6rem 1.1rem', borderRadius: '14px', border: '1.5px solid',
+                              borderColor: (merchantFormData.tags || []).includes(adn) ? '#2D3A20' : '#D1DBC7',
+                              background: (merchantFormData.tags || []).includes(adn) ? '#2D3A20' : 'white',
+                              color: (merchantFormData.tags || []).includes(adn) ? 'white' : '#777',
+                              fontWeight: '950', fontSize: '0.7rem', cursor: 'pointer', transition: 'all 0.2s'
+                            }}
+                          >
+                            {adn}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CATALOGO TOP 3 DESTACADOS */}
+                  <div style={{ padding: '2rem', background: 'white', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+                    <h4 style={{ fontSize: '0.8rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Package size={18} /> Mis 3 Productos Estrella (Catálogo)
+                    </h4>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth <= 900 ? '1fr' : 'repeat(3, 1fr)', gap: '1.5rem' }}>
+                      {[0, 1, 2].map(idx => {
+                        const product = merchantProducts[idx];
+                        return (
+                          <div key={idx} style={{ 
+                            padding: '1.5rem', background: '#F8F9F5', borderRadius: '24px', border: '1px dashed #D1DBC7',
+                            display: 'flex', flexDirection: 'column', gap: '12px'
+                          }}>
+                            <div style={{ 
+                              width: '100%', height: '100px', borderRadius: '16px', 
+                              background: product?.image_url ? `url(${product.image_url}) center/cover` : '#E4EBDD', 
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                              boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)'
+                            }}>
+                              {!product?.image_url && <Plus size={24} color="#AAA" />}
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <input 
+                                type="text" 
+                                placeholder="Nombre del producto"
+                                value={product?.name || ''}
+                                onChange={(e) => {
+                                  const newProducts = [...merchantProducts];
+                                  if (!newProducts[idx]) newProducts[idx] = { name: '', merchant_id: merchantData.id };
+                                  newProducts[idx].name = e.target.value;
+                                  setMerchantProducts(newProducts);
+                                }}
+                                style={{ width: '100%', padding: '0.8rem', border: '1px solid #E4EBDD', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '800', outline: 'none' }}
+                              />
+                              <input 
+                                type="text" 
+                                placeholder="URL Imagen (Max 1MB)"
+                                value={product?.image_url || ''}
+                                onChange={(e) => {
+                                  const newProducts = [...merchantProducts];
+                                  if (!newProducts[idx]) newProducts[idx] = { name: '', merchant_id: merchantData.id };
+                                  newProducts[idx].image_url = e.target.value;
+                                  setMerchantProducts(newProducts);
+                                }}
+                                style={{ width: '100%', padding: '0.8rem', border: '1px solid #E4EBDD', borderRadius: '12px', fontSize: '0.7rem', color: '#888', outline: 'none' }}
+                              />
+                            </div>
+
+                             <button 
+                               onClick={async () => {
+                                 const prod = merchantProducts[idx];
+                                 if (!prod?.name) return;
+                                 setSaving(true);
+                                 try {
+                                   if (prod.id) {
+                                      await supabase.from('merchant_products').update({ name: prod.name, image_url: prod.image_url }).eq('id', prod.id);
+                                   } else {
+                                      const { data } = await supabase.from('merchant_products').insert([{ ...prod, merchant_id: merchantData.id }]).select();
+                                      if (data) {
+                                        const next = [...merchantProducts];
+                                        next[idx] = data[0];
+                                        setMerchantProducts(next);
+                                      }
+                                   }
+                                   setMessage({ type: 'success', text: '¡Producto guardado! ✨' });
+                                   setTimeout(() => setMessage(null), 2000);
+                                 } catch (err) { console.error(err); } finally { setSaving(false); }
+                               }}
+                               style={{ marginTop: '5px', width: '100%', padding: '0.8rem', borderRadius: '12px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '950', fontSize: '0.7rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                             >
+                               GUARDAR PRODUCTO
+                             </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* GALERÍA LIVIANA Y WEB */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>URL Logo (Liviano, Max 1MB)</label>
+                      <input 
+                        type="text" 
+                        placeholder="Pega el link de tu logo"
+                        value={merchantFormData.logo_url || ''}
+                        onChange={(e) => setMerchantFormData({...merchantFormData, logo_url: e.target.value})}
+                        style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                      />
+                    </div>
+                    <div>
+                       <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Web / Linktree</label>
+                       <div style={{ position: 'relative' }}>
+                         <ExternalLink size={18} style={{ position: 'absolute', right: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: '#AAA' }} />
+                         <input 
+                           type="text" 
+                           placeholder="https://tuweb.com"
+                           value={merchantFormData.website_url || ''}
+                           onChange={(e) => setMerchantFormData({...merchantFormData, website_url: e.target.value})}
+                           style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                         />
+                       </div>
+                    </div>
+                  </div>
+
                   {message && (
                     <div style={{ 
                       padding: '1rem', borderRadius: '12px', 
@@ -591,13 +766,13 @@ function MiCuentaContent() {
                     disabled={saving}
                     style={{ 
                       marginTop: '1rem', padding: '1.2rem', borderRadius: '20px', border: 'none', 
-                      background: saving ? '#888' : '#2D3A20', color: 'white', fontWeight: '950', fontSize: '1rem',
-                      cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 10px 25px rgba(45, 58, 32, 0.2)', transition: 'all 0.3s',
+                      background: saving ? '#888' : '#2D3A20', color: 'white', fontWeight: '900', fontSize: '1rem',
+                      cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 10px 25px rgba(45, 58, 32, 0.15)', transition: 'all 0.3s',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
                     }}
                   >
                     {saving ? <Loader2 className="animate-spin" size={20} /> : null}
-                    {saving ? 'Guardando...' : 'Guardar Cambios'}
+                    {saving ? 'GUARDANDO CAMBIOS...' : 'ACTUALIZAR PERFIL COMERCIAL'}
                   </button>
                 </div>
               </div>
