@@ -237,14 +237,14 @@ function MiCuentaContent() {
         <aside 
           style={{ 
             width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', 
-            display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem',
+            display: 'flex', flexDirection: 'column', padding: '1.2rem 1.2rem',
             zIndex: 90,
             height: 'calc(100vh - 56px)',
             transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
           className="desktop-only"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontWeight: '950', fontSize: '1.2rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>
                 {profile ? `${profile.first_name} ${profile.last_name || ''}` : 'Tomas Vukojicic'}
@@ -257,7 +257,7 @@ function MiCuentaContent() {
             </div>
           </div>
 
-          <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {menuItems.map(item => (
             <button 
               key={item.id}
@@ -269,14 +269,14 @@ function MiCuentaContent() {
                 setShowSidebar(false); 
               }}
               style={{ 
-                padding: '1rem', borderRadius: '16px', border: 'none', 
+                padding: '0.65rem 1rem', borderRadius: '14px', border: 'none', 
                 background: item.special ? '#5F7D4A' : (activeTab === item.id ? '#F0F4ED' : 'transparent'),
                 color: item.special ? 'white' : (activeTab === item.id ? '#5F7D4A' : '#666'),
                 display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer',
-                fontWeight: (activeTab === item.id || item.special) ? '900' : '700', fontSize: '0.9rem',
+                fontWeight: (activeTab === item.id || item.special) ? '900' : '700', fontSize: '0.85rem',
                 transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', 
                 width: '100%', textAlign: 'left',
-                marginTop: item.special ? 'auto' : '0',
+                marginTop: item.special ? '1.5rem' : '0',
                 boxShadow: item.special ? '0 10px 25px rgba(95, 125, 74, 0.2)' : 'none'
               }}
             >
