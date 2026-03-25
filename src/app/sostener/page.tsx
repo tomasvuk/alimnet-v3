@@ -155,31 +155,37 @@ export default function SostenerAlimnetPage() {
           }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '4rem', alignItems: 'center' }}>
               <div style={{ textAlign: 'center' }}>
-                 {/* EL BOTÓN 3D (NEOMORFISMO ALIMNET) */}
+                 {/* EL BOTÓN 3D (NEOMORFISMO REAL - EFECTO TORUS) */}
                  <div style={{ 
-                   width: '260px', height: '260px', borderRadius: '50%', background: '#F8F9F5', 
+                   width: '280px', height: '280px', borderRadius: '50%', background: '#F8F9F5', 
                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                   boxShadow: '15px 15px 35px #d1d9c9, -15px -15px 35px #ffffff',
-                   padding: '12px', margin: '0 auto' 
+                   boxShadow: '12px 12px 30px #d1d9c9, -12px -12px 30px #ffffff, inset 4px 4px 10px rgba(255,255,255,0.5)',
+                   padding: '20px', margin: '0 auto', border: '1px solid rgba(255,255,255,0.3)'
                  }}>
                    <div style={{ 
                      width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', 
-                     border: '4px solid #F8F9F5', background: '#F0F4ED',
-                     boxShadow: 'inset 8px 8px 16px #d1d9c9, inset -8px -8px 16px #ffffff'
+                     background: '#F0F4ED', border: '8px solid #F8F9F5',
+                     boxShadow: 'inset 10px 10px 20px #d1d9c9, inset -10px -10px 20px #ffffff'
                    }}>
                      <img src="/tomas_profile.jpg" alt="Tomas Vukojicic" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                    </div>
                  </div>
-                 <div style={{ marginTop: '2rem' }}>
+                 <div style={{ marginTop: '2.5rem' }}>
                    <h3 style={{ fontSize: '1.4rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Tomas Vukojicic</h3>
                    <p style={{ fontSize: '0.7rem', fontWeight: '1000', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>Creador de Alimnet</p>
                  </div>
               </div>
 
               <div>
-                <blockquote style={{ display: 'block', fontSize: '1.4rem', fontWeight: '700', color: 'var(--primary-dark)', marginBottom: '2rem', lineHeight: '1.4', fontStyle: 'italic' }}>
-                   "Alimnet nace de una necesidad real que viví con mi familia: dedicar mucho tiempo a encontrar alimentos que estén cuidados desde su origen hasta el momento de consumirlos. <br /><br />Esa búsqueda fue el punto de partida."
-                </blockquote>
+                <div style={{ 
+                  background: '#F0F4ED', padding: '2rem', borderRadius: '30px 30px 30px 4px', 
+                  marginBottom: '2rem', border: '1px solid #E4EBDD', position: 'relative',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.02)'
+                }}>
+                  <blockquote style={{ display: 'block', fontSize: '1.1rem', fontWeight: '700', color: 'var(--primary-dark)', lineHeight: '1.5', fontStyle: 'italic', margin: 0 }}>
+                     "Alimnet nace de una necesidad real que viví con mi familia: dedicar mucho tiempo a encontrar alimentos que estén cuidados desde su origen hasta el momento de consumirlos. <br /><br />Esa búsqueda fue el punto de partida."
+                  </blockquote>
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.8', fontWeight: '550' }}>
                    <p>
                      Tomás Vukojicic tiene más de 15 años de experiencia en gastronomía y en los últimos años trabajó en tecnología dentro del mundo de startups.
