@@ -8,10 +8,13 @@ export const OFFICIAL_CATEGORIES = [
   'Huevos', 
   'Lácteos', 
   'Panificados', 
+  'Masa Madre', // Ahora con categoría propia
   'Cereales', 
   'Frutos secos', 
   'Aceites', 
-  'Elaborados'
+  'Elaborados',
+  'Bebidas Naturalezas',
+  'Almacén Consciente'
 ];
 
 export const OFFICIAL_TYPES = [
@@ -28,7 +31,9 @@ export const PRODUCTION_ADN_OPTIONS = [
   'Sin agroquímicos', 
   'Sin ultraprocesados', 
   'Sustentable', 
-  'Pastura'
+  'Pastura',
+  'Sin TACC', // Sumamos opción celíaca/libre de gluten
+  'Vegano'
 ];
 
 export const DELIVERY_PREFERENCES = [

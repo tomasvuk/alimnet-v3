@@ -686,34 +686,63 @@ function MiCuentaContent() {
 
                 <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
                    
-                   {/* CATEGORÍAS MADRE */}
                    <div>
-                     <h4 style={{ fontSize: '0.75rem', fontWeight: '950', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Sparkles size={16} /> Intereses Oficiales
-                     </h4>
-                     <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '1rem', fontWeight: '600' }}>Marcá lo que más buscas encontrar en el mapa de alimentos.</p>
-                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {OFFICIAL_CATEGORIES.map(cat => (
-                          <button 
-                            key={cat}
-                            onClick={() => {
-                              const current = formData.production_interest;
-                              const next = current.includes(cat) ? current.filter(c => c !== cat) : [...current, cat];
-                              setFormData({...formData, production_interest: next});
-                            }}
-                            style={{ 
-                              padding: '0.6rem 1.2rem', borderRadius: '12px', border: '1.5px solid',
-                              borderColor: formData.production_interest.includes(cat) ? '#5F7D4A' : '#E4EBDD',
-                              background: formData.production_interest.includes(cat) ? 'rgba(95, 125, 74, 0.05)' : 'white',
-                              color: formData.production_interest.includes(cat) ? '#5F7D4A' : '#888',
-                              fontWeight: '900', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s'
-                            }}
-                          >
-                            {cat}
-                          </button>
-                        ))}
-                     </div>
-                   </div>
+                  <h4 style={{ fontSize: '0.75rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                     <Sparkles size={16} /> ADN Alimentario y Preferencias
+                  </h4>
+                  
+                  {/* CATEGORÍAS MADRE */}
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <p style={{ fontSize: '0.75rem', color: '#888', marginBottom: '1rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03em' }}>¿Qué productos buscás encontrar?</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                       {OFFICIAL_CATEGORIES.map(cat => (
+                         <button 
+                           key={cat}
+                           onClick={() => {
+                             const current = formData.production_interest;
+                             const next = current.includes(cat) ? current.filter(c => c !== cat) : [...current, cat];
+                             setFormData({...formData, production_interest: next});
+                           }}
+                           style={{ 
+                             padding: '0.6rem 1.1rem', borderRadius: '14px', border: '1.5px solid',
+                             borderColor: formData.production_interest.includes(cat) ? '#5F7D4A' : '#E4EBDD',
+                             background: formData.production_interest.includes(cat) ? 'rgba(95, 125, 74, 0.05)' : 'white',
+                             color: formData.production_interest.includes(cat) ? '#5F7D4A' : '#888',
+                             fontWeight: '900', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s'
+                           }}
+                         >
+                           {cat}
+                         </button>
+                       ))}
+                    </div>
+                  </div>
+
+                  {/* CALIDAD Y ADN */}
+                  <div>
+                    <p style={{ fontSize: '0.75rem', color: '#888', marginBottom: '1rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Calidad, ADN y Estilo de Vida</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                       {PRODUCTION_ADN_OPTIONS.map(adn => (
+                         <button 
+                           key={adn}
+                           onClick={() => {
+                             const current = formData.production_interest;
+                             const next = current.includes(adn) ? current.filter(c => c !== adn) : [...current, adn];
+                             setFormData({...formData, production_interest: next});
+                           }}
+                           style={{ 
+                             padding: '0.6rem 1.1rem', borderRadius: '14px', border: '1.5px solid',
+                             borderColor: formData.production_interest.includes(adn) ? '#2D3A20' : '#E4EBDD',
+                             background: formData.production_interest.includes(adn) ? 'rgba(45, 58, 32, 0.05)' : 'white',
+                             color: formData.production_interest.includes(adn) ? '#2D3A20' : '#AAA',
+                             fontWeight: '950', fontSize: '0.7rem', cursor: 'pointer', transition: 'all 0.2s'
+                           }}
+                         >
+                           {adn}
+                         </button>
+                       ))}
+                    </div>
+                  </div>
+                </div>
 
                    {/* LOGISTICA MADRE */}
                    <div>

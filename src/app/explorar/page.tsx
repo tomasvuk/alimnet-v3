@@ -37,6 +37,11 @@ import {
   Menu
 } from 'lucide-react';
 import Header from '@/components/Header';
+import { 
+  OFFICIAL_CATEGORIES, 
+  PRODUCTION_ADN_OPTIONS, 
+  DELIVERY_PREFERENCES 
+} from '@/lib/constants';
 
 // Carga dinámica del mapa para evitar error "window is not defined" en SSR
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { 
@@ -102,17 +107,16 @@ const CATEGORIES = [
   { id: 'chef', label: 'Chef', icon: ChefHat },
 ];
 
-const PRODUCT_OPTIONS = ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'];
-
 const ADVANCED_CATEGORIES = {
-  modalidad: { label: 'Cómo querés recibir', options: ['Retiro en local', 'Entrega a domicilio'] },
+  modalidad: { label: 'Cómo querés recibir', options: DELIVERY_PREFERENCES },
   alimentacion: { label: 'Tipo de alimentación', options: ['Sin gluten', 'Sin azúcar', 'Sin lactosa', 'Keto', 'Vegetariano', 'Plant-based'] },
-  calidad: { label: 'Calidad y Producción', options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable'] },
+  calidad: { label: 'Calidad y Producción', options: PRODUCTION_ADN_OPTIONS },
   animal: { label: 'Producción Animal', options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
   certificaciones: { label: 'Certificaciones / asociaciones', options: ['Demeter', 'AABDA', 'Orgánico Certificado'] },
   tipo: { label: 'Tipo de actor', options: ['Productor', 'Abastecedor', 'Restaurante', 'Chef'] },
-  productos: { label: '¿Qué estás buscando?', options: PRODUCT_OPTIONS },
+  productos: { label: '¿Qué estás buscando?', options: OFFICIAL_CATEGORIES },
 };
+const PRODUCT_OPTIONS = OFFICIAL_CATEGORIES;
 
 function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number }) {
   // --- Soporte para tecla ESC ---
