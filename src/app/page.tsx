@@ -54,8 +54,11 @@ export default function Home() {
           </p>
           
           <div className="hero-roles-explainer" style={{ 
-            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px",
-            marginBottom: "3.5rem", maxWidth: "800px"
+            display: "grid", 
+            gridTemplateColumns: "repeat(auto-fit, 170px)", 
+            gap: "12px",
+            marginBottom: "3.5rem", 
+            maxWidth: "fit-content"
           }}>
             {[
               { role: 'Productor', desc: 'crea el alimento', icon: ProductorIcon },
@@ -68,7 +71,8 @@ export default function Home() {
                 background: "rgba(255, 255, 255, 0.7)", backdropFilter: "blur(12px)",
                 borderRadius: "16px", border: "1px solid rgba(255,255,255,0.9)",
                 boxShadow: "0 8px 30px rgba(0,0,0,0.03)", alignItems: "center",
-                textAlign: "center", transition: "transform 0.2s ease"
+                textAlign: "center", transition: "transform 0.2s ease",
+                width: "170px", flexShrink: 0
               }}>
                 <div style={{ 
                   width: "42px", height: "42px", borderRadius: "12px", background: "#F0F4ED",
@@ -306,7 +310,15 @@ export default function Home() {
           .hero-section { padding: 4rem 1.5rem 6rem !important; }
           .hero-title { font-size: 2.5rem !important; }
           .hero-p { font-size: 1rem !important; }
-          .hero-categories { font-size: 0.75rem !important; gap: 6px !important; }
+          .hero-roles-explainer { 
+            grid-template-columns: repeat(2, 1fr) !important; 
+            max-width: 100% !important; 
+            justify-items: center;
+          }
+          .hero-roles-explainer > div { 
+            width: 100% !important; 
+            max-width: 160px !important; 
+          }
           .hero-buttons { flex-direction: column; width: 100%; }
           .hero-buttons a, .hero-buttons button { width: 100%; }
         }
