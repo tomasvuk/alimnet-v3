@@ -64,11 +64,11 @@ export default function Home() {
               { role: 'Chef', desc: 'lo interpreta', icon: ChefHat }
             ].map((item, idx) => (
               <div key={idx} style={{
-                display: "flex", flexDirection: "column", gap: "12px", padding: "1.2rem",
+                display: "flex", flexDirection: "column", gap: "10px", padding: "1.2rem",
                 background: "rgba(255, 255, 255, 0.7)", backdropFilter: "blur(12px)",
                 borderRadius: "16px", border: "1px solid rgba(255,255,255,0.9)",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.03)", alignItems: "flex-start",
-                transition: "transform 0.2s ease"
+                boxShadow: "0 8px 30px rgba(0,0,0,0.03)", alignItems: "center",
+                textAlign: "center", transition: "transform 0.2s ease"
               }}>
                 <div style={{ 
                   width: "42px", height: "42px", borderRadius: "12px", background: "#F0F4ED",
