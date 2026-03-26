@@ -655,10 +655,10 @@ export default function ExplorarPage() {
         padding: isMobile ? '0.6rem 1rem' : '1rem 1.5rem', 
         background: 'rgba(255, 255, 255, 1)', 
         borderBottom: '1px solid var(--border)',
-        position: isMobile ? 'fixed' : 'sticky',
+        position: 'sticky',
         top: '56px', 
-        left: isMobile ? 0 : undefined,
-        right: isMobile ? 0 : undefined,
+        left: 0,
+        right: 0,
         zIndex: 900,
         display: 'flex',
         flexDirection: 'column',
@@ -909,9 +909,9 @@ export default function ExplorarPage() {
             display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
             padding: '1rem', background: '#F8F9F5',
             borderRight: isMobile ? 'none' : '1px solid var(--border)', 
-            height: isMobile ? '100vh' : 'calc(100vh - 120px)', 
+            height: isMobile ? 'calc(100vh - 120px)' : 'calc(100vh - 120px)', 
             overflowY: 'auto',
-            paddingTop: isMobile ? '1rem' : '1rem'
+            paddingTop: '1rem'
           }}
         >
           <div style={{ 
