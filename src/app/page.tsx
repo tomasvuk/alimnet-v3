@@ -54,11 +54,11 @@ export default function Home() {
           </p>
           
           <div className="hero-roles-explainer" style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fit, 170px)", 
+            display: "flex", 
+            flexWrap: "wrap",
             gap: "12px",
             marginBottom: "3.5rem", 
-            maxWidth: "fit-content"
+            width: "fit-content"
           }}>
             {[
               { role: 'Productor', desc: 'crea el alimento', icon: ProductorIcon },
@@ -311,6 +311,7 @@ export default function Home() {
           .hero-title { font-size: 2.5rem !important; }
           .hero-p { font-size: 1rem !important; }
           .hero-roles-explainer { 
+            display: grid !important;
             grid-template-columns: repeat(2, 1fr) !important; 
             max-width: 100% !important; 
             justify-items: center;
