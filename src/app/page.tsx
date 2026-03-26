@@ -271,14 +271,12 @@ export default function Home() {
               </nav>
             </div>
 
-            {/* COL 4: LEGAL (Horizontal Slim) */}
-            <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', gridColumn: 'span 1' }}>
+            {/* COL 4: LEGAL */}
+            <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <h4 style={{ fontSize: "0.75rem", fontWeight: '1000', textTransform: "uppercase", letterSpacing: "0.1em", color: 'var(--primary-dark)' }}>Legal</h4>
-              <nav style={{ display: "flex", gap: "1rem", fontWeight: "700", fontSize: "0.75rem", flexWrap: 'wrap' }}>
+              <nav className="footer-nav-legal" style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
                 <a href="#" className="footer-link-v3">Privacidad</a>
-                <span style={{ color: '#DDD' }}>•</span>
                 <a href="#" className="footer-link-v3">Términos</a>
-                <span style={{ color: '#DDD' }}>•</span>
                 <a href="#" className="footer-link-v3">Cookies</a>
               </nav>
             </div>
@@ -311,7 +309,7 @@ export default function Home() {
         }
         .btn-v3-secondary:hover { background: rgba(95,125,74,0.05); transform: scale(1.03); }
 
-        .footer-link-v3 { color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+        .footer-link-v3 { color: var(--text-secondary); text-decoration: none; transition: all 0.2s; white-space: nowrap; }
         .footer-link-v3:hover { color: var(--primary); transform: translateX(3px); }
 
         @media (max-width: 768px) {
@@ -362,6 +360,13 @@ export default function Home() {
           }
           .footer-col-brand { grid-column: span 2 !important; max-width: 100% !important; }
           .footer-col { grid-column: span 1 !important; }
+
+          .footer-nav-legal { 
+            flex-direction: row !important; 
+            gap: 1rem !important; 
+            flex-wrap: wrap !important; 
+            font-size: 0.75rem !important; 
+          }
         }
       `}</style>
     </main>
