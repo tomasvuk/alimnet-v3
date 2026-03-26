@@ -2,7 +2,7 @@
 
 import React from "react";
 import Header from "@/components/Header";
-import { LogIn, Rocket, UserPlus, MapPin, CheckCircle, Heart, Instagram, Linkedin, Mail, Store, UtensilsCrossed, ChefHat } from "lucide-react";
+import { LogIn, Rocket, UserPlus, MapPin, CheckCircle, Heart, Instagram, Linkedin, Mail, Store, UtensilsCrossed, ChefHat, ArrowRight } from "lucide-react";
 
 const ProductorIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -16,39 +16,36 @@ const ProductorIcon = ({ size = 20 }: { size?: number }) => (
 
 export default function Home() {
   return (
-    <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--background)", color: "var(--text-primary)" }}>
+    <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--background)", color: "var(--text-primary)", width: '100vw', overflowX: 'hidden' }}>
       
-      {/* 1. Header Global con Detección de Usuario */}
       <Header />
 
-      {/* 2. Hero Principal (Alineado a la IZQUIERDA y reducido ~15%) */}
+      {/* 2. HERO PRINCIPAL */}
       <section className="hero-section" style={{ 
-        padding: "8rem 2.5rem 10rem", 
+        padding: "clamp(6rem, 15vw, 10rem) clamp(1.5rem, 5vw, 3rem)", 
         position: "relative", 
         overflow: "hidden", 
         textAlign: "left",
         background: "linear-gradient(to bottom, #E7E2D3 0%, var(--background) 80%)"
       }}>
-        {/* Imagen Hero Cenital Integrada (Ajustada) */}
         <div style={{ 
-          position: "absolute", top: "-30px", right: "-100px", width: "600px", height: "600px", 
-          opacity: 0.2, pointerEvents: "none", transform: "rotate(10deg)", filter: "grayscale(20%)"
+          position: "absolute", top: "-50px", right: "-50px", width: "clamp(400px, 50vw, 700px)", height: "clamp(400px, 50vw, 700px)", 
+          opacity: 0.15, pointerEvents: "none", filter: "blur(40px)"
         }}>
-          <img src="/hero-alimnet.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", maskImage: "radial-gradient(circle, black 20%, transparent 80%)" }} />
+           <div style={{ width: '100%', height: '100%', background: 'var(--primary)', borderRadius: '50%' }}></div>
         </div>
 
         <div className="container" style={{ maxWidth: "1280px", position: "relative", zIndex: 10, margin: "0" }}>
-          <h1 className="hero-title" style={{ fontSize: "clamp(2.5rem, 6vw, 4.4rem)", fontWeight: "950", marginBottom: "1.2rem", color: "var(--primary-dark)", maxWidth: "900px", lineHeight: "1.1" }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', background: 'rgba(95, 125, 74, 0.08)', color: 'var(--primary)', borderRadius: '30px', fontSize: '0.65rem', fontWeight: '1000', marginBottom: '2rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            <Rocket size={14} /> Lanzamiento Friends & Family
+          </div>
+          <h1 style={{ fontSize: "clamp(2.4rem, 8vw, 4.4rem)", fontWeight: "950", marginBottom: "1.5rem", color: "var(--primary-dark)", maxWidth: "950px", lineHeight: "1.05", letterSpacing: '-0.04em' }}>
             Conectamos personas con <br />
             <span style={{ color: "var(--primary)", fontStyle: "italic" }}>alimentos cuidados.</span>
           </h1>
-          <p className="hero-p" style={{ 
-            fontSize: "1.15rem", color: "var(--text-secondary)", maxWidth: "680px", 
-            margin: "0 0 1.2rem", lineHeight: "1.6", fontWeight: "550",
-            textAlign: "justify", 
-            textJustify: "inter-word",
-            hyphens: "auto",
-            WebkitHyphens: "auto"
+          <p style={{ 
+            fontSize: "clamp(1rem, 4vw, 1.15rem)", color: "var(--text-secondary)", maxWidth: "720px", 
+            margin: "0 0 3rem", lineHeight: "1.6", fontWeight: "600"
           }}>
             Descubrí productores, abastecedores, restaurantes y chefs que trabajan con alimentos agroecológicos, orgánicos y biodinámicos cerca tuyo.
           </p>
@@ -88,31 +85,29 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="hero-buttons" style={{ display: "flex", gap: "1rem", justifyContent: "flex-start", marginBottom: "4rem" }}>
-            <a href="/explorar" className="button button-primary" style={{ padding: "0.95rem 2.5rem", fontSize: "1rem", textDecoration: "none", textAlign: "center" }}>
-              Explorar el mapa
+          <div className="hero-buttons" style={{ display: "flex", gap: "1.5rem", justifyContent: "flex-start", marginBottom: "4rem" }}>
+            <a href="/explorar" className="btn-v3-primary" style={{ padding: "1rem 2.8rem", textDecoration: "none", display: 'flex', alignItems: 'center', gap: '10px' }}>
+              Explorar el mapa <ArrowRight size={18} />
             </a>
             <button 
               onClick={() => window.location.href = '/registro'}
-              className="button button-secondary" style={{ padding: "0.95rem 2.5rem", fontSize: "1rem" }}
+              className="btn-v3-secondary" style={{ padding: "0.95rem 2.22rem" }}
             >
               Crear cuenta
             </button>
           </div>
 
-          {/* Social Proof (Avatar Circles) */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               {[1,2,3,4,5].map(i => (
                 <div key={i} style={{ 
-                  width: "36px", height: "36px", minWidth: "36px", minHeight: "36px", borderRadius: "50%", background: `var(--card-bg)`, 
-                  border: "2.5px solid white", marginLeft: i === 1 ? 0 : "-10px", overflow: "hidden",
-                  boxShadow: "0 3px 5px rgba(0,0,0,0.1)", flexShrink: 0
+                  width: "36px", height: "36px", borderRadius: "50%", border: "3px solid white", 
+                  marginLeft: i === 1 ? 0 : "-10px", overflow: "hidden", boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
                 }}>
-                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img src={`https://i.pravatar.cc/100?img=${i+20}`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
               ))}
-              <div style={{ marginLeft: "0.8rem", fontWeight: "800", fontSize: "0.85rem", color: "var(--primary-dark)" }}>
+              <div style={{ marginLeft: "1rem", fontWeight: "900", fontSize: "0.85rem", color: "var(--primary-dark)" }}>
                 Más de <span style={{ color: "var(--primary)" }}>+100 proyectos</span> ya son parte.
               </div>
             </div>
@@ -120,61 +115,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Sección Cómo funciona (Reducida ~15%) */}
-      <section id="como-funciona" style={{ padding: "8rem 2rem", background: "white" }}>
+      {/* 4. CÓMO FUNCIONA */}
+      <section id="como-funciona" style={{ padding: "clamp(5rem, 10vw, 8rem) 2rem", background: "white" }}>
         <div className="container" style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "3rem", marginBottom: "1.2rem" }}>Cómo funciona</h2>
-          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", maxWidth: "550px", margin: "0 auto 5rem", fontWeight: "550", textAlign: "justify" }}>
+          <h2 style={{ fontSize: "clamp(2rem, 6vw, 3rem)", fontWeight: '950', marginBottom: "1rem", color: 'var(--primary-dark)', letterSpacing: '-0.02em' }}>Cómo funciona</h2>
+          <p style={{ fontSize: "1.05rem", color: "var(--text-secondary)", maxWidth: "550px", margin: "0 auto 5rem", fontWeight: "500", lineHeight: '1.7' }}>
             Tres simples pasos para acercarte a una alimentación cuidada y apoyar redes de producción local.
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "2.5rem" }}>
-            {/* Paso 1 */}
-            <div className="card" style={{ padding: "2rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
-              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                <UserPlus size={26} strokeWidth={2.5} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2.5rem", maxWidth: '1100px', margin: '0 auto' }}>
+            {[
+              { id: '1', title: 'Registrate', text: 'Creá tu cuenta en segundos y empezá a explorar la red.', icon: UserPlus },
+              { id: '2', title: 'Buscá por zona', text: 'Encontrá productores, abastecedores, restaurantes y chefs cerca tuyo.', icon: MapPin },
+              { id: '3', title: 'Descubrí proyectos cuidados', text: 'Accedé a más información sobre cada proyecto y elegí con mayor claridad y confianza.', icon: Rocket }
+            ].map((step) => (
+              <div key={step.id} style={{ 
+                padding: "2rem 1.5rem", borderRadius: "32px", background: "#F8F9F5", border: "1.5px solid #E4EBDD",
+                display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center", width: '100%', maxWidth: '350px', margin: '0 auto'
+              }}>
+                <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
+                  <step.icon size={26} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>{step.id}. {step.title}</h3>
+                  <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
+                    {step.text}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>1. Registrate</h3>
-                <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
-                  Creá tu cuenta en segundos y empezá a explorar la red.
-                </p>
-              </div>
-            </div>
-            {/* Paso 2 */}
-            <div className="card" style={{ padding: "2rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
-              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                <MapPin size={26} strokeWidth={2.5} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>2. Buscá por zona</h3>
-                <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
-                  Encontrá productores, abastecedores, restaurantes y chefs cerca tuyo o con entrega en tu zona.
-                </p>
-              </div>
-            </div>
-            {/* Paso 3 */}
-            <div className="card" style={{ padding: "2rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
-              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
-                <Rocket size={26} strokeWidth={2.5} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>3. Descubrí proyectos cuidados</h3>
-                <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
-                  Accedé a más información sobre cada proyecto y elegí con mayor claridad y confianza.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 5. Sección Mapa Bloqueado (Reducida ~15%) */}
-      <section style={{ padding: "6rem 2rem", position: "relative" }}>
-        <div className="container" style={{ maxWidth: "1000px" }}>
+      {/* 5. SECCIÓN MAPA REALISTA */}
+      <section style={{ padding: "6rem 1.5rem", position: "relative" }}>
+        <div className="container" style={{ maxWidth: "1100px" }}>
           <div style={{ 
             position: "relative", 
-            height: "500px", 
+            height: "clamp(350px, 60vh, 550px)", 
             borderRadius: "40px", 
             overflow: "hidden",
             boxShadow: "0 30px 80px -15px rgba(63, 82, 50, 0.2)"
@@ -212,106 +191,126 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. CTA para comerciantes (Reducida ~15%) */}
-      <section style={{ padding: "8rem 2rem", background: "var(--primary-dark)", color: "#F4F1E6" }}>
-        <div className="container" style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "3rem", marginBottom: "1.2rem", color: "white" }}>¿Tenes un proyecto afín?</h2>
-          <p style={{ fontSize: "1.2rem", color: "rgba(244, 241, 230, 0.8)", maxWidth: "600px", margin: "0 auto 3.5rem", fontWeight: "550" }}>
+      {/* 6. CTA COMERCIANTES */}
+      <section style={{ padding: "8rem 2rem", background: "var(--primary-dark)", color: "#F4F1E6", textAlign: "center" }}>
+        <div className="container">
+          <h2 style={{ fontSize: "clamp(2rem, 6vw, 3rem)", fontWeight: '950', marginBottom: "1.2rem", color: "white" }}>¿Tenes un proyecto afín?</h2>
+          <p style={{ fontSize: "1.1rem", color: "rgba(244, 241, 230, 0.7)", maxWidth: "600px", margin: "0 auto 3rem", fontWeight: "550" }}>
             Sumá tu proyecto a la red y conectá con personas que buscan alimentos cuidados.
           </p>
           <button 
             onClick={() => window.location.href = '/unirse'}
-            className="button button-primary" 
-            style={{ background: "var(--primary)", color: "white", padding: "1rem 3.5rem", fontSize: "1.1rem" }}
+            className="btn-v3-primary" 
+            style={{ padding: "1.1rem 3.5rem" }}
           >
             Registrar mi proyecto
           </button>
         </div>
       </section>
 
-      {/* 7. Sección Comunidad (Reducida ~15%) */}
+      {/* 7. SECCIÓN COMUNIDAD */}
       <section style={{ padding: "8rem 2rem", background: "var(--card-bg)" }}>
         <div className="container" style={{ textAlign: "center", maxWidth: "700px" }}>
           <Heart size={40} color="var(--primary)" style={{ marginBottom: "1.5rem" }} fill="var(--primary)" fillOpacity={0.1} />
-          <h2 style={{ fontSize: "2.8rem", marginBottom: "1.2rem" }}>Una red sostenida por su comunidad</h2>
-          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", marginBottom: "3.5rem", lineHeight: "1.8", fontWeight: "500", textAlign: "justify" }}>
+          <h2 style={{ fontSize: "2.8rem", fontWeight: '950', marginBottom: "1.2rem", color: 'var(--primary-dark)' }}>Una red sostenida por su comunidad</h2>
+          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", marginBottom: "3.5rem", lineHeight: "1.8", fontWeight: "500" }}>
             Alimnet crece gracias a personas que creen en una forma más consciente, transparente y cercana de producir y encontrar alimentos.
           </p>
           <button 
             onClick={() => window.location.href = '/sostener'}
-            className="button button-secondary" 
-            style={{ padding: "0.85rem 2.5rem", borderColor: "var(--primary)", color: "var(--primary)", cursor: "pointer" }}
+            className="btn-v3-secondary" 
+            style={{ padding: "0.85rem 2.5rem" }}
           >
             Sostener Alimnet
           </button>
         </div>
       </section>
 
-      {/* 8. Footer Premium (Reducido ~15%) */}
-      <footer style={{ padding: "6rem 2rem 3rem", background: "white", borderTop: "1px solid var(--border)" }}>
-        <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "3.5rem", marginBottom: "5rem" }}>
-            <div style={{ gridColumn: "span 2" }}>
-              <div style={{ fontSize: "1.9rem", fontWeight: "950", color: "var(--primary-dark)", marginBottom: "1.5rem", letterSpacing: "-0.04em" }}>ALIMNET</div>
-              <p style={{ fontSize: "1rem", color: "var(--text-secondary)", maxWidth: "350px", lineHeight: "1.8", fontWeight: "550" }}>
+      {/* 8. FOOTER REORDENADO INSTITUCIONAL */}
+      <footer style={{ padding: "6rem 2rem 4rem", background: "white", borderTop: "1px solid var(--border)" }}>
+        <div className="container" style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div className="footer-grid" style={{ 
+            display: "grid", 
+            gridTemplateColumns: "1.5fr 1fr 1fr 1fr", 
+            gap: "4rem", 
+            marginBottom: "5rem" 
+          }}>
+            {/* COL 1: MARCA */}
+            <div className="footer-col-brand" style={{ maxWidth: "340px" }}>
+              <div style={{ fontSize: "1.8rem", fontWeight: "1000", color: "var(--primary-dark)", marginBottom: "1.5rem", letterSpacing: "-0.04em" }}>ALIMNET</div>
+              <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: "1.7", fontWeight: "500", marginBottom: "2rem" }}>
                 Alimnet acompaña la transición hacia un sistema alimentario más transparente, justo y cercano.
               </p>
-              <div style={{ display: "flex", gap: "1.2rem", marginTop: "2.5rem" }}>
-                <Instagram size={24} className="footer-icon" />
-                <Linkedin size={24} className="footer-icon" />
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "800", color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-                  <Mail size={18} /> info@alimnet.com
-                </div>
+              <div style={{ display: "flex", gap: "1.2rem", alignItems: 'center' }}>
+                 <Instagram size={22} color="var(--primary-dark)" style={{ cursor: 'pointer' }} />
+                 <Linkedin size={22} color="var(--primary-dark)" style={{ cursor: 'pointer' }} />
+                 <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "900", color: "var(--text-secondary)", fontSize: "0.8rem" }}>
+                    <Mail size={18} /> info@alimnet.com
+                 </div>
               </div>
             </div>
             
-            <div>
-              <h4 style={{ fontSize: "0.95rem", marginBottom: "1.5rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>Menu</h4>
-              <nav style={{ display: "flex", flexDirection: "column", gap: "1rem", fontWeight: "700", fontSize: "0.9rem" }}>
-                <a href="/explorar" className="footer-link">Explorar mapa</a>
-                <a href="/sostener" className="footer-link">Sostener Alimnet</a>
-                <button onClick={() => window.location.href = '/login'} className="footer-link" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', fontWeight: 'inherit', fontSize: 'inherit', fontFamily: 'inherit' }}>Ingresar</button>
-                <button onClick={() => window.location.href = '/registro'} className="button button-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', width: 'fit-content' }}>Crear cuenta</button>
+            {/* COL 2: MENÚ */}
+            <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <h4 style={{ fontSize: "0.75rem", fontWeight: '1000', textTransform: "uppercase", letterSpacing: "0.1em", color: 'var(--primary-dark)' }}>Menú</h4>
+              <nav style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
+                <a href="/explorar" className="footer-link-v3">Explorar mapa</a>
+                <a href="/sostener" className="footer-link-v3">Sostener Alimnet</a>
+                <a href="/login" className="footer-link-v3">Ingresar</a>
+                <button onClick={() => window.location.href='/registro'} className="btn-v3-primary" style={{ padding: '0.6rem 1.2rem', fontSize: '0.75rem', width: 'fit-content' }}>Crear cuenta</button>
               </nav>
             </div>
 
-            <div>
-              <h4 style={{ fontSize: "0.95rem", marginBottom: "1.5rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>Explorar</h4>
-              <nav style={{ display: "flex", flexDirection: "column", gap: "1rem", fontWeight: "700", fontSize: "0.9rem" }}>
-                <a href="#" className="footer-link">Blog</a>
-                <a href="#" className="footer-link">Certificaciones</a>
-                <a href="#" className="footer-link">Guía estacional</a>
+            {/* COL 3: EXPLORAR */}
+            <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <h4 style={{ fontSize: "0.75rem", fontWeight: '1000', textTransform: "uppercase", letterSpacing: "0.1em", color: 'var(--primary-dark)' }}>Explorar</h4>
+              <nav style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
+                <a href="#" className="footer-link-v3">Blog</a>
+                <a href="#" className="footer-link-v3">Certificaciones</a>
+                <a href="#" className="footer-link-v3">Guía estacional</a>
               </nav>
             </div>
 
-            <div>
-              <h4 style={{ fontSize: "0.95rem", marginBottom: "1.5rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>Legal</h4>
-              <nav style={{ display: "flex", flexDirection: "column", gap: "1rem", fontWeight: "700", fontSize: "0.9rem" }}>
-                <a href="#" className="footer-link">Privacidad</a>
-                <a href="#" className="footer-link">Términos</a>
-                <a href="#" className="footer-link">Cookies</a>
+            {/* COL 4: LEGAL */}
+            <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <h4 style={{ fontSize: "0.75rem", fontWeight: '1000', textTransform: "uppercase", letterSpacing: "0.1em", color: 'var(--primary-dark)' }}>Legal</h4>
+              <nav style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
+                <a href="#" className="footer-link-v3">Privacidad</a>
+                <a href="#" className="footer-link-v3">Términos</a>
+                <a href="#" className="footer-link-v3">Cookies</a>
               </nav>
             </div>
           </div>
 
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: "2.5rem", display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "600", opacity: 0.7 }}>
+          {/* BARRA INFERIOR FINAL */}
+          <div style={{ borderTop: "1px solid var(--border)", paddingTop: "2.5rem", display: "flex", justifyContent: "space-between", flexWrap: 'wrap', gap: '1rem', fontSize: "0.75rem", color: "#999", fontWeight: "600" }}>
             <div>© 2025 Alimnet. Cultivando redes locales.</div>
-            <div style={{ display: "flex", gap: "1.5rem", letterSpacing: "0.02em" }}>
+            <div style={{ display: "flex", gap: "1.5rem" }}>
               <span>Argentina</span>
-              <span style={{ opacity: 0.8 }}>|</span>
-              <span>Propósito Global</span>
+              <span style={{ color: '#E4EBDD' }}>|</span>
+              <span style={{ color: '#888' }}>Propósito Global</span>
             </div>
           </div>
         </div>
       </footer>
 
-      <style jsx>{`
-        .nav-link { font-weight: 750; color: var(--text-secondary); transition: color 0.2s; text-decoration: none; }
-        .nav-link:hover { color: var(--primary); }
-        .footer-link { color: var(--text-secondary); transition: all 0.2s; text-decoration: none; }
-        .footer-link:hover { color: var(--primary); transform: translateX(5px); }
-        .footer-icon { color: var(--text-secondary); cursor: pointer; transition: color 0.2s; }
-        .footer-icon:hover { color: var(--primary); }
+      <style jsx global>{`
+        .btn-v3-primary { 
+          background: var(--primary); color: white; border: none; border-radius: 16px; 
+          font-weight: 1000; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease;
+          width: fit-content; text-align: center;
+        }
+        .btn-v3-primary:hover { transform: scale(1.03) translateY(-2px); boxShadow: 0 10px 30px rgba(95,125,74,0.3); }
+        
+        .btn-v3-secondary { 
+          background: transparent; color: var(--primary); border: 2px solid var(--primary); border-radius: 16px; 
+          font-weight: 1000; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease;
+          width: fit-content;
+        }
+        .btn-v3-secondary:hover { background: rgba(95,125,74,0.05); transform: scale(1.03); }
+
+        .footer-link-v3 { color: var(--text-secondary); text-decoration: none; transition: all 0.2s; }
+        .footer-link-v3:hover { color: var(--primary); transform: translateX(3px); }
 
         @media (max-width: 768px) {
           .hero-section { padding: 4rem 1.5rem 6rem !important; }
@@ -327,8 +326,9 @@ export default function Home() {
             width: 100% !important; 
             max-width: 160px !important; 
           }
-          .hero-buttons { flex-direction: column; width: 100%; }
-          .hero-buttons a, .hero-buttons button { width: 100%; }
+          
+          .hero-buttons { flex-direction: column; width: 100%; gap: 1rem; }
+          .btn-v3-primary, .btn-v3-secondary { width: 100% !important; justify-content: center; }
 
           .map-overlay-container { 
             justify-content: flex-end !important;
@@ -352,6 +352,13 @@ export default function Home() {
             font-size: 0.95rem !important;
           }
           .mobile-hide { display: none !important; }
+
+          .footer-grid { 
+            grid-template-columns: 1fr !important; 
+            gap: 3rem !important;
+            text-align: left;
+          }
+          .footer-col-brand { max-width: 100% !important; }
         }
       `}</style>
     </main>
