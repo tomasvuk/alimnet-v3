@@ -126,40 +126,40 @@ export default function Home() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "2.5rem" }}>
             {/* Paso 1 */}
-            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "flex-start", textAlign: "left" }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div style={{ width: "45px", height: "45px", background: "var(--background)", borderRadius: "12px", display: "flex", alignItems: 'center', justifyContent: 'center', color: "var(--primary)" }}>
-                  <UserPlus size={24} strokeWidth={2.5} />
-                </div>
-                <h3 style={{ fontSize: "1.5rem", margin: 0 }}>1. Registrate</h3>
+            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
+              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", fontSize: '1.4rem', fontWeight: '1000' }}>
+                1
               </div>
-              <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7", margin: 0 }}>
-                Creá tu cuenta en segundos y empezá a explorar la red.
-              </p>
+              <div>
+                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>Registrate</h3>
+                <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
+                  Creá tu cuenta en segundos y empezá a explorar la red.
+                </p>
+              </div>
             </div>
             {/* Paso 2 */}
-            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "flex-start", textAlign: "left" }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div style={{ width: "45px", height: "45px", background: "var(--background)", borderRadius: "12px", display: "flex", alignItems: 'center', justifyContent: 'center', color: "var(--primary)" }}>
-                  <MapPin size={24} strokeWidth={2.5} />
-                </div>
-                <h3 style={{ fontSize: "1.5rem", margin: 0 }}>2. Buscá por zona</h3>
+            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
+              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", fontSize: '1.4rem', fontWeight: '1000' }}>
+                2
               </div>
-              <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7", margin: 0 }}>
-                Encontrá productores, abastecedores, restaurantes y chefs cerca tuyo o con entrega en tu zona.
-              </p>
+              <div>
+                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>Buscá por zona</h3>
+                <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
+                  Encontrá productores, abastecedores, restaurantes y chefs cerca tuyo o con entrega en tu zona.
+                </p>
+              </div>
             </div>
             {/* Paso 3 */}
-            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "flex-start", textAlign: "left" }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div style={{ width: "45px", height: "45px", background: "var(--background)", borderRadius: "12px", display: "flex", alignItems: 'center', justifyContent: 'center', color: "var(--primary)" }}>
-                  <Rocket size={24} strokeWidth={2.5} />
-                </div>
-                <h3 style={{ fontSize: "1.5rem", margin: 0 }}>3. Descubrí proyectos</h3>
+            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
+              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", fontSize: '1.4rem', fontWeight: '1000' }}>
+                3
               </div>
-              <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7", margin: 0 }}>
-                Accedé a más información sobre cada proyecto y elegí con mayor claridad y confianza.
-              </p>
+              <div>
+                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>Descubrí proyectos cuidados</h3>
+                <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
+                  Accedé a más información sobre cada proyecto y elegí con mayor claridad y confianza.
+                </p>
+              </div>
             </div>
           </div>
         </div>
