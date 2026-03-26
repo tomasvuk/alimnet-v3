@@ -180,14 +180,21 @@ export default function Home() {
             boxShadow: "0 30px 80px -15px rgba(63, 82, 50, 0.2)"
           }}>
             <img src="/map-preview.png" alt="Mapa Alimnet" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "blur(2px) brightness(0.9)" }} />
-            <div style={{ 
+            <div className="map-overlay-container" style={{ 
               position: "absolute", top: 0, left: 0, width: "100%", height: "100%", 
-              background: "rgba(63, 82, 50, 0.25)", display: "flex", flexDirection: "column",
+              background: "rgba(63, 82, 50, 0.15)", display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center", textAlign: "center", padding: "1.5rem"
             }}>
-              <div className="glass-card" style={{ padding: "3.5rem 2.5rem", maxWidth: "550px" }}>
+              <div className="map-glass-card" style={{ 
+                padding: "3.5rem 2.5rem", maxWidth: "550px", 
+                background: "rgba(255, 255, 255, 0.9)",
+                backdropFilter: "blur(15px)", 
+                borderRadius: "32px",
+                border: "1px solid rgba(255,255,255,0.7)", 
+                boxShadow: "0 20px 50px rgba(0,0,0,0.1)"
+              }}>
                 <h2 style={{ fontSize: "2.4rem", marginBottom: "1.2rem", color: "var(--primary-dark)" }}>Accedé al mapa de la red</h2>
-                <p style={{ fontSize: "1rem", color: "var(--text-primary)", marginBottom: "2.5rem", fontWeight: "600" }}>
+                <p className="mobile-hide" style={{ fontSize: "1rem", color: "var(--text-primary)", marginBottom: "2.5rem", fontWeight: "600" }}>
                   Sumate a la comunidad para descubrir proyectos, alimentos y comerciantes alineados con una producción más cuidada.
                 </p>
                 <button 
@@ -196,7 +203,7 @@ export default function Home() {
                 >
                   Unirme a Alimnet
                 </button>
-                <div style={{ marginTop: "1.5rem", fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "800" }}>
+                <div className="mobile-hide" style={{ marginTop: "1.5rem", fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "800" }}>
                   Se una de las primeras personas en explorar la red.
                 </div>
               </div>
@@ -322,6 +329,29 @@ export default function Home() {
           }
           .hero-buttons { flex-direction: column; width: 100%; }
           .hero-buttons a, .hero-buttons button { width: 100%; }
+
+          .map-overlay-container { 
+            justify-content: flex-end !important;
+            padding: 0 !important;
+          }
+          .map-glass-card { 
+            width: 100% !important;
+            max-width: 100% !important;
+            border-radius: 0 0 40px 40px !important;
+            padding: 1.5rem !important;
+            border: none !important;
+            border-top: 1px solid rgba(255,255,255,0.5) !important;
+          }
+          .map-glass-card h2 { 
+            font-size: 1.3rem !important;
+            margin-bottom: 1rem !important;
+          }
+          .map-glass-card .button { 
+            width: 100% !important;
+            padding: 0.8rem !important;
+            font-size: 0.95rem !important;
+          }
+          .mobile-hide { display: none !important; }
         }
       `}</style>
     </main>
