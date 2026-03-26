@@ -127,11 +127,11 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "2.5rem" }}>
             {/* Paso 1 */}
             <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
-              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", fontSize: '1.4rem', fontWeight: '1000' }}>
-                1
+              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
+                <UserPlus size={26} strokeWidth={2.5} />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>Registrate</h3>
+                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>1. Registrate</h3>
                 <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
                   Creá tu cuenta en segundos y empezá a explorar la red.
                 </p>
@@ -139,11 +139,11 @@ export default function Home() {
             </div>
             {/* Paso 2 */}
             <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
-              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", fontSize: '1.4rem', fontWeight: '1000' }}>
-                2
+              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
+                <MapPin size={26} strokeWidth={2.5} />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>Buscá por zona</h3>
+                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>2. Buscá por zona</h3>
                 <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
                   Encontrá productores, abastecedores, restaurantes y chefs cerca tuyo o con entrega en tu zona.
                 </p>
@@ -151,11 +151,11 @@ export default function Home() {
             </div>
             {/* Paso 3 */}
             <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
-              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", fontSize: '1.4rem', fontWeight: '1000' }}>
-                3
+              <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
+                <Rocket size={26} strokeWidth={2.5} />
               </div>
               <div>
-                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>Descubrí proyectos cuidados</h3>
+                <h3 style={{ fontSize: "1.5rem", marginBottom: "0.8rem" }}>3. Descubrí proyectos cuidados</h3>
                 <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: "1.7" }}>
                   Accedé a más información sobre cada proyecto y elegí con mayor claridad y confianza.
                 </p>
