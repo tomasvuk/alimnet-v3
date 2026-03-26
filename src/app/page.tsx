@@ -354,11 +354,12 @@ export default function Home() {
           .mobile-hide { display: none !important; }
 
           .footer-grid { 
-            grid-template-columns: 1fr !important; 
-            gap: 3rem !important;
+            grid-template-columns: 1fr 1fr !important; 
+            gap: 2.5rem 1rem !important;
             text-align: left;
           }
-          .footer-col-brand { max-width: 100% !important; }
+          .footer-col-brand { grid-column: span 2 !important; max-width: 100% !important; }
+          .footer-col { grid-column: span 1 !important; }
         }
       `}</style>
     </main>
