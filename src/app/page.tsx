@@ -126,7 +126,7 @@ export default function Home() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "2.5rem" }}>
             {/* Paso 1 */}
-            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
+            <div className="card" style={{ padding: "2rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
               <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
                 <UserPlus size={26} strokeWidth={2.5} />
               </div>
@@ -138,7 +138,7 @@ export default function Home() {
               </div>
             </div>
             {/* Paso 2 */}
-            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
+            <div className="card" style={{ padding: "2rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
               <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
                 <MapPin size={26} strokeWidth={2.5} />
               </div>
@@ -150,7 +150,7 @@ export default function Home() {
               </div>
             </div>
             {/* Paso 3 */}
-            <div className="card" style={{ padding: "3.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
+            <div className="card" style={{ padding: "2rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem", alignItems: "center", textAlign: "center" }}>
               <div style={{ width: "50px", height: "50px", background: "var(--background)", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
                 <Rocket size={26} strokeWidth={2.5} />
               </div>
