@@ -266,17 +266,19 @@ export default function Home() {
               <h4 style={{ fontSize: "0.75rem", fontWeight: '1000', textTransform: "uppercase", letterSpacing: "0.1em", color: 'var(--primary-dark)' }}>Explorar</h4>
               <nav style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
                 <a href="#" className="footer-link-v3">Blog</a>
-                <a href="#" className="footer-link-v3">Certificaciones</a>
-                <a href="#" className="footer-link-v3">Guía estacional</a>
+                <a href="/comercial" className="footer-link-v3">Panel Comercial</a>
+                <a href="/unirse" className="footer-link-v3">Registrar mi comercio</a>
               </nav>
             </div>
 
-            {/* COL 4: LEGAL */}
-            <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* COL 4: LEGAL (Horizontal Slim) */}
+            <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', gridColumn: 'span 1' }}>
               <h4 style={{ fontSize: "0.75rem", fontWeight: '1000', textTransform: "uppercase", letterSpacing: "0.1em", color: 'var(--primary-dark)' }}>Legal</h4>
-              <nav style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
+              <nav style={{ display: "flex", gap: "1rem", fontWeight: "700", fontSize: "0.75rem", flexWrap: 'wrap' }}>
                 <a href="#" className="footer-link-v3">Privacidad</a>
+                <span style={{ color: '#DDD' }}>•</span>
                 <a href="#" className="footer-link-v3">Términos</a>
+                <span style={{ color: '#DDD' }}>•</span>
                 <a href="#" className="footer-link-v3">Cookies</a>
               </nav>
             </div>
