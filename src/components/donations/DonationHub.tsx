@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DONATION_AMOUNTS } from '@/lib/donation-constants';
-import { Sparkles, Heart, CheckCircle2, Coffee, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Sparkles, Heart, CheckCircle2, Coffee, ShieldCheck, ChevronRight, ArrowRight } from 'lucide-react';
 
 export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'once' | 'monthly' }) {
     const [currency, setCurrency] = useState<'ARS' | 'USD'>('ARS');
