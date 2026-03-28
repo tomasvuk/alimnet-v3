@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getAdminClient } from '@/lib/supabase';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-01-27' as any,
-});
+// Los inicializamos dentro para que no falle el build si falta la llave
+const getStripe = () => {
+    if (!process.env.STRIPE_SECRET_KEY) return null;
+    return new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: '2025-01-27' as any,
+    });
+};
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -12,23 +16,23 @@ export async function POST(req: Request) {
     const payload = await req.text();
     const sig = req.headers.get('stripe-signature');
     const supabase = getAdminClient();
+    const stripe = getStripe();
 
     try {
         let event: Stripe.Event;
 
         // Verify Stripe signature
-        if (sig && WEBHOOK_SECRET) {
+        if (sig && WEBHOOK_SECRET && stripe) {
             event = stripe.webhooks.constructEvent(payload, sig, WEBHOOK_SECRET);
         } else {
             // Assume MP or simple mock for now
             const mpUpdate = JSON.parse(payload);
             if (mpUpdate.type === 'payment') {
                 // Handle Mercado Pago
-                // Note: Normally we'd fetch the payment status from MP API here too
                 console.log('Mercado Pago Payment update:', mpUpdate);
                 return NextResponse.json({ received: true });
             }
-            return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
+            return NextResponse.json({ error: 'Missing signature or Stripe not configured' }, { status: 400 });
         }
 
         // Handle the event
@@ -46,7 +50,6 @@ export async function POST(req: Request) {
                 break;
             case 'customer.subscription.created':
                 const subscription = event.data.object as any;
-                // Update or insert subscription logic here
                 await supabase.from('user_subscriptions').upsert({
                     external_id: subscription.id,
                     gateway: 'stripe',
