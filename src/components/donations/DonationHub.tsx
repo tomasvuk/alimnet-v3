@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DONATION_AMOUNTS } from '@/lib/donation-constants';
-import { Sparkles, Heart, CheckCircle2, Info } from 'lucide-react';
+import { Sparkles, Heart, CheckCircle2, Coffee, ShieldCheck, ChevronRight } from 'lucide-react';
 
 export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'once' | 'monthly' }) {
     const [currency, setCurrency] = useState<'ARS' | 'USD'>('ARS');
@@ -14,9 +14,7 @@ export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'on
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (forcedFrequency) {
-            setFrequency(forcedFrequency);
-        }
+        if (forcedFrequency) setFrequency(forcedFrequency);
     }, [forcedFrequency]);
 
     const amounts = DONATION_AMOUNTS[currency][frequency === 'monthly' ? 'MONTHLY' : 'ONCE'];
@@ -25,14 +23,6 @@ export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'on
     const handleAmountSelect = (val: number) => {
         setAmount(val);
         setIsCustom(false);
-    };
-
-    const handleCustomChange = (val: string) => {
-        setCustomAmount(val);
-        const num = parseFloat(val);
-        if (!isNaN(num) && num >= minCustom) {
-            setAmount(num);
-        }
     };
 
     const handlePayment = async () => {
@@ -46,250 +36,197 @@ export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'on
             });
             const data = await res.json();
             if (currency === 'ARS' && data.initPoint) window.location.href = data.initPoint;
-            else if (currency === 'USD' && data.clientSecret) { alert("Redireccionando a Stripe..."); }
-            else if (data.error) alert("Error: " + data.error);
-        } catch (err) { alert("Error al procesar el pago."); } finally { setLoading(false); }
+            else if (currency === 'USD' && data.clientSecret) alert("Stripe Ready.");
+        } catch (err) { alert("Error."); } finally { setLoading(false); }
     };
 
     const styles = {
-        masterBlock: {
+        mainContainer: {
             width: '100%',
-            maxWidth: '550px',
+            maxWidth: '950px',
             background: 'white',
-            borderRadius: '48px',
-            padding: '2.5rem',
-            border: '2px solid #E4EBDD',
-            boxShadow: '0 40px 100px rgba(0,0,0,0.04)',
+            borderRadius: '40px',
+            border: '1.5px solid #E4EBDD',
+            boxShadow: '0 40px 100px rgba(0,0,0,0.03)',
+            display: 'grid' as const,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+            overflow: 'hidden',
+            margin: '2rem auto'
+        },
+        leftCol: {
+            padding: '3rem',
+            background: '#F9FAF7',
             display: 'flex',
             flexDirection: 'column' as const,
             gap: '1.5rem',
-            position: 'relative' as const,
-            overflow: 'hidden'
+            borderRight: '1.5px solid #E4EBDD'
         },
-        badge: {
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 16px',
-            background: 'var(--primary)',
-            color: 'white',
-            borderRadius: '20px',
-            fontSize: '0.65rem',
-            fontWeight: '1000',
-            textTransform: 'uppercase' as const,
-            letterSpacing: '0.05em',
-            marginBottom: '0.5rem',
-            boxShadow: '0 10px 20px rgba(95, 125, 74, 0.2)'
-        },
-        headerText: {
-            textAlign: 'center' as const,
-            marginBottom: '1rem'
-        },
-        title: {
-            fontSize: '2.2rem',
-            fontWeight: '950',
-            color: 'var(--primary-dark)',
-            margin: '0 0 1rem 0',
-            letterSpacing: '-0.04em'
-        },
-        toggleFreqContainer: {
+        rightCol: {
+            padding: '3rem',
             display: 'flex',
-            background: '#F8F9F5',
-            padding: '6px',
-            borderRadius: '28px',
-            border: '1.5px solid #E4EBDD',
-            width: '100%',
-            marginBottom: '1rem'
-        },
-        freqBtn: (active: boolean) => ({
-            flex: 1,
-            padding: '16px',
-            borderRadius: '22px',
-            border: active ? 'none' : 'none',
-            fontSize: '0.9rem',
-            fontWeight: '1000',
-            cursor: 'pointer',
-            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-            background: active ? 'white' : 'transparent',
-            color: active ? 'var(--primary-dark)' : '#A5B598',
-            boxShadow: active ? '0 10px 25px rgba(0,0,0,0.06)' : 'none',
-            transform: active ? 'scale(1.02)' : 'scale(1)',
-            display: 'flex',
-            alignItems: 'center',
+            flexDirection: 'column' as const,
             justifyContent: 'center',
-            gap: '8px'
+            gap: '1.5rem'
+        },
+        choiceBtn: (active: boolean, isFeatured?: boolean) => ({
+            width: '100%',
+            padding: '1.8rem',
+            borderRadius: '24px',
+            background: active ? (isFeatured ? 'var(--primary-dark)' : 'white') : 'transparent',
+            color: active ? (isFeatured ? 'white' : 'var(--primary-dark)') : '#888',
+            border: active ? (isFeatured ? 'none' : '2.5px solid var(--primary)') : '1.5px solid #E4EBDD',
+            cursor: 'pointer',
+            textAlign: 'left' as const,
+            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            position: 'relative' as const,
+            boxShadow: active ? '0 15px 30px rgba(0,0,0,0.05)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
         }),
         gridAmounts: {
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '12px',
-            width: '100%',
-            marginBottom: '1rem'
+            gap: '10px',
+            width: '100%'
         },
         amtBtn: (active: boolean) => ({
-            padding: '24px 12px',
-            borderRadius: '24px',
-            border: active ? '3px solid var(--primary)' : '2px solid #F0F4ED',
+            padding: '1.2rem 10px',
+            borderRadius: '16px',
+            border: active ? '2px solid var(--primary)' : '1.5px solid #F0F4ED',
             background: active ? '#F0F4ED' : 'white',
             color: 'var(--primary-dark)',
-            fontSize: '1.2rem',
+            fontSize: '1rem',
             fontWeight: '1000',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            flexDirection: 'column' as const,
-            alignItems: 'center',
-            gap: '4px'
+            transition: 'all 0.2s ease'
         }),
-        impactNotice: {
-            background: '#F0F4ED',
-            borderRadius: '24px',
-            padding: '1.2rem',
-            display: 'flex',
-            gap: '12px',
-            alignItems: 'flex-start',
-            border: '1px solid #E4EBDD'
-        },
         mainBtn: (disabled: boolean) => ({
             width: '100%',
-            padding: '1.4rem',
-            borderRadius: '28px',
+            padding: '1.2rem',
+            borderRadius: '20px',
             border: 'none',
             background: disabled ? '#E4EBDD' : 'var(--primary-dark)',
             color: 'white',
-            fontSize: '1.1rem',
+            fontSize: '1rem',
             fontWeight: '1000',
             cursor: disabled ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '10px',
             transition: 'all 0.3s ease',
-            boxShadow: disabled ? 'none' : '0 15px 40px rgba(45, 58, 32, 0.2)'
+            boxShadow: disabled ? 'none' : '0 15px 35px rgba(45, 58, 32, 0.15)'
         })
     };
 
     return (
-        <div style={styles.masterBlock}>
-            {/* BADGE DINÁMICO */}
-            <AnimatePresence mode="wait">
-                {frequency === 'monthly' && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        style={{ display: 'flex', justifyContent: 'center' }}
-                    >
-                        <div style={styles.badge}><Sparkles size={12} /> Miembro Fundador</div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            <div style={styles.headerText}>
-                <h2 style={styles.title}>
-                    {frequency === 'monthly' ? 'Sumate a la red' : 'Aporte Único'}
-                </h2>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '1rem' }}>
-                    {(['ARS', 'USD'] as const).map(curr => (
-                        <button 
-                            key={curr}
-                            onClick={() => { setCurrency(curr); setAmount(0); }}
-                            style={{
-                                background: currency === curr ? 'var(--primary-dark)' : 'white',
-                                color: currency === curr ? 'white' : 'var(--text-secondary)',
-                                border: '1.5px solid #E4EBDD',
-                                padding: '4px 12px',
-                                borderRadius: '12px',
-                                fontSize: '0.7rem',
-                                fontWeight: '1000',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            {curr}
-                        </button>
-                    ))}
+        <div style={styles.mainContainer}>
+            {/* LADO IZQUIERDO: ELECCIÓN (SAAS STYLE) */}
+            <div style={styles.leftCol}>
+                <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontWeight: '1000', fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: '4px' }}>
+                        <ShieldCheck size={14} /> Tu compromiso
+                    </div>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: '1000', color: 'var(--primary-dark)', margin: 0 }}>Elegí tu respaldo.</h3>
                 </div>
-            </div>
 
-            {/* Selector de FRECUENCIA central */}
-            <div style={styles.toggleFreqContainer}>
                 <button 
-                    style={styles.freqBtn(frequency === 'monthly')}
-                    onClick={() => { setFrequency('monthly'); setAmount(0); setIsCustom(false); }}
-                >
-                    <Heart size={16} fill={frequency === 'monthly' ? 'currentColor' : 'none'} />
-                    Mensual
-                </button>
-                <button 
-                    style={styles.freqBtn(frequency === 'once')}
+                    style={styles.choiceBtn(frequency === 'once')}
                     onClick={() => { setFrequency('once'); setAmount(0); setIsCustom(false); }}
                 >
-                    Un solo pago
+                    <div style={{ width: '40px', height: '40px', background: frequency === 'once' ? '#F0F4ED' : 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Coffee size={20} color="var(--primary)" />
+                    </div>
+                    <div>
+                        <div style={{ fontWeight: '1000', fontSize: '0.9rem', marginBottom: '2px' }}>Aporte único</div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: '700', opacity: 0.8 }}>Infraestructura inmediata.</div>
+                    </div>
+                    {frequency === 'once' && <div style={{ marginLeft: 'auto' }}><ChevronRight size={16} /></div>}
                 </button>
-            </div>
 
-            {/* Cuadrícula de montos */}
-            <div style={styles.gridAmounts}>
-                {amounts.map((v) => (
-                    <button
-                        key={v}
-                        style={styles.amtBtn(amount === v && !isCustom)}
-                        onClick={() => handleAmountSelect(v)}
-                    >
-                        <span style={{ fontSize: '1rem' }}>${v >= 1000 ? `${v/1000}k` : v}</span>
-                    </button>
-                ))}
-                <button
-                    style={styles.amtBtn(isCustom)}
-                    onClick={() => { setIsCustom(true); setAmount(0); }}
+                <button 
+                    style={styles.choiceBtn(frequency === 'monthly', true)}
+                    onClick={() => { setFrequency('monthly'); setAmount(0); setIsCustom(false); }}
                 >
-                    <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Otro</span>
+                    <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Sparkles size={20} color="white" />
+                    </div>
+                    <div>
+                        <div style={{ fontWeight: '1000', fontSize: '0.9rem', marginBottom: '2px' }}>Miembro Fundador</div>
+                        <div style={{ fontSize: '0.7rem', fontWeight: '700', opacity: 0.8 }}>Soberanía y planificación.</div>
+                    </div>
+                    {frequency === 'monthly' && <div style={{ marginLeft: 'auto' }}><ChevronRight size={16} /></div>}
+                    <div style={{ position: 'absolute', bottom: '-8px', right: '1.5rem', background: 'var(--primary)', color: 'white', padding: '4px 8px', borderRadius: '10px', fontSize: '0.55rem', fontWeight: '1000' }}>RECOMENDADO</div>
                 </button>
             </div>
 
-            {/* Input personalizado */}
-            <AnimatePresence>
-                {isCustom && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
-                        <input 
-                            type="number"
-                            placeholder={`Mínimo ${minCustom}`}
-                            value={customAmount}
-                            onChange={(e) => handleCustomChange(e.target.value)}
-                            style={{
-                                width: '100%', background: '#F8F9F5', border: '2px solid var(--primary)', 
-                                borderRadius: '22px', padding: '1.2rem', fontWeight: '950', fontSize: '1.4rem',
-                                textAlign: 'center', color: 'var(--primary-dark)', outline: 'none', marginBottom: '1rem'
-                            }}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* LADO DERECHO: PAGO (CHECKOUT STYLE) */}
+            <div style={styles.rightCol}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: '1000', color: 'var(--primary-dark)' }}>MONTO DEL APORTE</span>
+                    <div style={{ background: '#F0F4ED', borderRadius: '10px', padding: '4px 10px', display: 'flex', gap: '8px' }}>
+                        {(['ARS', 'USD'] as const).map(curr => (
+                            <button 
+                                key={curr}
+                                onClick={() => { setCurrency(curr); setAmount(0); }}
+                                style={{
+                                    background: currency === curr ? 'var(--primary-dark)' : 'transparent',
+                                    color: currency === curr ? 'white' : '#A5B598',
+                                    border: 'none', padding: '2px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: '1000', cursor: 'pointer'
+                                }}
+                            >
+                                {curr}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-            {/* Aviso de Impacto */}
-            <div style={styles.impactNotice}>
-                <div style={{ color: 'var(--primary)', marginTop: '2px' }}><CheckCircle2 size={18} /></div>
-                <div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '1000', color: 'var(--primary-dark)' }}>
-                        {frequency === 'monthly' ? 'Soberanía Planificada' : 'Impulso Inmediato'}
-                    </p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.4', fontWeight: '600' }}>
-                        {frequency === 'monthly' 
-                            ? 'Tu apoyo mensual nos permite proyectar un Alimnet sin publicidad ni rastreadores.' 
-                            : 'Ayudanos a pagar los servidores de este mes y mantener el código abierto.'}
+                <div style={styles.gridAmounts}>
+                    {amounts.map((v) => (
+                        <button
+                            key={v}
+                            style={styles.amtBtn(amount === v && !isCustom)}
+                            onClick={() => handleAmountSelect(v)}
+                        >
+                            ${v >= 1000 ? `${v/1000}k` : v}
+                        </button>
+                    ))}
+                    <button
+                        style={styles.amtBtn(isCustom)}
+                        onClick={() => { setIsCustom(true); setAmount(0); }}
+                    >
+                        <span>Otro</span>
+                    </button>
+                </div>
+
+                <AnimatePresence>
+                    {isCustom && (
+                        <motion.input 
+                            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                            type="number" placeholder={`Mínimo ${minCustom}`} value={customAmount}
+                            onChange={(e) => { setCustomAmount(e.target.value); const num = parseFloat(e.target.value); if (!isNaN(num) && num >= minCustom) setAmount(num); }}
+                            style={{ width: '100%', background: '#F8F9F5', border: '1.5px solid var(--primary)', borderRadius: '14px', padding: '1rem', fontWeight: '1000', fontSize: '1rem', textAlign: 'center', color: 'var(--primary-dark)', outline: 'none' }}
+                        />
+                    )}
+                </AnimatePresence>
+
+                <div style={{ background: '#F0F4ED', borderRadius: '16px', padding: '1rem', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <div style={{ color: 'var(--primary)' }}><CheckCircle2 size={16} /></div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: '700', color: '#666', lineHeight: '1.4' }}>
+                        Tus datos están protegidos. Procesamos vía {currency === 'ARS' ? 'Mercado Pago' : 'Stripe'}.
                     </p>
                 </div>
-            </div>
 
-            {/* BOTÓN FINAL */}
-            <button
-                disabled={!amount || amount < minCustom || loading}
-                onClick={handlePayment}
-                style={styles.mainBtn(!amount || amount < minCustom || loading)}
-            >
-                {loading ? 'Procesando...' : (amount && amount >= minCustom ? `Confirmar Pago de ${currency} $${amount}` : 'Elegí un monto')}
-            </button>
-            
-            <p style={{ fontSize: '10px', color: 'var(--text-secondary)', textAlign: 'center', opacity: 0.6, fontWeight: '700' }}>
-                <Info size={10} style={{ marginRight: '4px' }} />
-                Procesado de forma segura por {currency === 'ARS' ? 'Mercado Pago' : 'Stripe'}.
-            </p>
+                <button
+                    disabled={!amount || amount < minCustom || loading}
+                    onClick={handlePayment}
+                    style={styles.mainBtn(!amount || amount < minCustom || loading)}
+                >
+                    {loading ? 'Redirigiendo...' : (amount ? `Apoyar con ${currency} $${amount}` : 'Elegí un monto')}
+                    {!loading && <ArrowRight size={18} />}
+                </button>
+            </div>
         </div>
     );
 }
