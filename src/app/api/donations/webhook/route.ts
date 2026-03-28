@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import { getAdminClient } from '@/lib/supabase';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-01-27',
+    apiVersion: '2025-01-27' as any,
 });
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
                 });
                 break;
             case 'customer.subscription.created':
-                const subscription = event.data.object as Stripe.Subscription;
+                const subscription = event.data.object as any;
                 // Update or insert subscription logic here
                 await supabase.from('user_subscriptions').upsert({
                     external_id: subscription.id,
