@@ -1,15 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Header from '@/components/Header';
 import { 
-  Heart, ShieldCheck, CheckCircle2, Globe, Users, Sparkles, 
-  Leaf, Info, ArrowDown, Share2, Award
+  Heart, Coffee, Sparkles, ShieldCheck, CheckCircle2 
 } from 'lucide-react';
 import DonationHub from '@/components/donations/DonationHub';
-import { motion } from 'framer-motion';
 
 export default function SostenerAlimnetPage() {
+  const [initialFreq, setInitialFreq] = useState<'once' | 'monthly'>('monthly');
+  const hubRef = useRef<HTMLDivElement>(null);
+
+  const scrollToHub = (freq: 'once' | 'monthly') => {
+    setInitialFreq(freq);
+    hubRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -23,141 +29,141 @@ export default function SostenerAlimnetPage() {
       
       <Header />
 
-      <main style={{ flex: 1, width: '100%' }}>
+      <main style={{ 
+        flex: 1, 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        width: '100%',
+        padding: 'clamp(3rem, 8vw, 6rem) clamp(1rem, 5vw, 2rem)' 
+      }}>
         
-        {/* SECTION 1: HERO IMPACTO ARRIBA */}
-        <section style={{ 
-          padding: 'clamp(5rem, 15vw, 10rem) 1rem', 
-          textAlign: 'center',
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            style={{ 
-              display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
-              background: '#F0F4ED', color: 'var(--primary)', borderRadius: '30px', 
-              fontSize: '0.7rem', fontWeight: '1000', marginBottom: '2rem', 
-              textTransform: 'uppercase', letterSpacing: '0.1em' 
-            }}
-          >
-            <Sparkles size={14} /> El Código de la Tierra
-          </motion.div>
-          <h1 style={{ 
-            fontSize: 'clamp(2.5rem, 10vw, 5rem)', fontWeight: '950', color: 'var(--primary-dark)', 
-            marginBottom: '2rem', letterSpacing: '-0.06em', lineHeight: '0.95' 
+        {/* HERO */}
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(4rem, 8vw, 6rem)' }}>
+          <div style={{ 
+            display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
+            background: '#F0F4ED', color: 'var(--primary)', borderRadius: '30px', 
+            fontSize: 'var(--fs-xs)', fontWeight: '1000', marginBottom: '1.5rem', 
+            textTransform: 'uppercase', letterSpacing: '0.08em' 
           }}>
-            Alimnet no existe <br />
-            <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>sin vos.</span>
-          </h1>
-          <p style={{ 
-            fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', color: 'var(--text-secondary)', 
-            fontWeight: '600', lineHeight: '1.5', maxWidth: '700px', margin: '0 auto' 
-          }}>
-            Estamos construyendo la mayor red de soberanía alimentaria del mundo. Sin inversores, sin publicidad, sin rastreadores. Solo humanos recuperando el control de su comida.
-          </p>
-          <div style={{ marginTop: '3rem', color: '#A5B598' }}><ArrowDown className="animate-bounce" /></div>
-        </section>
-
-        {/* SECTION 2: LA MÍSTICA DEL FUNDADOR (LO QUE HABÍAMOS PERDIDO) */}
-        <section style={{ 
-          background: 'white', 
-          padding: 'clamp(4rem, 12vw, 8rem) 1rem',
-          borderTop: '2.5px solid #E4EBDD',
-          borderBottom: '2.5px solid #E4EBDD'
-        }}>
-          <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', alignItems: 'center' }}>
-            <div>
-                 <div style={{ background: 'var(--primary)', color: 'white', width: '50px', height: '50px', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
-                    <Award size={28} />
-                 </div>
-                 <h2 style={{ fontSize: '2.5rem', fontWeight: '1000', color: 'var(--primary-dark)', marginBottom: '1.5rem', letterSpacing: '-0.04em' }}>
-                    Convertite en <br/> Miembro Fundador.
-                 </h2>
-                 <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', fontWeight: '600', lineHeight: '1.7', marginBottom: '2rem' }}>
-                    Los miembros fundadores son el 1% que sostiene al otro 99%. Tu aporte mensual no solo paga servidores; garantiza que Alimnet siga siendo un proyeto de **impacto social** libre de influencia corporativa.
-                 </p>
-                 <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {[
-                      'Medalla exclusiva de "Fundador" en tu perfil público.',
-                      'Acceso a reportes trimestrales de avance y transparencia.',
-                      'Voto prioritario en futuras funcionalidades.',
-                      'La satisfacción de ser el motor de este cambio.'
-                    ].map(item => (
-                      <li key={item} style={{ display: 'flex', gap: '12px', alignItems: 'center', fontWeight: '800', color: 'var(--primary-dark)', fontSize: '0.9rem' }}>
-                        <CheckCircle2 size={18} color="var(--primary)" /> {item}
-                      </li>
-                    ))}
-                 </ul>
-            </div>
-            <div style={{ 
-                background: '#F0F4ED', 
-                borderRadius: '48px', 
-                padding: '3rem', 
-                position: 'relative' as const,
-                border: '1.5px solid #E4EBDD'
-            }}>
-                <div style={{ fontSize: '1.1rem', color: 'var(--primary-dark)', fontWeight: '950', fontStyle: 'italic', lineHeight: '1.4' }}>
-                   "En un mundo donde nos venden ultraprocesados como alimento, la independencia de Alimnet es nuestra única herramienta de resistencia."
-                </div>
-                <div style={{ marginTop: '2rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary)' }}></div>
-                    <div>
-                        <div style={{ fontWeight: '1000', fontSize: '0.9rem' }}>Equipo Alimnet</div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: '700', textTransform: 'uppercase', color: 'var(--primary)' }}>Soberanía Digital</div>
-                    </div>
-                </div>
-            </div>
+            <Heart size={14} fill="var(--primary)" /> Sostener alimnet
           </div>
-        </section>
+          <h1 style={{ 
+            fontSize: 'clamp(1.8rem, 7vw, 3.2rem)', fontWeight: '950', color: 'var(--primary-dark)', 
+            marginBottom: '1.5rem', letterSpacing: '-0.04em', lineHeight: '1.1' 
+          }}>
+            Construyamos juntos el futuro <br />
+            <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>de nuestra alimentación.</span>
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', fontWeight: '600', maxWidth: '600px', margin: '0 auto' }}>
+            Alimnet es una plataforma independiente que busca descentralizar el acceso a comida real.
+          </p>
+        </div>
 
-        {/* SECTION 3: EL SELECTOR (EL MOTR DE ACCIÓN) */}
-        <section style={{ 
-            padding: '8rem 1rem',
-            display: 'flex',
-            flexDirection: 'column' as const,
-            alignItems: 'center',
-            background: 'var(--background)'
+        {/* LAS DOS TARJETAS (ENTRADA) */}
+        <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: 'clamp(1.5rem, 4vw, 2.5rem)', 
+            marginBottom: '6rem'
         }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '1000', color: 'var(--primary-dark)', marginBottom: '3rem', textAlign: 'center' }}>
-                Elegí tu nivel de <span style={{ color: 'var(--primary)' }}>impacto.</span>
-            </h2>
-            <DonationHub forcedFrequency="monthly" />
-        </section>
-
-        {/* SECTION 4: IMPACTO GLOBAL */}
-        <section style={{ 
-            padding: '6rem 1rem', 
-            background: 'white', 
-            textAlign: 'center',
-            borderTop: '2px solid #E4EBDD'
-        }}>
-            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                <Globe size={40} color="var(--primary)" style={{ margin: '0 auto 2rem' }} />
-                <h2 style={{ fontSize: '2rem', fontWeight: '1000', color: 'var(--primary-dark)', marginBottom: '1.5rem' }}>Impacto Global, <br/> Corazón Local.</h2>
-                <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', fontWeight: '600', lineHeight: '1.6', marginBottom: '3rem' }}>
-                    No importa dónde estés. Alimnet está mapeando la soberanía alimentaria desde Argentina para el mundo. Tu aporte internacional en USD nos permite escalar la infraestructura para proteger este legado.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '2.5rem', fontWeight: '1000', color: 'var(--primary)' }}>+500</div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: '#A5B598' }}>Productores Mapaedos</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '2.5rem', fontWeight: '1000', color: 'var(--primary)' }}>100%</div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: '#A5B598' }}>Libre de Publicidad</div>
-                    </div>
-                </div>
+            {/* Aporte Único */}
+            <div style={{ 
+              background: 'white', padding: '3rem', borderRadius: '48px', border: '1.5px solid #E4EBDD',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.02)', transition: 'all 0.4s ease',
+              cursor: 'pointer'
+            }} onClick={() => scrollToHub('once')}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
+                <Coffee size={24} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Aporte único</h3>
+              </div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '2.5rem', fontWeight: '600' }}>
+                Si valorás nuestra independencia y querés apoyarnos con una contribución puntual para sostener el servidor.
+              </p>
+              <button style={{ 
+                padding: '0.8rem 2rem', borderRadius: '16px', 
+                background: '#2D3A20', color: 'white', border: 'none', fontWeight: '1000', 
+                fontSize: '0.85rem', cursor: 'pointer'
+              }}>
+                Invitar café (Cafecito)
+              </button>
             </div>
-        </section>
 
+            {/* Miembro Fundador */}
+            <div style={{ 
+              background: 'white', padding: '3rem', borderRadius: '48px', border: '2.5px solid var(--primary)',
+              boxShadow: '0 40px 80px rgba(45, 58, 32, 0.08)', transition: 'all 0.4s ease',
+              position: 'relative', cursor: 'pointer'
+            }} onClick={() => scrollToHub('monthly')}>
+               <div style={{ 
+                position: 'absolute', top: '1.5rem', right: '1.5rem', padding: '0.5rem 1rem', 
+                background: 'var(--primary)', color: 'white', borderRadius: '30px', 
+                fontSize: '0.6rem', fontWeight: '1000', textTransform: 'uppercase'
+              }}>
+                Recomendado
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
+                <Sparkles size={24} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Miembro Fundador</h3>
+              </div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '2.5rem', fontWeight: '600' }}>
+                Socio clave. Tu apoyo mensual permite planificar expansiones y seguir mapeando soberanía con independencia.
+              </p>
+              <button style={{ 
+                padding: '1rem 2.8rem', borderRadius: '18px', 
+                background: 'var(--primary)', color: 'white', border: 'none', fontWeight: '1000', 
+                fontSize: '0.9rem', cursor: 'pointer'
+              }}>
+                Unirme como Fundador
+              </button>
+            </div>
+        </div>
+
+        {/* MOTOR DE COBRO (DONATION HUB) */}
+        <div ref={hubRef} style={{ marginBottom: '8rem', display: 'flex', justifyContent: 'center' }}>
+            <DonationHub forcedFrequency={initialFreq} />
+        </div>
+
+        {/* SECCIÓN DE IMPACTO */}
+        <div style={{ 
+          marginBottom: '8rem', 
+          padding: '4rem', 
+          background: 'white', 
+          borderRadius: '48px', 
+          border: '2px solid #E4EBDD',
+          maxWidth: '1000px',
+          margin: '0 auto 8rem auto'
+        }}>
+           <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+              gap: '3rem', 
+              alignItems: 'center' 
+            }}>
+              <div>
+                <ShieldCheck size={40} color="var(--primary)" style={{ marginBottom: '1.5rem' }} />
+                <h2 style={{ fontSize: '2rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1.5rem' }}>Independencia Real.</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6', fontWeight: '600' }}>
+                  Tu aporte mensual no solo paga servidores; garantiza que Alimnet siga siendo un proyecto de impacto social libre de influencia corporativa.
+                </p>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                 {[
+                   'Medalla de Fundador en tu perfil.',
+                   'Acceso a reportes trimestrales.',
+                   'Soberanía alimentaria para todos.',
+                   'Tecnología humana y ética.'
+                 ].map((item) => (
+                   <div key={item} style={{ display: 'flex', gap: '12px', alignItems: 'center', fontWeight: '900', color: 'var(--primary-dark)', fontSize: '0.85rem' }}>
+                     <CheckCircle2 size={18} color="var(--primary)" /> {item}
+                   </div>
+                 ))}
+              </div>
+           </div>
+        </div>
       </main>
 
-      <footer style={{ padding: '6rem 2rem', background: 'var(--primary-dark)', color: 'white', textAlign: 'center', borderRadius: '48px 48px 0 0' }}>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
-          Alimnet - El Código de la Tierra
-        </p>
+      <footer style={{ padding: '6rem 2rem', background: '#F8F9F5', borderTop: '1.5px solid #E4EBDD', textAlign: 'center' }}>
+        <p style={{ color: '#888', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>© 2025 Alimnet - El Código de la Tierra</p>
       </footer>
     </div>
   );
