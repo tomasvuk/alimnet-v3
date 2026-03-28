@@ -68,70 +68,173 @@ export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'on
         }
     };
 
+    // Estilos Inline para asegurar que se vea perfecto en cualquier lado
+    const styles = {
+        container: {
+            width: '100%',
+            maxWidth: '400px',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column' as const,
+            alignItems: 'center',
+            fontFamily: 'inherit'
+        },
+        title: {
+            fontSize: '1.8rem',
+            fontWeight: '950',
+            color: 'var(--primary-dark)',
+            margin: '0 0 0.5rem 0',
+            textAlign: 'center' as const,
+            letterSpacing: '-0.04em'
+        },
+        subtitle: {
+            fontSize: '0.85rem',
+            color: 'var(--text-secondary)',
+            marginBottom: '2rem',
+            textAlign: 'center' as const,
+            fontWeight: '600',
+            lineHeight: '1.5'
+        },
+        toggleGroup: {
+            display: 'flex',
+            background: '#F0F4ED',
+            padding: '4px',
+            borderRadius: '20px',
+            marginBottom: '1.5rem',
+            width: 'fit-content'
+        },
+        toggleButton: (active: boolean) => ({
+            padding: '8px 24px',
+            borderRadius: '16px',
+            border: 'none',
+            fontSize: '0.75rem',
+            fontWeight: '1000',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            background: active ? 'white' : 'transparent',
+            color: active ? 'var(--primary-dark)' : 'var(--text-secondary)',
+            boxShadow: active ? '0 4px 12px rgba(0,0,0,0.05)' : 'none'
+        }),
+        freqToggle: {
+            display: 'flex',
+            background: 'white',
+            border: '2px solid #E4EBDD',
+            padding: '6px',
+            borderRadius: '24px',
+            marginBottom: '2rem',
+            width: '100%'
+        },
+        freqButton: (active: boolean) => ({
+            flex: 1,
+            padding: '12px',
+            borderRadius: '18px',
+            border: 'none',
+            fontSize: '0.85rem',
+            fontWeight: '1000',
+            cursor: 'pointer',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            background: active ? 'var(--primary)' : 'transparent',
+            color: active ? 'white' : 'var(--text-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+        }),
+        grid: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '12px',
+            width: '100%',
+            marginBottom: '2rem'
+        },
+        amountButton: (active: boolean) => ({
+            padding: '20px',
+            borderRadius: '20px',
+            border: active ? '2px solid var(--primary)' : '2px solid #F0F4ED',
+            background: active ? '#F0F4ED' : 'white',
+            color: 'var(--primary-dark)',
+            fontSize: '1.1rem',
+            fontWeight: '1000',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            flexDirection: 'column' as const,
+            alignItems: 'center',
+            justifyContent: 'center'
+        }),
+        mainButton: (disabled: boolean) => ({
+            width: '100%',
+            padding: '1.2rem',
+            borderRadius: '24px',
+            border: 'none',
+            background: disabled ? '#E4EBDD' : 'var(--primary-dark)',
+            color: disabled ? '#A5B598' : 'white',
+            fontSize: '1rem',
+            fontWeight: '1000',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            transition: 'all 0.3s ease',
+            boxShadow: disabled ? 'none' : '0 10px 30px rgba(45, 58, 32, 0.2)'
+        })
+    };
+
     return (
-        <div className="max-w-md mx-auto p-4 flex flex-col items-center">
-            <h2 className="text-3xl font-black text-[var(--primary-dark)] mb-4 text-center">Sostener la red</h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-8 text-center px-4 font-semibold uppercase tracking-wider">
-                Tu aporte permite que Alimnet siga siendo libre y transparente.
+        <div style={styles.container}>
+            <h2 style={styles.title}>Sostener la red</h2>
+            <p style={styles.subtitle}>
+                Tu aporte permite que Alimnet siga siendo <br/>libre y transparente.
             </p>
 
             {/* Currency Toggle */}
-            <div className="flex bg-[rgba(63,82,50,0.05)] p-1 rounded-2xl mb-6 w-full max-w-[280px]">
+            <div style={styles.toggleGroup}>
                 {(['ARS', 'USD'] as const).map((curr) => (
                     <button
                         key={curr}
+                        style={styles.toggleButton(currency === curr)}
                         onClick={() => { setCurrency(curr); setAmount(0); setIsCustom(false); }}
-                        className={`flex-1 py-2 px-4 rounded-xl text-xs font-black transition-all ${
-                            currency === curr ? 'bg-white text-[var(--primary-dark)] shadow-sm' : 'text-[var(--text-secondary)] opacity-60'
-                        }`}
                     >
-                        {curr}
+                        {curr === 'ARS' ? 'ARS' : 'USD'}
                     </button>
                 ))}
             </div>
 
             {/* Frequency Toggle */}
-            <div className="flex bg-[rgba(63,82,50,0.1)] p-2 rounded-2xl mb-8 w-full">
+            <div style={styles.freqToggle}>
                 {(['once', 'monthly'] as const).map((f) => (
                     <button
                         key={f}
+                        style={styles.freqButton(frequency === f)}
                         onClick={() => { setFrequency(f); setAmount(0); setIsCustom(false); }}
-                        className={`flex-1 py-3 px-6 rounded-xl text-sm font-black transition-all ${
-                            frequency === f ? 'bg-white text-[var(--primary)] shadow-md translate-y-[-2px]' : 'text-[var(--text-secondary)]'
-                        }`}
                     >
                         {f === 'monthly' ? 'Mensual' : 'Un solo pago'}
                         {f === 'monthly' && (
-                            <span className="ml-2 text-[10px] bg-[var(--primary)] text-white px-2 py-0.5 rounded-full">RECO</span>
+                            <span style={{ 
+                                fontSize: '0.6rem', background: frequency === 'monthly' ? 'white' : 'var(--primary)', 
+                                color: frequency === 'monthly' ? 'var(--primary)' : 'white', 
+                                padding: '2px 6px', borderRadius: '10px' 
+                            }}>RECO</span>
                         )}
                     </button>
                 ))}
             </div>
 
             {/* Amount Grid */}
-            <div className="grid grid-cols-3 gap-3 mb-8 w-full">
+            <div style={styles.grid}>
                 {amounts.map((v) => (
                     <button
                         key={v}
+                        style={styles.amountButton(amount === v && !isCustom)}
                         onClick={() => handleAmountSelect(v)}
-                        className={`py-4 rounded-2xl border-2 font-black transition-all ${
-                            amount === v && !isCustom 
-                                ? 'bg-[var(--primary)] border-[var(--primary)] text-white shadow-lg translate-y-[-4px]' 
-                                : 'bg-white border-[rgba(63,82,50,0.1)] text-[var(--text-primary)] hover:border-[var(--primary)]'
-                        }`}
                     >
-                        {currency === 'USD' ? '$' : '$'}{v >= 1000 ? `${v/1000}k` : v}
+                        <span style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '4px' }}>{currency}</span>
+                        ${v >= 1000 ? `${v/1000}k` : v}
                     </button>
                 ))}
                 <button
+                    style={styles.amountButton(isCustom)}
                     onClick={() => { setIsCustom(true); setAmount(0); }}
-                    className={`py-4 rounded-2xl border-2 font-black transition-all ${
-                        isCustom 
-                            ? 'bg-[var(--primary)] border-[var(--primary)] text-white' 
-                            : 'bg-white border-[rgba(63,82,50,0.1)] text-[var(--text-primary)]'
-                    }`}
                 >
-                    Otro
+                    <span style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '4px' }}>Otro</span>
+                    ...
                 </button>
             </div>
 
@@ -139,21 +242,22 @@ export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'on
             <AnimatePresence>
                 {isCustom && (
                     <motion.div 
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mb-8 w-full"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        style={{ width: '100%', marginBottom: '1.5rem' }}
                     >
-                        <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-[var(--text-secondary)]">$</span>
-                            <input 
-                                type="number"
-                                placeholder={`Mínimo ${minCustom}`}
-                                value={customAmount}
-                                onChange={(e) => handleCustomChange(e.target.value)}
-                                className="w-full bg-white border-2 border-[var(--primary)] rounded-2xl py-4 pl-8 pr-4 font-black text-lg focus:outline-none focus:ring-4 focus:ring-[rgba(95,125,74,0.1)]"
-                            />
-                        </div>
+                        <input 
+                            type="number"
+                            placeholder={`Mínimo ${minCustom}`}
+                            value={customAmount}
+                            onChange={(e) => handleCustomChange(e.target.value)}
+                            style={{
+                                width: '100%', background: '#F0F4ED', border: '2px solid var(--primary)', 
+                                borderRadius: '18px', padding: '1rem', fontWeight: '900', fontSize: '1.2rem',
+                                textAlign: 'center', color: 'var(--primary-dark)', outline: 'none'
+                            }}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -162,16 +266,12 @@ export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'on
             <button
                 disabled={!amount || amount < minCustom || loading}
                 onClick={handlePayment}
-                className={`w-full py-5 rounded-3xl font-black text-lg shadow-xl transition-all ${
-                    amount && amount >= minCustom 
-                        ? 'bg-[var(--primary-dark)] text-white hover:scale-[1.02] active:scale-95' 
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                }`}
+                style={styles.mainButton(!amount || amount < minCustom || loading)}
             >
-                {loading ? 'Procesando...' : (amount && amount >= minCustom ? `Apoyar con $${amount}` : 'Elegí un monto')}
+                {loading ? 'Procesando...' : (amount && amount >= minCustom ? `Apoyar con ${currency} $${amount}` : 'Elegí un monto')}
             </button>
             
-            <p className="mt-6 text-[11px] text-[var(--text-secondary)] font-medium text-center opacity-60">
+            <p style={{ marginTop: '1.5rem', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', opacity: 0.7 }}>
                 Aporte 100% seguro. Podés cancelar en cualquier momento desde tu perfil.
             </p>
         </div>
