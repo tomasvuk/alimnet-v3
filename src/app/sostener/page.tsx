@@ -1,22 +1,13 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import Header from '@/components/Header';
 import { 
-  Leaf, Heart, ShieldCheck, Users, Mail, Coffee, Instagram, 
-  Linkedin, ArrowRight, Sparkles, CheckCircle, Globe 
+  Heart, ShieldCheck, CheckCircle2, Globe, Users, Package 
 } from 'lucide-react';
 import DonationHub from '@/components/donations/DonationHub';
 
 export default function SostenerAlimnetPage() {
-  const [initialFreq, setInitialFreq] = useState<'once' | 'monthly'>('once');
-  const hubRef = useRef<HTMLDivElement>(null);
-
-  const scrollToHub = (freq: 'once' | 'monthly') => {
-    setInitialFreq(freq);
-    hubRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -35,11 +26,14 @@ export default function SostenerAlimnetPage() {
         maxWidth: '1200px', 
         margin: '0 auto', 
         width: '100%',
-        padding: 'clamp(3rem, 8vw, 6rem) clamp(1rem, 5vw, 2rem)' 
+        padding: 'clamp(3rem, 8vw, 6rem) clamp(1rem, 5vw, 2rem)',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        alignItems: 'center'
       }}>
         
-        {/* HERO */}
-        <div style={{ textAlign: 'center', marginBottom: 'clamp(4rem, 8vw, 6rem)' }}>
+        {/* HERO SECCTION */}
+        <div style={{ textAlign: 'center', marginBottom: '4rem', maxWidth: '800px' }}>
           <div style={{ 
             display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
             background: '#F0F4ED', color: 'var(--primary)', borderRadius: '30px', 
@@ -49,122 +43,65 @@ export default function SostenerAlimnetPage() {
             <Heart size={14} fill="var(--primary)" /> Sostener alimnet
           </div>
           <h1 style={{ 
-            fontSize: 'clamp(1.8rem, 7vw, 3rem)', fontWeight: '950', color: 'var(--primary-dark)', 
-            marginBottom: '1.5rem', letterSpacing: '-0.04em', lineHeight: '1.1' 
+            fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: '950', color: 'var(--primary-dark)', 
+            marginBottom: '1.5rem', letterSpacing: '-0.05em', lineHeight: '1' 
           }}>
-            Construyamos juntos el futuro <br />
-            <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>de nuestra alimentación.</span>
+            Financiá la <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>soberanía.</span>
           </h1>
-        </div>
-
-        {/* LAS TARJETAS QUE TE GUSTAN (ENTRY POINTS) */}
-        <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-            gap: 'clamp(1.5rem, 4vw, 2.5rem)', 
-            marginBottom: '6rem'
-        }}>
-            {/* Aporte Único */}
-            <div style={{ 
-              background: 'white', padding: '2.5rem', borderRadius: '40px', border: '1.5px solid #E4EBDD',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.02)', transition: 'all 0.4s ease',
-              cursor: 'pointer'
-            }} onClick={() => scrollToHub('once')}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
-                <Coffee size={24} color="var(--primary)" />
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Aporte único</h3>
-              </div>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '2rem', fontWeight: '600' }}>
-                Si valorás nuestra independencia y querés apoyarnos con una contribución puntual para sostener el servidor.
-              </p>
-              <button style={{ 
-                padding: '0.8rem 2rem', borderRadius: '12px', 
-                background: '#2D3A20', color: 'white', border: 'none', fontWeight: '1000', 
-                fontSize: '0.8rem', cursor: 'pointer'
-              }}>
-                Invitar café (Cafecito)
-              </button>
-            </div>
-
-            {/* Miembro Fundador */}
-            <div style={{ 
-              background: 'white', padding: '2.5rem', borderRadius: '48px', border: '2px solid var(--primary)',
-              boxShadow: '0 40px 80px rgba(45, 58, 32, 0.08)', transition: 'all 0.4s ease',
-              position: 'relative', cursor: 'pointer'
-            }} onClick={() => scrollToHub('monthly')}>
-               <div style={{ 
-                position: 'absolute', top: '1.5rem', right: '1.5rem', padding: '0.5rem 1rem', 
-                background: 'var(--primary)', color: 'white', borderRadius: '30px', 
-                fontSize: '0.6rem', fontWeight: '1000', textTransform: 'uppercase'
-              }}>
-                Recomendado
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
-                <Sparkles size={24} color="var(--primary)" />
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Miembro Fundador</h3>
-              </div>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '2rem', fontWeight: '600' }}>
-                Socio clave. Tu apoyo mensual permite planificar expansiones y seguir mapeando soberanía con independencia.
-              </p>
-              <button style={{ 
-                padding: '1rem 2.5rem', borderRadius: '16px', 
-                background: 'var(--primary)', color: 'white', border: 'none', fontWeight: '1000', 
-                fontSize: '0.9rem', cursor: 'pointer'
-              }}>
-                Unirme como Fundador
-              </button>
-            </div>
-        </div>
-
-        {/* DONATION HUB (EL MOTOR DE PAGOS) */}
-        <div ref={hubRef} style={{ marginBottom: 'clamp(5rem, 10vw, 8rem)', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ 
-            background: 'white', 
-            padding: 'clamp(1.5rem, 5vw, 3rem)', 
-            borderRadius: '48px', 
-            border: '2.5px solid #E4EBDD',
-            boxShadow: '0 40px 100px rgba(0,0,0,0.03)',
-            width: '100%',
-            maxWidth: '550px'
+          <p style={{ 
+            fontSize: 'clamp(1rem, 3vw, 1.25rem)', color: 'var(--text-secondary)', 
+            fontWeight: '600', lineHeight: '1.5', maxWidth: '600px', margin: '0 auto' 
           }}>
-            <DonationHub forcedFrequency={initialFreq} />
-          </div>
+            Alimnet no tiene inversores ni publicidad. Somos financiados 100% por personas que valoran la comida real y el software libre.
+          </p>
         </div>
 
-        {/* ACCIÓN COMUNITARIA */}
-        <div style={{ 
-          marginBottom: 'clamp(5rem, 10vw, 8rem)', 
-          padding: 'clamp(1.5rem, 6vw, 3rem)', 
-          background: '#F8F9F5', 
-          borderRadius: '48px', 
-          border: '1.5px solid #E4EBDD' 
-        }}>
-           <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-              gap: '2.5rem', 
-              alignItems: 'center' 
-            }}>
-              <div>
-                <ShieldCheck size={40} color="var(--primary)" style={{ marginBottom: '1.5rem' }} />
-                <h2 style={{ fontSize: '1.8rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1rem' }}>Tu palabra es poder.</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '2rem' }}>
-                  Validar a un productor no es solo darle un "like"; es confirmar su trabajo real. Alimnet es confianza mutua.
-                </p>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-                 {['Confianza', 'Visibilidad', 'Seguridad', 'Crecimiento'].map((item) => (
-                   <div key={item} style={{ padding: '1.5rem', background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', textAlign: 'center' }}>
-                     <span style={{ fontWeight: '1000', color: 'var(--primary-dark)', fontSize: '0.75rem', textTransform: 'uppercase' }}>{item}</span>
-                   </div>
-                 ))}
-              </div>
-           </div>
+        {/* MASTER DONATION BLOCK */}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '8rem' }}>
+          <DonationHub forcedFrequency="monthly" />
         </div>
+
+        {/* VALORES Y TRANSPARENCIA */}
+        <div style={{ 
+          width: '100%', 
+          maxWidth: '1000px',
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: '3rem',
+          padding: '4rem',
+          background: 'white',
+          borderRadius: '48px',
+          border: '2px solid #E4EBDD'
+        }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <ShieldCheck size={32} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.4rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Transparencia Radical</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600', lineHeight: '1.6' }}>
+                  Cada centavo que entra a Alimnet se usa para pagar servidores, desarrollo de código abierto y mapeo de soberanía.
+                </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <Users size={32} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.4rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Comunidad de Miembros</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600', lineHeight: '1.6' }}>
+                  Los miembros mensuales reciben la medalla de "Fundador" y acceso a reportes trimestrales de impacto.
+                </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <Globe size={32} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.4rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Alcance Global</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600', lineHeight: '1.6' }}>
+                  Aceptamos pagos internacionales (USD) desde cualquier parte del mundo para sostener la red.
+                </p>
+            </div>
+        </div>
+
       </main>
 
-      <footer style={{ padding: '4rem 2rem', background: 'white', borderTop: '1px solid #E4EBDD', textAlign: 'center' }}>
-        <p style={{ color: '#888', fontSize: '0.8rem', fontWeight: '600' }}>© 2025 Alimnet. Desarrollado con ❤️ para la soberanía alimentaria.</p>
+      <footer style={{ padding: '6rem 2rem', background: 'var(--background)', textAlign: 'center' }}>
+        <p style={{ color: '#888', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          Alimnet - El Código de la Tierra
+        </p>
       </footer>
     </div>
   );
