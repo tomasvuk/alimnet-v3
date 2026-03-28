@@ -237,7 +237,7 @@ export default function JoinPage() {
           <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '2.5rem' }}>
             Gracias por querer ser parte de la red Alimnet. Nuestro equipo de curación revisará la información y te contactará por WhatsApp para validar el perfil.
           </p>
-          <button onClick={() => window.location.href = '/explorar'} className="button button-primary" style={{ width: '100%', borderRadius: '16px' }}>Regresar al Mapa</button>
+          <button onClick={() => router.push('/explorar')} className="button button-primary" style={{ width: '100%', borderRadius: '16px' }}>Regresar al Mapa</button>
         </div>
       </div>
     );
@@ -248,7 +248,7 @@ export default function JoinPage() {
       {/* Header Fijo */}
       <header style={{ padding: '1.5rem 2rem', background: 'white', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
         <div 
-          onClick={() => window.location.href = '/'}
+          onClick={() => router.push('/')}
           style={{ fontSize: "1.2rem", fontWeight: "950", color: "var(--primary-dark)", display: "flex", alignItems: "center", gap: "8px", cursor: 'pointer' }}
         >
           <Leaf size={24} fill="var(--primary)" fillOpacity={0.25} /> ALIMNET

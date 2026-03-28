@@ -108,7 +108,7 @@ function MiCuentaContent() {
   const fetchData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = '/login'; return; }
+      if (!user) { router.push('/login'); return; }
 
       const { data } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
       if (data) {
@@ -232,8 +232,8 @@ function MiCuentaContent() {
           <button 
             key={item.id}
             onClick={() => {
-              if (item.id === 'sostener') { window.location.href = '/sostener'; return; }
-              if (item.id === 'mi-emprendimiento') { window.location.href = '/perfil'; return; }
+              if (item.id === 'sostener') { router.push('/sostener'); return; }
+              if (item.id === 'mi-emprendimiento') { router.push('/perfil'); return; }
               handleTabChange(item.id);
             }}
             style={{ 
@@ -279,9 +279,9 @@ function MiCuentaContent() {
             <button 
               key={item.id}
               onClick={() => { 
-                if (item.id === 'sostener') { window.location.href = '/sostener'; return; }
-                if (item.id === 'logout') { supabase.auth.signOut().then(() => window.location.href = '/'); return; }
-                if (item.id === 'mi-emprendimiento') { window.location.href = '/perfil'; return; }
+                if (item.id === 'sostener') { router.push('/sostener'); return; }
+                if (item.id === 'logout') { supabase.auth.signOut().then(() => { router.push('/'); }); return; }
+                if (item.id === 'mi-emprendimiento') { router.push('/perfil'); return; }
                 handleTabChange(item.id); 
                 setShowSidebar(false); 
               }}
@@ -404,7 +404,7 @@ function MiCuentaContent() {
                 validatedMerchants.map(m => (
                   <div 
                     key={m.id}
-                    onClick={() => window.location.href = `/explorar?id=${m.id}`}
+                    onClick={() => router.push(`/explorar?id=${m.id}`)}
                     style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', cursor: 'pointer' }}
                     className="card-hover"
                   >
@@ -425,7 +425,7 @@ function MiCuentaContent() {
                   <Heart size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
                   <h3 style={{ fontWeight: '950', color: '#5F7D4A' }}>Aún no has validado ningún proyecto</h3>
                   <p style={{ color: '#888', marginTop: '1rem' }}>Explorá el mapa y validá a tus productores de confianza.</p>
-                  <button onClick={() => window.location.href = '/explorar'} style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '800', cursor: 'pointer' }}>Ir al Mapa</button>
+                  <button onClick={() => router.push('/explorar')} style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '800', cursor: 'pointer' }}>Ir al Mapa</button>
                 </div>
               )}
             </div>
@@ -463,7 +463,7 @@ function MiCuentaContent() {
               <div style={{ gridColumn: '1 / -1', padding: '5rem', textAlign: 'center', border: '1px dashed #E4EBDD', borderRadius: '32px' }}>
                   <Star size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
                   <h3 style={{ fontWeight: '950', color: '#5F7D4A' }}>¿Todavía no encontraste tu próximo destino?</h3>
-                  <button onClick={() => window.location.href = '/explorar'} style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '800' }}>Ir al Mapa</button>
+                  <button onClick={() => router.push('/explorar')} style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '800' }}>Ir al Mapa</button>
               </div>
             </div>
           )}

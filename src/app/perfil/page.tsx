@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   User, 
   Settings, 
@@ -38,6 +39,7 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 
 export default function MerchantProfilePage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('inicio');
   const [profile, setProfile] = useState<any>(null);
   const [merchant, setMerchant] = useState<any>(null);
@@ -90,7 +92,7 @@ export default function MerchantProfilePage() {
   const fetchData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = '/login'; return; }
+      if (!user) { router.push('/login'); return; }
 
       const { data: pData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
       if (pData) setProfile(pData);

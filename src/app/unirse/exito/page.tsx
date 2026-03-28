@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   CheckCircle2, 
   ArrowRight, 
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 function ExitoContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const name = searchParams.get('name') || 'Tu Comercio';
   const type = searchParams.get('type') || 'Productor';
@@ -144,7 +145,7 @@ function ExitoContent() {
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '2rem' }}>
                 <button 
-                  onClick={() => window.location.href = '/perfil'} // Placeholder para la futura página de perfil
+                  onClick={() => router.push('/perfil')} // Placeholder para la futura página de perfil
                   style={{ 
                     width: '100%', padding: '1rem', background: 'var(--primary-dark)', 
                     color: 'white', border: 'none', borderRadius: '16px', 
@@ -155,7 +156,7 @@ function ExitoContent() {
                   <UserCircle size={20} /> Ir a mi perfil
                 </button>
                 <button 
-                  onClick={() => window.location.href = '/explorar'}
+                  onClick={() => router.push('/explorar')}
                   style={{ 
                     width: '100%', padding: '1rem', background: 'white', 
                     color: 'var(--primary)', border: '2px solid var(--primary)', borderRadius: '16px', 

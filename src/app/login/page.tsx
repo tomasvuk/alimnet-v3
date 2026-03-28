@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,9 +42,9 @@ export default function LoginPage() {
           .single();
 
         if (profile?.role === 'merchant') {
-          window.location.href = '/perfil';
+          router.push('/perfil');
         } else {
-          window.location.href = '/mi-cuenta';
+          router.push('/mi-cuenta');
         }
       }
     } catch (err) {
@@ -57,7 +59,7 @@ export default function LoginPage() {
       {/* Header simplificado - SIN hojita */}
       <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
         <div 
-          onClick={() => window.location.href = '/'}
+          onClick={() => router.push('/')}
           style={{ fontSize: "1.4rem", fontWeight: "950", color: "var(--primary-dark)", display: "flex", alignItems: "center", gap: "8px", cursor: 'pointer', letterSpacing: '-0.03em' }}
         >
           ALIMNET
@@ -85,15 +87,20 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-            {/* Google Login Option */}
+            {/* Google Login Real */}
             <button 
               type="button"
-              onClick={() => window.location.href = '/explorar'}
+              onClick={async () => {
+                const { error } = await supabase.auth.signInWithOAuth({
+                  provider: 'google',
+                  options: { redirectTo: window.location.origin + '/explorar' }
+                });
+                if (error) setError(error.message);
+              }}
               style={{ 
                 width: '100%', padding: '0.8rem', borderRadius: '16px', border: '1px solid var(--border)', 
                 background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                gap: '10px', fontSize: '0.9rem', fontWeight: '800', cursor: 'pointer', marginBottom: '0.5rem',
-                color: 'var(--text-primary)'
+                gap: '10px', fontSize: '0.9rem', fontWeight: '800', cursor: 'pointer', marginBottom: '0.5rem'
               }}
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px' }} />
@@ -146,7 +153,7 @@ export default function LoginPage() {
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
               ¿Aún no tienes cuenta? <br />
               <button 
-                onClick={() => window.location.href = '/registro'} 
+                onClick={() => router.push('/registro')}
                 style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '1000', cursor: 'pointer', padding: '5px', fontSize: '1.1rem' }}
               >
                 Crear cuenta de usuario
@@ -156,7 +163,7 @@ export default function LoginPage() {
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
               ¿Eres productor o comerciante? <br />
               <button 
-                onClick={() => window.location.href = '/unirse'} 
+                onClick={() => router.push('/unirse')}
                 style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', fontWeight: '800', cursor: 'pointer', padding: '5px', fontSize: '0.8rem', textDecoration: 'underline' }}
               >
                 Registrar mi comercio en Alimnet

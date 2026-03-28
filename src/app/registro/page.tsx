@@ -1,35 +1,68 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Leaf, Mail, Lock, User, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Mail, Lock, User, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default function RegistroPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      setError('El nombre debe tener al menos 2 caracteres.');
+      return;
+    }
+    if (!formData.email.includes('@')) {
+      setError('Ingresá un email válido.');
+      return;
+    }
+    if (formData.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+
     setLoading(true);
-    // Simulación de registro
-    setTimeout(() => {
-      window.location.href = '/onboarding';
-    }, 1500);
+    setError('');
+
+    const { data, error: authError } = await supabase.auth.signUp({
+      email: formData.email.trim().toLowerCase(),
+      password: formData.password,
+      options: {
+        data: { full_name: formData.name.trim() }
+      }
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (data.user) {
+      router.push('/onboarding');
+    }
   };
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Header */}
+      {/* Header - SIN hojita */}
       <header style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'center' }}>
         <div 
-          onClick={() => window.location.href = '/'}
+          onClick={() => router.push('/')}
           style={{ fontSize: "1.4rem", fontWeight: "950", color: "var(--primary-dark)", display: "flex", alignItems: "center", gap: "8px", cursor: 'pointer', letterSpacing: '-0.03em' }}
         >
-          <Leaf size={28} fill="var(--primary)" fillOpacity={0.25} /> ALIMNET
+          ALIMNET
         </div>
       </header>
 
@@ -42,10 +75,15 @@ export default function RegistroPage() {
           </div>
 
           <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-            {/* Google Signup */}
+            {/* Google Signup Real */}
             <button 
               type="button"
-              onClick={() => window.location.href = '/onboarding'}
+              onClick={async () => {
+                await supabase.auth.signInWithOAuth({
+                  provider: 'google',
+                  options: { redirectTo: window.location.origin + '/explorar' }
+                });
+              }}
               style={{ 
                 width: '100%', padding: '0.8rem', borderRadius: '16px', border: '1px solid var(--border)', 
                 background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
@@ -66,9 +104,11 @@ export default function RegistroPage() {
             <div style={{ position: 'relative' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', color: 'var(--primary-dark)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Nombre Completo</label>
               <div style={{ position: 'relative' }}>
-                <input 
+                <input
                   type="text" required
                   placeholder="Tu nombre"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '1px solid var(--border)', background: '#F8F9F5', outline: 'none', fontSize: '0.95rem' }}
                 />
                 <User size={18} style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)' }} />
@@ -78,9 +118,11 @@ export default function RegistroPage() {
             <div style={{ position: 'relative' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', color: 'var(--primary-dark)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Correo Electrónico</label>
               <div style={{ position: 'relative' }}>
-                <input 
+                <input
                   type="email" required
                   placeholder="ejemplo@correo.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '1px solid var(--border)', background: '#F8F9F5', outline: 'none', fontSize: '0.95rem' }}
                 />
                 <Mail size={18} style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)' }} />
@@ -90,18 +132,26 @@ export default function RegistroPage() {
             <div style={{ position: 'relative' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', color: 'var(--primary-dark)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Contraseña</label>
               <div style={{ position: 'relative' }}>
-                <input 
+                <input
                   type="password" required
                   placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '16px', border: '1px solid var(--border)', background: '#F8F9F5', outline: 'none', fontSize: '0.95rem' }}
                 />
                 <Lock size={18} style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)' }} />
               </div>
             </div>
 
-            <button 
+            {error && (
+              <div style={{ padding: '0.8rem 1rem', background: '#FEF2F2', borderRadius: '12px', color: '#991B1B', fontSize: '0.85rem', fontWeight: '600' }}>
+                {error}
+              </div>
+            )}
+
+            <button
               type="submit" disabled={loading}
-              className="button button-primary" 
+              className="button button-primary"
               style={{ width: '100%', padding: '1rem', borderRadius: '16px', marginTop: '1rem', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
               {loading ? 'Creando cuenta...' : 'Crear mi cuenta'} <ArrowRight size={18} />
@@ -112,7 +162,7 @@ export default function RegistroPage() {
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
               ¿Ya tienes una cuenta? <br />
               <button 
-                onClick={() => window.location.href = '/login'} 
+                onClick={() => router.push('/login')}
                 style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '900', cursor: 'pointer', padding: '5px' }}
               >
                 Inicia sesión aquí

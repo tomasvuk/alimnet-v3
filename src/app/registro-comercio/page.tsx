@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   ChevronRight, 
   ChevronLeft, 
@@ -22,6 +23,7 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 
 export default function MerchantRegistrationPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -76,7 +78,7 @@ export default function MerchantRegistrationPage() {
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = '/login'; return; }
+      if (!user) { router.push('/login'); return; }
 
       const { error } = await supabase.from('merchants').insert([{
         owner_id: user.id,
@@ -92,7 +94,7 @@ export default function MerchantRegistrationPage() {
       }]);
 
       if (error) throw error;
-      window.location.href = '/perfil';
+      router.push('/perfil');
     } catch (err) {
       console.error(err);
       alert('Hubo un error al registrar el comercio.');

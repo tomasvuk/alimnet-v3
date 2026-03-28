@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alimnet - Donation Hub Mockup (Brand Themed)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5F7D4A;
+            --primary-dark: #3F5232;
+            --secondary: #7A9B61;
+            --background: #F4F1E6;
+            --card-bg: #E7E2D3;
+            --text-primary: #3F5232;
+            --text-secondary: #5A5A52;
+            --border: #DCD7C5;
+            --success: #5F7D4A;
+            --shadow-lg: 0 20px 25px -5px rgba(63, 82, 50, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(63, 82, 50, 0.05);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 2.4rem;
+            font-weight: 950;
+            color: var(--primary-dark);
+            margin: 0 0 12px 0;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .frequency-toggle {
+            display: flex;
+            background: rgba(63, 82, 50, 0.05);
+            padding: 6px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 800;
+            cursor: pointer;
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(63, 82, 50, 0.08);
+        }
+
+        .amount-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .amount-btn {
+            padding: 16px;
+            border: 2px solid var(--border);
+            background: white;
+            color: var(--text-primary);
+            border-radius: 18px;
+            cursor: pointer;
+            font-weight: 800;
+            transition: all 0.3s;
+        }
+
+        .amount-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .amount-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 10px 15px -3px rgba(95, 125, 74, 0.2);
+        }
+
+        .payment-methods {
+            margin-top: 24px;
+        }
+
+        .payment-methods p {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .method-btn {
+            width: 100%;
+            padding: 18px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(63, 82, 50, 0.1);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .method-btn:hover {
+            background: white;
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(63, 82, 50, 0.05);
+        }
+
+        .method-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 14px;
+        }
+
+        .mp-icon { background: #5F7D4A; } /* Re-themed as Primary Brand */
+        .stripe-icon { background: #3F5232; } /* Re-themed as Primary Dark */
+
+        .method-info {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .method-title {
+            font-weight: 900;
+            font-size: 1.05rem;
+            display: block;
+            color: var(--primary-dark);
+        }
+
+        .method-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .badge {
+            background: rgba(95, 125, 74, 0.1);
+            color: var(--primary);
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-weight: 800;
+            margin-left: 4px;
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 32px;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .brand-text {
+            font-size: 1.2rem;
+            font-weight: 1000;
+            color: var(--primary-dark);
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: -0.04em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="brand-text">ALIMNET</div>
+        <div class="card">
+            <div class="header">
+                <h1>Sostener la red</h1>
+                <p>Tu aporte permite que Alimnet siga siendo justa, transparente y libre.</p>
+            </div>
+
+            <div class="frequency-toggle">
+                <button class="toggle-btn active" onclick="setFreq('monthly')">Mensual <span class="badge">PROMO</span></button>
+                <button class="toggle-btn" onclick="setFreq('once')">Un solo pago</button>
+            </div>
+
+            <div class="amount-grid">
+                <button class="amount-btn active">$500</button>
+                <button class="amount-btn">$1000</button>
+                <button class="amount-btn">$2500</button>
+                <button class="amount-btn">$5k</button>
+                <button class="amount-btn">$10k</button>
+                <button class="amount-btn">Otro</button>
+            </div>
+
+            <div class="payment-methods">
+                <p>Elegí una forma de apoyo</p>
+                
+                <div class="method-btn">
+                    <div class="method-icon mp-icon">MP</div>
+                    <div class="method-info">
+                        <span class="method-title">Mercado Pago (ARS)</span>
+                        <span class="method-subtitle">Argentina • Tarjetas o Saldo</span>
+                    </div>
+                </div>
+
+                <div class="method-btn">
+                    <div class="method-icon stripe-icon">$</div>
+                    <div class="method-info">
+                        <span class="method-title">Pago Global (USD)</span>
+                        <span class="method-subtitle">Apple Pay, Google Pay, Credit Card</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="footer-text">Donación 100% segura. Podés cancelar en cualquier momento desde tu perfil.</p>
+        </div>
+    </div>
+
+    <script>
+        function setFreq(freq) {
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>

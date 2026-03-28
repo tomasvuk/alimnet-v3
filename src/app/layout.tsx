@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import 'leaflet/dist/leaflet.css';
+import PageTransition from "@/components/PageTransition";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.variable}>
-        {children}
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );

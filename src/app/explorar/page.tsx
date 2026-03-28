@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { 
   Leaf,
   LogIn,
@@ -229,6 +230,7 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
 // (LOGO REMOVIDO POR PEDIDO DEL USUARIO - SE MANTIENE SOLO TEXTO)
 
 export default function ExplorarPage() {
+  const router = useRouter();
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'abastecedor', 'restaurante', 'chef']);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
@@ -610,7 +612,7 @@ export default function ExplorarPage() {
   };
 
   const handleValidate = async (merchantId: string) => {
-    if (!isLoggedIn || !user) { window.location.href = '/login'; return; }
+    if (!isLoggedIn || !user) { router.push('/login'); return; }
     
     try {
       // 1. Guardar con el ID de Tomas real
@@ -1189,6 +1191,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
 }
 
 function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasValidatedInitial, onClose, trackClick, onValidate }: { merchant: Merchant, isLoggedIn: boolean, user: any, userProfile: any, validators: any[], hasValidatedInitial: boolean, onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void }) {
+  const router = useRouter();
   const [hasValidated, setHasValidated] = useState(hasValidatedInitial);
   
   // Lógica inteligente de visualización:
@@ -1435,10 +1438,10 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                   Hacelo de manera <span style={{ fontWeight: '900', color: 'var(--primary-dark)' }}>fácil y segura</span>. Sin formularios largos ni correos molestos; solo el puente directo hacia alimentos reales.
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '280px', margin: '0 auto' }}>
-                  <button onClick={() => window.location.href = '/login'} className="button button-primary" style={{ width: '100%', borderRadius: '16px', padding: '0.9rem', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                  <button onClick={() => router.push('/login')} className="button button-primary" style={{ width: '100%', borderRadius: '16px', padding: '0.9rem', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                     <LogIn size={20} /> Entrar con Gmail
                   </button>
-                  <button onClick={() => window.location.href = '/registro'} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '800', cursor: 'pointer', fontSize: '0.9rem' }}>Crear cuenta nueva</button>
+                  <button onClick={() => router.push('/registro')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '800', cursor: 'pointer', fontSize: '0.9rem' }}>Crear cuenta nueva</button>
                 </div>
               </div>
           </div>
@@ -1509,6 +1512,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
 }
 
 function LoginWall() {
+  const router = useRouter();
   return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', padding: '2rem' }}>
       <div style={{ maxWidth: '450px', width: '100%', padding: '3.5rem', background: 'white', border: '1px solid var(--border)', borderRadius: '40px', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', animation: 'slideIn 0.5s ease-out' }}>
@@ -1519,15 +1523,15 @@ function LoginWall() {
         <p style={{ color: 'var(--text-secondary)', marginBottom: '3rem', fontWeight: '550', lineHeight: '1.6' }}>Para ver los puntos de contacto directo con los productores y realizar pedidos, necesitás ser parte de la comunidad.</p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <button 
-            onClick={() => window.location.href = '/login'} 
-            className="button button-primary" 
+          <button
+            onClick={() => router.push('/login')}
+            className="button button-primary"
             style={{ width: '100%', borderRadius: '18px', padding: '1rem', fontSize: '1rem' }}
           >
             Ingresar
           </button>
-          <button 
-            onClick={() => window.location.href = '/registro'} 
+          <button
+            onClick={() => router.push('/registro')}
             style={{ 
               width: '100%', borderRadius: '18px', padding: '1rem', background: 'white', 
               border: '2px solid var(--primary)', color: 'var(--primary)', fontWeight: '900',

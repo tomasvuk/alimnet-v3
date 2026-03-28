@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store, Plus, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function Header() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [isMerchant, setIsMerchant] = useState(false);
@@ -76,7 +78,7 @@ export default function Header() {
     }}>
       {/* Brand Logo */}
       <div 
-        onClick={() => window.location.href = '/'} 
+        onClick={() => router.push('/')}
         style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em", cursor: 'pointer' }}
       >
         ALIMNET
@@ -86,7 +88,7 @@ export default function Header() {
       <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
         
         <button 
-          onClick={() => window.location.href = '/explorar'}
+          onClick={() => router.push('/explorar')}
           style={{ 
             display: 'flex', alignItems: 'center', gap: '8px', background: 'transparent', 
             border: 'none', cursor: 'pointer', color: '#5F7D4A', fontWeight: '850', fontSize: '0.8rem'
@@ -100,14 +102,14 @@ export default function Header() {
           <Loader2 className="animate-spin" size={18} color="#5F7D4A" />
         ) : !user ? (
           <button 
-            onClick={() => window.location.href = '/login'} 
+            onClick={() => router.push('/login')}
             style={{ padding: '0.4rem 0.8rem', borderRadius: '12px', border: '1.5px solid #5F7D4A', background: 'transparent', color: '#5F7D4A', fontWeight: '900', cursor: 'pointer', fontSize: '0.75rem' }}
           >
             INGRESAR
           </button>
         ) : (
           <div 
-            onClick={() => window.location.href = '/mi-cuenta'} 
+            onClick={() => router.push('/mi-cuenta')}
             style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5F7D4A', border: '1px solid #E4EBDD' }}
           >
             <User size={20} />
@@ -140,13 +142,23 @@ export default function Header() {
             border: '1px solid rgba(0,0,0,0.04)',
           }}>
             {/* 1. MI PERFIL (DESTACADO B2C - SIMPLIFICADO) */}
-            <MenuItem 
-               href="/mi-cuenta" 
-               icon={<User size={18} />} 
-               label="Mi Perfil" 
-               onClick={() => setShowMenu(false)} 
-               variant="button"
-            />
+             <MenuItem 
+                href="/mi-cuenta" 
+                icon={<User size={18} />} 
+                label="Mi Perfil" 
+                onClick={() => setShowMenu(false)} 
+                variant="button"
+             />
+
+             {/* ADMINISTRACIÓN (SÓLO ADMINS) */}
+             {profile?.role === 'admin' && (
+               <MenuItem
+                 href="/admin"
+                 icon={<ShieldCheck size={18} color="#5F7D4A" />}
+                 label="Panel de Control"
+                 onClick={() => setShowMenu(false)}
+               />
+             )}
             
             <MenuItem href="/explorar" icon={<MapIcon size={18} />} label="Mapa de Alimentos" onClick={() => setShowMenu(false)} />
             <MenuItem href="/sostener" icon={<HelpCircle size={18} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />

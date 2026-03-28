@@ -1,6 +1,7 @@
 'use client';
 
 import React from "react";
+import { useRouter } from 'next/navigation';
 import Header from "@/components/Header";
 import { LogIn, Rocket, UserPlus, MapPin, CheckCircle, Heart, Instagram, Linkedin, Mail, Store, UtensilsCrossed, ChefHat, ArrowRight } from "lucide-react";
 
@@ -15,6 +16,7 @@ const ProductorIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 export default function Home() {
+  const router = useRouter();
   return (
     <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--background)", color: "var(--text-primary)", width: '100vw', overflowX: 'hidden' }}>
       
@@ -90,7 +92,7 @@ export default function Home() {
               Explorar el mapa <ArrowRight size={18} />
             </a>
             <button 
-              onClick={() => window.location.href = '/registro'}
+              onClick={() => router.push('/registro')}
               className="btn-v3-secondary" style={{ padding: "0.95rem 2.22rem" }}
             >
               Crear cuenta
@@ -177,7 +179,7 @@ export default function Home() {
                   Sumate a la comunidad para descubrir proyectos, alimentos y comerciantes alineados con una producción más cuidada.
                 </p>
                 <button 
-                  onClick={() => window.location.href = '/explorar'}
+                  onClick={() => router.push('/explorar')}
                   className="button button-primary" style={{ padding: "1rem 3rem", fontSize: "1.1rem" }}
                 >
                   Unirme a Alimnet
@@ -199,8 +201,8 @@ export default function Home() {
             Sumá tu proyecto a la red y conectá con personas que buscan alimentos cuidados.
           </p>
           <button 
-            onClick={() => window.location.href = '/unirse'}
-            className="btn-v3-primary" 
+            onClick={() => router.push('/unirse')}
+            className="btn-v3-primary"
             style={{ padding: "1.1rem 3.5rem" }}
           >
             Registrar mi proyecto
@@ -217,8 +219,8 @@ export default function Home() {
             Alimnet crece gracias a personas que creen en una forma más consciente, transparente y cercana de producir y encontrar alimentos.
           </p>
           <button 
-            onClick={() => window.location.href = '/sostener'}
-            className="btn-v3-secondary" 
+            onClick={() => router.push('/sostener')}
+            className="btn-v3-secondary"
             style={{ padding: "0.85rem 2.5rem" }}
           >
             Sostener Alimnet
@@ -257,7 +259,7 @@ export default function Home() {
                 <a href="/explorar" className="footer-link-v3">Explorar mapa</a>
                 <a href="/sostener" className="footer-link-v3">Sostener Alimnet</a>
                 <a href="/login" className="footer-link-v3">Ingresar</a>
-                <button onClick={() => window.location.href='/registro'} className="btn-v3-primary" style={{ padding: '0.6rem 1.2rem', fontSize: '0.75rem', width: 'fit-content' }}>Crear cuenta</button>
+                <button onClick={() => router.push('/registro')} className="btn-v3-primary" style={{ padding: '0.6rem 1.2rem', fontSize: '0.75rem', width: 'fit-content' }}>Crear cuenta</button>
               </nav>
             </div>
 
