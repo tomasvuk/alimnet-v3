@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Header from '@/components/Header';
 import { 
   Leaf, Heart, ShieldCheck, Users, Mail, Coffee, Instagram, 
@@ -9,6 +9,14 @@ import {
 import DonationHub from '@/components/donations/DonationHub';
 
 export default function SostenerAlimnetPage() {
+  const [initialFreq, setInitialFreq] = useState<'once' | 'monthly'>('once');
+  const hubRef = useRef<HTMLDivElement>(null);
+
+  const scrollToHub = (freq: 'once' | 'monthly') => {
+    setInitialFreq(freq);
+    hubRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -20,7 +28,6 @@ export default function SostenerAlimnetPage() {
       overflowX: 'hidden'
     }}>
       
-      {/* 1. Header Global */}
       <Header />
 
       <main style={{ 
@@ -31,7 +38,7 @@ export default function SostenerAlimnetPage() {
         padding: 'clamp(3rem, 8vw, 6rem) clamp(1rem, 5vw, 2rem)' 
       }}>
         
-        {/* HERO REFINADO */}
+        {/* HERO */}
         <div style={{ textAlign: 'center', marginBottom: 'clamp(4rem, 8vw, 6rem)' }}>
           <div style={{ 
             display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
@@ -48,17 +55,69 @@ export default function SostenerAlimnetPage() {
             Construyamos juntos el futuro <br />
             <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>de nuestra alimentación.</span>
           </h1>
-          <p style={{ 
-            fontSize: 'clamp(0.9rem, 4.5vw, 1rem)', color: 'var(--text-secondary)', maxWidth: '650px', 
-            margin: '0 auto', lineHeight: '1.7', fontWeight: '550', textAlign: 'center' 
-          }}>
-            Alimnet es una plataforma independiente que busca descentralizar el acceso a comida real. 
-            No cobramos comitivas ni pautas. Nuestro crecimiento depende de la comunidad.
-          </p>
         </div>
 
-        {/* SECCIÓN 1: DONATION HUB INTERACTIVO */}
-        <div style={{ marginBottom: 'clamp(4rem, 10vw, 7rem)', display: 'flex', justifyContent: 'center' }}>
+        {/* LAS TARJETAS QUE TE GUSTAN (ENTRY POINTS) */}
+        <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: 'clamp(1.5rem, 4vw, 2.5rem)', 
+            marginBottom: '6rem'
+        }}>
+            {/* Aporte Único */}
+            <div style={{ 
+              background: 'white', padding: '2.5rem', borderRadius: '40px', border: '1.5px solid #E4EBDD',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.02)', transition: 'all 0.4s ease',
+              cursor: 'pointer'
+            }} onClick={() => scrollToHub('once')}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
+                <Coffee size={24} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Aporte único</h3>
+              </div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '2rem', fontWeight: '600' }}>
+                Si valorás nuestra independencia y querés apoyarnos con una contribución puntual para sostener el servidor.
+              </p>
+              <button style={{ 
+                padding: '0.8rem 2rem', borderRadius: '12px', 
+                background: '#2D3A20', color: 'white', border: 'none', fontWeight: '1000', 
+                fontSize: '0.8rem', cursor: 'pointer'
+              }}>
+                Invitar café (Cafecito)
+              </button>
+            </div>
+
+            {/* Miembro Fundador */}
+            <div style={{ 
+              background: 'white', padding: '2.5rem', borderRadius: '48px', border: '2px solid var(--primary)',
+              boxShadow: '0 40px 80px rgba(45, 58, 32, 0.08)', transition: 'all 0.4s ease',
+              position: 'relative', cursor: 'pointer'
+            }} onClick={() => scrollToHub('monthly')}>
+               <div style={{ 
+                position: 'absolute', top: '1.5rem', right: '1.5rem', padding: '0.5rem 1rem', 
+                background: 'var(--primary)', color: 'white', borderRadius: '30px', 
+                fontSize: '0.6rem', fontWeight: '1000', textTransform: 'uppercase'
+              }}>
+                Recomendado
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
+                <Sparkles size={24} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '950', color: 'var(--primary-dark)', margin: 0 }}>Miembro Fundador</h3>
+              </div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '2rem', fontWeight: '600' }}>
+                Socio clave. Tu apoyo mensual permite planificar expansiones y seguir mapeando soberanía con independencia.
+              </p>
+              <button style={{ 
+                padding: '1rem 2.5rem', borderRadius: '16px', 
+                background: 'var(--primary)', color: 'white', border: 'none', fontWeight: '1000', 
+                fontSize: '0.9rem', cursor: 'pointer'
+              }}>
+                Unirme como Fundador
+              </button>
+            </div>
+        </div>
+
+        {/* DONATION HUB (EL MOTOR DE PAGOS) */}
+        <div ref={hubRef} style={{ marginBottom: 'clamp(5rem, 10vw, 8rem)', display: 'flex', justifyContent: 'center' }}>
           <div style={{ 
             background: 'white', 
             padding: 'clamp(1.5rem, 5vw, 3rem)', 
@@ -68,7 +127,7 @@ export default function SostenerAlimnetPage() {
             width: '100%',
             maxWidth: '550px'
           }}>
-            <DonationHub />
+            <DonationHub forcedFrequency={initialFreq} />
           </div>
         </div>
 

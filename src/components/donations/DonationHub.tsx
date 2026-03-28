@@ -1,15 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DONATION_AMOUNTS, PAYMENT_METHODS } from '@/lib/donation-constants';
+import { DONATION_AMOUNTS } from '@/lib/donation-constants';
 
-export default function DonationHub() {
+export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'once' | 'monthly' }) {
     const [currency, setCurrency] = useState<'ARS' | 'USD'>('ARS');
-    const [frequency, setFrequency] = useState<'monthly' | 'once'>('once');
+    const [frequency, setFrequency] = useState<'once' | 'monthly'>(forcedFrequency || 'monthly');
     const [amount, setAmount] = useState<number>(0);
     const [customAmount, setCustomAmount] = useState<string>('');
     const [isCustom, setIsCustom] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (forcedFrequency) {
+            setFrequency(forcedFrequency);
+        }
+    }, [forcedFrequency]);
 
     const amounts = DONATION_AMOUNTS[currency][frequency === 'monthly' ? 'MONTHLY' : 'ONCE'];
     const minCustom = DONATION_AMOUNTS[currency].MIN_CUSTOM;
@@ -24,6 +31,40 @@ export default function DonationHub() {
         const num = parseFloat(val);
         if (!isNaN(num) && num >= minCustom) {
             setAmount(num);
+        }
+    };
+
+    const handlePayment = async () => {
+        if (!amount || amount < minCustom) return;
+        setLoading(true);
+
+        try {
+            const res = await fetch('/api/donations/create-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount,
+                    currency,
+                    frequency,
+                    paymentMethod: currency === 'ARS' ? 'mercadopago' : 'stripe'
+                })
+            });
+
+            const data = await res.json();
+
+            if (currency === 'ARS' && data.initPoint) {
+                window.location.href = data.initPoint;
+            } else if (currency === 'USD' && data.clientSecret) {
+                alert("Redireccionando a Stripe (Modo Prueba)...");
+                console.log("Stripe Secret:", data.clientSecret);
+            } else if (data.error) {
+                alert("Error: " + data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Hubo un error al procesar el pago.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -119,14 +160,15 @@ export default function DonationHub() {
 
             {/* Payment Method CTA */}
             <button
-                disabled={!amount || amount < minCustom}
+                disabled={!amount || amount < minCustom || loading}
+                onClick={handlePayment}
                 className={`w-full py-5 rounded-3xl font-black text-lg shadow-xl transition-all ${
                     amount && amount >= minCustom 
                         ? 'bg-[var(--primary-dark)] text-white hover:scale-[1.02] active:scale-95' 
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
                 }`}
             >
-                {amount && amount >= minCustom ? `Apoyar con $${amount}` : 'Elegí un monto'}
+                {loading ? 'Procesando...' : (amount && amount >= minCustom ? `Apoyar con $${amount}` : 'Elegí un monto')}
             </button>
             
             <p className="mt-6 text-[11px] text-[var(--text-secondary)] font-medium text-center opacity-60">
