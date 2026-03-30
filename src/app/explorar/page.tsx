@@ -276,7 +276,7 @@ export default function ExplorarPage() {
         setUser(session.user);
         
         // 1. Perfil
-        const { data: pData } = await supabase.from('profiles').select('*').eq('user_id', session.user.id).single();
+        const { data: pData } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
         if (pData) {
           setUserProfile(pData);
           // --- INTELIGENCIA DE MAPA ALIMNET ---

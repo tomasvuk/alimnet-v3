@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"STRIPE\\\\|MERCADO\\\\|API_KEY\\\\|SECRET\" '/Users/tomasvukojicic/Alimnet v3/src' --include=*.ts --include=*.tsx)",
+      "Bash(xargs cat:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

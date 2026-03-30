@@ -155,10 +155,16 @@ export default function SostenerAlimnetPage() {
                 <p style={{ fontSize: '0.9rem', color: '#666', lineHeight: '1.7', fontWeight: '550', marginBottom: '2rem' }}>
                     Alimnet acompaña la transición hacia un sistema alimentario más transparente, justo y cercano.
                 </p>
-                <div style={{ display: 'flex', gap: '20px' }}>
-                    <Instagram size={22} color="var(--primary-dark)" />
-                    <Linkedin size={22} color="var(--primary-dark)" />
-                    <Mail size={22} color="var(--primary-dark)" />
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                    <a href="https://instagram.com/alimnet" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={{ color: 'var(--primary-dark)', display: 'flex' }}>
+                      <Instagram size={22} />
+                    </a>
+                    <a href="https://linkedin.com/company/alimnet" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style={{ color: 'var(--primary-dark)', display: 'flex' }}>
+                      <Linkedin size={22} />
+                    </a>
+                    <a href="mailto:info@alimnet.com" aria-label="Email" style={{ color: 'var(--primary-dark)', display: 'flex' }}>
+                      <Mail size={22} />
+                    </a>
                 </div>
             </div>
             <div>
@@ -166,24 +172,24 @@ export default function SostenerAlimnetPage() {
                 <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '12px', fontSize: '0.88rem', fontWeight: '800' }}>
                     <li><a href="/explorar" style={{ color: '#666', textDecoration: 'none' }}>Explorar mapa</a></li>
                     <li><a href="/sostener" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Sostener Alimnet</a></li>
-                    <li><a href="/ingresar" style={{ color: '#666', textDecoration: 'none' }}>Ingresar</a></li>
-                    <li><button style={{ padding: '0.6rem 1.2rem', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '30px', fontWeight: '1000', fontSize: '0.75rem' }}>Crear cuenta</button></li>
+                    <li><a href="/login" style={{ color: '#666', textDecoration: 'none' }}>Ingresar</a></li>
+                    <li><a href="/registro" style={{ padding: '0.6rem 1.2rem', background: 'var(--primary)', color: 'white', borderRadius: '30px', fontWeight: '1000', fontSize: '0.75rem', textDecoration: 'none', display: 'inline-block' }}>Crear cuenta</a></li>
                 </ul>
             </div>
             <div>
                  <h4 style={{ fontSize: '0.75rem', fontWeight: '1000', color: '#A5B598', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>EXPLORAR</h4>
                  <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '12px', fontSize: '0.88rem', fontWeight: '800' }}>
-                    <li><a href="#" style={{ color: '#666', textDecoration: 'none' }}>Blog</a></li>
-                    <li><a href="#" style={{ color: '#666', textDecoration: 'none' }}>Panel Comercial</a></li>
-                    <li><a href="#" style={{ color: '#666', textDecoration: 'none' }}>Registrar mi comercio</a></li>
+                    <li><a href="/blog" style={{ color: '#666', textDecoration: 'none' }}>Blog</a></li>
+                    <li><a href="/perfil" style={{ color: '#666', textDecoration: 'none' }}>Panel Comercial</a></li>
+                    <li><a href="/unirse" style={{ color: '#666', textDecoration: 'none' }}>Registrar mi comercio</a></li>
                 </ul>
             </div>
             <div>
                  <h4 style={{ fontSize: '0.75rem', fontWeight: '1000', color: '#A5B598', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>LEGAL</h4>
                  <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '12px', fontSize: '0.88rem', fontWeight: '800' }}>
-                    <li><a href="#" style={{ color: '#666', textDecoration: 'none' }}>Privacidad</a></li>
-                    <li><a href="#" style={{ color: '#666', textDecoration: 'none' }}>Términos</a></li>
-                    <li><a href="#" style={{ color: '#666', textDecoration: 'none' }}>Cookies</a></li>
+                    <li><a href="/privacidad" style={{ color: '#666', textDecoration: 'none' }}>Privacidad</a></li>
+                    <li><a href="/terminos" style={{ color: '#666', textDecoration: 'none' }}>Términos</a></li>
+                    <li><a href="/cookies" style={{ color: '#666', textDecoration: 'none' }}>Cookies</a></li>
                 </ul>
             </div>
         </div>

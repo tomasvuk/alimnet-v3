@@ -110,7 +110,7 @@ function MiCuentaContent() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/login'); return; }
 
-      const { data } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
+      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
       if (data) {
         setProfile(data);
         setFormData({
@@ -957,7 +957,7 @@ function MiCuentaContent() {
                               production_interest: formData.production_interest,
                               display_name_style: formData.display_name_style,
                               updated_at: new Date().toISOString()
-                            }).eq('user_id', user.id);
+                            }).eq('id', user.id);
                             if (error) throw error;
                             setMessage({ type: 'success', text: '¡Cambios guardados correctamente! ✨' });
                             setTimeout(() => setMessage(null), 3000);

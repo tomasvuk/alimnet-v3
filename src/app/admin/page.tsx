@@ -1,17 +1,16 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { 
+import {
   Leaf,
-  Plus, 
-  Search, 
-  Filter, 
-  CheckCircle, 
-  AlertCircle, 
-  Clock, 
-  MapPin, 
-  Instagram, 
+  Plus,
+  Search,
+  CheckCircle,
+  Clock,
+  MapPin,
+  Instagram,
   ExternalLink,
   ChevronDown,
   ChevronUp,
@@ -19,10 +18,11 @@ import {
   Users,
   Store,
   ShieldCheck,
-  TrendingUp,
   Mail,
-  MoreVertical,
-  X
+  X,
+  CreditCard,
+  DollarSign,
+  ArrowUpRight
 } from 'lucide-react';
 import Header from '@/components/Header';
 
@@ -48,12 +48,37 @@ interface Merchant {
   locations?: Location[];
 }
 
+interface Donation {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  payment_method: string;
+  external_id: string;
+  created_at: string;
+  metadata?: { frequency?: string };
+}
+
+interface Message {
+  id: string;
+  sender_name: string;
+  sender_email: string;
+  subject: string;
+  message: string;
+  status: 'unread' | 'read' | 'archived';
+  created_at: string;
+}
+
 export default function AdminDashboard() {
+  const router = useRouter();
   const [merchants, setMerchants] = useState<Merchant[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'comercios' | 'actividad' | 'pendientes'>('comercios');
+  const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'pagos'>('comercios');
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [donationsLoading, setDonationsLoading] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState('');
   const [isImporting, setIsImporting] = useState(false);
@@ -67,14 +92,45 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    fetchData();
+    const initAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.replace('/login'); return; }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile || profile.role !== 'admin') {
+        router.replace('/');
+        return;
+      }
+
+      fetchData();
+    };
+    initAdmin();
   }, []);
+
+  const fetchDonations = async () => {
+    setDonationsLoading(true);
+    const { data } = await supabase
+      .from('user_donations')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    setDonations(data || []);
+    setDonationsLoading(false);
+  };
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const { data: mData } = await supabase.from('merchants').select('*, locations(*)');
       setMerchants(mData || []);
+
+      const { data: msgData } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+      setMessages(msgData || []);
 
       const { count: mCount } = await supabase.from('merchants').select('*', { count: 'exact', head: true });
       const { count: lCount } = await supabase.from('locations').select('*', { count: 'exact', head: true });
@@ -156,6 +212,25 @@ export default function AdminDashboard() {
     fetchData();
   };
 
+  const updateMerchantStatus = async (merchantId: string, status: 'active' | 'rejected') => {
+    try {
+      const res = await fetch('/api/admin/merchants/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ merchantId, status })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      // Actualizar estado local
+      setMerchants(prev => prev.map(m => m.id === merchantId ? { ...m, status } : m));
+      alert(`Comercio ${status === 'active' ? 'aprobado' : 'rechazado'} con éxito.`);
+      fetchData(); // Recargar stats
+    } catch (e: any) {
+      alert(`Error al cambiar estado: ${e.message}`);
+    }
+  };
+
   const filteredMerchants = merchants.filter(m => 
     m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     (m.type && m.type.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -199,57 +274,172 @@ export default function AdminDashboard() {
            
            <div style={{ display: 'flex', gap: '2rem', borderBottom: '1px solid #F0F4ED', marginBottom: '2.5rem' }}>
               <TabItem active={activeTab === 'comercios'} label="Comercios" onClick={() => setActiveTab('comercios')} count={stats.totalMerchants} />
-              <TabItem active={activeTab === 'actividad'} label="Actividad" onClick={() => setActiveTab('actividad')} />
+              <TabItem active={activeTab === 'mensajes'} label="Mensajes" onClick={() => setActiveTab('mensajes')} count={messages.filter(m => m.status === 'unread').length} />
               <TabItem active={activeTab === 'pendientes'} label="Validaciones" onClick={() => setActiveTab('pendientes')} count={stats.pendingValidations} />
+              <TabItem active={activeTab === 'pagos'} label="Pagos" onClick={() => { setActiveTab('pagos'); fetchDonations(); }} count={donations.length || undefined} />
            </div>
 
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <div style={{ position: 'relative', width: '400px' }}>
-                 <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#B2AC88' }} size={18} />
-                 <input 
-                   type="text" 
-                   placeholder="Filtrar comerciantes..." 
-                   value={searchTerm}
-                   onChange={(e) => setSearchTerm(e.target.value)}
-                   style={{ width: '100%', padding: '1rem 1.2rem 1rem 3.2rem', borderRadius: '20px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
-                 />
-              </div>
-           </div>
-
-           <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+           {activeTab === 'pagos' ? (
+             <div style={{ overflowX: 'auto' }}>
+               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                  <thead style={{ borderBottom: '2px solid #F8F9F5' }}>
-                    <tr>
-                       <th style={THStyle}>COMERCIO</th>
-                       <th style={THStyle}>TIPO</th>
-                       <th style={THStyle}>PRESENCIA</th>
-                       <th style={THStyle}>ESTADO</th>
-                       <th style={THStyle}>REDES</th>
-                       <th style={{ ...THStyle, width: '40px' }}></th>
-                    </tr>
+                   <tr>
+                     <th style={THStyle}>FECHA</th>
+                     <th style={THStyle}>MONTO</th>
+                     <th style={THStyle}>MÉTODO</th>
+                     <th style={THStyle}>TIPO</th>
+                     <th style={THStyle}>ESTADO</th>
+                     <th style={THStyle}>ID EXTERNO</th>
+                   </tr>
                  </thead>
                  <tbody>
-                    {loading ? (
-                      <tr><td colSpan={6} style={{ padding: '4rem', textAlign: 'center', color: '#888' }}>Cargando...</td></tr>
-                    ) : filteredMerchants.length === 0 ? (
+                   {donationsLoading ? (
+                     <tr><td colSpan={6} style={{ padding: '4rem', textAlign: 'center', color: '#888' }}>Cargando pagos...</td></tr>
+                   ) : donations.length === 0 ? (
+                     <tr>
+                       <td colSpan={6} style={{ padding: '6rem', textAlign: 'center' }}>
+                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                           <CreditCard size={48} color="#E4EBDD" />
+                           <p style={{ color: '#2D3A20', fontWeight: '1000', fontSize: '1.2rem', margin: 0 }}>Sin pagos registrados aún.</p>
+                         </div>
+                       </td>
+                     </tr>
+                   ) : (
+                     donations.map(d => (
+                       <tr key={d.id} style={{ borderBottom: '1px solid #F0F4ED' }}>
+                         <td style={{ padding: '1.2rem 1rem', fontSize: '0.85rem', color: '#555', fontWeight: '700' }}>
+                           {new Date(d.created_at).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })}
+                         </td>
+                         <td style={{ padding: '1.2rem 1rem' }}>
+                           <span style={{ fontWeight: '1000', color: '#2D3A20', fontSize: '1rem' }}>
+                             {d.currency === 'USD' ? 'USD ' : 'ARS $'}{Number(d.amount).toLocaleString('es-AR')}
+                           </span>
+                         </td>
+                         <td style={{ padding: '1.2rem 1rem' }}>
+                           <span style={{ ...BadgeStyle, background: d.payment_method === 'stripe' ? '#EEF2FF' : '#FFF7ED', color: d.payment_method === 'stripe' ? '#4F46E5' : '#C2410C' }}>
+                             {d.payment_method === 'stripe' ? 'Stripe' : 'Mercado Pago'}
+                           </span>
+                         </td>
+                         <td style={{ padding: '1.2rem 1rem' }}>
+                           <span style={BadgeStyle}>{d.metadata?.frequency === 'monthly' ? 'Mensual' : 'Único'}</span>
+                         </td>
+                         <td style={{ padding: '1.2rem 1rem' }}>
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '900', fontSize: '0.8rem', color: d.status === 'succeeded' ? '#5F7D4A' : '#B2AC88' }}>
+                             <CheckCircle size={14} /> {d.status}
+                           </div>
+                         </td>
+                         <td style={{ padding: '1.2rem 1rem', fontSize: '0.75rem', color: '#AAA', fontFamily: 'monospace' }}>
+                           {d.external_id?.slice(0, 20)}…
+                         </td>
+                       </tr>
+                     ))
+                   )}
+                 </tbody>
+               </table>
+             </div>
+           ) : activeTab === 'mensajes' ? (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead style={{ borderBottom: '2px solid #F8F9F5' }}>
+                    <tr>
+                      <th style={THStyle}>FECHA</th>
+                      <th style={THStyle}>REMITENTE</th>
+                      <th style={THStyle}>ASUNTO</th>
+                      <th style={THStyle}>MENSAJE</th>
+                      <th style={THStyle}>ESTADO</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(messages || []).length === 0 ? (
                       <tr>
-                        <td colSpan={6} style={{ padding: '8rem 4rem', textAlign: 'center' }}>
+                        <td colSpan={5} style={{ padding: '6rem', textAlign: 'center' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                            <Leaf size={48} color="#E4EBDD" />
-                            <p style={{ color: '#2D3A20', fontWeight: '1000', fontSize: '1.4rem', margin: 0 }}>La red está lista para florecer.</p>
-                            <p style={{ color: '#888', fontWeight: '550' }}>No hay comercios. Empezá cargando tu Excel.</p>
-                            <button onClick={() => setShowImportModal(true)} className="button-primary" style={{ marginTop: '1rem', padding: '1rem 2rem', borderRadius: '18px' }}>Importar Ahora</button>
+                            <Mail size={48} color="#F0F4ED" />
+                            <p style={{ color: '#2D3A20', fontWeight: '1000', fontSize: '1.2rem', margin: 0 }}>La central de mensajes está vacía.</p>
                           </div>
                         </td>
                       </tr>
                     ) : (
-                      filteredMerchants.map(m => (
-                        <MerchantRow key={m.id} merchant={m} expanded={expandedId === m.id} toggle={() => setExpandedId(expandedId === m.id ? null : m.id)} />
+                      messages.map(msg => (
+                        <tr key={msg.id} style={{ borderBottom: '1px solid #F0F4ED', background: msg.status === 'unread' ? '#FFFBEB' : 'white' }}>
+                          <td style={{ padding: '1.2rem 1rem', fontSize: '0.85rem', color: '#888', fontWeight: '700' }}>
+                            {new Date(msg.created_at).toLocaleDateString()}
+                          </td>
+                          <td style={{ padding: '1.2rem 1rem' }}>
+                            <div style={{ fontWeight: '1000', color: '#2D3A20' }}>{msg.sender_name}</div>
+                            <div style={{ fontSize: '0.8rem', color: '#B2AC88' }}>{msg.sender_email}</div>
+                          </td>
+                          <td style={{ padding: '1.2rem 1rem', fontWeight: '800' }}>{msg.subject || 'Sin Asunto'}</td>
+                          <td style={{ padding: '1.2rem 1rem', fontSize: '0.9rem', color: '#555', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {msg.message}
+                          </td>
+                          <td style={{ padding: '1.2rem 1rem' }}>
+                            <span style={{ ...BadgeStyle, background: msg.status === 'unread' ? '#FEF3C7' : '#F0F4ED', color: msg.status === 'unread' ? '#D97706' : '#888' }}>
+                              {msg.status.toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
                       ))
                     )}
-                 </tbody>
-              </table>
-           </div>
+                  </tbody>
+                </table>
+              </div>
+           ) : (
+             <>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                  <div style={{ position: 'relative', width: '400px' }}>
+                     <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#B2AC88' }} size={18} />
+                     <input
+                       type="text"
+                       placeholder="Filtrar comerciantes..."
+                       value={searchTerm}
+                       onChange={(e) => setSearchTerm(e.target.value)}
+                       style={{ width: '100%', padding: '1rem 1.2rem 1rem 3.2rem', borderRadius: '20px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                     />
+                  </div>
+               </div>
+               <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                     <thead style={{ borderBottom: '2px solid #F8F9F5' }}>
+                        <tr>
+                           <th style={THStyle}>COMERCIO</th>
+                           <th style={THStyle}>TIPO</th>
+                           <th style={THStyle}>PRESENCIA</th>
+                           <th style={THStyle}>ESTADO</th>
+                           <th style={THStyle}>REDES</th>
+                           <th style={{ ...THStyle, width: '40px' }}></th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {loading ? (
+                          <tr><td colSpan={6} style={{ padding: '4rem', textAlign: 'center', color: '#888' }}>Cargando...</td></tr>
+                        ) : filteredMerchants.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} style={{ padding: '8rem 4rem', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                <Leaf size={48} color="#E4EBDD" />
+                                <p style={{ color: '#2D3A20', fontWeight: '1000', fontSize: '1.4rem', margin: 0 }}>La red está lista para florecer.</p>
+                                <p style={{ color: '#888', fontWeight: '550' }}>No hay comercios. Empezá cargando tu Excel.</p>
+                                <button onClick={() => setShowImportModal(true)} className="button-primary" style={{ marginTop: '1rem', padding: '1rem 2rem', borderRadius: '18px' }}>Importar Ahora</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredMerchants.map(m => (
+                            <MerchantRow 
+                              key={m.id} 
+                              merchant={m} 
+                              expanded={expandedId === m.id} 
+                              toggle={() => setExpandedId(expandedId === m.id ? null : m.id)} 
+                              onUpdateStatus={updateMerchantStatus}
+                            />
+                          ))
+                        )}
+                     </tbody>
+                  </table>
+               </div>
+             </>
+           )}
         </div>
       </main>
 
@@ -315,16 +505,20 @@ function TabItem({ active, label, onClick, count }: any) {
   );
 }
 
-function MerchantRow({ merchant, expanded, toggle }: any) {
+function MerchantRow({ merchant, expanded, toggle, onUpdateStatus }: any) {
   return (
     <>
-      <tr onClick={toggle} style={{ borderBottom: '1px solid #F0F4ED', cursor: 'pointer' }}>
+      <tr onClick={(e) => {
+        // Prevenir expansión si se hace click en un botón de acción
+        if ((e.target as HTMLElement).closest('button')) return;
+        toggle();
+      }} style={{ borderBottom: '1px solid #F0F4ED', cursor: 'pointer', background: merchant.status === 'pending' ? '#FFFBEB' : 'transparent' }}>
         <td style={{ padding: '1.5rem 1rem' }}>
           <div style={{ fontWeight: '1000', color: '#2D3A20' }}>{merchant.name}</div>
           <div style={{ fontSize: '0.75rem', color: '#AAA' }}>ID: {merchant.id.slice(0, 8)}</div>
         </td>
         <td style={{ padding: '1.5rem 1rem' }}>
-          <span style={BadgeStyle}>{merchant.type}</span>
+          <span style={BadgeStyle}>{merchant.type || 'Comercio'}</span>
         </td>
         <td style={{ padding: '1.5rem 1rem' }}>
            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '800', color: '#5F7D4A', fontSize: '0.85rem' }}>
@@ -332,14 +526,32 @@ function MerchantRow({ merchant, expanded, toggle }: any) {
            </div>
         </td>
         <td style={{ padding: '1.5rem 1rem' }}>
-           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '900', fontSize: '0.8rem', color: '#5F7D4A' }}>
-              <CheckCircle size={16} /> {merchant.status.toUpperCase()}
+           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '900', fontSize: '0.8rem', color: merchant.status === 'active' ? '#5F7D4A' : merchant.status === 'rejected' ? '#EF4444' : '#B2AC88' }}>
+              {merchant.status === 'active' ? <CheckCircle size={16} /> : merchant.status === 'rejected' ? <X size={16} /> : <Clock size={16} />} 
+              {merchant.status.toUpperCase()}
            </div>
         </td>
         <td style={{ padding: '1.5rem 1rem' }}>
            <div style={{ display: 'flex', gap: '12px', color: '#B2AC88' }}>
               {merchant.instagram_url && <Instagram size={18} />}
               {merchant.website_url && <ExternalLink size={18} />}
+              <div style={{ width: '1px', height: '18px', background: '#E4EBDD', margin: '0 4px' }} />
+              {merchant.status !== 'active' && (
+                <button 
+                  onClick={() => onUpdateStatus(merchant.id, 'active')}
+                  style={{ background: '#5F7D4A', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '0.65rem', fontWeight: '900', cursor: 'pointer' }}
+                >
+                  APROBAR
+                </button>
+              )}
+              {merchant.status !== 'rejected' && (
+                <button 
+                  onClick={() => onUpdateStatus(merchant.id, 'rejected')}
+                  style={{ background: 'transparent', color: '#EF4444', border: '1px solid #EF4444', padding: '3px 10px', borderRadius: '8px', fontSize: '0.65rem', fontWeight: '900', cursor: 'pointer' }}
+                >
+                  RECHAZAR
+                </button>
+              )}
            </div>
         </td>
         <td style={{ padding: '1.5rem 1rem' }}>
@@ -352,18 +564,36 @@ function MerchantRow({ merchant, expanded, toggle }: any) {
              <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '3rem' }}>
                 <div>
                    <h4 style={{ fontSize: '0.85rem', fontWeight: '950', color: '#B2AC88', textTransform: 'uppercase', marginBottom: '1.2rem' }}>Ubicaciones</h4>
-                   {merchant.locations?.map((loc: any) => (
+                   {merchant.locations?.length === 0 ? (
+                     <p style={{ fontSize: '0.85rem', color: '#888', fontStyle: 'italic' }}>Sin ubicaciones registradas.</p>
+                   ) : merchant.locations?.map((loc: any) => (
                      <div key={loc.id} style={{ background: 'white', padding: '1rem', borderRadius: '15px', border: '1px solid #E4EBDD', marginBottom: '0.5rem' }}>
-                        <div style={{ fontWeight: '1000' }}>{loc.locality}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#888' }}>{loc.location_type} • {loc.lat.toFixed(3)}, {loc.lng.toFixed(3)}</div>
+                        <div style={{ fontWeight: '1000' }}>{loc.address || loc.locality}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#888' }}>{loc.location_type} • LAT: {loc.lat?.toFixed(3)}, LNG: {loc.lng?.toFixed(3)}</div>
                      </div>
                    ))}
                 </div>
-                <div style={{ background: 'white', padding: '1.5rem', borderRadius: '25px', border: '1px solid #E4EBDD' }}>
-                   <div style={{ textAlign: 'center' }}>
-                     <div style={{ fontSize: '2rem', fontWeight: '1000' }}>{merchant.validation_count}</div>
-                     <div style={{ fontSize: '0.8rem', fontWeight: '900', color: '#B2AC88' }}>Validaciones</div>
-                   </div>
+                <div>
+                  <div style={{ background: 'white', padding: '1.5rem', borderRadius: '25px', border: '1px solid #E4EBDD', marginBottom: '1.5rem' }}>
+                     <div style={{ textAlign: 'center' }}>
+                       <div style={{ fontSize: '2rem', fontWeight: '1000' }}>{merchant.validation_count || 0}</div>
+                       <div style={{ fontSize: '0.8rem', fontWeight: '900', color: '#B2AC88' }}>Validaciones Reales</div>
+                     </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                     <button 
+                        onClick={() => onUpdateStatus(merchant.id, 'active')}
+                        style={{ width: '100%', padding: '1rem', borderRadius: '14px', background: '#5F7D4A', color: 'white', border: 'none', fontWeight: '1000', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                     >
+                        <CheckCircle size={18} /> APROBAR COMERCIO
+                     </button>
+                     <button 
+                        onClick={() => onUpdateStatus(merchant.id, 'rejected')}
+                        style={{ width: '100%', padding: '1rem', borderRadius: '14px', background: 'transparent', color: '#EF4444', border: '2px solid #EF4444', fontWeight: '1000', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                     >
+                        <X size={18} /> RECHAZAR COMERCIO
+                     </button>
+                  </div>
                 </div>
              </div>
           </td>

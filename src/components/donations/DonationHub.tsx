@@ -32,12 +32,27 @@ export default function DonationHub({ forcedFrequency }: { forcedFrequency?: 'on
             const res = await fetch('/api/donations/create-intent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount, currency, frequency, paymentMethod: currency === 'ARS' ? 'mercadopago' : 'stripe' })
+                body: JSON.stringify({ amount, currency, frequency })
             });
             const data = await res.json();
-            if (currency === 'ARS' && data.initPoint) window.location.href = data.initPoint;
-            else if (currency === 'USD' && data.clientSecret) alert("Stripe Ready.");
-        } catch (err) { alert("Error."); } finally { setLoading(false); }
+            
+            if (!res.ok) {
+                alert(`Error del servidor: ${data.error || 'Causa desconocida'}`);
+                return;
+            }
+
+            if (currency === 'ARS' && data.initPoint) {
+                window.location.href = data.initPoint;
+            } else if (currency === 'USD' && data.url) {
+                window.location.href = data.url;
+            } else {
+                alert("El servidor no devolvió una URL de redirección válida.");
+            }
+        } catch (err: any) { 
+            alert(`Error de conexión: ${err.message}`); 
+        } finally { 
+            setLoading(false); 
+        }
     };
 
     const styles = {

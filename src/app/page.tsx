@@ -244,11 +244,15 @@ export default function Home() {
                 Alimnet acompaña la transición hacia un sistema alimentario más transparente, justo y cercano.
               </p>
               <div style={{ display: "flex", gap: "1.2rem", alignItems: 'center' }}>
-                 <Instagram size={22} color="var(--primary-dark)" style={{ cursor: 'pointer' }} />
-                 <Linkedin size={22} color="var(--primary-dark)" style={{ cursor: 'pointer' }} />
-                 <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "900", color: "var(--text-secondary)", fontSize: "0.8rem" }}>
+                 <a href="https://instagram.com/alimnet" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={{ color: 'var(--primary-dark)', display: 'flex' }}>
+                   <Instagram size={22} style={{ cursor: 'pointer' }} />
+                 </a>
+                 <a href="https://linkedin.com/company/alimnet" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style={{ color: 'var(--primary-dark)', display: 'flex' }}>
+                   <Linkedin size={22} style={{ cursor: 'pointer' }} />
+                 </a>
+                 <a href="mailto:info@alimnet.com" style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "900", color: "var(--text-secondary)", fontSize: "0.8rem", textDecoration: 'none' }}>
                     <Mail size={18} /> info@alimnet.com
-                 </div>
+                 </a>
               </div>
             </div>
             
@@ -267,8 +271,8 @@ export default function Home() {
             <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <h4 style={{ fontSize: "0.75rem", fontWeight: '1000', textTransform: "uppercase", letterSpacing: "0.1em", color: 'var(--primary-dark)' }}>Explorar</h4>
               <nav style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
-                <a href="#" className="footer-link-v3">Blog</a>
-                <a href="/comercial" className="footer-link-v3">Panel Comercial</a>
+                <a href="/blog" className="footer-link-v3">Blog</a>
+                <a href="/perfil" className="footer-link-v3">Panel Comercial</a>
                 <a href="/unirse" className="footer-link-v3">Registrar mi comercio</a>
               </nav>
             </div>
@@ -277,9 +281,9 @@ export default function Home() {
             <div className="footer-col" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <h4 style={{ fontSize: "0.75rem", fontWeight: '1000', textTransform: "uppercase", letterSpacing: "0.1em", color: 'var(--primary-dark)' }}>Legal</h4>
               <nav className="footer-nav-legal" style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
-                <a href="#" className="footer-link-v3">Privacidad</a>
-                <a href="#" className="footer-link-v3">Términos</a>
-                <a href="#" className="footer-link-v3">Cookies</a>
+                <a href="/privacidad" className="footer-link-v3">Privacidad</a>
+                <a href="/terminos" className="footer-link-v3">Términos</a>
+                <a href="/cookies" className="footer-link-v3">Cookies</a>
               </nav>
             </div>
           </div>

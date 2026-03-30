@@ -31,7 +31,7 @@ export default function OnboardingPage() {
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
         
       if (profile) {
@@ -80,13 +80,13 @@ export default function OnboardingPage() {
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          user_id: userId,
+          id: userId,
           first_name: firstName,
           last_name: lastName,
           locality: locality,
           dietary_preferences: preferences.join(', '),
           updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
+        }, { onConflict: 'id' });
         
       if (error) throw error;
       router.push('/explorar');

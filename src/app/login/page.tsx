@@ -12,18 +12,39 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  React.useEffect(() => {
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        console.log("Sesión existente detectada para:", session.user.id);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profile?.role === 'admin') router.push('/admin');
+        else if (profile?.role === 'merchant') router.push('/perfil');
+        else router.push('/mi-cuenta');
+      }
+    }
+    checkSession();
+  }, [router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      console.log("Iniciando login para:", email);
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (authError) {
+        console.error("Auth error:", authError);
         if (authError.message.includes('Invalid login')) {
           setError('Email o contraseña incorrectos. Intentá de nuevo.');
         } else {
@@ -33,22 +54,40 @@ export default function LoginPage() {
         return;
       }
 
+      console.log("Auth exitoso, buscando perfil para:", data.user?.id);
       if (data.user) {
-        // Check if user has a merchant profile or is a consumer
-        const { data: profile } = await supabase
+        // Redirección inteligente según rol
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', data.user.id)
           .single();
 
-        if (profile?.role === 'merchant') {
-          router.push('/perfil');
-        } else {
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          console.log("Redirigiendo a /mi-cuenta por error de perfil");
           router.push('/mi-cuenta');
+          return;
         }
+
+        console.log("Perfil encontrado, rol:", profile?.role);
+        if (profile?.role === 'admin') {
+          console.log("Redirigiendo a /admin (Hard redirect)");
+          window.location.href = '/admin';
+        } else if (profile?.role === 'merchant') {
+          console.log("Redirigiendo a /perfil (Hard redirect)");
+          window.location.href = '/perfil';
+        } else {
+          console.log("Redirigiendo a /mi-cuenta (Hard redirect)");
+          window.location.href = '/mi-cuenta';
+        }
+      } else {
+        console.warn("No hay usuario en la respuesta de auth");
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Error de conexión. Intentá de nuevo.');
+    } catch (err: any) {
+      console.error("Login catch error FATAL:", err);
+      setError('Error de conexión o configuración. Intentá de nuevo. Detalle: ' + err.message);
       setLoading(false);
     }
   };
