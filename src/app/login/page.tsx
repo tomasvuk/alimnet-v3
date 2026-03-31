@@ -54,9 +54,16 @@ export default function LoginPage() {
         return;
       }
 
-      console.log("Auth exitoso, buscando perfil para:", data.user?.id);
+      console.log("Auth exitoso para:", data.user?.email);
       if (data.user) {
-        // Redirección inteligente según rol
+        // BYPASS DIRECTO PARA ADMIN
+        if (data.user.email === 'info@alimnet.com') {
+          console.log("Admin detectado por email. Pase VIP -> /admin");
+          window.location.href = '/admin';
+          return;
+        }
+
+        // Redirección inteligente según rol para otros usuarios
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
