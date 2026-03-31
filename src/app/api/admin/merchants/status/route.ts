@@ -2,12 +2,17 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 // Usamos variables de entorno para el cliente de Supabase (Admin para poder saltar RLS si es necesario)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-
 export async function POST(req: Request) {
+  // Inicialización perezosa de Supabase Admin para evitar errores en el build time si no están las env vars
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseServiceKey) {
+    console.error('SUPABASE_SERVICE_ROLE_KEY no está configurada en el entorno');
+    return NextResponse.json({ error: 'Error de configuración del servidor' }, { status: 500 });
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
   try {
     const { merchantId, status } = await req.json();
 

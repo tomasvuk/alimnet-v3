@@ -14,7 +14,9 @@ export const getAdminClient = () => {
     }
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!serviceRoleKey || serviceRoleKey === 'placeholder') {
-        throw new Error('[SECURITY] SUPABASE_SERVICE_ROLE_KEY no está configurada');
+        console.error('⚠️ [SECURITY] SUPABASE_SERVICE_ROLE_KEY no está configurada. Las operaciones administrativas fallarán.');
+        // No lanzamos para no romper el build, pero el cliente no funcionará realmente
+        return createClient(supabaseUrl, 'missing-key');
     }
     return createClient(supabaseUrl, serviceRoleKey, {
         auth: {
