@@ -55,6 +55,14 @@ export default function LoginPage() {
       }
 
       console.log("Auth exitoso para:", data.user?.email);
+      if (data.session) {
+        // Establecer cookie manualmente para que el middleware la lea correctamente
+        const cookieName = 'sb-keagrrvtzmsukcmzxqrl-auth-token';
+        const cookieValue = encodeURIComponent(JSON.stringify(data.session));
+        document.cookie = `${cookieName}=${cookieValue}; path=/; max-age=3600; SameSite=Lax; Secure`;
+        console.log("Cookie de sesión establecida para middleware");
+      }
+
       if (data.user) {
         // BYPASS DIRECTO PARA ADMIN
         if (data.user.email === 'info@alimnet.com') {
