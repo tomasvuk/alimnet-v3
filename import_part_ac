@@ -1,0 +1,500 @@
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mora Organic', 'https://www.instagram.com/mora.organic/', NULL, '221 563-1432', '221 563-1432', 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Más rizomas', 'https://www.instagram.com/masrizomas/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Huerta orgánica Nueva Era', 'https://www.instagram.com/huerta_organica_nueva_era/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Orgánico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Biodemarg', 'https://www.instagram.com/biodemarg/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Cutura Alimentaria LP', 'https://www.instagram.com/culturaalimentarialp/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Los Teros Ecohuerta', 'https://www.instagram.com/lostereosecohuerta/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Agro Eco Moon', 'https://www.instagram.com/agroecomoon/?hl=es-la', 'https://bit.ly/3nz7zP7', NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Monarca Almacen organico', 'https://www.instagram.com/monarca.almacenorganico/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Más Rizomas', 'https://www.instagram.com/masrizomas/', NULL, '2215346770', '2215346770', 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('El Mercadito Gonnet', 'https://www.instagram.com/elmercadito.gonnet/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Ayni Coope', 'https://www.instagram.com/ayni_coope/', NULL, NULL, NULL, 'Abastecedor', ARRAY['Restaurante']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Somos Tierra Verde', 'https://www.instagram.com/somostierraverde/', NULL, NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Vuelta a las Tierra Huerta Familiar', 'https://www.instagram.com/vueltaalatierrahuertafamiliar/', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Nutrisano', 'https://www.instagram.com/nutrisanolp/?utm_medium=copy_link', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'La Plata, Gonnet, City Bell, Villa Elisa', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Nave Tierra Lobos', 'https://www.instagram.com/navetierralobos/', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Lobos', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Colonia UTT Luján', 'https://www.instagram.com/colonia_utt_lujan/', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], '⚠️ UTT Colonia', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Luján', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Buenazas de Luján', 'https://www.facebook.com/BuenezasDeLujan/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Luján', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Huerta el Origen', 'https://www.instagram.com/huertaeorigen/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Mercedes', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mercado Sustentable Mercedes', 'https://www.instagram.com/mercado_sustentable_mercedes/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Mercedes', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Pura Vida Mercedes', 'https://www.instagram.com/puravidamercedes/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Mercedes', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Planto Hortalizas Orgánicas', 'https://www.instagram.com/plantohortalizasorganicas/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Mercedes', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Vuelta al Campo', 'https://www.instagram.com/vuelta_al_campo/', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'San Nicolás', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Tapo Orgánico', 'https://www.instagram.com/tapo.organico/', NULL, NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'San Pedro', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Con los Pies en la Tierra', 'https://www.instagram.com/con.los.pies.en.la_tierra/', NULL, NULL, NULL, 'Abastecedor', ARRAY['Chef']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Tandil y alrededores', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('La Trattoria TL', 'https://www.instagram.com/latrattoriatl/', NULL, NULL, NULL, 'Abastecedor', ARRAY['Restaurante']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados']::TEXT[], ARRAY[]::TEXT[], '⚠️ Trattoria - puede ser Restaurante principal', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Trenque Lauquen', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mamushka Cocina Amor', 'https://www.instagram.com/mamushka.cocina.amor/?hl=es-la', NULL, NULL, NULL, 'Restaurante', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Trenque Lauquen', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Ñangapirí. Mercadito Soberano', 'https://www.instagram.com/niangapirimercadito/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Villa de Mayo, Malvinas Argentinas', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('VPV Nodo UTT', 'https://www.instagram.com/vpv.nodoutt/', NULL, '11 5771-4589', '11 5771-4589', 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], '⚠️ UTT Nodo', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Buenos Aires', 'Provincia', 'Villa Pueyrredón', NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Almacenata', 'https://www.instagram.com/almacenata/', 'www.almacenata.com.ar/', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Almacenutт', 'https://www.instagram.com/almacenutt/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Amazen Tienda Orgánica', 'https://www.instagram.com/almazentiendaorganica_/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Biodemarg', 'https://www.instagram.com/biodemarg/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Biomarket Orgánico', 'https://www.instagram.com/biomarketorganico/', 'https://biomarket.com.ar/', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Caracoles y Hormigas', 'https://www.instagram.com/caracolesyhormigas/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], 'Consultar zonas de entrega', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Come bien BA', 'https://www.instagram.com/comebienba/?hl=es-la', NULL, '11 6558-1710', '11 6558-1710', 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Cultivarte Orgánico', 'https://www.instagram.com/cultivarte_organico/', NULL, NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('El Bolsón Orgánico', 'https://www.instagram.com/elbolson_organico/', 'https://linktr.ee/Elbolsonorganico', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('El Cajoncito', 'https://www.instagram.com/el.cajoncito/', 'https://www.elcajoncito.org/', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('El Click Bolsones', 'https://www.instagram.com/elclickbolsones/', 'https://bit.ly/2ZtmwKf', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('El Galpón Agroecológico', 'https://www.instagram.com/elgalpon.agroecologico/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Huerta la Anunciación', 'https://www.instagram.com/huertalaanunciacion/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Indira Alimentos Conscientes', 'https://www.instagram.com/indiraalimentosconscientes/?hl=es-la', 'https://indiraalimentos.mitiendanube.com/', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Iriarte Verde', 'https://www.instagram.com/iriarteverde/?hl=es-la', 'http://iriarteverde.com.ar/', NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Jardín Orgánico', 'https://www.instagram.com/jardin_organico/', 'https://www.jardinorganico.com.ar/', NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Korindo Natural y Orgánico', 'https://www.instagram.com/korindo_natural_y_organico/', NULL, '4553 6122', '4553 6122', 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico','Sustentable']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('La Agroecológica', 'https://www.instagram.com/laagroecologica/', 'https://linktr.ee/laagroecologica', NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('La Chapanay', 'https://www.instagram.com/lachapanayorganiconatural/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('La Comunidad Orgánica', 'https://www.instagram.com/lacomunidadorganica/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('La Huerta Orgánica', 'https://www.instagram.com/lho.arg/', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Agroecológico','Orgánico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('La Orgánica Delivery', 'https://www.instagram.com/laorganicadelivery/', 'https://www.laorganicadelivery.com/', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Las Chapas Ecoagro', 'https://www.instagram.com/laschapas_ecoagro/?hl=es-la', NULL, '11 4148-8880', '11 4148-8880', 'Productor', ARRAY['Abastecedor']::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mapo Orgánicos', 'https://www.instagram.com/mapo_organicos/', 'https://linktr.ee/Mapo.organicos', NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Más Cerca es Más Justo', 'https://www.instagram.com/mascercaesmasjusto/', 'https://linktr.ee/mascercamasjusto', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Medio Campo Orgánico', 'https://www.instagram.com/mediocampo.organico/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Agroecológico','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mercado Bonpland', 'https://instagram.com/mercado.bonpland', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], 'Espacio de comercialización de la Economía Solidaria', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037, -58.3816, true);
+END 15142;
+DO 15142
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mercado Punto Verde', 'https://www.instagram.com/mercadopuntoverde/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')

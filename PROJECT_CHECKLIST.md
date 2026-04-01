@@ -14,17 +14,20 @@ Este checklist marca la ruta crítica para el paso de "Diseño y Prototipado" a 
 - [x] **[FLUJOS]** Mapear cada CLICK (Auth, Explorar, Sostener). *(Implementado en código)*
 - [x] **[SUPABASE]** Finalizar integración de Auth (Login/Registro real). *(Funcional)*
 - [x] **[DATOS REALES]** Migración: Borrado de datos ficticios y carga de los primeros comerciantes reales curados. *(Herramienta de importación en Admin Hub lista)*
-- [x] **[MAPA]** Conectar el mapa de "Explorar" a la data real de Supabase (Puntos vivos). *(Conectado)*
+- [x] **[MAPA]** Conectar el mapa de "Explorar" a la data real de Supabase (Puntos vivos). *(Conectado y Nacionalizado con 234 puntos)*
 - [x] **[SOSTENER]** Implementar el flujo de checkout/soporte para la red. *(Stripe y Mercado Pago integrados)*
 
 ### 🚀 MISIÓN 3: DESPLIEGUE A PRODUCCIÓN ([www.alimnet.com](http://www.alimnet.com))
 - [x] **[DOMINIO]** Configuración de DNS en Hostinger -> Vercel. *(Activo y funcionando)*
 - [x] **[SSL/SEGURIDAD]** Verificación de certificados y seguridad del dominio final. *(Verificado)*
+- [x] **[AUTH BRANDING]** Configuración de marca en Google Auth (ALIMNET.com). *(Configurado)*
 - [ ] **[SEO]** Optimización de Meta-tags para el lanzamiento Friends & Family.
 
 ### 🛠️ MISIÓN 4: ALIMNET CONTROL CENTER (Admin Dashboard)
 - [x] **[SEGURIDAD]** Setear Roles y RLS en Supabase (Admin vs User vs Merchant). *(Esquema de profiles con roles implementado)*
-- [ ] **[GESTIÓN]** Módulo de Aprobación de Comercios (Aprobar/Desaprobar sugerencias de usuarios).
+- [x] **[GESTIÓN]** Módulo de Aprobación y Edición de Comercios (Admin Hub). *(Implementado: Modal de edición + Map search intro)*
+- [x] **[MIEMBROS]** Sistema de roles para comercios (Dueño y Miembros). *(Antes 'Socios', ahora 'Miembros')*
+- [x] **[MERCHANT DASHBOARD]** Panel privado para que el comercio gestione su info. *(Implementado en `/comercio/dashboard`)*
 - [ ] **[VERIFICACIÓN]** Sistema de validación de "Proyectos Cuidados" (Gestión de pedidos de verificación).
 - [ ] **[CENTRAL DE MENSAJES]** Log de consultas, mensajes del chatbot y contacto directo.
 - [ ] **[ANALÍTICA]** Vista rápida de salud de la red (Usuarios registrados, Comercios activos). *(KPIs básicos implementados en `AdminDashboard`)*
@@ -37,7 +40,7 @@ Este checklist marca la ruta crítica para el paso de "Diseño y Prototipado" a 
 
 ---
 
-### 📊 Estado Actual: 55% Completado
-Hemos avanzado significativamente en la Misión 2, Misión 3 (Dominio real) y en la infraestructura de pagos/auth. El foco ahora debe ser la **Misión 4 (Operaciones)**.
+### 📊 Estado Actual: 85% Completado
+¡Gran avance! Nacionalizamos la red, profesionalizamos el login y entregamos el **Dashboard de Comercio** para que cada emprendimiento gestione su propia info y miembros. El foco final es la curación (Misión 4) y el SEO final.
 
-**Última actualización:** 30 de marzo de 2026.
+**Última actualización:** 1 de abril de 2026.

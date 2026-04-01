@@ -1,0 +1,500 @@
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mercado Territorial', 'https://www.instagram.com/mercado.territorial/?hl=en', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mercado Transformador', 'https://www.instagram.com/mercadotransformador/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Punto Orgánico', 'https://www.instagram.com/punto.organico/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Sanas Costumbres', 'https://www.instagram.com/sanas_costumbres/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Semilleros de Estrellas', 'https://www.instagram.com/semillerodeestrellas_/', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], '⚠️ Semilleros', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Sinergía Ecoalmacen', 'https://www.instagram.com/sinergia.ecoalmacen/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Somos Nueva Tierra', 'https://www.instagram.com/somosnuevatierra/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Sumak Coooperativa de Consumo', 'https://www.instagram.com/sumakalmacencooperativo/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Tallo Verde', 'https://www.instagram.com/talloverde.organico', 'https://www.talloverde.com/', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Tierra Orgánica', 'https://www.instagram.com/tierraorganicaarg/', 'https://linktr.ee/tierraorganicaarg', NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Ciudad Autónoma de Buenos Aires', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Cultivarte Orgánico', 'https://www.instagram.com/cultivarte_organico/', NULL, NULL, NULL, 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Chaco', NULL, 'Resistencia', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Alimentos con el Alma', 'https://www.instagram.com/alimentos_con_alma/', 'https://linktr.ee/AlimentosconAlma', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Chubut', NULL, 'Rawson, Gaiman, Trelew, Playa Unión, Puerto Madryn', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mercado de la Tierra Amboy', 'https://www.instagram.com/mercadodelatierra.amboy/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Amboy', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Yuyupa Córdoba', 'https://www.instagram.com/yuyupa_cordoba/?hl=es-la', 'https://linktr.ee/yuyupacordoba', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Arguello', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Bioterra Orgánicos', 'https://www.instagram.com/bioterra.organicos/', NULL, '3576 65-1776', '3576 65-1776', 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Arroyito', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Feria Agroecológica CBA', 'https://www.instagram.com/feriaagroecologicacba/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Córdoba Capital', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Gratiam Orgánicos', 'https://www.instagram.com/organicos_gratiam/?hl=es', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Córdoba Capital', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Orgánicos de mi tierra', 'https://www.instagram.com/Organicosdemitierra/', NULL, '0351 515-9199', '0351 515-9199', 'Abastecedor', ARRAY['Productor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Córdoba Capital', 'Rafael Núñez 5824 / Ayacucho 486 / Urquiza 2501', 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Y otras yerbas', 'https://www.instagram.com/_y_otras_yerbas_/?hl=es-la', NULL, '351 701-2770', '351 701-2770', 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Córdoba', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Paisano Almacen', 'https://www.instagram.com/paisanoalmacen/?hl=es-la', NULL, '3513165968', '3513165968', 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Córdoba Capital - Bario Alta Córdoba', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Ramona mercado autogestivo', 'https://www.instagram.com/ramonamercadoautogestivo/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras']::TEXT[], ARRAY[]::TEXT[], 'Dietética, no vi bolsón', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Córdoba Capital - Barrio Güemes', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Wahe Guru Sustentable', 'https://www.instagram.com/waheguru.sustentable/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Embalse de Calambuchita', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Destino Verdes', 'https://www.instagram.com/destinoverdes/', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Los Reartes, Valle de Calmbuchita', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Reina Mora', 'https://www.instagram.com/reina.mora.natural/', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Nono, Traslsierra', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Valle Sagrado Chacra Agroecológica', 'https://www.instagram.com/vallesagrado_chacragroecologic/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Potrero de Garay', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Productor Lucamaría', 'https://www.instagram.com/productoralucamaria/?hl=es-la', NULL, '351 226-5403', '351 226-5403', 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Río Segundo, Río Tercero, Oncativo, Pilar y Laguna Larga', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Huerta Las Abejas', 'https://www.instagram.com/huerta_las_abejas/', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Valle de Punilla', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mascabo Organico', 'https://www.instagram.com/mascaborganicos/', NULL, '3512410852', '3512410852', 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Orgánico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Villa Allende, Zona Norte, Sierras Chicas hasta Unquillo', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('All Natural VGB', 'https://www.instagram.com/allnaturalvgb/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Villa General Belgrano', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Feria Agroecológica VGB', 'https://www.instagram.com/feriaagroecologicavgb/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Villa General Belgrano, Valle de Calambuchita', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('De La Pacha Huerto', 'https://www.instagram.com/delapachahuerto/', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Plantas medicinales']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Córdoba', NULL, 'Villa María', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Subtropical Vivarium', 'https://www.instagram.com/subtropical_vivarium/', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], '⚠️ Vivarium - revisar', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Corrientes', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Naturveda Corrientes', 'https://www.instagram.com/naturvedacorrientes/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados','Verduras']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Corrientes', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Kefir Skinny', 'https://www.instagram.com/kefirskinny/', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Elaborados','Lácteos']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Corrientes', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Skinny Waffles Gualeguaychu', 'https://www.instagram.com/skinnywafflesgualeguaychu/?hl=es-la', NULL, NULL, NULL, 'Restaurante', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Elaborados']::TEXT[], ARRAY[]::TEXT[], '⚠️ Waffles - puede ser solo Restaurante', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Entre Ríos', NULL, 'Guleguaychu', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Alimenta Paraná', 'https://www.instagram.com/alimentaparana/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Entre Ríos', NULL, 'Paraná', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Agroholon', 'https://www.instagram.com/agroholon/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Jujuy', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Verde Lechuza - huerta agroecológica', 'https://www.instagram.com/verdelechuza/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], 'Plantines agroecológicos y eventualmente frutas y verduras', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'La Pampa', NULL, 'Toay', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Pampa Fresca', 'https://www.instagram.com/pampa.fresca/?hl=en', NULL, '2954225018', '2954225018', 'Productor', ARRAY['Abastecedor']::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], 'Hacen envíos', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'La Pampa', NULL, 'Santa Rosa, Toay, Gral Acha', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Alora Saludable', 'https://www.instagram.com/alora.saludable/', NULL, '2954 809359', '2954 809359', 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], 'Hacen envíos', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'La Pampa', NULL, 'Santa Rosa', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Brote Popular', 'https://www.instagram.com/brotepopular/?hl=en', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], 'Se retira en la zona del hospital Lucio Molas', false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'La Pampa', NULL, 'Santa Rosa', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Kale Agroecológicos', 'https://www.instagram.com/kaleagroecologicos/?hl=es-la', NULL, NULL, NULL, 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Mendoza', NULL, 'Gran Mendoza', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Vida Feria', 'https://www.instagram.com/vidaferiacano/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Mendoza', NULL, 'Mendoza Capital', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Reparto Alegría', 'https://www.instagram.com/reparto_alegria/?hl=es-la', 'https://linktr.ee/repartoalegria', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Mendoza', NULL, 'Mendoza Ciudad y Gran Mendoza', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Wanka Saludable', 'https://www.instagram.com/wankasaludable/?hl=es-la', NULL, '261 525-6270', '261 525-6270', 'Abastecedor', ARRAY[]::TEXT[], 'Solo Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Mendoza', NULL, 'Rivadavia, San Martin y Junín, Godoy Cruz, Maipú, Lujan, Las Heras, Guaymallen', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mistica Natural', 'https://www.instagram.com/misticanatural.arg/?hl=es-la', 'https://linktr.ee/misticanatural.arg', NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Elaborados','Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Mendoza', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Divina Naturaleza - finca dina', 'https://www.instagram.com/finca.dina/?hl=es-la', NULL, '261 699-9814', '261 699-9814', 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Sustentable']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Mendoza', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Bio Feria', 'https://www.instagram.com/bioferia.mendoza/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Mendoza', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Granja La Lechuza', 'https://www.instagram.com/granjalalechuza/?hl=es-la', 'https://granjalalechuza.com/', NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas','Huevos']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Misiones', NULL, 'Oberá', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Yvy Tierra Almacen', 'https://www.instagram.com/yvytierra.almacen/', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Misiones', NULL, 'Posadas', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Janus', 'https://www.instagram.com/janusbio/?hl=es', NULL, '2995711049', '2995711049', 'Productor', ARRAY['Abastecedor']::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Neuquén', NULL, 'Contralmirante Cordero', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Egaleco, Canasta agroecológica', 'https://www.instagram.com/egalecosma/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Sustentable']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Neuquén', NULL, 'San Martín de los Andes', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Huerta Organica Flor Dorada', 'https://www.instagram.com/huertaorganicaflordorada/?hl=es-la', 'https://madmimi.com/s/9a8e611', NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico','Orgánico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Neuquén', NULL, NULL, NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Mercado Comunitario Bariloche', 'https://www.instagram.com/mercado.comunitario.bariloche/?hl=es-la', NULL, NULL, NULL, 'Abastecedor', ARRAY[]::TEXT[], 'Solo Retiro', ARRAY['Sin agroquímicos']::TEXT[], ARRAY['Verduras','Frutas','Elaborados']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Río Negro', NULL, 'Bariloche', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$
+DECLARE m_id UUID;
+BEGIN
+  INSERT INTO merchants (name, instagram_url, website_url, phone, whatsapp, type, types_secondary, modalidad, quality, products, certifications, admin_notes, verified, claimed, contact_status, created_by_type, status)
+  VALUES ('Huerta Amaranthus', 'https://www.instagram.com/huerta.amarantus/', NULL, NULL, NULL, 'Productor', ARRAY[]::TEXT[], 'Retiro y Entrega', ARRAY['Sin agroquímicos','Agroecológico']::TEXT[], ARRAY['Verduras','Frutas']::TEXT[], ARRAY[]::TEXT[], NULL, false, false, 'sin_contacto', 'admin', 'active')
+  RETURNING id INTO m_id;
+  INSERT INTO locations (merchant_id, country, province, district, locality, address, location_type, lat, lng, is_primary)
+  VALUES (m_id, 'Argentina', 'Río Negro', NULL, 'El Bolsón, Bariloche', NULL, 'fixed', -34.6037 + (random() - 0.5) * 0.1, -58.3816 + (random() - 0.5) * 0.1, true);
+END $m$;
+DO $m$

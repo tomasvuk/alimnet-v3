@@ -146,6 +146,24 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onI
                       <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{p.category}</span>
                       <br />
                       <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{p.city_zone}</span>
+                      <a 
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${p.location_lat},${p.location_lng}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-block',
+                          marginTop: '8px',
+                          padding: '6px 12px',
+                          background: '#5F7D4A',
+                          color: 'white',
+                          borderRadius: '8px',
+                          textDecoration: 'none',
+                          fontSize: '0.75rem',
+                          fontWeight: '900'
+                        }}
+                      >
+                        📍 Cómo llegar
+                      </a>
                     </div>
                   </Popup>
                 </Marker>

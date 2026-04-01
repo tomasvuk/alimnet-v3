@@ -962,18 +962,22 @@ export default function ExplorarPage() {
                   }
                 }
               }}
-              providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => ({
-                id: m.id,
-                name: m.name,
-                category: m.type,
-                type: m.type,
-                location_lat: m.locations?.[0]?.lat || -34.4586,
-                location_lng: m.locations?.[0]?.lng || -58.9142,
-                is_exact_location: true,
-                city_zone: m.locations?.[0]?.locality || 'Zona Norte'
-              }))} 
-              center={[-34.4586, -58.9142]} 
-              zoom={11}
+              providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => {
+                // Seleccionar la ubicación primaria o la primera disponible
+                const loc = m.locations?.find((l: any) => l.is_primary) || m.locations?.[0];
+                return {
+                  id: m.id,
+                  name: m.name,
+                  category: m.type,
+                  type: m.type,
+                  location_lat: loc?.lat || -34.6037,
+                  location_lng: loc?.lng || -58.3816,
+                  is_exact_location: !!loc?.lat,
+                  city_zone: loc?.locality || 'Argentina'
+                };
+              })} 
+              center={[-34.6037, -58.3816]}
+              zoom={isMobile ? 10 : 11}
             />
           )}
         </section>
