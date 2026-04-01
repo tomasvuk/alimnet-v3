@@ -86,6 +86,7 @@ export default function AdminDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'usuarios' | 'pagos'>('comercios');
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
@@ -215,8 +216,9 @@ export default function AdminDashboard() {
         pendingValidations: pCount || 0, // Ahora basado en verificaciones pendientes
         totalUsers: uCount || 0
       });
-    } catch (e) {
-      console.error(e);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Error desconocido al cargar datos");
     }
     setLoading(false);
   };
@@ -481,6 +483,16 @@ export default function AdminDashboard() {
               <TabItem active={activeTab === 'pendientes'} label="Validaciones" onClick={() => setActiveTab('pendientes')} count={stats.pendingValidations} />
               <TabItem active={activeTab === 'pagos'} label="Pagos" onClick={() => { setActiveTab('pagos'); fetchDonations(); }} count={donations.length || undefined} />
            </div>
+
+           {error && (
+             <div style={{ background: '#FEE2E2', color: '#B91C1C', padding: '1.2rem', borderRadius: '18px', marginBottom: '2rem', fontWeight: '1000', border: '1.5px solid #FECACA', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                <div>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.8, fontWeight: '700' }}>DETALLE TÉCNICO DEL ERROR:</div>
+                  <div style={{ fontSize: '1rem' }}>{error}</div>
+                </div>
+             </div>
+           )}
 
            {activeTab === 'pagos' ? (
               <div style={{ overflowX: 'auto' }}>
