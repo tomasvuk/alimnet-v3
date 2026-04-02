@@ -18,7 +18,7 @@ import {
   Users,
   Store,
   ShieldCheck,
-  Mail,
+  Mail, AlertTriangle, Check,
   X,
   CreditCard,
   DollarSign,
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalMerchants: 0,
     totalLocations: 0,
-    pendingValidations: 0,
+    pendingApprovals: 0,
     totalUsers: 0
   });
   
@@ -186,12 +186,22 @@ export default function AdminDashboard() {
     try {
       const { data: mData } = await supabase
         .from('merchants')
-        .select('*, locations(*)')
+        .select(`
+          *, 
+          locations(*), 
+          merchant_validations(
+            id, 
+            user_id, 
+            profiles(full_name)
+          )
+        `)
         .order('created_at', { ascending: false });
       
       const processedMerchants = (mData || []).map(m => ({
         ...m,
-        province: m.locations?.[0]?.province || 'Sin Provincia'
+        province: m.locations?.[0]?.province || 'Sin Provincia',
+        validationsCount: (m.merchant_validations || []).length,
+        v_users: (m.merchant_validations || []).map((v: any) => v.profiles?.full_name || 'Anónimo')
       }));
       
       setMerchants(processedMerchants);
@@ -205,9 +215,9 @@ export default function AdminDashboard() {
       const { data: msgData } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
       setMessages(msgData || []);
 
-      const { count: mCount, error: mErr } = await supabase.from('merchants').select('id', { count: 'exact', head: false });
+      const { count: mCount, error: mErr } = await supabase.from('merchants').select('id', { count: 'exact', head: false }).eq('status', 'active');
       const { count: lCount, error: lErr } = await supabase.from('locations').select('id', { count: 'exact', head: false });
-      const { count: pCount, error: pErr } = await supabase.from('merchants').select('id', { count: 'exact', head: false }).eq('verified', false);
+      const { count: pCount, error: pErr } = await supabase.from('merchants').select('id', { count: 'exact', head: false }).eq('status', 'pending');
       const { count: uCount, error: uErr } = await supabase.from('profiles').select('id', { count: 'exact', head: false });
 
       if (mErr || lErr || pErr || uErr) {
@@ -218,7 +228,7 @@ export default function AdminDashboard() {
       setStats({
         totalMerchants: mCount || 0,
         totalLocations: lCount || 0,
-        pendingValidations: pCount || 0, // Ahora basado en verificaciones pendientes
+        pendingApprovals: pCount || 0, // Comercios status='pending'
         totalUsers: uCount || 0
       });
     } catch (err: any) {
@@ -472,9 +482,9 @@ export default function AdminDashboard() {
 
         {/* KPIs REALES */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-           <KPICard label="Comercios" value={stats.totalMerchants} trend="+0%" icon={<Store size={22} />} color="#5F7D4A" />
-           <KPICard label="Puntos de Red" value={stats.totalLocations} trend="Zonas" icon={<MapPin size={22} />} color="#2D3A20" />
-           <KPICard label="Validaciones" value={stats.pendingValidations} trend="Pendientes" icon={<Clock size={22} />} color="#B2AC88" />
+           <KPICard label="Comercios" value={stats.totalMerchants} trend="Activos" icon={<Store size={22} />} color="#5F7D4A" />
+           <KPICard label="Puntos de Red" value={stats.totalLocations} trend="En Mapa" icon={<MapPin size={22} />} color="#2D3A20" />
+           <KPICard label="Por Aprobar" value={stats.pendingApprovals} trend="Nuevos" icon={<Clock size={22} />} color="#B2AC88" />
            <KPICard label="Usuarios" value={stats.totalUsers} trend="Activos" icon={<Users size={22} />} color="#5F7D4A" />
         </div>
 
@@ -485,7 +495,7 @@ export default function AdminDashboard() {
               <TabItem active={activeTab === 'comercios'} label="Comercios" onClick={() => setActiveTab('comercios')} count={stats.totalMerchants} />
               <TabItem active={activeTab === 'usuarios'} label="Usuarios" onClick={() => { setActiveTab('usuarios'); fetchUsers(); }} count={stats.totalUsers} />
               <TabItem active={activeTab === 'mensajes'} label="Mensajes" onClick={() => setActiveTab('mensajes')} count={messages.filter(m => m.status === 'unread').length} />
-              <TabItem active={activeTab === 'pendientes'} label="Validaciones" onClick={() => setActiveTab('pendientes')} count={stats.pendingValidations} />
+              <TabItem active={activeTab === 'pendientes'} label="Por Aprobar" onClick={() => setActiveTab('pendientes')} count={stats.pendingApprovals} />
               <TabItem active={activeTab === 'pagos'} label="Pagos" onClick={() => { setActiveTab('pagos'); fetchDonations(); }} count={donations.length || undefined} />
            </div>
 
@@ -631,7 +641,7 @@ export default function AdminDashboard() {
                       <tr>
                         <td colSpan={5} style={{ padding: '6rem', textAlign: 'center' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                            <Mail size={48} color="#F0F4ED" />
+                            <Mail, AlertTriangle, Check size={48} color="#F0F4ED" />
                             <p style={{ color: '#2D3A20', fontWeight: '1000', fontSize: '1.2rem', margin: 0 }}>La central de mensajes está vacía.</p>
                           </div>
                         </td>
@@ -962,6 +972,16 @@ function TabItem({ active, label, onClick, count }: any) {
   );
 }
 
+function checkIntegrity(m: any) {
+  const missing = [];
+  if (!m.description) missing.push('Descripción');
+  if (!m.phone) missing.push('Teléfono');
+  if (!m.instagram) missing.push('Instagram');
+  if (!m.website) missing.push('Web');
+  if (!m.type) missing.push('Tipo');
+  return missing;
+}
+
 function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateContactStatus, onToggleVerified, onOpenEdit }: any) {
   return (
     <>
@@ -977,13 +997,37 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
         <td style={{ padding: '1.2rem 1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ fontWeight: '1000', color: '#2D3A20', fontSize: '1.05rem' }}>{merchant.name}</div>
-            {merchant.verified ? (
-              <ShieldCheck size={14} color="#5F7D4A" fill="#5F7D4A10" />
+            
+            {/* SELLO DE TIERRA (OFICIAL/VERIFICADO) */}
+            {merchant.owner_id ? (
+              <div title="Comercio Ofical / Verificado (Sello Alimnet)" style={{ 
+                background: '#D2B48C', 
+                color: '#5C4033', 
+                padding: '4px', 
+                borderRadius: '12px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                boxShadow: '0 2px 6px rgba(92, 64, 51, 0.2)',
+                border: '1.5px solid #BC8F8F',
+                transform: 'rotate(-5deg)'
+              }}>
+                <ShieldCheck size={14} strokeWidth={3} />
+              </div>
             ) : (
-              <div style={{ fontSize: '0.6rem', background: '#FEF3C7', color: '#D97706', padding: '2px 6px', borderRadius: '4px', fontWeight: '900' }}>COMUNITARIO</div>
+                <span title="Cargado por la Comunidad (Sin Dueño)" style={{ fontSize: '0.65rem', background: '#FEF3C7', color: '#D97706', padding: '3px 8px', borderRadius: '6px', fontWeight: '950', letterSpacing: '0.02em' }}>COMUNITARIO</span>
             )}
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#AAA', marginTop: '2px' }}>Actualizado: {new Date(merchant.created_at).toLocaleDateString()}</div>
+          <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+             {checkIntegrity(merchant).length > 0 ? (
+               <span title={`Falta: ${checkIntegrity(merchant).join(', ')}`} style={{ fontSize: '0.6rem', color: '#EF4444', fontWeight: '900', background: '#FEE2E2', padding: '2px 6px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                 <AlertTriangle size={10} /> INFO FALTANTE ({checkIntegrity(merchant).length})
+               </span>
+             ) : (
+               <span style={{ fontSize: '0.6rem', color: '#5F7D4A', fontWeight: '900', background: '#DCFCE7', padding: '2px 6px', borderRadius: '4px' }}>✓ INFO COMPLETA</span>
+             )}
+             <span style={{ fontSize: '0.65rem', color: '#AAA', fontWeight: '700' }}>Actualizado: {new Date(merchant.created_at).toLocaleDateString()}</span>
+          </div>
         </td>
         <td style={{ padding: '1.2rem 1rem' }}>
            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '850', color: '#2D3A20', fontSize: '0.85rem' }}>
@@ -1071,7 +1115,7 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
                 <div>
                   <div style={{ background: 'white', padding: '1.5rem', borderRadius: '25px', border: '1px solid #E4EBDD', marginBottom: '1.5rem' }}>
                      <div style={{ textAlign: 'center' }}>
-                       <div style={{ fontSize: '2rem', fontWeight: '1000' }}>{merchant.validation_count || 0}</div>
+                       <div style={{ fontSize: '2rem', fontWeight: '1000' }}>{merchant.validationsCount || 0}</div>
                        <div style={{ fontSize: '0.8rem', fontWeight: '900', color: '#B2AC88' }}>Validaciones Reales</div>
                      </div>
                   </div>
