@@ -344,10 +344,14 @@ export default function AdminDashboard() {
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5F7D4A', fontWeight: '900', fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}><ShieldCheck size={18} /> Central Admin</div>
-            <h1 style={{ fontSize: '2.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>Alimnet Central Report</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5F7D4A', fontWeight: '900', fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}><ShieldCheck size={18} /> Central de Operaciones</div>
+            <h1 style={{ fontSize: '2.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>Alimnet Control Center</h1>
+            <p style={{ color: '#B2AC88', fontWeight: 800, margin: '8px 0 0 0', fontSize: '1.1rem' }}>Gestionando la red soberana v3.</p>
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
+            <button style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.9rem 1.8rem', background: 'white', borderRadius: '16px', color: '#2D3A20', fontWeight: '1000', border: '1.5px solid #F0F4ED', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+              <BarChart3 size={20} /> Reporte
+            </button>
             <button onClick={() => setShowImportModal(true)} style={{ padding: '0.9rem 1.8rem', background: '#5F7D4A', borderRadius: '16px', color: 'white', fontWeight: '900', border: 'none', cursor: 'pointer' }}>+ Importar Excel</button>
           </div>
         </div>
