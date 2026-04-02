@@ -157,7 +157,7 @@ export default function AdminDashboard() {
     setUsersLoading(true);
     const { data } = await supabase
       .from('profiles')
-      .select('*, validations(count), favorites(count), merchant_members(count), merchants!created_by(count), user_saved_merchants(count)')
+      .select('*')
       .order('created_at', { ascending: false });
     
     // Calcular actividad sugerida por el usuario
@@ -303,13 +303,12 @@ export default function AdminDashboard() {
 
   const updateMerchantStatus = async (merchantId: string, status: 'active' | 'rejected') => {
     try {
-      const res = await fetch('/api/admin/merchants/status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchantId, status })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const { error: patchError } = await supabase
+        .from('merchants')
+        .update({ status })
+        .eq('id', merchantId);
+
+      if (patchError) throw patchError;
 
       // Actualizar estado local
       setMerchants(prev => prev.map(m => m.id === merchantId ? { ...m, status } : m));
@@ -641,7 +640,7 @@ export default function AdminDashboard() {
                       <tr>
                         <td colSpan={5} style={{ padding: '6rem', textAlign: 'center' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                            <Mail, AlertTriangle, Check size={48} color="#F0F4ED" />
+                            <Mail size={48} color="#F0F4ED" />
                             <p style={{ color: '#2D3A20', fontWeight: '1000', fontSize: '1.2rem', margin: 0 }}>La central de mensajes está vacía.</p>
                           </div>
                         </td>
@@ -1000,22 +999,21 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
             
             {/* SELLO DE TIERRA (OFICIAL/VERIFICADO) */}
             {merchant.owner_id ? (
-              <div title="Comercio Ofical / Verificado (Sello Alimnet)" style={{ 
-                background: '#D2B48C', 
-                color: '#5C4033', 
+              <div title="Comercio Oficial / Verificado (Sello Alimnet)" style={{ 
+                background: '#A67C00', 
+                color: 'white', 
                 padding: '4px', 
-                borderRadius: '12px', 
+                borderRadius: '8px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                boxShadow: '0 2px 6px rgba(92, 64, 51, 0.2)',
-                border: '1.5px solid #BC8F8F',
-                transform: 'rotate(-5deg)'
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                transform: 'rotate(-3deg)'
               }}>
                 <ShieldCheck size={14} strokeWidth={3} />
               </div>
             ) : (
-                <span title="Cargado por la Comunidad (Sin Dueño)" style={{ fontSize: '0.65rem', background: '#FEF3C7', color: '#D97706', padding: '3px 8px', borderRadius: '6px', fontWeight: '950', letterSpacing: '0.02em' }}>COMUNITARIO</span>
+                <span title="Cargado por la Comunidad" style={{ fontSize: '0.65rem', background: '#FEF3C7', color: '#B45309', padding: '3px 8px', borderRadius: '6px', fontWeight: '950' }}>COMUNITARIO</span>
             )}
           </div>
           <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
@@ -1039,13 +1037,13 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
                : `${merchant.locations?.length || 0} puntos de red`}
            </div>
         </td>
-        <td style={{ padding: '1.2rem 1rem' }}>
+         <td style={{ padding: '1.2rem 1rem' }}>
            <button 
              onClick={() => onToggleVerified(merchant.id, merchant.verified)}
              style={{ 
                border: 'none', 
-               background: merchant.verified ? '#5F7D4A15' : '#F0F4ED', 
-               color: merchant.verified ? '#5F7D4A' : '#888',
+               background: merchant.status === 'active' ? '#5F7D4A15' : '#F0F4ED', 
+               color: merchant.status === 'active' ? '#5F7D4A' : '#888',
                padding: '6px 12px',
                borderRadius: '10px',
                fontSize: '0.75rem',
@@ -1056,8 +1054,8 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
                gap: '6px'
              }}
            >
-             {merchant.verified ? <CheckCircle size={14} /> : <div style={{width:14,height:14,borderRadius:'50%',border:'2px solid currentColor'}} />}
-             {merchant.verified ? 'VERIFICADO' : 'PENDIENTE'}
+             {merchant.status === 'active' ? <CheckCircle size={14} /> : <div style={{width:14,height:14,borderRadius:'50%',border:'2px solid currentColor'}} />}
+             {merchant.status === 'active' ? 'ACTIVO' : 'PENDIENTE'}
            </button>
         </td>
         <td style={{ padding: '1.2rem 1rem' }}>
