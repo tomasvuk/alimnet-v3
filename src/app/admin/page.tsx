@@ -151,7 +151,6 @@ export default function AdminDashboard() {
       const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
       if (error) throw error;
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
-      fetchData(); // Refresh counts
     } catch (e: any) {
       alert(`Error al actualizar rol: ${e.message}`);
     }
@@ -173,7 +172,6 @@ export default function AdminDashboard() {
   const fetchUsers = async () => {
     setUsersLoading(true);
     try {
-      // Intentamos traer contadores de actividad
       const { data, error } = await supabase
         .from('profiles')
         .select('*, merchants:merchants(count), favorites:favorites(count), user_saved_merchants:user_saved_merchants(count), validations:validations(count)')
@@ -202,17 +200,32 @@ export default function AdminDashboard() {
     setUsersLoading(false);
   };
 
+  const fetchDonations = async () => {
+    setDonationsLoading(true);
+    try {
+      const { data } = await supabase
+        .from('user_donations')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      setDonations(data || []);
+    } catch (e) {
+      console.error("Error fetching donations:", e);
+    }
+    setDonationsLoading(false);
+  };
+
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      // MERCHANTS - Quitamos join inexistente para evitar errores
+      // 1. MERCHANTS
       const { data: mData, error: mError } = await supabase
         .from('merchants')
         .select('*, locations(*)')
         .order('created_at', { ascending: false });
       
-      if (mError) throw mError;
+      if (mError) { console.error("Error fetching merchants:", mError); throw mError; }
       
       const processedMerchants = (mData || []).map(m => ({
         ...m,
@@ -220,19 +233,20 @@ export default function AdminDashboard() {
         validationsCount: m.validation_count || 0
       }));
       
+      console.log("Processed Merchants:", processedMerchants.length);
       setMerchants(processedMerchants);
 
-      // PROVINCES / TYPES
+      // 2. PROVINCES / TYPES
       const uniqueProvinces = Array.from(new Set(processedMerchants.map(m => m.province).filter(Boolean))) as string[];
       const uniqueTypes = Array.from(new Set(processedMerchants.map(m => m.type).filter(Boolean))) as string[];
       setProvinces(uniqueProvinces.sort());
       setTypes(uniqueTypes.sort());
 
-      // MESSAGES
+      // 3. MESSAGES
       const { data: msgData } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
       setMessages(msgData || []);
 
-      // STATS
+      // 4. STATS (Separados para que uno no rompa todo)
       const { count: mCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('status', 'active');
       const { count: lCount } = await supabase.from('locations').select('id', { count: 'exact', head: true });
       const { count: pCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('status', 'pending');
@@ -244,8 +258,12 @@ export default function AdminDashboard() {
         pendingApprovals: pCount || 0,
         totalUsers: uCount || 0
       });
+      
+      // Initial Load of Users
+      await fetchUsers();
+      
     } catch (err: any) {
-      console.error("Fetch error:", err);
+      console.error("Global fetch error:", err);
       setError(err.message || "Error al cargar datos");
     }
     setLoading(false);
@@ -376,7 +394,6 @@ export default function AdminDashboard() {
                       <td style={{padding:20}}>
                         <div style={{fontWeight:1000, color:'#2D3A20'}}>{u.full_name || 'Sin Nombre'}</div>
                         <div style={{fontSize:'0.75rem', color:'#B2AC88', fontWeight:800}}>{u.email || 'No email synced'}</div>
-                        <div style={{fontSize:'0.65rem', color:'#DDD'}}>ID: {u.id.substring(0,8)}...</div>
                       </td>
                       <td style={{padding:20}}>
                         <select value={u.role} onChange={(e)=>updateUserRole(u.id, e.target.value)} style={{padding:'8px 12px', borderRadius:10, border:'1.5px solid #F0F4ED', background:'#F8F9F5', fontWeight:950, fontSize:'0.75rem'}}>
@@ -391,9 +408,9 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{padding:20}}>
                          <div style={{display:'flex', gap:10, marginBottom:8}}>
-                            <ActivityBadge icon={<Store size={12}/>} count={u.m_count} color="#5F7D4A" />
-                            <ActivityBadge icon={<CheckCircle size={12}/>} count={u.v_count} color="#A67C00" />
-                            <ActivityBadge icon={<Heart size={12}/>} count={u.f_count} color="#EF4444" />
+                            <ActivityBadge icon={<Store size={12}/>} count={u.m_count} color="#5F7D4A" title="Comercios creados" />
+                            <ActivityBadge icon={<CheckCircle size={12}/>} count={u.v_count} color="#A67C00" title="Validaciones realizadas" />
+                            <ActivityBadge icon={<Heart size={12}/>} count={u.f_count} color="#EF4444" title="Favoritos" />
                          </div>
                          <div style={{width:100, height:6, background:'#F0F4ED', borderRadius:10, overflow:'hidden'}}>
                             <div style={{width:`${u.activity}%`, height:'100%', background:'#5F7D4A', transition:'width 0.3s'}}/>
@@ -472,11 +489,8 @@ export default function AdminDashboard() {
                         onOpenEdit={openEditModal}
                       />
                     ))}
-                    {filteredMerchants.length === 0 && !loading && (
-                      <tr><td colSpan={5} style={{padding:100, textAlign:'center'}}>
-                        <AlertTriangle size={48} color="#F0F4ED" style={{margin:'0 auto 20px'}}/>
-                        <div style={{color:'#B2AC88', fontWeight:900}}>No se encontraron comercios.</div>
-                      </td></tr>
+                    {merchants.length === 0 && !loading && (
+                       <tr><td colSpan={5} style={{padding:80, textAlign:'center', color:'#B2AC88'}}>No se encontraron comercios.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -487,25 +501,20 @@ export default function AdminDashboard() {
       </main>
 
       {showEditModal && editingMerchant && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(45,58,32,0.6)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000, padding: 20 }}>
-          <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto', boxShadow:'0 50px 100px rgba(0,0,0,0.2)' }}>
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:30}}>
-              <h2 style={{fontWeight:1000, color:'#2D3A20', margin:0}}>Editar {editingMerchant.name}</h2>
-              <button onClick={()=>setShowEditModal(false)} style={{background:'#F8F9F5', border:'none', padding:10, borderRadius:12, cursor:'pointer'}}><X size={20}/></button>
-            </div>
-            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
-              <div style={{gridColumn:'span 2'}}><label style={LabelStyle}>Nombre del Comercio</label><input style={InputStyle} value={editingMerchant.name} onChange={(e)=>setEditingMerchant({...editingMerchant, name: e.target.value})} /></div>
-              <div><label style={LabelStyle}>Rubro / Tipo</label><input style={InputStyle} value={editingMerchant.type || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, type: e.target.value})} /></div>
-              <div><label style={LabelStyle}>Estado de aprobación</label>
-                <select style={InputStyle} value={editingMerchant.status} onChange={(e)=>setEditingMerchant({...editingMerchant, status: e.target.value as any})}>
-                  <option value="active">Activo</option><option value="pending">Pendiente</option><option value="rejected">Rechazado</option>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter:'blur(5px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '90%', maxWidth: 800 }}>
+            <h2 style={{fontWeight:1000, color:'#2D3A20'}}>Editar {editingMerchant.name}</h2>
+            <div style={{display:'grid', gap:20, marginTop:20}}>
+              <div><label style={LabelStyle}>Nombre</label><input style={InputStyle} value={editingMerchant.name} onChange={(e)=>setEditingMerchant({...editingMerchant, name: e.target.value})} /></div>
+              <div><label style={LabelStyle}>Status</label>
+                <select style={InputStyle} value={editingMerchant.status} onChange={(e)=>setEditingMerchant({...editingMerchant, status: e.target.value})}>
+                  <option value="active">Active</option><option value="pending">Pending</option><option value="rejected">Rejected</option>
                 </select>
               </div>
-              <div style={{gridColumn:'span 2'}}><label style={LabelStyle}>Notas de Admin</label><textarea style={{...InputStyle, height:100}} value={editingMerchant.admin_notes || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, admin_notes: e.target.value})} /></div>
-            </div>
-            <div style={{display:'flex', gap:15, marginTop:40}}>
-              <button onClick={handleUpdateMerchant} disabled={isSaving} style={{flex:1, padding:18, background:'#5F7D4A', color:'white', border:'none', borderRadius:16, fontWeight:1000, cursor:'pointer'}}>{isSaving ? 'Guardando...' : 'Guardar Cambios'}</button>
-              <button onClick={()=>setShowEditModal(false)} style={{flex:1, padding:18, background:'#F0F4ED', border:'none', borderRadius:16, fontWeight:1000, cursor:'pointer', color:'#5F7D4A'}}>Cancelar</button>
+              <div style={{display:'flex', gap:10}}>
+                <button onClick={handleUpdateMerchant} style={{flex:1, padding:15, background:'#5F7D4A', color:'white', border:'none', borderRadius:12, fontWeight:900}}>Guardar</button>
+                <button onClick={()=>setShowEditModal(false)} style={{flex:1, padding:15, background:'#F0F4ED', border:'none', borderRadius:12, fontWeight:900}}>Cerrar</button>
+              </div>
             </div>
           </div>
         </div>
@@ -514,12 +523,11 @@ export default function AdminDashboard() {
       {showImportModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>
           <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '80%', maxWidth: 600 }}>
-            <h3 style={{fontWeight:1000}}>Importar desde Excel</h3>
-            <p style={{fontSize:13, color:'#888', marginBottom:15}}>Pegá las filas de tu Excel aquí (deben incluir encabezados like Nombre, Provincia, etc.)</p>
-            <textarea value={importText} onChange={(e)=>setImportText(e.target.value)} style={{width:'100%', height:200, marginTop:20, borderRadius:15, padding:15, border:'1px solid #E4EBDD', fontSize:12}} placeholder="Pega columnas aquí..."/>
-            <div style={{display:'flex', gap:15, marginTop:30}}>
-              <button onClick={handleImport} disabled={isImporting} style={{flex:1, padding:18, background:'#5F7D4A', color:'white', border:'none', borderRadius:16, fontWeight:1000}}>{isImporting ? 'Importando...' : 'Iniciar Carga'}</button>
-              <button onClick={()=>setShowImportModal(false)} style={{flex:1, padding:18, background:'#F0F4ED', border:'none', borderRadius:16, fontWeight:1000}}>Cerrar</button>
+            <h3>Importar Excel</h3>
+            <textarea value={importText} onChange={(e)=>setImportText(e.target.value)} style={{width:'100%', height:200, marginTop:20, borderRadius:15, padding:15}} placeholder="Pega columnas aquí..."/>
+            <div style={{display:'flex', gap:10, marginTop:20}}>
+              <button onClick={handleImport} disabled={isImporting} style={{flex:1, padding:15, background:'#5F7D4A', color:'white', border:'none', borderRadius:12, fontWeight:900}}>Importar</button>
+              <button onClick={()=>setShowImportModal(false)} style={{flex:1, padding:15, background:'#F0F4ED', border:'none', borderRadius:12, fontWeight:900}}>Cerrar</button>
             </div>
           </div>
         </div>
@@ -530,28 +538,25 @@ export default function AdminDashboard() {
 
 function KPICard({ label, value, trend, icon }: any) {
   return (
-    <div style={{ background: 'white', padding: '2.2rem', borderRadius: '35px', border: '1px solid #E4EBDD' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B2AC88', marginBottom:15 }}>
-         <div style={{background:'#F8F9F5', padding:12, borderRadius:15}}>{icon}</div> 
-         <span style={{fontSize:'0.7rem', fontWeight:1000, color:'#5F7D4A', background:'#DCFCE7', padding:'4px 10px', borderRadius:20, height:'fit-content'}}>{trend}</span>
-      </div>
-      <div style={{ fontSize: '2.8rem', fontWeight: '1000', color: '#2D3A20', margin: '5px 0', letterSpacing:'-2px' }}>{value}</div>
-      <div style={{ fontSize: '0.8rem', fontWeight: '950', color: '#B2AC88', textTransform: 'uppercase', letterSpacing:'1px' }}>{label}</div>
+    <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B2AC88' }}>{icon} <span style={{fontSize:'0.7rem'}}>{trend}</span></div>
+      <div style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: '10px 0' }}>{value}</div>
+      <div style={{ fontSize: '0.75rem', fontWeight: '900', color: '#B2AC88', textTransform: 'uppercase' }}>{label}</div>
     </div>
   );
 }
 
 function TabItem({ active, label, onClick, count }: any) {
   return (
-    <div onClick={onClick} style={{ padding: '1rem 0', cursor: 'pointer', borderBottom: active ? '4px solid #5F7D4A' : '4px solid transparent', color: active ? '#2D3A20' : '#B2AC88', fontWeight: 1000, display: 'flex', gap: 10, whiteSpace:'nowrap', transition:'all 0.2s', transform: active ? 'translateY(-2px)' : 'none' }}>
-      {label} {count !== undefined && <span style={{fontSize:10, background: active ? '#5F7D4A' : '#F0F4ED', color: active ? 'white' : '#5F7D4A', padding:'2px 8px', borderRadius:8}}>{count}</span>}
+    <div onClick={onClick} style={{ padding: '1rem 0', cursor: 'pointer', borderBottom: active ? '3px solid #5F7D4A' : '3px solid transparent', color: active ? '#2D3A20' : '#B2AC88', fontWeight: 950, display: 'flex', gap: 8 }}>
+      {label} {count !== undefined && <span style={{fontSize:10, background:'#F0F4ED', padding:'2px 6px', borderRadius:6}}>{count}</span>}
     </div>
   );
 }
 
-function ActivityBadge({ icon, count, color }: any) {
+function ActivityBadge({ icon, count, color, title }: any) {
   return (
-    <div style={{display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:1000, color: color, background: `${color}10`, padding:'4px 8px', borderRadius:8}}>
+    <div title={title} style={{display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:1000, color: color, background: `${color}10`, padding:'4px 8px', borderRadius:8}}>
       {icon} {count}
     </div>
   );
@@ -564,70 +569,53 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
 
   return (
     <>
-      <tr onClick={toggle} style={{ borderBottom: '1px solid #F0F4ED', cursor: 'pointer', background: merchant.verified ? '#FDFAF0' : 'white', transition:'background 0.2s' }}>
-        <td style={{ padding: 25 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontWeight: 1000, fontSize:'1.05rem', color:'#2D3A20' }}>{merchant.name}</span>
+      <tr onClick={toggle} style={{ borderBottom: '1px solid #F0F4ED', cursor: 'pointer', background: merchant.verified ? '#FDFAF0' : 'white' }}>
+        <td style={{ padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontWeight: 1000 }}>{merchant.name}</span>
             {(merchant.verified || merchant.owner_id) ? (
-              <ShieldCheck size={18} color="#A67C00" style={{transform:'rotate(-5deg)'}} />
+              <ShieldCheck size={16} color="#A67C00" style={{transform:'rotate(-5deg)'}} />
             ) : (
-              <span style={{fontSize:9, color:'#B45309', background:'#FEF3C7', padding:'3px 8px', borderRadius:6, fontWeight:1000}}>COMUNITARIO</span>
+              <span style={{fontSize:10, color:'#B45309', background:'#FEF3C7', padding:'2px 6px', borderRadius:4}}>COMUNITARIO</span>
             )}
           </div>
-          {missing.length > 0 && <div style={{fontSize:10, color:'#EF4444', fontWeight:1000, marginTop:6, display:'flex', alignItems:'center', gap:4}}><AlertTriangle size={10}/> FALTA: {missing.join(', ')}</div>}
+          {missing.length > 0 && <div style={{fontSize:10, color:'#EF4444', fontWeight:900, marginTop:4}}>FALTA: {missing.join(', ')}</div>}
         </td>
-        <td style={{ padding: 25, color:'#5F7D4A', fontWeight:1000 }}>{merchant.province || 'No def.'}</td>
-        <td style={{ padding: 25 }}>
+        <td style={{ padding: 20, color:'#888', fontWeight:800 }}>{merchant.province || 'No def.'}</td>
+        <td style={{ padding: 20 }}>
           <span style={{ ...BadgeStyle, background: merchant.status === 'active' ? '#DCFCE7' : '#FEE2E2', color: merchant.status === 'active' ? '#166534' : '#991B1B' }}>{merchant.status.toUpperCase()}</span>
         </td>
-        <td style={{ padding: 25 }}>
-          <select value={merchant.contact_status || 'sin_contacto'} onChange={(e)=>{ e.stopPropagation(); onUpdateContactStatus(merchant.id, e.target.value); }} onClick={(e)=>e.stopPropagation()} style={{padding:'8px 12px', borderRadius:10, border:'1.5px solid #F0F4ED', fontSize:11, fontWeight:1000, background:'#F8F9F5', outline:'none'}}>
+        <td style={{ padding: 20 }}>
+          <select value={merchant.contact_status || 'sin_contacto'} onChange={(e)=>{ e.stopPropagation(); onUpdateContactStatus(merchant.id, e.target.value); }} style={{padding:6, borderRadius:8, border:'1px solid #E4EBDD', fontSize:11, fontWeight:900}}>
             <option value="sin_contacto">SIN CONTACTO</option>
             <option value="contactado">CONTACTADO</option>
             <option value="verificado">VERIFICADO</option>
           </select>
         </td>
-        <td style={{ padding: 25 }}>
-          <div style={{display:'flex', gap:15, alignItems:'center'}}>
-            <button onClick={(e)=>{ e.stopPropagation(); onOpenEdit(merchant); }} style={{background:'#F0F4ED', border:'none', color:'#5F7D4A', padding:8, borderRadius:10, cursor:'pointer'}}><Edit size={18}/></button>
-            {expanded ? <ChevronUp size={22} color="#B2AC88" /> : <ChevronDown size={22} color="#B2AC88" />}
+        <td style={{ padding: 20 }}>
+          <div style={{display:'flex', gap:10}}>
+            <button onClick={(e)=>{ e.stopPropagation(); onOpenEdit(merchant); }} style={{background:'none', border:'none', color:'#5F7D4A'}}><Edit size={18}/></button>
+            {expanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}
           </div>
         </td>
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={5} style={{ padding: 40, background: '#F8F9F5', borderBottom:'1px solid #E4EBDD' }}>
-            <div style={{ display: 'flex', gap: 60 }}>
+          <td colSpan={5} style={{ padding: 40, background: '#F8F9F5' }}>
+            <div style={{ display: 'flex', gap: 40 }}>
                <div style={{flex: 1}}>
-                 <h4 style={{fontWeight:1000, color:'#2D3A20', marginBottom:20, display:'flex', alignItems:'center', gap:10}}><BarChart3 size={20}/> Análisis de Comercio</h4>
-                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:30}}>
+                 <h4 style={{fontWeight:1000, marginBottom:15}}>Análisis de Comercio</h4>
+                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
                     <div>
-                        <div style={StatLabel}>Validaciones Consolidadas</div>
+                        <div style={StatLabel}>Validaciones</div>
                         <div style={{fontSize:'1.8rem', fontWeight:1000, color:'#A67C00'}}>{merchant.validationsCount || 0}</div>
-                        <div style={{fontSize:11, color:'#888', marginTop:5}}>Este comercio ha sido validado por usuarios de la red.</div>
-                    </div>
-                    <div>
-                        <div style={StatLabel}>Estado del Perfil</div>
-                        <div style={{marginTop:10}}>
-                             {merchant.claimed ? <span style={ProfileBadge(true)}>CLAIMED</span> : <span style={ProfileBadge(false)}>UNCLAIMED</span>}
-                             {merchant.verified ? <span style={{...ProfileBadge(true), background:'#FDE68A', color:'#92400E', marginLeft:10}}>OFFICIAL</span> : null}
-                        </div>
                     </div>
                  </div>
-                 {merchant.admin_notes && (
-                   <div style={{marginTop:30, padding:20, background:'white', borderRadius:15, border:'1px solid #E4EBDD'}}>
-                      <div style={StatLabel}>Notas del Administrador</div>
-                      <div style={{fontSize:13, color:'#555', marginTop:5}}>{merchant.admin_notes}</div>
-                   </div>
-                 )}
                </div>
-               <div style={{width:250, display:'flex', flexDirection:'column', gap:12}}>
-                  <button onClick={()=>onUpdateStatus(merchant.id, 'active')} style={ActionBtn('#5F7D4A', 'white')}><Check size={18}/> APROBAR</button>
-                  <button onClick={()=>onUpdateStatus(merchant.id, 'rejected')} style={ActionBtn('white', '#EF4444', '#EF4444')}><X size={18}/> RECHAZAR</button>
-                  <div style={{height:1, background:'#E4EBDD', margin:'10px 0'}}/>
-                  <button onClick={()=>onToggleVerified(merchant.id, merchant.verified)} style={ActionBtn(merchant.verified ? '#F0F4ED' : '#A67C00', merchant.verified ? '#A67C00' : 'white')}>
-                    <ShieldCheck size={18}/> {merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}
-                  </button>
+               <div style={{width:200, display:'flex', flexDirection:'column', gap:10}}>
+                  <button onClick={()=>onUpdateStatus(merchant.id, 'active')} style={{padding:12, background:'#5F7D4A', color:'white', border:'none', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>APROBAR</button>
+                  <button onClick={()=>onUpdateStatus(merchant.id, 'rejected')} style={{padding:12, background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>RECHAZAR</button>
+                  <button onClick={()=>onToggleVerified(merchant.id, merchant.verified)} style={{padding:12, background:'#A67C00', color:'white', border:'none', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>{merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}</button>
                </div>
             </div>
           </td>
@@ -641,14 +629,13 @@ function DonationsList({ donations, loading }: any) {
     if (loading) return <div>Cargando donaciones...</div>;
     return (
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>MONTO</th><th style={THStyle}>ESTADO</th><th style={THStyle}>METODO</th></tr></thead>
+            <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>MONTO</th><th style={THStyle}>ESTADO</th></tr></thead>
             <tbody>
                 {donations.map((d: any) => (
                     <tr key={d.id} style={{borderBottom:'1px solid #F0F4ED'}}>
                         <td style={{padding:20}}>{new Date(d.created_at).toLocaleDateString()}</td>
-                        <td style={{padding:20, fontWeight:1000, fontSize:'1.1rem'}}>{d.currency} ${d.amount}</td>
-                        <td style={{padding:20}}><span style={{...BadgeStyle, background:'#DCFCE7'}}>{d.status.toUpperCase()}</span></td>
-                        <td style={{padding:20, color:'#888'}}>{d.payment_method || 'MercadoPago'}</td>
+                        <td style={{padding:20, fontWeight:1000}}>{d.currency} ${d.amount}</td>
+                        <td style={{padding:20}}>{d.status}</td>
                     </tr>
                 ))}
             </tbody>
@@ -656,25 +643,9 @@ function DonationsList({ donations, loading }: any) {
     );
 }
 
-const THStyle = { padding: '1.2rem 1rem', fontSize: '0.75rem', fontWeight: '1000', color: '#B2AC88', textTransform: 'uppercase' as const, textAlign: 'left' as const };
-const BadgeStyle = { padding: '6px 12px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: '1000', letterSpacing:'0.5px' };
-const LabelStyle = { display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase' as const, marginBottom: '8px' };
-const InputStyle = { width: '100%', padding: '1rem 1.2rem', borderRadius: '15px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '700', fontSize:'0.9rem' };
-const FilterSelectStyle = { padding: '0.9rem 1.2rem', borderRadius: '20px', border: '1.5px solid #F0F4ED', background: 'white', fontWeight: '1000', outline: 'none', cursor: 'pointer', color:'#2D3A20', fontSize:'0.85rem' };
-const StatLabel = { fontSize: '0.7rem', fontWeight: 1000, color: '#B2AC88', textTransform: 'uppercase' as const, letterSpacing: '0.5px' };
-const ProfileBadge = (active: boolean) => ({ padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 1000, background: active ? '#DCFCE7' : '#F3F4F6', color: active ? '#166534' : '#6B7280' });
-const ActionBtn = (bg: string, color: string, border?: string) => ({ 
-    padding: '14px', 
-    background: bg, 
-    color: color, 
-    border: border ? `1.5px solid ${border}` : 'none', 
-    borderRadius: '16px', 
-    fontWeight: 1000, 
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    fontSize: '0.85rem',
-    transition: 'transform 0.2s'
-});
+const THStyle = { padding: '1.2rem 1rem', fontSize: '0.75rem', fontWeight: '950', color: '#B2AC88', textTransform: 'uppercase' as const, textAlign: 'left' as const };
+const BadgeStyle = { padding: '6px 12px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: '1000' };
+const LabelStyle = { display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase' as const, marginBottom: '6px' };
+const InputStyle = { width: '100%', padding: '0.8rem 1rem', borderRadius: '12px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '700' };
+const FilterSelectStyle = { padding: '0.9rem 1.2rem', borderRadius: '20px', border: '1.5px solid #F0F4ED', background: 'white', fontWeight: '1000', outline: 'none', cursor: 'pointer', color:'#2D3A20' };
+const StatLabel = { fontSize: '0.7rem', fontWeight: 1000, color: '#B2AC88', textTransform: 'uppercase' as const };
