@@ -18,14 +18,19 @@ import {
   Users,
   Store,
   ShieldCheck,
-  Mail, AlertTriangle, Check,
+  Mail, 
+  AlertTriangle, 
+  Check,
   X,
   CreditCard,
   DollarSign,
   ArrowUpRight,
   Edit,
   Map as MapIcon,
-  Trash
+  Trash,
+  Heart,
+  Bookmark,
+  Star
 } from 'lucide-react';
 import Header from '@/components/Header';
 
@@ -101,9 +106,6 @@ export default function AdminDashboard() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingMerchant, setEditingMerchant] = useState<Merchant | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [merchantMembers, setMerchantMembers] = useState<any[]>([]);
-  const [newMemberId, setNewMemberId] = useState('');
-  const [isAddingMember, setIsAddingMember] = useState(false);
   
   // Filtros Avanzados
   const [filterProvince, setFilterProvince] = useState<string>('all');
@@ -149,7 +151,7 @@ export default function AdminDashboard() {
       const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
       if (error) throw error;
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
-      alert('Rol actualizado.');
+      fetchData(); // Refresh counts
     } catch (e: any) {
       alert(`Error al actualizar rol: ${e.message}`);
     }
@@ -157,82 +159,80 @@ export default function AdminDashboard() {
 
   const deleteUser = async (userId: string) => {
     if (!confirm('¿Seguro que querés eliminar este usuario? Esto no borra su cuenta de Auth, solo su perfil.')) return;
+    setUsersLoading(true);
     try {
       const { error } = await supabase.from('profiles').delete().eq('id', userId);
       if (error) throw error;
       setUsers(prev => prev.filter(u => u.id !== userId));
-      alert('Usuario eliminado del sistema.');
     } catch (e: any) {
       alert(`Error al eliminar: ${e.message}`);
     }
-  };
-
-  const fetchDonations = async () => {
-    setDonationsLoading(true);
-    const { data } = await supabase
-      .from('user_donations')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100);
-    setDonations(data || []);
-    setDonationsLoading(false);
+    setUsersLoading(false);
   };
 
   const fetchUsers = async () => {
     setUsersLoading(true);
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    const processedUsers = (data || []).map(u => {
-      return {
-        ...u,
-        v_count: u.validations?.[0]?.count || 0,
-        f_count: u.favorites?.[0]?.count || 0,
-        s_count: u.user_saved_merchants?.[0]?.count || 0,
-        m_count: u.merchants?.[0]?.count || 0,
-        activity: u.activity_score || 0
-      };
-    });
-    
-    setUsers(processedUsers);
+    try {
+      // Intentamos traer contadores de actividad
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*, merchants:merchants(count), favorites:favorites(count), user_saved_merchants:user_saved_merchants(count), validations:validations(count)')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+
+      const processedUsers = (data || []).map(u => {
+        const v_count = u.validations?.[0]?.count || 0;
+        const f_count = u.favorites?.[0]?.count || 0;
+        const s_count = u.user_saved_merchants?.[0]?.count || 0;
+        const m_count = u.merchants?.[0]?.count || 0;
+        const activityScore = (v_count * 10) + (f_count * 5) + (s_count * 5) + (m_count * 20);
+        
+        return {
+          ...u,
+          v_count, f_count, s_count, m_count,
+          activity: Math.min(100, activityScore)
+        };
+      });
+      
+      setUsers(processedUsers);
+    } catch (e) {
+      console.error("Error fetching users:", e);
+    }
     setUsersLoading(false);
   };
 
   const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const { data: mData } = await supabase
+      // MERCHANTS - Quitamos join inexistente para evitar errores
+      const { data: mData, error: mError } = await supabase
         .from('merchants')
-        .select(`
-          *, 
-          locations(*), 
-          merchant_validations(
-            id, 
-            user_id, 
-            profiles(full_name)
-          )
-        `)
+        .select('*, locations(*)')
         .order('created_at', { ascending: false });
+      
+      if (mError) throw mError;
       
       const processedMerchants = (mData || []).map(m => ({
         ...m,
         province: m.locations?.[0]?.province || 'Sin Provincia',
-        validationsCount: (m.merchant_validations || []).length,
-        v_users: (m.merchant_validations || []).map((v: any) => v.profiles?.full_name || 'Anónimo')
+        validationsCount: m.validation_count || 0
       }));
       
       setMerchants(processedMerchants);
 
+      // PROVINCES / TYPES
       const uniqueProvinces = Array.from(new Set(processedMerchants.map(m => m.province).filter(Boolean))) as string[];
       const uniqueTypes = Array.from(new Set(processedMerchants.map(m => m.type).filter(Boolean))) as string[];
       setProvinces(uniqueProvinces.sort());
       setTypes(uniqueTypes.sort());
 
+      // MESSAGES
       const { data: msgData } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
       setMessages(msgData || []);
 
+      // STATS
       const { count: mCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('status', 'active');
       const { count: lCount } = await supabase.from('locations').select('id', { count: 'exact', head: true });
       const { count: pCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('status', 'pending');
@@ -245,7 +245,8 @@ export default function AdminDashboard() {
         totalUsers: uCount || 0
       });
     } catch (err: any) {
-      setError(err.message || "Error desconocido al cargar datos");
+      console.error("Fetch error:", err);
+      setError(err.message || "Error al cargar datos");
     }
     setLoading(false);
   };
@@ -294,11 +295,9 @@ export default function AdminDashboard() {
     if (!error) setMerchants(prev => prev.map(m => m.id === id ? { ...m, verified: !current } : m));
   };
 
-  const openEditModal = async (m: Merchant) => {
+  const openEditModal = (m: Merchant) => {
     setEditingMerchant(m);
     setShowEditModal(true);
-    const { data } = await supabase.from('merchant_members').select('*, profile:profiles(*)').eq('merchant_id', m.id);
-    setMerchantMembers(data || []);
   };
 
   const handleUpdateMerchant = async () => {
@@ -310,7 +309,7 @@ export default function AdminDashboard() {
       instagram_url: editingMerchant.instagram_url,
       website_url: editingMerchant.website_url,
       admin_notes: editingMerchant.admin_notes,
-      verified: editingMerchant.verified
+      status: editingMerchant.status
     }).eq('id', editingMerchant.id);
     if (!error) { setShowEditModal(false); fetchData(); }
     setIsSaving(false);
@@ -341,6 +340,8 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {error && <div style={{background:'#FEE2E2', color:'#991B1B', padding:20, borderRadius:15, marginBottom:40, fontWeight:800}}>{error}</div>}
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
           <KPICard label="Comercios" value={stats.totalMerchants} trend="Activos" icon={<Store size={22} />} />
           <KPICard label="Puntos" value={stats.totalLocations} trend="En Mapa" icon={<MapPin size={22} />} />
@@ -349,7 +350,7 @@ export default function AdminDashboard() {
         </div>
 
         <div style={{ background: 'white', borderRadius: '40px', padding: '2.5rem', boxShadow: '0 30px 60px rgba(0,0,0,0.04)', border: '1px solid #E4EBDD' }}>
-          <div style={{ display: 'flex', gap: '2rem', borderBottom: '1px solid #F0F4ED', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', gap: '2rem', borderBottom: '1px solid #F0F4ED', marginBottom: '2.5rem', overflowX: 'auto' }}>
             <TabItem active={activeTab === 'comercios'} label="Comercios" onClick={() => setActiveTab('comercios')} count={merchants.length} />
             <TabItem active={activeTab === 'pendientes'} label="Por Aprobar" onClick={() => setActiveTab('pendientes')} count={stats.pendingApprovals} />
             <TabItem active={activeTab === 'usuarios'} label="Usuarios" onClick={() => { setActiveTab('usuarios'); fetchUsers(); }} count={stats.totalUsers} />
@@ -360,50 +361,70 @@ export default function AdminDashboard() {
           {activeTab === 'usuarios' ? (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr><th style={THStyle}>USUARIO</th><th style={THStyle}>ROL</th><th style={THStyle}>ACCIONES</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th style={THStyle}>USUARIO</th>
+                    <th style={THStyle}>ROL</th>
+                    <th style={THStyle}>LOCALIDAD</th>
+                    <th style={THStyle}>ACTIVIDAD</th>
+                    <th style={THStyle}>ACCIONES</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {usersLoading ? <tr><td colSpan={3} style={{padding:40, textAlign:'center'}}>Cargando...</td></tr> : users.map(u => (
+                  {usersLoading ? <tr><td colSpan={5} style={{padding:40, textAlign:'center'}}>Cargando...</td></tr> : users.map(u => (
                     <tr key={u.id} style={{borderBottom:'1px solid #F0F4ED'}}>
                       <td style={{padding:20}}>
-                        <div style={{fontWeight:900}}>{u.full_name}</div>
-                        <div style={{fontSize:'0.75rem', color:'#888'}}>{u.email || 'No email synced'}</div>
+                        <div style={{fontWeight:1000, color:'#2D3A20'}}>{u.full_name || 'Sin Nombre'}</div>
+                        <div style={{fontSize:'0.75rem', color:'#B2AC88', fontWeight:800}}>{u.email || 'No email synced'}</div>
+                        <div style={{fontSize:'0.65rem', color:'#DDD'}}>ID: {u.id.substring(0,8)}...</div>
                       </td>
                       <td style={{padding:20}}>
-                        <select value={u.role} onChange={(e)=>updateUserRole(u.id, e.target.value)} style={{padding:6, borderRadius:8, border:'1px solid #E4EBDD', fontWeight:800}}>
-                          <option value="user">USER</option><option value="merchant">MERCHANT</option><option value="admin">ADMIN</option>
+                        <select value={u.role} onChange={(e)=>updateUserRole(u.id, e.target.value)} style={{padding:'8px 12px', borderRadius:10, border:'1.5px solid #F0F4ED', background:'#F8F9F5', fontWeight:950, fontSize:'0.75rem'}}>
+                          <option value="user">USUARIO</option>
+                          <option value="merchant">COMERCIO</option>
+                          <option value="admin">ADMIN</option>
                         </select>
                       </td>
-                      <td style={{padding:20}}><button onClick={()=>deleteUser(u.id)} style={{color:'#EF4444', border:'none', background:'none', cursor:'pointer'}}><Trash size={18}/></button></td>
+                      <td style={{padding:20}}>
+                        <div style={{fontWeight:900, color:'#5F7D4A'}}>{u.locality || 'No def.'}</div>
+                        <div style={{fontSize:'0.75rem', color:'#B2AC88'}}>{u.province || 'No def.'}</div>
+                      </td>
+                      <td style={{padding:20}}>
+                         <div style={{display:'flex', gap:10, marginBottom:8}}>
+                            <ActivityBadge icon={<Store size={12}/>} count={u.m_count} color="#5F7D4A" />
+                            <ActivityBadge icon={<CheckCircle size={12}/>} count={u.v_count} color="#A67C00" />
+                            <ActivityBadge icon={<Heart size={12}/>} count={u.f_count} color="#EF4444" />
+                         </div>
+                         <div style={{width:100, height:6, background:'#F0F4ED', borderRadius:10, overflow:'hidden'}}>
+                            <div style={{width:`${u.activity}%`, height:'100%', background:'#5F7D4A', transition:'width 0.3s'}}/>
+                         </div>
+                      </td>
+                      <td style={{padding:20}}>
+                        <button onClick={()=>deleteUser(u.id)} style={{background:'none', border:'none', color:'#EF4444', cursor:'pointer', padding:10}}><Trash size={18}/></button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           ) : activeTab === 'pagos' ? (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>MONTO</th><th style={THStyle}>STATUS</th></tr></thead>
-                <tbody>
-                  {donationsLoading ? <tr><td colSpan={3} style={{padding:40, textAlign:'center'}}>Cargando...</td></tr> : donations.map(d=>(
-                    <tr key={d.id} style={{borderBottom:'1px solid #F0F4ED'}}>
-                      <td style={{padding:20}}>{new Date(d.created_at).toLocaleDateString()}</td>
-                      <td style={{padding:20, fontWeight:900}}>{d.currency} ${d.amount}</td>
-                      <td style={{padding:20}}>{d.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+             <div style={{ padding: '2rem' }}>
+                <DonationsList donations={donations} loading={donationsLoading} />
+             </div>
           ) : activeTab === 'mensajes' ? (
-             <div style={{ overflowX: 'auto' }}>
+            <div style={{ overflowX: 'auto' }}>
                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                 <thead><tr><th style={THStyle}>REMITENTE</th><th style={THStyle}>ASUNTO</th><th style={THStyle}>ESTADO</th></tr></thead>
+                 <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>REMITENTE</th><th style={THStyle}>ASUNTO</th><th style={THStyle}>ESTADO</th></tr></thead>
                  <tbody>
                    {messages.map(m => (
                      <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED' }}>
-                       <td style={{ padding: 20 }}><div>{m.sender_name}</div><div style={{ fontSize: '0.7rem' }}>{m.sender_email}</div></td>
-                       <td style={{ padding: 20 }}>{m.subject}</td>
-                       <td style={{ padding: 20 }}>{m.status}</td>
+                       <td style={{ padding: 20, fontSize: '0.75rem' }}>{new Date(m.created_at).toLocaleDateString()}</td>
+                       <td style={{ padding: 20 }}>
+                          <div style={{fontWeight:900}}>{m.sender_name}</div>
+                          <div style={{fontSize:'0.7rem', color:'#888'}}>{m.sender_email}</div>
+                       </td>
+                       <td style={{ padding: 20, fontWeight:700 }}>{m.subject}</td>
+                       <td style={{ padding: 20 }}><span style={{...BadgeStyle, background:'#F0F4ED'}}>{m.status.toUpperCase()}</span></td>
                      </tr>
                    ))}
                  </tbody>
@@ -411,18 +432,18 @@ export default function AdminDashboard() {
              </div>
           ) : (
             <>
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-                <div style={{ position: 'relative', flex: 1 }}>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative', flex: '1 1 300px' }}>
                   <Search style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#B2AC88' }} size={18} />
-                  <input type="text" placeholder="Buscar..." value={searchTerm} onChange={(e)=>setSearchTerm(e.target.value)} style={{ width: '100%', padding: '0.9rem 3.2rem', borderRadius: 18, border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none' }} />
+                  <input type="text" placeholder="Buscar comercio o rubro..." value={searchTerm} onChange={(e)=>setSearchTerm(e.target.value)} style={{ width: '100%', padding: '1rem 3.5rem', borderRadius: 20, border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: 800 }} />
                 </div>
                 <select value={filterProvince} onChange={(e)=>setFilterProvince(e.target.value)} style={FilterSelectStyle}>
-                  <option value="all">Provincias</option>
+                  <option value="all">Todas las Provincias</option>
                   {provinces.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
                 <select value={filterVerification} onChange={(e)=>setFilterVerification(e.target.value)} style={FilterSelectStyle}>
-                  <option value="all">Verificación</option>
-                  <option value="verified">✅ Oficiales</option>
+                  <option value="all">Filtro Sello</option>
+                  <option value="verified">✅ Verificados Oficiales</option>
                   <option value="unverified">🔸 Comunitarios</option>
                 </select>
               </div>
@@ -451,6 +472,12 @@ export default function AdminDashboard() {
                         onOpenEdit={openEditModal}
                       />
                     ))}
+                    {filteredMerchants.length === 0 && !loading && (
+                      <tr><td colSpan={5} style={{padding:100, textAlign:'center'}}>
+                        <AlertTriangle size={48} color="#F0F4ED" style={{margin:'0 auto 20px'}}/>
+                        <div style={{color:'#B2AC88', fontWeight:900}}>No se encontraron comercios.</div>
+                      </td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -460,20 +487,25 @@ export default function AdminDashboard() {
       </main>
 
       {showEditModal && editingMerchant && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter:'blur(5px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '90%', maxWidth: 800, maxHeight: '80vh', overflowY: 'auto' }}>
-            <h2 style={{fontWeight:1000, color:'#2D3A20'}}>Editar {editingMerchant.name}</h2>
-            <div style={{display:'grid', gap:20, marginTop:20}}>
-              <div><label style={LabelStyle}>Nombre</label><input style={InputStyle} value={editingMerchant.name} onChange={(e)=>setEditingMerchant({...editingMerchant, name: e.target.value})} /></div>
-              <div><label style={LabelStyle}>Status</label>
-                <select style={InputStyle} value={editingMerchant.status} onChange={(e)=>setEditingMerchant({...editingMerchant, status: e.target.value})}>
-                  <option value="active">Active</option><option value="pending">Pending</option><option value="rejected">Rejected</option>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(45,58,32,0.6)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000, padding: 20 }}>
+          <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto', boxShadow:'0 50px 100px rgba(0,0,0,0.2)' }}>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:30}}>
+              <h2 style={{fontWeight:1000, color:'#2D3A20', margin:0}}>Editar {editingMerchant.name}</h2>
+              <button onClick={()=>setShowEditModal(false)} style={{background:'#F8F9F5', border:'none', padding:10, borderRadius:12, cursor:'pointer'}}><X size={20}/></button>
+            </div>
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
+              <div style={{gridColumn:'span 2'}}><label style={LabelStyle}>Nombre del Comercio</label><input style={InputStyle} value={editingMerchant.name} onChange={(e)=>setEditingMerchant({...editingMerchant, name: e.target.value})} /></div>
+              <div><label style={LabelStyle}>Rubro / Tipo</label><input style={InputStyle} value={editingMerchant.type || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, type: e.target.value})} /></div>
+              <div><label style={LabelStyle}>Estado de aprobación</label>
+                <select style={InputStyle} value={editingMerchant.status} onChange={(e)=>setEditingMerchant({...editingMerchant, status: e.target.value as any})}>
+                  <option value="active">Activo</option><option value="pending">Pendiente</option><option value="rejected">Rechazado</option>
                 </select>
               </div>
-              <div style={{display:'flex', gap:10}}>
-                <button onClick={handleUpdateMerchant} style={{flex:1, padding:15, background:'#5F7D4A', color:'white', border:'none', borderRadius:12, fontWeight:900, cursor:'pointer'}}>Guardar</button>
-                <button onClick={()=>setShowEditModal(false)} style={{flex:1, padding:15, background:'#F0F4ED', border:'none', borderRadius:12, fontWeight:900, cursor:'pointer'}}>Cerrar</button>
-              </div>
+              <div style={{gridColumn:'span 2'}}><label style={LabelStyle}>Notas de Admin</label><textarea style={{...InputStyle, height:100}} value={editingMerchant.admin_notes || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, admin_notes: e.target.value})} /></div>
+            </div>
+            <div style={{display:'flex', gap:15, marginTop:40}}>
+              <button onClick={handleUpdateMerchant} disabled={isSaving} style={{flex:1, padding:18, background:'#5F7D4A', color:'white', border:'none', borderRadius:16, fontWeight:1000, cursor:'pointer'}}>{isSaving ? 'Guardando...' : 'Guardar Cambios'}</button>
+              <button onClick={()=>setShowEditModal(false)} style={{flex:1, padding:18, background:'#F0F4ED', border:'none', borderRadius:16, fontWeight:1000, cursor:'pointer', color:'#5F7D4A'}}>Cancelar</button>
             </div>
           </div>
         </div>
@@ -482,11 +514,12 @@ export default function AdminDashboard() {
       {showImportModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>
           <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '80%', maxWidth: 600 }}>
-            <h3>Importar Excel</h3>
-            <textarea value={importText} onChange={(e)=>setImportText(e.target.value)} style={{width:'100%', height:200, marginTop:20, borderRadius:15, padding:15}} placeholder="Pega columnas aquí..."/>
-            <div style={{display:'flex', gap:10, marginTop:20}}>
-              <button onClick={handleImport} disabled={isImporting} style={{flex:1, padding:15, background:'#5F7D4A', color:'white', border:'none', borderRadius:12, fontWeight:900}}>Importar</button>
-              <button onClick={()=>setShowImportModal(false)} style={{flex:1, padding:15, background:'#F0F4ED', border:'none', borderRadius:12, fontWeight:900}}>Cerrar</button>
+            <h3 style={{fontWeight:1000}}>Importar desde Excel</h3>
+            <p style={{fontSize:13, color:'#888', marginBottom:15}}>Pegá las filas de tu Excel aquí (deben incluir encabezados like Nombre, Provincia, etc.)</p>
+            <textarea value={importText} onChange={(e)=>setImportText(e.target.value)} style={{width:'100%', height:200, marginTop:20, borderRadius:15, padding:15, border:'1px solid #E4EBDD', fontSize:12}} placeholder="Pega columnas aquí..."/>
+            <div style={{display:'flex', gap:15, marginTop:30}}>
+              <button onClick={handleImport} disabled={isImporting} style={{flex:1, padding:18, background:'#5F7D4A', color:'white', border:'none', borderRadius:16, fontWeight:1000}}>{isImporting ? 'Importando...' : 'Iniciar Carga'}</button>
+              <button onClick={()=>setShowImportModal(false)} style={{flex:1, padding:18, background:'#F0F4ED', border:'none', borderRadius:16, fontWeight:1000}}>Cerrar</button>
             </div>
           </div>
         </div>
@@ -497,18 +530,29 @@ export default function AdminDashboard() {
 
 function KPICard({ label, value, trend, icon }: any) {
   return (
-    <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B2AC88' }}>{icon} <span style={{fontSize:'0.7rem'}}>{trend}</span></div>
-      <div style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: '10px 0' }}>{value}</div>
-      <div style={{ fontSize: '0.75rem', fontWeight: '900', color: '#B2AC88', textTransform: 'uppercase' }}>{label}</div>
+    <div style={{ background: 'white', padding: '2.2rem', borderRadius: '35px', border: '1px solid #E4EBDD' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B2AC88', marginBottom:15 }}>
+         <div style={{background:'#F8F9F5', padding:12, borderRadius:15}}>{icon}</div> 
+         <span style={{fontSize:'0.7rem', fontWeight:1000, color:'#5F7D4A', background:'#DCFCE7', padding:'4px 10px', borderRadius:20, height:'fit-content'}}>{trend}</span>
+      </div>
+      <div style={{ fontSize: '2.8rem', fontWeight: '1000', color: '#2D3A20', margin: '5px 0', letterSpacing:'-2px' }}>{value}</div>
+      <div style={{ fontSize: '0.8rem', fontWeight: '950', color: '#B2AC88', textTransform: 'uppercase', letterSpacing:'1px' }}>{label}</div>
     </div>
   );
 }
 
 function TabItem({ active, label, onClick, count }: any) {
   return (
-    <div onClick={onClick} style={{ padding: '1rem 0', cursor: 'pointer', borderBottom: active ? '3px solid #5F7D4A' : '3px solid transparent', color: active ? '#2D3A20' : '#B2AC88', fontWeight: 950, display: 'flex', gap: 8 }}>
-      {label} {count !== undefined && <span style={{fontSize:10, background:'#F0F4ED', padding:'2px 6px', borderRadius:6}}>{count}</span>}
+    <div onClick={onClick} style={{ padding: '1rem 0', cursor: 'pointer', borderBottom: active ? '4px solid #5F7D4A' : '4px solid transparent', color: active ? '#2D3A20' : '#B2AC88', fontWeight: 1000, display: 'flex', gap: 10, whiteSpace:'nowrap', transition:'all 0.2s', transform: active ? 'translateY(-2px)' : 'none' }}>
+      {label} {count !== undefined && <span style={{fontSize:10, background: active ? '#5F7D4A' : '#F0F4ED', color: active ? 'white' : '#5F7D4A', padding:'2px 8px', borderRadius:8}}>{count}</span>}
+    </div>
+  );
+}
+
+function ActivityBadge({ icon, count, color }: any) {
+  return (
+    <div style={{display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:1000, color: color, background: `${color}10`, padding:'4px 8px', borderRadius:8}}>
+      {icon} {count}
     </div>
   );
 }
@@ -520,48 +564,70 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
 
   return (
     <>
-      <tr onClick={toggle} style={{ borderBottom: '1px solid #F0F4ED', cursor: 'pointer', background: merchant.verified ? '#FDFAF0' : 'white' }}>
-        <td style={{ padding: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontWeight: 1000 }}>{merchant.name}</span>
+      <tr onClick={toggle} style={{ borderBottom: '1px solid #F0F4ED', cursor: 'pointer', background: merchant.verified ? '#FDFAF0' : 'white', transition:'background 0.2s' }}>
+        <td style={{ padding: 25 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontWeight: 1000, fontSize:'1.05rem', color:'#2D3A20' }}>{merchant.name}</span>
             {(merchant.verified || merchant.owner_id) ? (
-              <ShieldCheck size={16} color="#A67C00" style={{transform:'rotate(-5deg)'}} />
+              <ShieldCheck size={18} color="#A67C00" style={{transform:'rotate(-5deg)'}} />
             ) : (
-              <span style={{fontSize:10, color:'#B45309', background:'#FEF3C7', padding:'2px 6px', borderRadius:4}}>COMUNITARIO</span>
+              <span style={{fontSize:9, color:'#B45309', background:'#FEF3C7', padding:'3px 8px', borderRadius:6, fontWeight:1000}}>COMUNITARIO</span>
             )}
           </div>
-          {missing.length > 0 && <div style={{fontSize:10, color:'#EF4444', fontWeight:900, marginTop:4}}>FALTA: {missing.join(', ')}</div>}
+          {missing.length > 0 && <div style={{fontSize:10, color:'#EF4444', fontWeight:1000, marginTop:6, display:'flex', alignItems:'center', gap:4}}><AlertTriangle size={10}/> FALTA: {missing.join(', ')}</div>}
         </td>
-        <td style={{ padding: 20, color:'#888', fontWeight:800 }}>{merchant.province}</td>
-        <td style={{ padding: 20 }}>
+        <td style={{ padding: 25, color:'#5F7D4A', fontWeight:1000 }}>{merchant.province || 'No def.'}</td>
+        <td style={{ padding: 25 }}>
           <span style={{ ...BadgeStyle, background: merchant.status === 'active' ? '#DCFCE7' : '#FEE2E2', color: merchant.status === 'active' ? '#166534' : '#991B1B' }}>{merchant.status.toUpperCase()}</span>
         </td>
-        <td style={{ padding: 20 }}>
-          <select value={merchant.contact_status || 'sin_contacto'} onChange={(e)=>{ e.stopPropagation(); onUpdateContactStatus(merchant.id, e.target.value); }} style={{padding:6, borderRadius:8, border:'1px solid #E4EBDD', fontSize:11, fontWeight:900}}>
+        <td style={{ padding: 25 }}>
+          <select value={merchant.contact_status || 'sin_contacto'} onChange={(e)=>{ e.stopPropagation(); onUpdateContactStatus(merchant.id, e.target.value); }} onClick={(e)=>e.stopPropagation()} style={{padding:'8px 12px', borderRadius:10, border:'1.5px solid #F0F4ED', fontSize:11, fontWeight:1000, background:'#F8F9F5', outline:'none'}}>
             <option value="sin_contacto">SIN CONTACTO</option>
             <option value="contactado">CONTACTADO</option>
             <option value="verificado">VERIFICADO</option>
           </select>
         </td>
-        <td style={{ padding: 20 }}>
-          <div style={{display:'flex', gap:10}}>
-            <button onClick={(e)=>{ e.stopPropagation(); onOpenEdit(merchant); }} style={{background:'none', border:'none', color:'#5F7D4A'}}><Edit size={18}/></button>
-            {expanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}
+        <td style={{ padding: 25 }}>
+          <div style={{display:'flex', gap:15, alignItems:'center'}}>
+            <button onClick={(e)=>{ e.stopPropagation(); onOpenEdit(merchant); }} style={{background:'#F0F4ED', border:'none', color:'#5F7D4A', padding:8, borderRadius:10, cursor:'pointer'}}><Edit size={18}/></button>
+            {expanded ? <ChevronUp size={22} color="#B2AC88" /> : <ChevronDown size={22} color="#B2AC88" />}
           </div>
         </td>
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={5} style={{ padding: 40, background: '#F8F9F5' }}>
-            <div style={{ display: 'flex', gap: 40 }}>
+          <td colSpan={5} style={{ padding: 40, background: '#F8F9F5', borderBottom:'1px solid #E4EBDD' }}>
+            <div style={{ display: 'flex', gap: 60 }}>
                <div style={{flex: 1}}>
-                 <h4 style={{fontWeight:1000, marginBottom:15}}>Validaciones ({merchant.validationsCount || 0})</h4>
-                 <div style={{fontSize:13, color:'#555'}}>{merchant.v_users?.join(', ') || 'Nadie validó aún.'}</div>
+                 <h4 style={{fontWeight:1000, color:'#2D3A20', marginBottom:20, display:'flex', alignItems:'center', gap:10}}><BarChart3 size={20}/> Análisis de Comercio</h4>
+                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:30}}>
+                    <div>
+                        <div style={StatLabel}>Validaciones Consolidadas</div>
+                        <div style={{fontSize:'1.8rem', fontWeight:1000, color:'#A67C00'}}>{merchant.validationsCount || 0}</div>
+                        <div style={{fontSize:11, color:'#888', marginTop:5}}>Este comercio ha sido validado por usuarios de la red.</div>
+                    </div>
+                    <div>
+                        <div style={StatLabel}>Estado del Perfil</div>
+                        <div style={{marginTop:10}}>
+                             {merchant.claimed ? <span style={ProfileBadge(true)}>CLAIMED</span> : <span style={ProfileBadge(false)}>UNCLAIMED</span>}
+                             {merchant.verified ? <span style={{...ProfileBadge(true), background:'#FDE68A', color:'#92400E', marginLeft:10}}>OFFICIAL</span> : null}
+                        </div>
+                    </div>
+                 </div>
+                 {merchant.admin_notes && (
+                   <div style={{marginTop:30, padding:20, background:'white', borderRadius:15, border:'1px solid #E4EBDD'}}>
+                      <div style={StatLabel}>Notas del Administrador</div>
+                      <div style={{fontSize:13, color:'#555', marginTop:5}}>{merchant.admin_notes}</div>
+                   </div>
+                 )}
                </div>
-               <div style={{width:200, display:'flex', flexDirection:'column', gap:10}}>
-                  <button onClick={()=>onUpdateStatus(merchant.id, 'active')} style={{padding:12, background:'#5F7D4A', color:'white', border:'none', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>APROBAR</button>
-                  <button onClick={()=>onUpdateStatus(merchant.id, 'rejected')} style={{padding:12, background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>RECHAZAR</button>
-                  <button onClick={()=>onToggleVerified(merchant.id, merchant.verified)} style={{padding:12, background:'#A67C00', color:'white', border:'none', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>{merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}</button>
+               <div style={{width:250, display:'flex', flexDirection:'column', gap:12}}>
+                  <button onClick={()=>onUpdateStatus(merchant.id, 'active')} style={ActionBtn('#5F7D4A', 'white')}><Check size={18}/> APROBAR</button>
+                  <button onClick={()=>onUpdateStatus(merchant.id, 'rejected')} style={ActionBtn('white', '#EF4444', '#EF4444')}><X size={18}/> RECHAZAR</button>
+                  <div style={{height:1, background:'#E4EBDD', margin:'10px 0'}}/>
+                  <button onClick={()=>onToggleVerified(merchant.id, merchant.verified)} style={ActionBtn(merchant.verified ? '#F0F4ED' : '#A67C00', merchant.verified ? '#A67C00' : 'white')}>
+                    <ShieldCheck size={18}/> {merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}
+                  </button>
                </div>
             </div>
           </td>
@@ -571,8 +637,44 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
   );
 }
 
-const THStyle = { padding: '1.2rem 1rem', fontSize: '0.75rem', fontWeight: '950', color: '#B2AC88', textTransform: 'uppercase' as const, textAlign: 'left' as const };
-const BadgeStyle = { padding: '4px 10px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '850' };
-const LabelStyle = { display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase' as const, marginBottom: '6px' };
-const InputStyle = { width: '100%', padding: '0.8rem 1rem', borderRadius: '12px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '700' };
-const FilterSelectStyle = { padding: '0.8rem 1rem', borderRadius: '18px', border: '1.5px solid #F0F4ED', background: 'white', fontWeight: '900', outline: 'none', cursor: 'pointer' };
+function DonationsList({ donations, loading }: any) {
+    if (loading) return <div>Cargando donaciones...</div>;
+    return (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>MONTO</th><th style={THStyle}>ESTADO</th><th style={THStyle}>METODO</th></tr></thead>
+            <tbody>
+                {donations.map((d: any) => (
+                    <tr key={d.id} style={{borderBottom:'1px solid #F0F4ED'}}>
+                        <td style={{padding:20}}>{new Date(d.created_at).toLocaleDateString()}</td>
+                        <td style={{padding:20, fontWeight:1000, fontSize:'1.1rem'}}>{d.currency} ${d.amount}</td>
+                        <td style={{padding:20}}><span style={{...BadgeStyle, background:'#DCFCE7'}}>{d.status.toUpperCase()}</span></td>
+                        <td style={{padding:20, color:'#888'}}>{d.payment_method || 'MercadoPago'}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
+}
+
+const THStyle = { padding: '1.2rem 1rem', fontSize: '0.75rem', fontWeight: '1000', color: '#B2AC88', textTransform: 'uppercase' as const, textAlign: 'left' as const };
+const BadgeStyle = { padding: '6px 12px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: '1000', letterSpacing:'0.5px' };
+const LabelStyle = { display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase' as const, marginBottom: '8px' };
+const InputStyle = { width: '100%', padding: '1rem 1.2rem', borderRadius: '15px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '700', fontSize:'0.9rem' };
+const FilterSelectStyle = { padding: '0.9rem 1.2rem', borderRadius: '20px', border: '1.5px solid #F0F4ED', background: 'white', fontWeight: '1000', outline: 'none', cursor: 'pointer', color:'#2D3A20', fontSize:'0.85rem' };
+const StatLabel = { fontSize: '0.7rem', fontWeight: 1000, color: '#B2AC88', textTransform: 'uppercase' as const, letterSpacing: '0.5px' };
+const ProfileBadge = (active: boolean) => ({ padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 1000, background: active ? '#DCFCE7' : '#F3F4F6', color: active ? '#166534' : '#6B7280' });
+const ActionBtn = (bg: string, color: string, border?: string) => ({ 
+    padding: '14px', 
+    background: bg, 
+    color: color, 
+    border: border ? `1.5px solid ${border}` : 'none', 
+    borderRadius: '16px', 
+    fontWeight: 1000, 
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    fontSize: '0.85rem',
+    transition: 'transform 0.2s'
+});
