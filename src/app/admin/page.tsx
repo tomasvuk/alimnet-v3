@@ -179,14 +179,20 @@ export default function AdminDashboard() {
       
       if (error) throw error;
 
-      // Mapeamos los usuarios con valores por defecto para actividad ya que quitamos los counts complejos
-      const processedUsers = (data || []).map(u => {
+      // Mapeamos los usuarios con counts reales
+      const processedUsers = await Promise.all((data || []).map(async (u) => {
+        const { count: mCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('created_by', u.id);
+        const { count: vCount } = await supabase.from('validations').select('id', { count: 'exact', head: true }).eq('user_id', u.id);
+        const { count: fCount } = await supabase.from('favorites').select('id', { count: 'exact', head: true }).eq('profile_id', u.id);
+        
         return {
           ...u,
-          v_count: 0, f_count: 0, s_count: 0, m_count: 0,
-          activity: 10 // Valor base de actividad
+          v_count: vCount || 0,
+          f_count: fCount || 0,
+          m_count: mCount || 0,
+          activity: Math.min(100, (mCount || 0) * 20 + (vCount || 0) * 10 + 10)
         };
-      });
+      }));
       
       setUsers(processedUsers);
     } catch (e) {

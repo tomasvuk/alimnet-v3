@@ -71,6 +71,20 @@ export default function MerchantRegistrationPage() {
     setFormData({ ...formData, categories: next });
   };
 
+  const parseGoogleMapsUrl = (url: string) => {
+    if (!url) return null;
+    // Regex para capturar @-34.12345,-58.12345 o !3d-34.12345!4d-58.12345
+    const regex1 = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+    const regex2 = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/;
+    
+    const match1 = url.match(regex1);
+    const match2 = url.match(regex2);
+    
+    if (match1) return { lat: parseFloat(match1[1]), lng: parseFloat(match1[2]) };
+    if (match2) return { lat: parseFloat(match2[1]), lng: parseFloat(match2[2]) };
+    return null;
+  };
+
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
 
@@ -80,7 +94,8 @@ export default function MerchantRegistrationPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/login'); return; }
 
-      const { error } = await supabase.from('merchants').insert([{
+      // 1. Crear el comercio
+      const { data: merchantData, error: merchantError } = await supabase.from('merchants').insert([{
         owner_id: user.id,
         name: formData.name,
         bio_short: formData.bio_short,
@@ -90,10 +105,25 @@ export default function MerchantRegistrationPage() {
         instagram_url: formData.instagram_url,
         google_maps_url: formData.google_maps_url,
         website_url: formData.website_url,
-        validation_status: 'pending'
-      }]);
+        status: 'pending'
+      }]).select().single();
 
-      if (error) throw error;
+      if (merchantError) throw merchantError;
+
+      // 2. Si hay link de Google Maps, intentar crear la ubicación
+      const coords = parseGoogleMapsUrl(formData.google_maps_url);
+      if (coords && merchantData) {
+        await supabase.from('locations').insert([{
+          merchant_id: merchantData.id,
+          location_type: 'fixed',
+          lat: coords.lat,
+          lng: coords.lng,
+          is_primary: true,
+          locality: 'Detectada via link',
+          country: 'Argentina'
+        }]);
+      }
+
       router.push('/perfil');
     } catch (err) {
       console.error(err);

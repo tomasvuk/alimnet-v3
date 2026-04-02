@@ -98,6 +98,18 @@ export default function Header() {
           {!isMobileView && <span>EXPLORAR</span>}
         </button>
 
+        <button 
+          onClick={() => router.push('/sumate')}
+          style={{ 
+            display: 'flex', alignItems: 'center', gap: '8px', background: '#F0F4ED', 
+            padding: '8px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', 
+            color: '#5F7D4A', fontWeight: '950', fontSize: '0.8rem'
+          }}
+        >
+          <Plus size={18} strokeWidth={3} />
+          {!isMobileView && <span>SUMAR</span>}
+        </button>
+
         {loading ? (
           <Loader2 className="animate-spin" size={18} color="#5F7D4A" />
         ) : !user ? (

@@ -90,6 +90,7 @@ interface MapProps {
   center?: [number, number];
   zoom?: number;
   onInteraction?: (direction: 'up' | 'down') => void;
+  onMarkerClick?: (id: string) => void;
 }
 
 const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down') => void }) => {
@@ -114,7 +115,7 @@ const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down
   return null;
 };
 
-const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onInteraction }: MapProps) => {
+const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onInteraction, onMarkerClick }: MapProps) => {
   return (
     <div style={{ height: '100%', width: '100%', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
       <MapContainer 
@@ -139,26 +140,26 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onI
           return (
             <React.Fragment key={p.id}>
               {p.is_exact_location ? (
-                <Marker position={position} icon={getAlimnetIcon(p.type || p.category || 'productor')}>
+                <Marker position={position} icon={getAlimnetIcon(p.type || p.category || 'productor')} eventHandlers={{ click: () => onMarkerClick?.(p.id) }}>
                   <Popup>
-                    <div style={{ textAlign: 'center', padding: '5px' }}>
-                      <strong style={{ display: 'block', fontSize: '1rem', marginBottom: '4px' }}>{p.name}</strong>
-                      <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{p.category}</span>
+                    <div style={{ textAlign: 'center', padding: '3px 4px' }}>
+                      <strong style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>{p.name}</strong>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{p.category}</span>
                       <br />
-                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{p.city_zone}</span>
-                      <a 
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${p.location_lat},${p.location_lng}`} 
-                        target="_blank" 
+                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{p.city_zone}</span>
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${p.location_lat},${p.location_lng}`}
+                        target="_blank"
                         rel="noopener noreferrer"
                         style={{
                           display: 'inline-block',
-                          marginTop: '8px',
-                          padding: '6px 12px',
+                          marginTop: '5px',
+                          padding: '4px 8px',
                           background: '#5F7D4A',
                           color: 'white',
                           borderRadius: '8px',
                           textDecoration: 'none',
-                          fontSize: '0.75rem',
+                          fontSize: '0.7rem',
                           fontWeight: '900'
                         }}
                       >

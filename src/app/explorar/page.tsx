@@ -35,7 +35,9 @@ import {
   User,
   Filter,
   Lock,
-  Menu
+  Menu,
+  Plus,
+  Compass
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { 
@@ -229,6 +231,12 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
 // --- NUEVO LOGO PRO (EXACTO: ESFERA DE RED) ---
 // (LOGO REMOVIDO POR PEDIDO DEL USUARIO - SE MANTIENE SOLO TEXTO)
 
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
 export default function ExplorarPage() {
   const router = useRouter();
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'abastecedor', 'restaurante', 'chef']);
@@ -262,6 +270,11 @@ export default function ExplorarPage() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isMerchant, setIsMerchant] = useState(false);
+  const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
+  const [searchCoords, setSearchCoords] = useState<{ lat: number, lng: number } | null>(null);
+  const [radiusKm, setRadiusKm] = useState<number>(30);
+  const [finalCoords, setFinalCoords] = useState<{ lat: number, lng: number } | null>(null);
+  const [externalPlaceSelected, setExternalPlaceSelected] = useState<any>(null);
   const resultsRef = React.useRef<HTMLElement>(null);
   const mapSectionRef = React.useRef<HTMLDivElement>(null);
   const touchStartY = React.useRef<number>(0);
@@ -269,6 +282,92 @@ export default function ExplorarPage() {
 
   useEffect(() => {
     setHasMounted(true);
+    
+    // --- INTEGRACIÓN GOOGLE MAPS AUTOCOMPLETE ---
+    const loadGoogleMaps = () => {
+      if (typeof window === 'undefined') return;
+      if (window.google) {
+        initAutocomplete();
+        return;
+      }
+      
+      // Prevenir múltiples cargas
+      if ((window as any).isGoogleMapsLoading) return;
+      (window as any).isGoogleMapsLoading = true;
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        console.log("Google Maps loaded");
+        initAutocomplete();
+      };
+      document.head.appendChild(script);
+    };
+
+    const initAutocomplete = () => {
+      const locationInput = document.getElementById('search-location-input') as HTMLInputElement;
+      const mainSearchInput = document.getElementById('search-input') as HTMLInputElement;
+      if (!window.google) return;
+
+      // 1. Autocomplete para UBICACIÓN
+      if (locationInput) {
+        const locationAutocomplete = new window.google.maps.places.Autocomplete(locationInput, {
+          types: ['(regions)'],
+          componentRestrictions: { country: 'ar' },
+          fields: ['formatted_address', 'geometry', 'name']
+        });
+
+        locationAutocomplete.addListener('place_changed', () => {
+          const place = locationAutocomplete.getPlace();
+          if (!place.geometry) return;
+          const name = place.formatted_address || place.name;
+          setSearchLocation(name);
+          setSearchCoords({ lat: place.geometry.location.lat(), lng: place.geometry.location.lng() });
+        });
+      }
+
+      // 2. Autocomplete para BUSCAR (Inteligente)
+      if (mainSearchInput) {
+        const mainAutocomplete = new window.google.maps.places.Autocomplete(mainSearchInput, {
+          types: ['geocode', 'establishment'],
+          componentRestrictions: { country: 'ar' },
+          fields: ['formatted_address', 'geometry', 'name']
+        });
+
+        mainAutocomplete.addListener('place_changed', () => {
+          const place = mainAutocomplete.getPlace();
+          if (!place.geometry) return;
+          const name = place.name || place.formatted_address;
+          setSearchQuery(name);
+          
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          setSearchCoords({ lat, lng });
+          
+          // Verificar si el comercio ya existe en nuestra base (por nombre exacto aprox)
+          const exists = merchants.some(m => normalizeString(m.name) === normalizeString(name));
+          
+          if (!exists && place.types?.includes('establishment')) {
+            setExternalPlaceSelected({
+              name,
+              address: place.formatted_address,
+              lat,
+              lng,
+              placeId: place.place_id
+            });
+          } else {
+            setExternalPlaceSelected(null);
+          }
+          
+          trackClick('SEARCH_MAIN_SELECTED', { name });
+        });
+      }
+    };
+
+    loadGoogleMaps();
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -477,7 +576,8 @@ export default function ExplorarPage() {
     let result = merchants.filter(m => selectedCategories.includes((m.type || '').toLowerCase()));
 
     // Filtrado por Búsqueda Libre (Nombre, Alimento, Lugar)
-    if (searchQuery.trim().length > 0) {
+    const isRegionalQuery = ['zona norte', 'zona oeste', 'zona sur', 'gba', 'buenos aires'].some(r => normalizeString(searchQuery).includes(r));
+    if (searchQuery.trim().length > 0 && !isRegionalQuery) {
       const q = normalizeString(searchQuery);
       result = result.filter(m => 
         normalizeString(m.name).includes(q) || 
@@ -485,11 +585,54 @@ export default function ExplorarPage() {
       );
     }
 
-    // Filtrado por Ubicación (Editable)
-    if (searchLocation.trim().length > 0) {
+    // Filtrado por Ubicación (Potenciado con Coordenadas y Regiones)
+    let tempCoords = searchCoords;
+    let tempRadius = 30; // Radio base aumentado a 30km
+
+    // Mapeo manual de regiones comunes si es búsqueda por texto (en ambos campos para mayor facilidad)
+    const locText = searchLocation || searchQuery;
+    if (!tempCoords && locText.trim().length > 0) {
+      const locNorm = normalizeString(locText);
+      if (locNorm.includes('zona norte')) {
+        tempCoords = { lat: -34.47, lng: -58.55 };
+        tempRadius = 40;
+      } else if (locNorm.includes('zona oeste')) {
+        tempCoords = { lat: -34.65, lng: -58.60 };
+        tempRadius = 40;
+      } else if (locNorm.includes('zona sur')) {
+        tempCoords = { lat: -34.75, lng: -58.35 };
+        tempRadius = 40;
+      } else if (locNorm.includes('gba') || locNorm.includes('buenos aires')) {
+        tempCoords = { lat: -34.60, lng: -58.45 };
+        tempRadius = 60;
+      }
+    }
+
+    setFinalCoords(tempCoords);
+    setRadiusKm(tempRadius);
+
+    if (tempCoords) {
+      // Usar tempRadius para el filtrado
+      const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+      };
+
+      result = result.filter(m => 
+        m.locations?.some(l => getDistance(tempCoords!.lat, tempCoords!.lng, l.lat, l.lng) <= tempRadius)
+      );
+    } else if (searchLocation.trim().length > 0) {
+      // Fallback a búsqueda por texto literal en localidad si no hay mapeo de región ni coords
       const loc = normalizeString(searchLocation);
       result = result.filter(m => 
-        m.locations?.some(l => normalizeString(l.locality).includes(loc))
+        m.locations?.some(l => normalizeString(l.locality || '').includes(loc))
       );
     }
 
@@ -520,7 +663,7 @@ export default function ExplorarPage() {
     }
 
     setFilteredMerchants(result);
-  }, [selectedCategories, selectedFilters, merchants, searchQuery, searchLocation, deliveryType]);
+  }, [selectedCategories, selectedFilters, merchants, searchQuery, searchLocation, searchCoords, deliveryType]);
 
   const filterData = (data: Merchant[], categories: string[], types: string[]) => {
     let result = data.filter(m => {
@@ -648,25 +791,26 @@ export default function ExplorarPage() {
   // No bloqueamos toda la página, solo el acceso a info sensible
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F0F4ED' }}>
+    <div style={{ 
+      height: isMobile ? 'auto' : '100vh', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      background: '#F0F4ED',
+      paddingTop: 0
+    }}>
       
       <Header />
 
-      {/* 2. BARRA DE FILTROS (FIXED on mobile, STICKY on desktop) */}
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
-        padding: isMobile ? '0.6rem 1rem' : '1rem 1.5rem', 
-        background: 'rgba(255, 255, 255, 1)', 
-        borderBottom: '1px solid var(--border)',
-        position: 'sticky',
-        top: '56px', 
-        left: 0,
-        right: 0,
+        padding: isMobile ? '0.8rem 1rem' : '72px 1.5rem 0.8rem', // 72px para cubrir el header (56px) + aire (16px)
+        background: 'white', 
+        borderBottom: '1px solid #E4EBDD',
         zIndex: 900,
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.8rem',
-        boxShadow: stickyFilters ? '0 10px 30px rgba(0,0,0,0.08)' : 'none',
+        gap: isMobile ? '0.8rem' : '1rem',
         alignItems: 'center',
+        position: 'relative'
       }}>
 
         
@@ -724,10 +868,17 @@ export default function ExplorarPage() {
                 <div style={{ flex: 1.5, position: 'relative', padding: isMobile ? '12px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
                   <label style={{ display: 'block', fontSize: isMobile ? '0.6rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Buscar</label>
                   <input 
+                    id="search-input"
                     type="text" autoFocus={isMobile}
                     placeholder="Alimentos, lugares..." 
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (e.target.value === '') {
+                        setSearchCoords(null);
+                        setExternalPlaceSelected(null);
+                      }
+                    }}
                     onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => !isMobile && setTimeout(() => setIsSearchFocused(false), 200)}
                     style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
@@ -740,10 +891,14 @@ export default function ExplorarPage() {
                 <div style={{ flex: 1, position: 'relative', padding: isMobile ? '12px 20px' : '6px 24px', borderRadius: isMobile ? '20px' : '40px', cursor: 'text' }} className="capsule-section">
                   <label style={{ display: 'block', fontSize: isMobile ? '0.6rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Ubicación</label>
                   <input 
+                    id="search-location-input"
                     type="text" 
                     placeholder="¿A dónde?" 
                     value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
+                    onChange={(e) => {
+                      setSearchLocation(e.target.value);
+                      if (e.target.value === '') setSearchCoords(null);
+                    }}
                     onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => !isMobile && setTimeout(() => setIsSearchFocused(false), 200)}
                     style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
@@ -803,12 +958,12 @@ export default function ExplorarPage() {
         {/* CONTENEDOR DE ROLES (PROVEEDORES, etc) */}
         <div style={{
           width: '100%', display: 'flex', justifyContent: 'center',
-          maxHeight: (isMobile && !isRolesVisible) ? '0' : '100px',
-          opacity: (isMobile && !isRolesVisible) ? 0 : 1,
-          transform: (isMobile && !isRolesVisible) ? 'translateY(-15px)' : 'translateY(0)',
+          maxHeight: '100px',
+          opacity: 1,
+          transform: 'translateY(0)',
           overflow: 'hidden',
           transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-          pointerEvents: (isMobile && !isRolesVisible) ? 'none' : 'auto'
+          pointerEvents: 'auto'
         }}>
           <div style={{ 
             display: 'flex', gap: isMobile ? '6px' : '8px', alignItems: 'center', 
@@ -843,46 +998,16 @@ export default function ExplorarPage() {
         </div>
 
         {/* CONTENEDOR DE PRODUCTOS (VERDURAS, etc) */}
-        <div style={{
-          width: '100%', display: 'flex', justifyContent: 'center',
-          maxHeight: (isMobile && !isPillsVisible) ? '0' : '200px',
-          opacity: (isMobile && !isPillsVisible) ? 0 : 1,
-          transform: (isMobile && !isPillsVisible) ? 'translateY(-15px)' : 'translateY(0)',
-          overflow: 'hidden',
-          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-          pointerEvents: (isMobile && !isPillsVisible) ? 'none' : 'auto'
-        }}>
-          <div style={{ 
-            display: 'flex', gap: isMobile ? '4px' : '6px', 
-            flexWrap: 'wrap',
-            width: '100%', maxWidth: '950px', justifyContent: 'center',
-            padding: '0 10px'
-          }} className="no-scrollbar">
-            {PRODUCT_OPTIONS.map(prod => {
-              const isActive = selectedFilters.includes(prod);
-              return (
-                <button 
-                  key={prod} onClick={() => toggleFilter(prod)}
-                  style={{
-                    padding: isMobile ? '0.3rem 0.7rem' : '0.35rem 0.9rem', 
-                    fontSize: isMobile ? '0.7rem' : '0.75rem', 
-                    fontWeight: '800', borderRadius: '30px',
-                    display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s',
-                    border: isActive ? '1.2px solid var(--primary-dark)' : '1px solid #c9d2c4',
-                    background: isActive ? 'var(--primary-dark)' : '#eaeee6',
-                    color: isActive ? 'white' : 'var(--primary-dark)', whiteSpace: 'nowrap'
-                  }}
-                >
-                  {prod}
-                </button>
-              )
-            })}
-          </div>
-        </div>
       </div>
 
-      {/* 3. CONTENIDO PRINCIPAL */}
-      <div className="main-content" style={{ flex: 1, display: 'flex', overflow: 'visible', position: 'relative' }}>
+      {/* 3. CONTENIDO PRINCIPAL - FIXED LAYOUT */}
+      <div className="main-content" style={{ 
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
+        overflow: 'hidden', 
+        position: 'relative' 
+      }}>
         
         {/* Toggle Flotante Mobile SOLAMENTE */}
         <div className="mobile-only" style={{ display: isMobile ? 'flex' : 'none' }}>
@@ -905,27 +1030,94 @@ export default function ExplorarPage() {
         <section 
           ref={resultsRef}
           className="results-section" 
+          onScroll={() => {}}
           style={{ 
             width: isMobile ? '100%' : '35%', 
-            minWidth: isMobile ? '0' : '400px', 
+            minWidth: isMobile ? '0' : '420px', 
             display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
-            padding: '1rem', background: '#F8F9F5',
+            padding: isMobile ? '1rem' : '0 1.5rem 1.5rem', 
+            background: '#F8F9F5',
             borderRight: isMobile ? 'none' : '1px solid var(--border)', 
-            height: isMobile ? 'calc(100vh - 120px)' : 'calc(100vh - 120px)', 
+            height: '100%', 
             overflowY: 'auto',
-            paddingTop: '1rem'
+            position: 'relative'
           }}
         >
+          {/* HEADER DE CONTEO - STICKY Y PEQUEÑO */}
           <div style={{ 
-            marginBottom: '1.2rem', padding: '0.6rem 1rem', background: 'white', borderRadius: '16px', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E4EBDD',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.02)' 
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
+            background: 'white',
+            padding: '0.8rem 1.75rem', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            borderBottom: '1px solid #E4EBDD',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+            width: '100%'
           }}>
-            <h2 style={{ fontSize: '0.85rem', fontWeight: '900', color: '#2D3A20', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {filteredMerchants.length} {filteredMerchants.length === 1 ? 'local encontrado' : 'locales encontrados'}
+            <Compass size={16} color="var(--primary)" />
+            <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>
+              {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+            {/* OPCIÓN: SUMAR COMERCIO EXTERNO */}
+            {externalPlaceSelected && (
+              <div 
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  params.set('name', externalPlaceSelected.name);
+                  params.set('address', externalPlaceSelected.address || '');
+                  params.set('lat', externalPlaceSelected.lat.toString());
+                  params.set('lng', externalPlaceSelected.lng.toString());
+                  router.push(`/sumar-comercio-vecino?${params.toString()}`);
+                }}
+                style={{ 
+                  padding: '1.25rem', background: '#F0F4ED', borderRadius: '24px', 
+                  border: '2px dashed #5F7D4A', cursor: 'pointer', transition: 'all 0.3s',
+                  display: 'flex', gap: '15px'
+                }}>
+                <div style={{ width: '45px', height: '45px', borderRadius: '14px', background: '#5F7D4A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <Plus size={24} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20' }}>{externalPlaceSelected.name} no está en Alimnet</h4>
+                  <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#5F7D4A', fontWeight: '700' }}>¡Sé el primero en sumarlo a la comunidad!</p>
+                </div>
+              </div>
+            )}
+
+            {/* OPCIÓN: SUMAR COMERCIO EXTERNO (SUGERENCIA GENERAL SI NO HAY RESULTADOS) */}
+            {filteredMerchants.length === 0 && searchQuery.trim().length > 3 && !externalPlaceSelected && (
+              <div 
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  params.set('name', searchQuery);
+                  router.push(`/sumar-comercio-vecino?${params.toString()}`);
+                }}
+                style={{ 
+                  padding: '1.5rem', background: 'white', borderRadius: '24px', 
+                  border: '1.5px dashed #5F7D4A', cursor: 'pointer', textAlign: 'center',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.05)'
+                }}>
+                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                  <Plus size={24} color="#5F7D4A" />
+                </div>
+                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20' }}>¿No encontraste "{searchQuery}"?</h4>
+                <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600', lineHeight: '1.5' }}>
+                  ¡Sumalo vos mismo a la comunidad! Ayudanos a mapear la comida real.
+                </p>
+                <button style={{ 
+                  marginTop: '1.2rem', padding: '0.8rem 1.5rem', borderRadius: '14px', border: 'none',
+                  background: 'var(--primary)', color: 'white', fontWeight: '900', fontSize: '0.85rem'
+                }}>
+                  SUMAR COMERCIO
+                </button>
+              </div>
+            )}
+
             {filteredMerchants.map(m => (
               <MerchantCard key={m.id} merchant={m} onClick={() => {
                 handleMerchantSelect(m);
@@ -949,8 +1141,8 @@ export default function ExplorarPage() {
           }}
         >
           {hasMounted && (
-            <MapComponent 
-              key={`${isMobile ? mobileView : 'desktop'}-${filteredMerchants.length}`}
+            <MapComponent
+              key={`${isMobile ? mobileView : 'desktop'}-${filteredMerchants.length}-${searchCoords?.lat || ''}`}
               onInteraction={(dir) => {
                 if (isMobile) {
                   if (dir === 'up') {
@@ -962,40 +1154,68 @@ export default function ExplorarPage() {
                   }
                 }
               }}
-              providers={(filteredMerchants.length > 0 ? filteredMerchants : merchants).map(m => {
-                // Seleccionar la ubicación primaria o la primera disponible
+              onMarkerClick={(id) => {
+                const m = filteredMerchants.find(mm => mm.id === id) || merchants.find(mm => mm.id === id);
+                if (m) {
+                  handleMerchantSelect(m);
+                  if (window.innerWidth < 768) {
+                    setMobileView('list');
+                  } else {
+                    setTimeout(() => {
+                      document.getElementById(`merchant-card-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 50);
+                  }
+                }
+              }}
+              providers={filteredMerchants.map(m => {
                 const loc = m.locations?.find((l: any) => l.is_primary) || m.locations?.[0];
                 return {
-                  id: m.id,
-                  name: m.name,
-                  category: m.type,
-                  type: m.type,
-                  location_lat: loc?.lat || -34.6037,
-                  location_lng: loc?.lng || -58.3816,
-                  is_exact_location: !!loc?.lat,
-                  city_zone: loc?.locality || 'Argentina'
+                  id: m.id, name: m.name, category: m.type, type: m.type,
+                  location_lat: loc?.lat || -34.6037, location_lng: loc?.lng || -58.3816,
+                  is_exact_location: !!loc?.lat, city_zone: loc?.locality || 'Argentina'
                 };
-              })} 
-              center={[-34.6037, -58.3816]}
-              zoom={isMobile ? 10 : 11}
+              })}
+              center={finalCoords ? [finalCoords.lat, finalCoords.lng] : [-34.6037, -58.3816]}
+              zoom={finalCoords ? (radiusKm > 40 ? 10 : 12) : (isMobile ? 10 : 11)}
             />
           )}
         </section>
+
+        {selectedMerchant && (
+          <DetailPanel
+            merchant={selectedMerchant as Merchant}
+            isLoggedIn={isLoggedIn}
+            user={user}
+            userProfile={userProfile}
+            validators={validators}
+            hasValidatedInitial={validatedMerchantIds.has(selectedMerchant.id)}
+            onClose={() => setSelectedMerchant(null)}
+            trackClick={trackClick}
+            onValidate={handleValidate}
+          />
+        )}
       </div>
 
-      {selectedMerchant && (
-        <DetailPanel 
-          merchant={selectedMerchant as Merchant} 
-          isLoggedIn={isLoggedIn}
-          user={user}
-          userProfile={userProfile}
-          validators={validators}
-          hasValidatedInitial={validatedMerchantIds.has(selectedMerchant.id)}
-          onClose={() => setSelectedMerchant(null)} 
-          trackClick={trackClick}
-          onValidate={handleValidate}
-        />
-      )}
+      {/* 11. FLOATING CTA: SUMAR COMERCIO */}
+      <div style={{ position: 'fixed', bottom: isMobile ? '80px' : '30px', right: isMobile ? '20px' : '30px', zIndex: 2000 }}>
+        <button 
+          onClick={() => router.push('/sumate')}
+          onMouseEnter={() => setIsAddButtonHovered(true)}
+          onMouseLeave={() => setIsAddButtonHovered(false)}
+          style={{ 
+            display: 'flex', alignItems: 'center', gap: '10px', padding: isMobile ? '0.8rem 1.4rem' : '1.1rem 1.8rem', 
+            backgroundColor: isAddButtonHovered ? '#5F7D4A' : '#2D3A20', 
+            color: 'white', border: 'none', borderRadius: '40px', 
+            fontWeight: '1000', fontSize: isMobile ? '0.85rem' : '1rem', cursor: 'pointer',
+            boxShadow: '0 15px 40px rgba(0,0,0,0.15)', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            transform: isAddButtonHovered ? 'scale(1.05) translateY(-5px)' : 'scale(1)'
+          }}
+          className="floating-add-button"
+        >
+          <Plus size={isMobile ? 20 : 24} strokeWidth={3} />
+          <span>Sumar Comercio</span>
+        </button>
+      </div>
 
       <style jsx>{` 
         @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
@@ -1082,7 +1302,8 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
   }
 
   return (
-    <div 
+    <div
+      id={`merchant-card-${merchant.id}`}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -1314,6 +1535,26 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{merchant.delivery_info || "Consultar alcance."}</p>
                 </div>
               </div>
+              {(() => {
+                const loc = merchant.locations?.find((l: any) => l.is_primary) || merchant.locations?.[0];
+                if (!loc?.lat || !loc?.lng) return null;
+                return (
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <Navigation size={16} color="var(--primary)" />
+                    <div>
+                      <p style={{ fontSize: '0.75rem', fontWeight: '800' }}>Cómo llegar</p>
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '700', textDecoration: 'none' }}
+                      >
+                        Ver en Google Maps →
+                      </a>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 

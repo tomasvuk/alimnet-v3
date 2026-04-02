@@ -68,8 +68,10 @@ function MiCuentaContent() {
     validations: 0,
     referents: 1, // Carlos de base
     saved: 1, // Raíz Vivo de base
-    recent: 3
+    recent: 3,
+    contributions: 0
   });
+  const [contributions, setContributions] = useState<any[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -173,8 +175,20 @@ function MiCuentaContent() {
         if (pData) setMerchantProducts(pData);
       }
 
-    } catch (err) { console.error(err); } finally { setLoading(false); }
-  };
+        // 4. TRAER CONTRIBUCIONES COMUNITARIAS
+        const { data: cData, count: cCount } = await supabase
+          .from('merchants')
+          .select('*', { count: 'exact' })
+          .eq('created_by', user.id)
+          .eq('created_by_type', 'neighborhood_recommendation');
+        
+        if (cData) {
+          setContributions(cData);
+          setCounts(prev => ({ ...prev, contributions: cCount || 0 }));
+        }
+
+      } catch (err) { console.error(err); } finally { setLoading(false); }
+    };
   const handleSaveMerchant = async () => {
     setSaving(true);
     try {
@@ -207,6 +221,7 @@ function MiCuentaContent() {
     { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
     ...(merchantData ? [{ id: 'mi-emprendimiento', label: 'Mi Emprendimiento', icon: Package }] : []),
     { id: 'perfil', label: 'Mi Perfil', icon: User },
+    { id: 'contribuciones', label: 'Mis Contribuciones', icon: Sparkles },
     { id: 'validaciones', label: 'Validaciones', icon: ShieldCheck },
     { id: 'referentes', label: 'Referentes', icon: Users },
     { id: 'favoritos', label: 'Guardados', icon: Star },
@@ -381,6 +396,14 @@ function MiCuentaContent() {
                     <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase' }}>RECIENTES</span>
                   </div>
                 </div>
+
+                <div onClick={() => handleTabChange('contribuciones')} style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
+                  <div style={{ color: '#5F7D4A' }}><Sparkles size={22} /></div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.contributions}</span>
+                    <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase' }}>APORTES</span>
+                  </div>
+                </div>
               </div>
 
               {/* Activity Timeline Placeholder */}
@@ -393,6 +416,59 @@ function MiCuentaContent() {
             </div>
           )}
 
+          {activeTab === 'contribuciones' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem', width: '100%' }}>
+              <div style={{ gridColumn: '1 / -1', marginBottom: '1.5rem' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Contribuciones</h2>
+                <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Proyectos que sumaste a la red Alimnet.</p>
+              </div>
+
+              {contributions.length > 0 ? (
+                contributions.map(c => (
+                  <div 
+                    key={c.id}
+                    style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative' }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                       <div style={{ width: '42px', height: '42px', background: '#F0F4ED', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A' }}>
+                         <Package size={20} />
+                       </div>
+                       <span style={{ 
+                         fontSize: '0.6rem', fontWeight: '950', padding: '4px 10px', borderRadius: '20px',
+                         background: c.status === 'active' ? '#EEF8F1' : '#FFF9E6',
+                         color: c.status === 'active' ? '#27AE60' : '#F2994A',
+                         textTransform: 'uppercase'
+                       }}>
+                         {c.status === 'active' ? 'Publicado' : 'Revision'}
+                       </span>
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>{c.name}</h3>
+                      <p style={{ fontSize: '0.8rem', color: '#888', fontWeight: '600', marginTop: '4px' }}>{c.instagram_url ? `@${c.instagram_url}` : 'Sin red social'}</p>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#666', fontWeight: '600', lineHeight: '1.4' }}>
+                      {c.bio_short || "Sin descripción proporcionada."}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ gridColumn: '1 / -1', padding: '5rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
+                  <Sparkles size={48} color="#E4EBDD" style={{ marginBottom: '1.5rem' }} />
+                  <h3 style={{ fontWeight: '950', color: '#5F7D4A', fontSize: '1.3rem' }}>¿Viste algo nuevo por tu zona?</h3>
+                  <p style={{ color: '#888', marginTop: '1rem', maxWidth: '400px', margin: '1rem auto 2.5rem', fontWeight: '600', lineHeight: '1.6' }}>
+                    Sumá ese comercio o productor que conocés para que toda la comunidad pueda disfrutarlo.
+                  </p>
+                  <button 
+                    onClick={() => router.push('/sumate')} 
+                    style={{ padding: '1rem 2.5rem', borderRadius: '18px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '950', cursor: 'pointer', fontSize: '1rem' }}
+                  >
+                    Sumar un Comercio
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          
           {activeTab === 'validaciones' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
               <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
