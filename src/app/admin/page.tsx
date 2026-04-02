@@ -63,7 +63,6 @@ interface Merchant {
   owner_id?: string | null;
   province?: string;
   validationsCount?: number;
-  v_users?: string[];
 }
 
 interface Donation {
@@ -172,24 +171,20 @@ export default function AdminDashboard() {
   const fetchUsers = async () => {
     setUsersLoading(true);
     try {
+      // Simplificamos la query para evitar que falle por relaciones inexistentes en la tabla profiles
       const { data, error } = await supabase
         .from('profiles')
-        .select('*, merchants:merchants(count), favorites:favorites(count), user_saved_merchants:user_saved_merchants(count), validations:validations(count)')
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
 
+      // Mapeamos los usuarios con valores por defecto para actividad ya que quitamos los counts complejos
       const processedUsers = (data || []).map(u => {
-        const v_count = u.validations?.[0]?.count || 0;
-        const f_count = u.favorites?.[0]?.count || 0;
-        const s_count = u.user_saved_merchants?.[0]?.count || 0;
-        const m_count = u.merchants?.[0]?.count || 0;
-        const activityScore = (v_count * 10) + (f_count * 5) + (s_count * 5) + (m_count * 20);
-        
         return {
           ...u,
-          v_count, f_count, s_count, m_count,
-          activity: Math.min(100, activityScore)
+          v_count: 0, f_count: 0, s_count: 0, m_count: 0,
+          activity: 10 // Valor base de actividad
         };
       });
       
@@ -233,7 +228,6 @@ export default function AdminDashboard() {
         validationsCount: m.validation_count || 0
       }));
       
-      console.log("Processed Merchants:", processedMerchants.length);
       setMerchants(processedMerchants);
 
       // 2. PROVINCES / TYPES
@@ -246,7 +240,7 @@ export default function AdminDashboard() {
       const { data: msgData } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
       setMessages(msgData || []);
 
-      // 4. STATS (Separados para que uno no rompa todo)
+      // 4. STATS
       const { count: mCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('status', 'active');
       const { count: lCount } = await supabase.from('locations').select('id', { count: 'exact', head: true });
       const { count: pCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('status', 'pending');
@@ -259,7 +253,7 @@ export default function AdminDashboard() {
         totalUsers: uCount || 0
       });
       
-      // Initial Load of Users
+      // Load initial batch
       await fetchUsers();
       
     } catch (err: any) {
@@ -351,7 +345,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5F7D4A', fontWeight: '900', fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}><ShieldCheck size={18} /> Central Admin</div>
-            <h1 style={{ fontSize: '2.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>Alimnet Control Center</h1>
+            <h1 style={{ fontSize: '2.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>Alimnet Central Report</h1>
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button onClick={() => setShowImportModal(true)} style={{ padding: '0.9rem 1.8rem', background: '#5F7D4A', borderRadius: '16px', color: 'white', fontWeight: '900', border: 'none', cursor: 'pointer' }}>+ Importar Excel</button>
@@ -408,12 +402,12 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{padding:20}}>
                          <div style={{display:'flex', gap:10, marginBottom:8}}>
-                            <ActivityBadge icon={<Store size={12}/>} count={u.m_count} color="#5F7D4A" title="Comercios creados" />
-                            <ActivityBadge icon={<CheckCircle size={12}/>} count={u.v_count} color="#A67C00" title="Validaciones realizadas" />
-                            <ActivityBadge icon={<Heart size={12}/>} count={u.f_count} color="#EF4444" title="Favoritos" />
+                            <ActivityBadge icon={<Store size={12}/>} count={u.m_count || 0} color="#5F7D4A" title="Comercios creados" />
+                            <ActivityBadge icon={<CheckCircle size={12}/>} count={u.v_count || 0} color="#A67C00" title="Validaciones realizadas" />
+                            <ActivityBadge icon={<Heart size={12}/>} count={u.f_count || 0} color="#EF4444" title="Favoritos" />
                          </div>
                          <div style={{width:100, height:6, background:'#F0F4ED', borderRadius:10, overflow:'hidden'}}>
-                            <div style={{width:`${u.activity}%`, height:'100%', background:'#5F7D4A', transition:'width 0.3s'}}/>
+                            <div style={{width:`${u.activity || 10}%`, height:'100%', background:'#5F7D4A', transition:'width 0.3s'}}/>
                          </div>
                       </td>
                       <td style={{padding:20}}>
@@ -421,6 +415,9 @@ export default function AdminDashboard() {
                       </td>
                     </tr>
                   ))}
+                  {users.length === 0 && !usersLoading && (
+                    <tr><td colSpan={5} style={{padding:80, textAlign:'center', color:'#B2AC88'}}>No se encontraron usuarios.</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -608,7 +605,7 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
                  <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
                     <div>
                         <div style={StatLabel}>Validaciones</div>
-                        <div style={{fontSize:'1.8rem', fontWeight:1000, color:'#A67C00'}}>{merchant.validationsCount || 0}</div>
+                        <div style={{fontSize:'1.8rem', fontWeight:1000, color:'#A67C00'}}>{merchant.validation_count || 0}</div>
                     </div>
                  </div>
                </div>
