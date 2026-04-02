@@ -18,8 +18,9 @@ import {
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function NeighborRecommendationPage() {
+function NeighborRecommendationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -306,5 +307,13 @@ export default function NeighborRecommendationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NeighborRecommendationPage() {
+  return (
+    <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Loader2 className="animate-spin" size={40} color="#5F7D4A" /></div>}>
+      <NeighborRecommendationContent />
+    </Suspense>
   );
 }

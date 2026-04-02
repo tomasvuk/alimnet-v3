@@ -21,6 +21,8 @@ Este checklist marca la ruta crítica para el paso de "Diseño y Prototipado" a 
 - [x] **[DOMINIO]** Configuración de DNS en Hostinger -> Vercel. *(Activo y funcionando)*
 - [x] **[SSL/SEGURIDAD]** Verificación de certificados y seguridad del dominio final. *(Verificado)*
 - [x] **[AUTH BRANDING]** Configuración de marca en Google Auth (ALIMNET.com). *(Configurado)*
+- [x] **[BÚSQUEDA]** Motor de búsqueda inteligente con Google Maps + Fallback regional (Zona Norte, etc). *(Implementado)*
+- [x] **[CONTRIBUCIÓN]** Flujo de "Sumar Comercio" para usuarios/vecinos con datos Google Places. *(Implementado)*
 - [ ] **[SEO]** Optimización de Meta-tags para el lanzamiento Friends & Family.
 
 ### 🛠️ MISIÓN 4: ALIMNET CONTROL CENTER (Admin Dashboard)
@@ -30,7 +32,7 @@ Este checklist marca la ruta crítica para el paso de "Diseño y Prototipado" a 
 - [x] **[MERCHANT DASHBOARD]** Panel privado para que el comercio gestione su info. *(Implementado en `/comercio/dashboard`)*
 - [ ] **[VERIFICACIÓN]** Sistema de validación de "Proyectos Cuidados" (Gestión de pedidos de verificación).
 - [ ] **[CENTRAL DE MENSAJES]** Log de consultas, mensajes del chatbot y contacto directo.
-- [ ] **[ANALÍTICA]** Vista rápida de salud de la red (Usuarios registrados, Comercios activos). *(KPIs básicos implementados en `AdminDashboard`)*
+- [x] **[ANALÍTICA]** Vista rápida de salud de la red (Usuarios registrados, Comercios activos, favoritos y validaciones). *(KPIs reales en AdminDashboard)*
 
 ### 🛡️ CHEQUEO DE AGENTES (Auditoría de Calidad)
 - [ ] **[BACKEND]** Verificar RLS Policies para evitar fugas de datos.
@@ -40,7 +42,7 @@ Este checklist marca la ruta crítica para el paso de "Diseño y Prototipado" a 
 
 ---
 
-### 📊 Estado Actual: 85% Completado
-¡Gran avance! Nacionalizamos la red, profesionalizamos el login y entregamos el **Dashboard de Comercio** para que cada emprendimiento gestione su propia info y miembros. El foco final es la curación (Misión 4) y el SEO final.
+### 📊 Estado Actual: 92% Completado
+¡Hipotéticamente listos para el gran público! Hemos blindado la búsqueda, simplificado la UI y abierto las puertas a que la comunidad colabore sumando nuevos puntos. El sistema es robusto, nacional y visualmente impecable.
 
-**Última actualización:** 1 de abril de 2026.
+**Última actualización:** 2 de abril de 2026.
