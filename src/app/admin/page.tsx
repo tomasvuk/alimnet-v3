@@ -205,10 +205,15 @@ export default function AdminDashboard() {
       const { data: msgData } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
       setMessages(msgData || []);
 
-      const { count: mCount } = await supabase.from('merchants').select('*', { count: 'exact', head: true });
-      const { count: lCount } = await supabase.from('locations').select('*', { count: 'exact', head: true });
-      const { count: pCount } = await supabase.from('merchants').select('*', { count: 'exact', head: true }).eq('verified', false);
-      const { count: uCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+      const { count: mCount, error: mErr } = await supabase.from('merchants').select('id', { count: 'exact', head: false });
+      const { count: lCount, error: lErr } = await supabase.from('locations').select('id', { count: 'exact', head: false });
+      const { count: pCount, error: pErr } = await supabase.from('merchants').select('id', { count: 'exact', head: false }).eq('verified', false);
+      const { count: uCount, error: uErr } = await supabase.from('profiles').select('id', { count: 'exact', head: false });
+
+      if (mErr || lErr || pErr || uErr) {
+        console.error("Count Errors:", { mErr, lErr, pErr, uErr });
+        setError(`Error al contar datos: ${mErr?.message || lErr?.message || pErr?.message || uErr?.message}`);
+      }
 
       setStats({
         totalMerchants: mCount || 0,
