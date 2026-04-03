@@ -1159,17 +1159,23 @@ export default function ExplorarPage() {
           </div>
         </section>
 
-        {/* MAPA - CON RE-MONTAJE FORZADO PARA MOBILE */}
+        {/* MAPA - ESTRATEGIA DE VISIBILIDAD PERSISTENTE (NO DISPLAY NONE) */}
         <section 
           className="map-section" 
           style={{ 
             flex: 1, 
-            position: isMobile ? 'relative' : 'relative',
-            display: (isMobile && mobileView !== 'map') ? 'none' : 'block',
+            position: isMobile ? 'absolute' : 'relative',
+            top: isMobile ? '128px' : '0', // Debajo del buscador y filtros
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: (isMobile && mobileView !== 'map') ? -10 : 1,
+            opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
+            pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto',
             width: '100%',
-            height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)',
-            minHeight: isMobile ? '400px' : 'auto',
-            background: '#EAEDE8'
+            height: isMobile ? 'calc(100vh - 128px)' : 'calc(100vh - 120px)',
+            background: '#EAEDE8',
+            transition: 'opacity 0.2s ease-in-out'
           }}
         >
           {/* BOTÓN SUMAR COMERCIO - TOP CENTER MOBILE PREMIUM */}
