@@ -824,15 +824,16 @@ export default function ExplorarPage() {
       <Header />
 
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
-        padding: isMobile ? '0.8rem 1rem' : '72px 1.5rem 0.8rem', // 72px para cubrir el header (56px) + aire (16px)
+        padding: isMobile ? '70px 1rem 0.8rem' : '72px 1.5rem 0.8rem', 
         background: 'white', 
         borderBottom: '1px solid #E4EBDD',
-        zIndex: 900,
+        zIndex: 1400,
         display: 'flex',
         flexDirection: 'column',
-        gap: isMobile ? '0.8rem' : '1rem',
+        gap: isMobile ? '0.6rem' : '1rem',
         alignItems: 'center',
-        position: 'relative'
+        position: 'relative',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.03)'
       }}>
 
         
@@ -867,15 +868,23 @@ export default function ExplorarPage() {
               
               {/* MOBILE COMPACT VIEW HEADER */}
               {isMobile && !isSearchFocused && (
-                <div style={{ 
-                  display: 'flex', alignItems: 'center', padding: '0 16px', height: '54px', width: '100%', gap: '12px'
-                }}>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                    <SearchIcon size={14} strokeWidth={3} />
+                <div 
+                  onClick={() => setIsSearchFocused(true)}
+                  style={{ 
+                    display: 'flex', alignItems: 'center', padding: '0 18px', height: '56px', width: '100%', gap: '14px',
+                    background: '#F9FBF7', cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0 }}>
+                    <SearchIcon size={16} strokeWidth={3} />
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '850', color: '#2D3A20' }}>¿Qué estás buscando?</p>
-                    <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600' }}>{searchQuery || 'Alimentos'} · {searchLocation || 'Cerca tuyo'} · {deliveryType}</p>
+                  <div style={{ flex: 1, overflow: 'hidden' }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '950', color: '#2D3A20', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {searchQuery || '¿Qué estás buscando?'}
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#5F7D4A', fontWeight: '700' }}>
+                      {searchLocation || 'Cerca tuyo'} · {deliveryType === 'Retiro en local' ? 'Retiro' : 'Envio'}
+                    </p>
                   </div>
                 </div>
               )}
@@ -1163,26 +1172,28 @@ export default function ExplorarPage() {
             background: '#EAEDE8'
           }}
         >
-          {/* BOTÓN SUMAR COMERCIO ARRIBA DERECHA (DESKTOP/MOBILE) */}
+          {/* BOTÓN SUMAR COMERCIO - TOP CENTER MOBILE PREMIUM */}
           <button 
             onClick={() => router.push('/sumate')}
-            onMouseEnter={() => setIsAddButtonHovered(true)}
-            onMouseLeave={() => setIsAddButtonHovered(false)}
             style={{
-              position: 'absolute', top: '20px', right: '20px', zIndex: 1100,
-              padding: isMobile ? '0.5rem 1rem' : '0.6rem 1.2rem', 
+              position: 'absolute', 
+              top: isMobile ? '12px' : '20px', 
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1100,
+              padding: isMobile ? '0.4rem 1rem' : '0.6rem 1.2rem', 
               borderRadius: '30px', 
-              background: 'var(--soft-leaf)',
-              color: '#2D3A20', fontWeight: '1000',
-              border: '1.5px solid rgba(0,0,0,0.05)', 
-              boxShadow: isAddButtonHovered ? '0 12px 30px rgba(0,0,0,0.12)' : '0 8px 15px rgba(0,0,0,0.06)',
+              background: '#2D3A20', 
+              color: 'white', fontWeight: '900',
+              border: 'none',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
               display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
-              fontSize: isMobile ? '0.7rem' : '0.8rem',
+              fontSize: isMobile ? '0.75rem' : '0.85rem',
               transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              transform: isAddButtonHovered ? 'translateY(-3px)' : 'translateY(0)'
+              whiteSpace: 'nowrap'
             }}
           >
-            <Plus size={isMobile ? 14 : 16} strokeWidth={3} /> SUMAR COMERCIO
+            <Plus size={isMobile ? 14 : 18} strokeWidth={3} /> SUMAR COMERCIO
           </button>
           {hasMounted && (
             <MapComponent
@@ -1236,6 +1247,7 @@ export default function ExplorarPage() {
             onClose={() => setSelectedMerchant(null)}
             trackClick={trackClick}
             onValidate={handleValidate}
+            isMobile={isMobile}
           />
         )}
       </div>
@@ -1439,7 +1451,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
   );
 }
 
-function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasValidatedInitial, onClose, trackClick, onValidate }: { merchant: Merchant, isLoggedIn: boolean, user: any, userProfile: any, validators: any[], hasValidatedInitial: boolean, onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void }) {
+function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasValidatedInitial, onClose, trackClick, onValidate, isMobile }: { merchant: Merchant, isLoggedIn: boolean, user: any, userProfile: any, validators: any[], hasValidatedInitial: boolean, onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void, isMobile: boolean }) {
   const router = useRouter();
   const [hasValidated, setHasValidated] = useState(hasValidatedInitial);
   
@@ -1465,7 +1477,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
 
   return (
     <div className="detail-panel" style={{ 
-      position: 'absolute', top: 0, left: 0, width: '420px', height: '100%', 
+      position: 'absolute', top: 0, left: 0, width: isMobile ? '100%' : '420px', height: '100%', 
       background: 'white', boxShadow: '0 0 40px rgba(0,0,0,0.1)', zIndex: 1500, 
       display: 'flex', flexDirection: 'column', animation: 'slideIn 0.3s ease-out'
     }}>
@@ -1756,8 +1768,12 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
           .results-section { width: 100% !important; min-width: 0 !important; }
           .results-section.hidden { display: none; }
 
-          .map-section { display: none; }
-          .map-section.active { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; }
+          .map-section { 
+            display: flex !important;
+            height: 100% !important;
+            width: 100% !important;
+          }
+          .map-section.active { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; }
           
           .detail-panel { 
             width: 100% !important; 

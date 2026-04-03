@@ -57,7 +57,7 @@ git commit -m "db: add notifications table for mailing system"
 - Modify: `.env.local`
 
 - [ ] **Step 1: Verify API Key in .env.local**
-Ensure `RESEND_API_KEY=re_aRNUiJuu_PdBxDbcivV17D91yYhecNLNm` is present.
+Ensure `RESEND_API_KEY=your_resend_api_key_here` is present.
 
 - [ ] **Step 2: Create Mailing Utility**
 ```typescript

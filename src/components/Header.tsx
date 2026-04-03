@@ -43,7 +43,7 @@ export default function Header() {
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('id', session.user.id)
         .single();
       if (profile) setProfile(profile);
 
