@@ -1159,16 +1159,16 @@ export default function ExplorarPage() {
           </div>
         </section>
 
-        {/* MAPA */}
+        {/* MAPA - CON RE-MONTAJE FORZADO PARA MOBILE */}
         <section 
           className="map-section" 
           style={{ 
             flex: 1, 
-            position: isMobile ? (mobileView === 'map' ? 'relative' : 'absolute') : 'relative',
-            left: (isMobile && mobileView !== 'map') ? '-9999px' : '0',
+            position: isMobile ? 'relative' : 'relative',
+            display: (isMobile && mobileView !== 'map') ? 'none' : 'block',
             width: '100%',
-            height: isMobile ? '600px' : 'calc(100vh - 120px)',
-            minHeight: isMobile ? '500px' : 'auto',
+            height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)',
+            minHeight: isMobile ? '400px' : 'auto',
             background: '#EAEDE8'
           }}
         >
