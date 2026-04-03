@@ -814,11 +814,13 @@ export default function ExplorarPage() {
 
   return (
     <div style={{ 
-      height: isMobile ? 'auto' : '100vh', 
+      minHeight: '100vh', 
       display: 'flex', 
       flexDirection: 'column', 
       background: '#F0F4ED',
-      paddingTop: 0
+      paddingTop: 0,
+      position: 'relative',
+      overflow: isMobile ? 'hidden' : 'visible' // Evitar doble scroll en el mapa
     }}>
       
       <Header />
@@ -1159,21 +1161,21 @@ export default function ExplorarPage() {
           </div>
         </section>
 
-        {/* MAPA - ESTRATEGIA DE VISIBILIDAD PERSISTENTE (NO DISPLAY NONE) */}
+        {/* MAPA - Z-STRATEGY CON ALTURA DEFINIDA POR VIEWPORT */}
         <section 
           className="map-section" 
           style={{ 
             flex: 1, 
             position: isMobile ? 'absolute' : 'relative',
-            top: isMobile ? '128px' : '0', // Debajo del buscador y filtros
+            top: isMobile ? '128px' : '0', 
             left: 0,
             right: 0,
-            bottom: 0,
-            zIndex: (isMobile && mobileView !== 'map') ? -10 : 1,
+            height: isMobile ? 'calc(100vh - 128px)' : 'calc(100vh - 120px)',
+            bottom: isMobile ? '0' : 'auto',
+            zIndex: (isMobile && mobileView !== 'map') ? -10 : 2,
             opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
             pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto',
             width: '100%',
-            height: isMobile ? 'calc(100vh - 128px)' : 'calc(100vh - 120px)',
             background: '#EAEDE8',
             transition: 'opacity 0.2s ease-in-out'
           }}
