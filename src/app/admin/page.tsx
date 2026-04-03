@@ -86,12 +86,21 @@ interface Message {
   created_at: string;
 }
 
+// --- Iconos Consistentes con el Mapa ---
+const ProductorIcon = ({ size = 20 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM15.89 8.11C15.5 7.72 14.83 7 13.53 7h-3.06c-1.3 0-1.97.72-2.36 1.11L4 12.25V15h2v-2h1v9h2v-5h2v5h2v-9h1v2h2v-2.75l-4.11-4.14z" fill="currentColor" />
+  </svg>
+);
+
+import { UtensilsCrossed, ChefHat } from 'lucide-react';
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'usuarios' | 'pagos'>('comercios');
+  const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'usuarios' | 'pagos' | 'analytics'>('comercios');
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -100,6 +109,11 @@ export default function AdminDashboard() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState('');
   const [isImporting, setIsImporting] = useState(false);
+  
+  // Analytics State
+  const [analyticsTimeRange, setAnalyticsTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year'>('month');
+  const [topSearches, setTopSearches] = useState<[string, number][]>([]);
+  const [topMerchants, setTopMerchants] = useState<{ id: string, name: string, clicks: number }[]>([]);
   
   // Edit Merchant State
   const [showEditModal, setShowEditModal] = useState(false);
@@ -118,11 +132,31 @@ export default function AdminDashboard() {
     totalMerchants: 0,
     totalLocations: 0,
     pendingApprovals: 0,
-    totalUsers: 0
+    totalUsers: 0,
+    totalOwners: 0,
+    totalConsumers: 0,
+    activityToday: 0,
+    usersToday: 0,
+    usersThisWeek: 0,
+    usersThisMonth: 0,
+    usersThisQuarter: 0,
+    usersThisYear: 0,
+    merchantsVerified: 0,
+    merchantsUnverified: 0,
+    merchantsValidated: 0,
+    merchantsNonValidated: 0,
+    merchantsProducers: 0,
+    merchantsAbastecedores: 0,
+    merchantsRestaurantes: 0,
+    merchantsChefs: 0
   });
   
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, [analyticsTimeRange]); // Recargar analytics cuando cambie el rango temporal
 
   useEffect(() => {
     const initAdmin = async () => {
@@ -242,22 +276,130 @@ export default function AdminDashboard() {
       setProvinces(uniqueProvinces.sort());
       setTypes(uniqueTypes.sort());
 
-      // 3. MESSAGES
-      const { data: msgData } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
-      setMessages(msgData || []);
+      // 4. STATS & GROWTH
+      const now = new Date();
+      const todayStart = new Date(now.setHours(0,0,0,0)).toISOString();
+      const weekAgo = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
+      const monthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString();
+      const quarterAgo = new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString();
+      const yearAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString();
 
-      // 4. STATS
       const { count: mCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('status', 'active');
       const { count: lCount } = await supabase.from('locations').select('id', { count: 'exact', head: true });
       const { count: pCount } = await supabase.from('merchants').select('id', { count: 'exact', head: true }).eq('status', 'pending');
       const { count: uCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
+      
+      const { count: uToday } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('created_at', todayStart);
+      const { count: uWeek } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('created_at', weekAgo);
+      const { count: uMonth } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('created_at', monthAgo);
+      const { count: uQuarter } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('created_at', quarterAgo);
+      const { count: uYear } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('created_at', yearAgo);
+
+      // New specific stats
+      const { count: ownerCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'merchant');
+      const { count: consumerCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'consumer');
+      const { count: activityCount } = await supabase.from('system_events').select('id', { count: 'exact', head: true }).gt('created_at', todayStart);
+
+      // Categort Stats
+      const producers = processedMerchants.filter(m => (m.type || '').toLowerCase().includes('productor')).length;
+      const abastecedores = processedMerchants.filter(m => (m.type || '').toLowerCase().includes('abastecedor') || (m.type || '').toLowerCase().includes('almacen')).length;
+      const restaurantes = processedMerchants.filter(m => (m.type || '').toLowerCase().includes('restaurante')).length;
+      const chefs = processedMerchants.filter(m => (m.type || '').toLowerCase().includes('chef')).length;
+
+      // Verification Stats
+      const verified = processedMerchants.filter(m => m.verified || m.owner_id).length;
+      const validated = processedMerchants.filter(m => (m.validation_count || 0) > 0).length;
 
       setStats({
         totalMerchants: mCount || 0,
         totalLocations: lCount || 0,
         pendingApprovals: pCount || 0,
-        totalUsers: uCount || 0
+        totalUsers: uCount || 0,
+        totalOwners: ownerCount || 0,
+        totalConsumers: consumerCount || 0,
+        activityToday: activityCount || 0,
+        usersToday: uToday || 0,
+        usersThisWeek: uWeek || 0,
+        usersThisMonth: uMonth || 0,
+        // @ts-ignore
+        usersThisQuarter: uQuarter || 0,
+        // @ts-ignore
+        usersThisYear: uYear || 0,
+        // @ts-ignore
+        merchantsProducers: producers,
+        // @ts-ignore
+        merchantsAbastecedores: abastecedores,
+        // @ts-ignore
+        merchantsRestaurantes: restaurantes,
+        // @ts-ignore
+        merchantsChefs: chefs,
+        // @ts-ignore
+        merchantsVerified: verified,
+        // @ts-ignore
+        merchantsUnverified: (mCount || 0) - verified,
+        // @ts-ignore
+        merchantsValidated: validated,
+        // @ts-ignore
+        merchantsNonValidated: (mCount || 0) - validated,
       });
+
+      // 5. UNIFIED MESSAGING (Contact Form + Chatbot Notifications)
+      const { data: contactMsgs } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+      const { data: chatNotifs } = await supabase.from('notifications').select('*').eq('type', 'ADMIN_ALERT').order('created_at', { ascending: false });
+      
+      const unifiedMessages = [
+        ...(contactMsgs || []).map(m => ({ ...m, type: 'CONTACT_FORM' })),
+        ...(chatNotifs || []).map(n => ({ 
+          id: n.id, 
+          sender_name: n.metadata?.email || 'Visita Anónima', 
+          sender_email: n.metadata?.email || '-', 
+          subject: n.title, 
+          message: n.content, 
+          status: n.status === 'sent' ? 'read' : 'unread', 
+          created_at: n.created_at,
+          type: 'CHATBOT' 
+        }))
+      ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setMessages(unifiedMessages as any);
+
+      // 6. ANALYTICS ENGINE (Search Hotspots & Merchant Interactions)
+      let startDateStr = monthAgo;
+      if (analyticsTimeRange === 'day') startDateStr = todayStart;
+      if (analyticsTimeRange === 'week') startDateStr = weekAgo;
+      if (analyticsTimeRange === 'month') startDateStr = monthAgo;
+      if (analyticsTimeRange === 'quarter') startDateStr = quarterAgo;
+      if (analyticsTimeRange === 'year') startDateStr = yearAgo;
+
+      const { data: events } = await supabase
+        .from('system_events')
+        .select('*')
+        .gt('created_at', startDateStr)
+        .order('created_at', { ascending: false })
+        .limit(3000);
+
+      const searchMap: Record<string, number> = {};
+      const merchantMap: Record<string, { id: string, name: string, clicks: number }> = {};
+
+      (events || []).forEach(e => {
+        // Aggregating Searches
+        if (e.event_type === 'SEARCH_QUERY_ENTER' || e.event_type === 'SEARCH_QUERY_SELECTED') {
+          const q = (e.payload?.query || '').toLowerCase().trim();
+          if (q) searchMap[q] = (searchMap[q] || 0) + 1;
+        }
+        // Aggregating Merchant interactions
+        if (e.event_type.startsWith('CTA_') || e.event_type === 'SELECT_MERCHANT') {
+          const mId = e.payload?.id;
+          const mName = e.payload?.name || processedMerchants.find(m => m.id === mId)?.name || 'Unknown';
+          if (mId) {
+            if (!merchantMap[mId]) merchantMap[mId] = { id: mId, name: mName, clicks: 0 };
+            merchantMap[mId].clicks++;
+          }
+        }
+      });
+
+      setTopSearches(Object.entries(searchMap).sort((a, b) => b[1] - a[1]).slice(0, 20));
+      setTopMerchants(Object.values(merchantMap).sort((a, b) => b.clicks - a.clicks).slice(0, 20));
       
       // Load initial batch
       await fetchUsers();
@@ -364,11 +506,65 @@ export default function AdminDashboard() {
 
         {error && <div style={{background:'#FEE2E2', color:'#991B1B', padding:20, borderRadius:15, marginBottom:40, fontWeight:800}}>{error}</div>}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-          <KPICard label="Comercios" value={stats.totalMerchants} trend="Activos" icon={<Store size={22} />} />
-          <KPICard label="Puntos" value={stats.totalLocations} trend="En Mapa" icon={<MapPin size={22} />} />
-          <KPICard label="Por Aprobar" value={stats.pendingApprovals} trend="Nuevos" icon={<Clock size={22} />} />
-          <KPICard label="Usuarios" value={stats.totalUsers} trend="Registrados" icon={<Users size={22} />} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+          <KPICard label="Comercios en Red" value={stats.totalMerchants} trend="Activos" icon={<Store size={22} color="#5F7D4A" />} />
+          <KPICard label="Propietarios (Owners)" value={stats.totalOwners} trend="Comerciantes" icon={<ShieldCheck size={22} color="#A67C00"/>} />
+          <KPICard label="Usuarios (Comunidad)" value={stats.totalConsumers} trend="Miembros" icon={<Users size={22} color="#2D3A20" />} />
+          <KPICard 
+             label="Actividad Hoy (Visitas)" 
+             value={stats.activityToday} 
+             trend={`+${stats.usersToday} nuevos perfiles`} 
+             icon={<BarChart3 size={22} color="#5F7D4A" />} 
+          />
+        </div>
+
+        {/* Categoty & Validation Breakdown */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+           <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between' }}>
+              <CategoryStat label="Productores" value={(stats as any).merchantsProducers || 0} icon={<ProductorIcon size={14}/>} />
+              <CategoryStat label="Abastecedores" value={(stats as any).merchantsAbastecedores || 0} icon={<Store size={14}/>} />
+              <CategoryStat label="Restaurantes" value={(stats as any).merchantsRestaurantes || 0} icon={<UtensilsCrossed size={14}/>} />
+              <CategoryStat label="Chefs" value={(stats as any).merchantsChefs || 0} icon={<ChefHat size={14}/>} />
+           </div>
+           <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between' }}>
+              <CategoryStat label="Sello Oficial" value={(stats as any).merchantsVerified || 0} color="#A67C00" />
+              <CategoryStat label="Comunitarios" value={(stats as any).merchantsUnverified || 0} color="#B2AC88" />
+              <CategoryStat label="Validados +1" value={(stats as any).merchantsValidated || 0} color="#5F7D4A" />
+              <CategoryStat label="Sin Validar" value={(stats as any).merchantsNonValidated || 0} color="#666" />
+           </div>
+        </div>
+
+        {/* Growth Stats Strip */}
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', background: '#F0F4ED', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
+           <div style={{ flex: 1, textAlign: 'center' }}>
+             <div style={StatLabel}>Hoy</div>
+             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{stats.usersToday}</div>
+           </div>
+           <div style={{ width: '1px', background: '#E4EBDD' }} />
+           <div style={{ flex: 1, textAlign: 'center' }}>
+             <div style={StatLabel}>Semana</div>
+             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{stats.usersThisWeek}</div>
+           </div>
+           <div style={{ width: '1px', background: '#E4EBDD' }} />
+           <div style={{ flex: 1, textAlign: 'center' }}>
+             <div style={StatLabel}>Mes</div>
+             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{stats.usersThisMonth}</div>
+           </div>
+           <div style={{ width: '1px', background: '#E4EBDD' }} />
+           <div style={{ flex: 1, textAlign: 'center' }}>
+             <div style={StatLabel}>Trimestre</div>
+             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{(stats as any).usersThisQuarter || 0}</div>
+           </div>
+           <div style={{ width: '1px', background: '#E4EBDD' }} />
+           <div style={{ flex: 1, textAlign: 'center' }}>
+             <div style={StatLabel}>Año</div>
+             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{(stats as any).usersThisYear || 0}</div>
+           </div>
+           <div style={{ width: '1px', background: '#E4EBDD' }} />
+           <div style={{ flex: 1, textAlign: 'center', background: 'rgba(95, 125, 74, 0.1)', borderRadius: '15px' }}>
+             <div style={StatLabel}>Histórico</div>
+             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#5F7D4A' }}>{stats.totalUsers}</div>
+           </div>
         </div>
 
         <div style={{ background: 'white', borderRadius: '40px', padding: '2.5rem', boxShadow: '0 30px 60px rgba(0,0,0,0.04)', border: '1px solid #E4EBDD' }}>
@@ -377,6 +573,7 @@ export default function AdminDashboard() {
             <TabItem active={activeTab === 'pendientes'} label="Por Aprobar" onClick={() => setActiveTab('pendientes')} count={stats.pendingApprovals} />
             <TabItem active={activeTab === 'usuarios'} label="Usuarios" onClick={() => { setActiveTab('usuarios'); fetchUsers(); }} count={stats.totalUsers} />
             <TabItem active={activeTab === 'mensajes'} label="Mensajes" onClick={() => setActiveTab('mensajes')} count={messages.filter(m => m.status === 'unread').length} />
+            <TabItem active={activeTab === 'analytics'} label="Inteligencia" onClick={() => setActiveTab('analytics')} />
             <TabItem active={activeTab === 'pagos'} label="Pagos" onClick={() => { setActiveTab('pagos'); fetchDonations(); }} />
           </div>
 
@@ -435,20 +632,99 @@ export default function AdminDashboard() {
              <div style={{ padding: '2rem' }}>
                 <DonationsList donations={donations} loading={donationsLoading} />
              </div>
+          ) : activeTab === 'analytics' ? (
+             <div style={{ padding: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', background: '#F0F4ED', padding: '1rem 2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
+                   <div>
+                      <h3 style={{ margin: 0, fontWeight: 1000, color: '#2D3A20', fontSize: '1.3rem' }}>Análisis de Demanda y Tracción</h3>
+                      <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#5F7D4A', fontWeight: 800 }}>Filtrando datos por {analyticsTimeRange === 'day' ? 'Hoy' : analyticsTimeRange === 'week' ? 'Semana' : analyticsTimeRange === 'month' ? 'Mes' : analyticsTimeRange === 'quarter' ? 'Trimestre' : 'Año'}</p>
+                   </div>
+                   <div style={{ display: 'flex', gap: '8px', background: 'white', padding: '6px', borderRadius: '15px', border: '1px solid #E4EBDD' }}>
+                      {[
+                        { id: 'day', label: 'Hoy' },
+                        { id: 'week', label: 'Semana' },
+                        { id: 'month', label: 'Mes' },
+                        { id: 'quarter', label: 'Trimestre' },
+                        { id: 'year', label: 'Año' }
+                      ].map(range => (
+                        <button 
+                          key={range.id}
+                          onClick={() => setAnalyticsTimeRange(range.id as any)}
+                          style={{
+                            padding: '8px 16px', borderRadius: '10px', border: 'none',
+                            background: analyticsTimeRange === range.id ? '#5F7D4A' : 'transparent',
+                            color: analyticsTimeRange === range.id ? 'white' : '#5F7D4A',
+                            fontWeight: '1000', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s'
+                          }}
+                        >
+                          {range.label.toUpperCase()}
+                        </button>
+                      ))}
+                   </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
+                   {/* Searches */}
+                   <div>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+                         <Search size={20} color="#5F7D4A" /> Top Búsquedas (Demanda)
+                      </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                     {topSearches.map(([query, count], index) => (
+                        <div key={query} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#F8F9F5', padding: '12px 20px', borderRadius: '16px', border: '1px solid #F0F4ED' }}>
+                           <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.8rem', width: '20px' }}>{index + 1}</span>
+                           <span style={{ fontWeight: 900, color: '#2D3A20', flex: 1, textTransform: 'capitalize' }}>{query}</span>
+                           <span style={{ fontWeight: 1000, color: '#5F7D4A', background: '#E4EBDD', padding: '4px 10px', borderRadius: '8px', fontSize: '0.8rem' }}>{count}</span>
+                        </div>
+                     ))}
+                     {topSearches.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay datos suficientes aún.</div>}
+                  </div>
+               </div>
+
+               {/* Merchants */}
+               <div>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+                     <ArrowUpRight size={20} color="#A67C00" /> Comercios con más Tracción
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                     {topMerchants.map((m, index) => (
+                        <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'white', padding: '12px 20px', borderRadius: '16px', border: '1px solid #F0F4ED', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                           <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.8rem', width: '20px' }}>{index + 1}</span>
+                           <span style={{ fontWeight: 1000, color: '#2D3A20', flex: 1 }}>{m.name}</span>
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#A67C00', fontWeight: 900, fontSize: '0.85rem' }}>
+                              <Heart size={14} fill="#A67C00" /> {m.clicks}
+                           </div>
+                        </div>
+                     ))}
+                     {topMerchants.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay datos suficientes aún.</div>}
+                  </div>
+               </div>
+            </div>
+          </div>
           ) : activeTab === 'mensajes' ? (
             <div style={{ overflowX: 'auto' }}>
                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                 <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>REMITENTE</th><th style={THStyle}>ASUNTO</th><th style={THStyle}>ESTADO</th></tr></thead>
+                 <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>TIPO</th><th style={THStyle}>REMITENTE</th><th style={THStyle}>ASUNTO / MENSAJE</th><th style={THStyle}>ACCIONES</th></tr></thead>
                  <tbody>
-                   {messages.map(m => (
+                   {(messages as any[]).map(m => (
                      <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED' }}>
-                       <td style={{ padding: 20, fontSize: '0.75rem' }}>{new Date(m.created_at).toLocaleDateString()}</td>
+                       <td style={{ padding: 20, fontSize: '0.75rem', fontWeight: 800, color: '#B2AC88' }}>{new Date(m.created_at).toLocaleDateString()}</td>
                        <td style={{ padding: 20 }}>
-                          <div style={{fontWeight:900}}>{m.sender_name}</div>
-                          <div style={{fontSize:'0.7rem', color:'#888'}}>{m.sender_email}</div>
+                          <span style={{ ...BadgeStyle, background: m.type === 'CHATBOT' ? '#2D3A20' : '#F0F4ED', color: m.type === 'CHATBOT' ? 'white' : '#2D3A20' }}>
+                            {m.type === 'CHATBOT' ? 'WIDGET' : 'WEB FORM'}
+                          </span>
                        </td>
-                       <td style={{ padding: 20, fontWeight:700 }}>{m.subject}</td>
-                       <td style={{ padding: 20 }}><span style={{...BadgeStyle, background:'#F0F4ED'}}>{m.status.toUpperCase()}</span></td>
+                       <td style={{ padding: 20 }}>
+                          <div style={{fontWeight:900, fontSize: '0.9rem'}}>{m.sender_name}</div>
+                          <div style={{fontSize:'0.75rem', color:'#888', fontWeight: 700}}>{m.sender_email}</div>
+                       </td>
+                       <td style={{ padding: 20 }}>
+                          <div style={{fontWeight:800, color: '#5F7D4A', fontSize: '0.8rem', marginBottom: 4}}>{m.subject}</div>
+                          <div style={{fontSize: '0.85rem', color: '#666', fontWeight: 600, maxWidth: 400}}>{m.message}</div>
+                       </td>
+                       <td style={{ padding: 20 }}>
+                          <button style={{ background: 'none', border: 'none', color: '#5F7D4A', cursor: 'pointer', fontWeight: 900, fontSize: '0.75rem' }}>MARCAR LEÍDO</button>
+                       </td>
                      </tr>
                    ))}
                  </tbody>
@@ -569,6 +845,17 @@ function ActivityBadge({ icon, count, color, title }: any) {
   );
 }
 
+function CategoryStat({ label, value, icon, color = '#2D3A20' }: any) {
+  return (
+    <div style={{ textAlign: 'center', flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#B2AC88', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px' }}>
+        {icon} {label}
+      </div>
+      <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: color }}>{value}</div>
+    </div>
+  );
+}
+
 function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateContactStatus, onToggleVerified, onOpenEdit }: any) {
   const missing = [];
   if (!merchant.instagram_url) missing.push('Insta');
@@ -614,7 +901,7 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
                  <h4 style={{fontWeight:1000, marginBottom:15}}>Análisis de Comercio</h4>
                  <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
                     <div>
-                        <div style={StatLabel}>Validaciones</div>
+                        <div style={StatLabel}>Aval de la Comunidad</div>
                         <div style={{fontSize:'1.8rem', fontWeight:1000, color:'#A67C00'}}>{merchant.validation_count || 0}</div>
                     </div>
                  </div>

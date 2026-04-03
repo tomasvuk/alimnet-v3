@@ -49,6 +49,38 @@ export default function RegistroPage() {
     }
 
     if (data.user) {
+      // 1. Detect user language
+      const userLang = navigator.language?.startsWith('es') ? 'es' : 'en';
+
+      // 2. Create a welcome notification record
+      try {
+        const { data: notification, error: notifError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: data.user.id,
+            title: userLang === 'es' ? '¡Bienvenido a Alimnet!' : 'Welcome to Alimnet!',
+            content: 'Bienvenida personal de Tomás Vukojicic.',
+            type: 'WELCOME',
+            metadata: {
+              name: formData.name.trim(),
+              email: formData.email.trim().toLowerCase(),
+              lang: userLang
+            }
+          })
+          .select()
+          .single();
+
+        if (!notifError && notification) {
+          // 2. Trigger the email processor (async, don't wait for it to finish)
+          fetch('/api/notifications/process', {
+            method: 'POST',
+            body: JSON.stringify({ notificationId: notification.id })
+          }).catch(err => console.error('Email processing failed:', err));
+        }
+      } catch (err) {
+        console.error('Error creating welcome notification:', err);
+      }
+
       router.push('/onboarding');
     }
   };

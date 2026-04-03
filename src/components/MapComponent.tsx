@@ -28,15 +28,23 @@ const MapResizer = () => {
     const timers = [
       setTimeout(trigger, 100),
       setTimeout(trigger, 500),
-      setTimeout(trigger, 1500)
+      setTimeout(trigger, 1500),
+      setTimeout(trigger, 3000) // Un extra para conexiones lentas
     ];
 
+    // 3. Salvaguarda para Mobile: Detectar cuando el componente ganan visibilidad real
+    const visibilityHandler = () => {
+      if (document.visibilityState === 'visible') trigger();
+    };
+    document.addEventListener('visibilitychange', visibilityHandler);
+    
     window.addEventListener('resize', trigger);
     
     return () => {
       resizeObserver.disconnect();
       timers.forEach(t => clearTimeout(t));
       window.removeEventListener('resize', trigger);
+      document.removeEventListener('visibilitychange', visibilityHandler);
     };
   }, [map]);
   return null;
@@ -130,6 +138,7 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onI
         <MapResizer />
         <ZoomControl position="bottomright" />
         <TileLayer
+          key="voyager-tiles" // Usar key para forzar re-render si el zoom cambia drásticamente
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
@@ -143,28 +152,10 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onI
                 <Marker position={position} icon={getAlimnetIcon(p.type || p.category || 'productor')} eventHandlers={{ click: () => onMarkerClick?.(p.id) }}>
                   <Popup>
                     <div style={{ textAlign: 'center', padding: '3px 4px' }}>
-                      <strong style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>{p.name}</strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{p.category}</span>
+                      <strong style={{ display: 'block', fontSize: '0.85rem', marginBottom: '2px' }}>{p.name}</strong>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'capitalize' }}>{p.type || p.category}</span>
                       <br />
-                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{p.city_zone}</span>
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${p.location_lat},${p.location_lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: 'inline-block',
-                          marginTop: '5px',
-                          padding: '4px 8px',
-                          background: '#5F7D4A',
-                          color: 'white',
-                          borderRadius: '8px',
-                          textDecoration: 'none',
-                          fontSize: '0.7rem',
-                          fontWeight: '900'
-                        }}
-                      >
-                        📍 Cómo llegar
-                      </a>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#5F7D4A' }}>{p.city_zone}</span>
                     </div>
                   </Popup>
                 </Marker>

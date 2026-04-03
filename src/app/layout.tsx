@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import 'leaflet/dist/leaflet.css';
 import PageTransition from "@/components/PageTransition";
+import SupportWidget from "@/components/SupportWidget";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="es">
       <body className={inter.variable}>
         <PageTransition>{children}</PageTransition>
+        <SupportWidget />
       </body>
     </html>
   );

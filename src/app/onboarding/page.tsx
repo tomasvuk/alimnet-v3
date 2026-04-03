@@ -51,6 +51,42 @@ export default function OnboardingPage() {
           setLastName(parts.slice(1).join(' ') || '');
         }
       }
+      // 3. Guaranteed Welcome Email: Check for pending notifications and process them
+      try {
+        const { data: pendingNotifs } = await supabase
+          .from('notifications')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('status', 'pending')
+          .eq('type', 'WELCOME');
+
+        if (pendingNotifs && pendingNotifs.length > 0) {
+          const userLang = navigator.language?.startsWith('es') ? 'es' : 'en';
+
+          // Trigger processing for each pending notification
+          for (const n of pendingNotifs) {
+            // Update the language in metadata before processing (important for Google signups)
+            await supabase
+              .from('notifications')
+              .update({ 
+                metadata: { 
+                  name: firstName || 'Amigo/a', 
+                  email: user.email, 
+                  lang: userLang 
+                } 
+              })
+              .eq('id', n.id);
+
+            fetch('/api/notifications/process', {
+              method: 'POST',
+              body: JSON.stringify({ notificationId: n.id })
+            }).catch(err => console.error('Onboarding recovery failed:', err));
+          }
+        }
+      } catch (err) {
+        console.error('Error during notification recovery:', err);
+      }
+
       setLoading(false);
     };
     checkUser();

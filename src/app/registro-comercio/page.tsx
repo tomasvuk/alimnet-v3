@@ -110,6 +110,32 @@ export default function MerchantRegistrationPage() {
 
       if (merchantError) throw merchantError;
 
+      // 3. Crear Alerta para el Admin (Tomás)
+      try {
+        const { data: adminNotif } = await supabase.from('notifications').insert([{
+          user_id: user.id, // El que lo crea
+          title: 'Nuevo Comercio Registrado (Dueño)',
+          content: `${user.email} ha registrado un nuevo comercio: ${formData.name}.`,
+          type: 'ADMIN_ALERT',
+          metadata: {
+            merchant_name: formData.name,
+            categories: formData.categories.join(', '),
+            type: formData.types.join(', '),
+            email: user.email
+          }
+        }]).select().single();
+
+        if (adminNotif) {
+          // Disparar proceso de mail en background
+          fetch('/api/notifications/process', {
+            method: 'POST',
+            body: JSON.stringify({ notificationId: adminNotif.id })
+          }).catch(console.error);
+        }
+      } catch (err) {
+        console.error('Error al crear alerta admin:', err);
+      }
+
       // 2. Si hay link de Google Maps, intentar crear la ubicación
       const coords = parseGoogleMapsUrl(formData.google_maps_url);
       if (coords && merchantData) {

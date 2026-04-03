@@ -76,6 +76,8 @@ interface Merchant {
   working_hours?: string;
   delivery_info?: string;
   locations?: Location[];
+  claimed: boolean;
+  verified: boolean;
 }
 
 interface Location {
@@ -585,6 +587,26 @@ export default function ExplorarPage() {
       );
     }
 
+    // --- LIMPIEZA DE DATOS: Ocultar puntos que están en el agua o mal geolocalizados ---
+    // Si no hay una búsqueda específica de ubicación, ocultamos los que tienen coordenadas por defecto en CABA pero son de otro lado
+    if (!searchLocation && !searchCoords) {
+      result = result.map(m => ({
+        ...m,
+        locations: m.locations?.filter(l => {
+          // Si está en el agua (aprox 0,0) o si es un punto por defecto (-34.6, -58.4) pero la localidad dice otra cosa
+          const isWater = Math.abs(l.lat) < 0.1 && Math.abs(l.lng) < 0.1;
+          const isProbablyDefaultCABA = Math.abs(l.lat + 34.6) < 0.01 && Math.abs(l.lng + 58.4) < 0.01;
+          const cityMentioned = normalizeString(l.locality || '');
+          
+          // Si el punto es CABA pero la descripción dice Mar del Plata, Cordoba, etc... ocultamos el punto del mapa
+          const isMismatched = isProbablyDefaultCABA && 
+            (cityMentioned.includes('mar del plata') || cityMentioned.includes('cordoba') || cityMentioned.includes('santa fe') || cityMentioned.includes('argentina'));
+
+          return !isWater && !isMismatched;
+        })
+      })).filter(m => (m.locations?.length || 0) > 0);
+    }
+
     // Filtrado por Ubicación (Potenciado con Coordenadas y Regiones)
     let tempCoords = searchCoords;
     let tempRadius = 30; // Radio base aumentado a 30km
@@ -967,8 +989,9 @@ export default function ExplorarPage() {
         }}>
           <div style={{ 
             display: 'flex', gap: isMobile ? '6px' : '8px', alignItems: 'center', 
-            flexWrap: isMobile ? 'wrap' : 'nowrap',
-            width: '100%', maxWidth: '850px', justifyContent: 'center' 
+            flexWrap: 'nowrap',
+            width: '100%', maxWidth: '850px', justifyContent: 'center',
+            overflowX: 'auto', paddingBottom: '4px'
           }} className="no-scrollbar">
             {CATEGORIES.map(cat => {
               const isActive = selectedCategories.includes(cat.id);
@@ -1140,6 +1163,27 @@ export default function ExplorarPage() {
             background: '#EAEDE8'
           }}
         >
+          {/* BOTÓN SUMAR COMERCIO ARRIBA DERECHA (DESKTOP/MOBILE) */}
+          <button 
+            onClick={() => router.push('/sumate')}
+            onMouseEnter={() => setIsAddButtonHovered(true)}
+            onMouseLeave={() => setIsAddButtonHovered(false)}
+            style={{
+              position: 'absolute', top: '20px', right: '20px', zIndex: 1100,
+              padding: isMobile ? '0.5rem 1rem' : '0.6rem 1.2rem', 
+              borderRadius: '30px', 
+              background: 'var(--soft-leaf)',
+              color: '#2D3A20', fontWeight: '1000',
+              border: '1.5px solid rgba(0,0,0,0.05)', 
+              boxShadow: isAddButtonHovered ? '0 12px 30px rgba(0,0,0,0.12)' : '0 8px 15px rgba(0,0,0,0.06)',
+              display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
+              fontSize: isMobile ? '0.7rem' : '0.8rem',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: isAddButtonHovered ? 'translateY(-3px)' : 'translateY(0)'
+            }}
+          >
+            <Plus size={isMobile ? 14 : 16} strokeWidth={3} /> SUMAR COMERCIO
+          </button>
           {hasMounted && (
             <MapComponent
               key={`${isMobile ? mobileView : 'desktop'}-${filteredMerchants.length}-${searchCoords?.lat || ''}`}
@@ -1196,26 +1240,7 @@ export default function ExplorarPage() {
         )}
       </div>
 
-      {/* 11. FLOATING CTA: SUMAR COMERCIO */}
-      <div style={{ position: 'fixed', bottom: isMobile ? '80px' : '30px', right: isMobile ? '20px' : '30px', zIndex: 2000 }}>
-        <button 
-          onClick={() => router.push('/sumate')}
-          onMouseEnter={() => setIsAddButtonHovered(true)}
-          onMouseLeave={() => setIsAddButtonHovered(false)}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: '10px', padding: isMobile ? '0.8rem 1.4rem' : '1.1rem 1.8rem', 
-            backgroundColor: isAddButtonHovered ? '#5F7D4A' : '#2D3A20', 
-            color: 'white', border: 'none', borderRadius: '40px', 
-            fontWeight: '1000', fontSize: isMobile ? '0.85rem' : '1rem', cursor: 'pointer',
-            boxShadow: '0 15px 40px rgba(0,0,0,0.15)', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-            transform: isAddButtonHovered ? 'scale(1.05) translateY(-5px)' : 'scale(1)'
-          }}
-          className="floating-add-button"
-        >
-          <Plus size={isMobile ? 20 : 24} strokeWidth={3} />
-          <span>Sumar Comercio</span>
-        </button>
-      </div>
+
 
       <style jsx>{` 
         @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
@@ -1336,7 +1361,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
             display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '10px',
             background: 'rgba(95, 125, 74, 0.08)', border: '1px solid rgba(95, 125, 74, 0.15)',
             color: '#5F7D4A', flexShrink: 0
-          }} title="Proyectos validados por la comunidad">
+          }} title="Aval de la Comunidad">
             <ShieldCheck size={14} />
             <span style={{ fontSize: '0.7rem', fontWeight: '900' }}>{merchant.validation_count}</span>
           </div>
@@ -1377,7 +1402,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
               display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
               boxShadow: '0 4px 10px rgba(95, 125, 74, 0.2)'
             }}>
-              <ShieldCheck size={10} strokeWidth={3} /> VALIDADO +{merchant.validation_count}
+              <ShieldCheck size={10} strokeWidth={3} /> AVAL DE LA COMUNIDAD
             </div>
           ) : (
             <div style={{ 
@@ -1390,27 +1415,26 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
             </div>
           )}
         </div>
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, margin: '4px 0 0 0', lineHeight: '1.4' }}>
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, margin: '4px 0 8px 0', lineHeight: '1.4' }}>
         {merchant.bio_short?.substring(0, 85)}...
       </p>
       
-      {(visibleOtherTags.length > 0 || isDirect) && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', gap: '8px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
           {isDirect && (
             <span style={{ fontSize: '0.65rem', fontWeight: '800', background: '#e8f5e9', color: '#2e7d32', padding: '3px 8px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-              <Leaf size={10} strokeWidth={2.5} /> Del campo a la mesa
+              <Leaf size={10} strokeWidth={2.5} /> Del campo
             </span>
           )}
-          {visibleOtherTags.map(tag => (
+          {visibleOtherTags.slice(0, 2).map(tag => (
             <span key={tag} style={{ fontSize: '0.65rem', fontWeight: '700', background: 'transparent', color: 'var(--text-secondary)', padding: '3px 8px', borderRadius: '12px', border: '1px solid #eee' }}>
               {tag}
             </span>
           ))}
-          {!isHovered && hiddenTagsCount > 0 && (
-            <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#aaa', padding: '3px' }}>+{hiddenTagsCount}</span>
-          )}
         </div>
-      )}
+
+
+      </div>
     </div>
   );
 }
@@ -1462,21 +1486,13 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
           opacity: !isLoggedIn ? 0.6 : 1,
           transition: 'all 0.5s ease'
         }}>
-          <div style={{ 
-            width: '100%', height: '220px', 
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)', 
-            borderRadius: '24px', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', 
-            alignItems: 'center', justifyContent: 'center', color: 'white'
-          }}>
-            <Leaf size={60} strokeWidth={1} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '900', marginTop: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Alimnet Proyect</span>
-          </div>
+
 
           <div style={{ display: 'flex', gap: '8px', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
             {merchant.type?.split(',').map(s => s.trim()).map(t => (
               <span key={t} style={{ padding: '0.3rem 0.8rem', background: 'var(--primary-dark)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900', textTransform: 'uppercase' }}>{t}</span>
             ))}
-            <span style={{ padding: '0.3rem 0.8rem', background: 'var(--soft-leaf)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900' }}>Validado</span>
+            <span style={{ padding: '0.3rem 0.8rem', background: 'var(--soft-leaf)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900' }}>Aval de la Comunidad</span>
           </div>
 
           <div style={{ background: '#F8F9F5', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', marginBottom: '1rem' }}>
@@ -1606,7 +1622,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                 trackClick('CTA_INSTAGRAM', { id: merchant.id });
               }}
               style={{ 
-                flex: 1, padding: '0.7rem', 
+                flex: 1, padding: '0.6rem', 
                 background: merchant.instagram_url ? 'var(--primary-dark)' : '#f0f0f0', 
                 color: merchant.instagram_url ? 'white' : '#999', 
                 borderRadius: '12px', textAlign: 'center', fontWeight: '900', 
@@ -1614,7 +1630,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                 textDecoration: 'none', cursor: merchant.instagram_url ? 'pointer' : 'default'
               }}
             >
-              <Instagram size={18} /> {merchant.instagram_url ? 'Instagram' : 'No disponible'}
+              <Instagram size={16} /> <span style={{ fontSize: '0.75rem' }}>{merchant.instagram_url ? 'Instagram' : 'N/D'}</span>
             </a>
             <a 
               href={merchant.website_url ? (merchant.website_url.startsWith('http') ? merchant.website_url : `https://${merchant.website_url}`) : '#'} 
@@ -1625,7 +1641,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                 trackClick('CTA_WEBSITE', { id: merchant.id });
               }}
               style={{ 
-                flex: 1, padding: '0.7rem', 
+                flex: 1, padding: '0.6rem', 
                 background: merchant.website_url ? 'white' : '#f0f0f0', 
                 color: merchant.website_url ? 'var(--primary-dark)' : '#999', 
                 borderRadius: '12px', textAlign: 'center', fontWeight: '900', 
@@ -1634,7 +1650,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                 textDecoration: 'none'
               }}
             >
-              {merchant.website_url ? 'Web' : 'No disponible'}
+              <span style={{ fontSize: '0.75rem' }}>{merchant.website_url ? 'Web' : 'N/D'}</span>
             </a>
           </div>
           <a 
@@ -1656,9 +1672,26 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
               textDecoration: 'none'
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.49l-1.688 6.574 6.726-1.764a11.82 11.82 0 005.626 1.432h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            {merchant.whatsapp ? 'WhatsApp de Pedidos' : 'WhatsApp no disponible'}
+            <span style={{ fontSize: '0.75rem', fontWeight: '900' }}>{merchant.whatsapp ? 'WhatsApp Pedidos' : 'WhatsApp no disponible'}</span>
           </a>
+          {/* ACCIÓN: SOY EL DUEÑO */}
+          {!merchant.claimed && (
+            <div style={{ marginTop: '1rem', textAlign: 'center', padding: '0.8rem', background: '#F8F9F5', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '800', marginBottom: '6px' }}>¿Sos el dueño?</p>
+              <button 
+                onClick={() => router.push(`/unirse?merchantId=${merchant.id}`)}
+                style={{ 
+                  background: 'none', border: '1.5px solid #5F7D4A', color: '#5F7D4A', 
+                  padding: '0.5rem 1rem', borderRadius: '10px', fontSize: '0.75rem', 
+                  fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#5F7D4A'; e.currentTarget.style.color = 'white'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#5F7D4A'; }}
+              >
+                Reivindicar Comercio
+              </button>
+            </div>
+          )}
         </div>
 
         {!isLoggedIn && (
@@ -1668,25 +1701,27 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
             background: 'rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(3px)'
           }}>
              <div style={{ 
-               padding: '2.5rem 2rem', textAlign: 'center', width: '90%', 
-               background: 'rgba(255, 255, 255, 0.9)', 
-               backdropFilter: 'blur(15px)',
+               padding: isMobile ? '1.8rem 1.2rem' : '2.5rem 2rem', 
+               textAlign: 'center', 
+               width: isMobile ? '92%' : '90%', 
+               background: 'rgba(255, 255, 255, 0.95)', 
+               backdropFilter: 'blur(20px)',
                borderRadius: '32px',
-               border: '1px solid rgba(255, 255, 255, 0.5)', 
-               boxShadow: '0 20px 40px rgba(0,0,0,0.1)' 
+               border: '1px solid rgba(255, 255, 255, 0.6)', 
+               boxShadow: '0 25px 60px rgba(0,0,0,0.12)' 
              }}>
-                <div style={{ fontSize: "1.1rem", fontWeight: "950", color: "var(--primary-dark)", display: "flex", justifyContent: 'center', gap: '8px', marginBottom: '1.2rem' }}>
-                  <Leaf size={24} fill="var(--primary)" fillOpacity={0.2} /> ALIMNET
+                <div style={{ fontSize: "1rem", fontWeight: "950", color: "var(--primary-dark)", display: "flex", justifyContent: 'center', gap: '8px', marginBottom: '1rem' }}>
+                  <Leaf size={20} fill="var(--primary)" fillOpacity={0.2} /> ALIMNET
                 </div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1rem', letterSpacing: '-0.02em' }}>Sumate a la red</h3>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.95rem', lineHeight: '1.6', fontWeight: '600' }}>
+                <h3 style={{ fontSize: isMobile ? '1.3rem' : '1.5rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em', lineHeight: '1.2' }}>Sumate a la red</h3>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: isMobile ? '1.5rem' : '2rem', fontSize: isMobile ? '0.8rem' : '0.95rem', lineHeight: '1.5', fontWeight: '600' }}>
                   Hacelo de manera <span style={{ fontWeight: '900', color: 'var(--primary-dark)' }}>fácil y segura</span>. Sin formularios largos ni correos molestos; solo el puente directo hacia alimentos reales.
                 </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '280px', margin: '0 auto' }}>
-                  <button onClick={() => router.push('/login')} className="button button-primary" style={{ width: '100%', borderRadius: '16px', padding: '0.9rem', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                    <LogIn size={20} /> Entrar con Gmail
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxWidth: '280px', margin: '0 auto' }}>
+                  <button onClick={() => router.push('/login')} className="button button-primary" style={{ width: '100%', borderRadius: '16px', padding: isMobile ? '0.7rem' : '0.9rem', fontSize: isMobile ? '0.9rem' : '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                    <LogIn size={isMobile ? 18 : 20} /> Entrar con Gmail
                   </button>
-                  <button onClick={() => router.push('/registro')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '800', cursor: 'pointer', fontSize: '0.9rem' }}>Crear cuenta nueva</button>
+                  <button onClick={() => router.push('/registro')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: '800', cursor: 'pointer', fontSize: isMobile ? '0.8rem' : '0.9rem' }}>Crear cuenta nueva</button>
                 </div>
               </div>
           </div>

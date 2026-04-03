@@ -197,7 +197,7 @@ export default function JoinPage() {
       }
 
       // 2. Inserción en merchants
-      const { error } = await supabase.from('merchants').insert([{
+      const { data: merchantData, error: merchantError } = await supabase.from('merchants').insert([{
         name: formData.name,
         type: formData.type[0] || 'productor',
         bio_short: formData.bio_short,
@@ -214,9 +214,33 @@ export default function JoinPage() {
         logo_url: logoUrl,
         images: galleryUrls,
         status: 'pending'
-      }]);
+      }]).select().single();
 
-      if (error) throw error;
+      if (merchantError) throw merchantError;
+
+      // 3. Crear Alerta para el Admin (Tomás) - Nueva Propuesta de Owner
+      try {
+        const { data: adminNotif } = await supabase.from('notifications').insert([{
+          title: 'Nueva Propuesta de Comercio (Owner)',
+          content: `Un nuevo dueño ha registrado su proyecto: ${formData.name}. Revisar para validación.`,
+          type: 'ADMIN_ALERT',
+          metadata: {
+            merchant_name: formData.name,
+            email: formData.email,
+            whatsapp: formData.whatsapp,
+            type: formData.type[0]
+          }
+        }]).select().single();
+
+        if (adminNotif) {
+          fetch('/api/notifications/process', {
+            method: 'POST',
+            body: JSON.stringify({ notificationId: adminNotif.id })
+          }).catch(console.error);
+        }
+      } catch (err) {
+        console.error('Error al crear alerta admin de propuesta:', err);
+      }
       
       router.push(`/unirse/exito?name=${encodeURIComponent(formData.name)}&type=${encodeURIComponent(formData.type[0] || 'productor')}&logo=${encodeURIComponent(logoUrl)}`);
     } catch (e) {

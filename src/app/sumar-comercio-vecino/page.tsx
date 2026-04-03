@@ -137,6 +137,32 @@ function NeighborRecommendationContent() {
 
       if (error) throw error;
 
+      // 3. Crear Alerta para el Admin (Tomás)
+      try {
+        const { data: adminNotif } = await supabase.from('notifications').insert([{
+          user_id: user.id,
+          title: 'Nueva Recomendación de Vecino',
+          content: `${user.email} ha recomendado un comercio: ${formData.name}.`,
+          type: 'ADMIN_ALERT',
+          metadata: {
+            merchant_name: formData.name,
+            locality: formData.locality,
+            category: formData.type,
+            reason: formData.reason,
+            email: user.email
+          }
+        }]).select().single();
+
+        if (adminNotif) {
+          fetch('/api/notifications/process', {
+            method: 'POST',
+            body: JSON.stringify({ notificationId: adminNotif.id })
+          }).catch(console.error);
+        }
+      } catch (err) {
+        console.error('Error al crear alerta admin:', err);
+      }
+
       // Insertar locación si tenemos datos
       if (merchantData && (formData.lat !== 0 || formData.address)) {
         await supabase.from('locations').insert([{
