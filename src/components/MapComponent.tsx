@@ -13,6 +13,7 @@ const MapResizer = () => {
 
     const trigger = () => {
       map.invalidateSize();
+      window.dispatchEvent(new Event('resize')); // Shock eléctrico global
       map.panBy([0, 0], { animate: false }); // Forzar carga de tiles
     };
 
@@ -127,6 +128,7 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onI
   return (
     <div style={{ height: '100%', width: '100%', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
       <MapContainer 
+        key={`map-${center[0]}-${center[1]}-${zoom}`}
         center={center} 
         zoom={zoom} 
         scrollWheelZoom={true}
@@ -138,7 +140,7 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onI
         <MapResizer />
         <ZoomControl position="bottomright" />
         <TileLayer
-          key="voyager-tiles" // Usar key para forzar re-render si el zoom cambia drásticamente
+          key={`${center[0]}-tiles-v2`} 
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
