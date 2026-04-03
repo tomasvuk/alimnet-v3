@@ -1167,10 +1167,10 @@ export default function ExplorarPage() {
           style={{ 
             flex: 1, 
             position: isMobile ? 'absolute' : 'relative',
-            top: isMobile ? '128px' : '0', 
+            top: isMobile ? '118px' : '0', 
             left: 0,
             right: 0,
-            height: isMobile ? 'calc(100vh - 128px)' : 'calc(100vh - 120px)',
+            height: isMobile ? 'calc(100vh - 118px)' : 'calc(100vh - 120px)',
             bottom: isMobile ? '0' : 'auto',
             zIndex: (isMobile && mobileView !== 'map') ? -10 : 2,
             opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
