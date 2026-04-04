@@ -130,13 +130,18 @@ export default function LoginPage() {
             <button 
               type="button"
               onClick={async () => {
+                const origin = window.location.origin;
+                console.log("[GOOGLE LOGIN START] Origin:", origin);
                 const { error } = await supabase.auth.signInWithOAuth({
                   provider: 'google',
                   options: { 
-                    redirectTo: `${window.location.origin}/api/auth/callback?next=/explorar` 
+                    redirectTo: `${origin}/explorar` 
                   }
                 });
-                if (error) setError(error.message);
+                if (error) {
+                  console.error("[GOOGLE LOGIN ERROR]:", error);
+                  setError(error.message);
+                }
               }}
               style={{ 
                 width: '100%', padding: '0.8rem', borderRadius: '16px', border: '1px solid var(--border)', 

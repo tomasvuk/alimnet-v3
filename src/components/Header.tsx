@@ -22,7 +22,28 @@ export default function Header() {
     window.addEventListener('resize', checkMobile);
     
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      let { data: { session } } = await supabase.auth.getSession();
+      
+      // --- [BRUTE FORCE GOOGLE] Sincronización manual para móviles ---
+      if (!session) {
+        const cookies = document.cookie.split('; ');
+        const authCookie = cookies.find(row => row.startsWith('sb-keagrrvtzmsukcmzxqrl-auth-token='));
+        if (authCookie) {
+          try {
+            const cookieValue = decodeURIComponent(authCookie.split('=')[1]);
+            const sessionData = JSON.parse(cookieValue);
+            if (sessionData?.access_token && sessionData?.refresh_token) {
+              console.log("[HEADER BRUTE FORCE]: Restaurando sesión...");
+              const { data: { session: restoredSession } } = await supabase.auth.setSession({
+                access_token: sessionData.access_token,
+                refresh_token: sessionData.refresh_token
+              });
+              if (restoredSession) session = restoredSession;
+            }
+          } catch (e) { console.error(e); }
+        }
+      }
+
       handleAuthChange(session);
     };
 

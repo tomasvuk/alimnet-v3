@@ -75,7 +75,19 @@ function MiCuentaContent() {
   const [contributions, setContributions] = useState<any[]>([]);
 
   useEffect(() => {
+    // --- DETECTOR DE GOOGLE (RADAR DE CUENTA) ---
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("[AUTH EVENT CUENTA]:", _event, !!session);
+      if (session) {
+        fetchData();
+      }
+    });
+
     fetchData();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {

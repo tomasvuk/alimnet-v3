@@ -439,16 +439,44 @@ export default function ExplorarPage() {
           const place = mainAutocomplete.getPlace();
           if (!place.geometry) return;
           const name = place.name || place.formatted_address;
-          setSearchQuery(name);
-          
           const lat = place.geometry.location.lat();
           const lng = place.geometry.location.lng();
+          
+          setSearchQuery(name);
           setSearchCoords({ lat, lng });
           
-          // Verificar si el comercio ya existe en nuestra base (por nombre exacto aprox)
-          const exists = merchants.some(m => normalizeString(m.name) === normalizeString(name));
-          
-          if (!exists && place.types?.includes('establishment')) {
+          // --- AGENTE INTELIGENTE: DETECTOR DE DUPLICADOS ---
+          // 1. Buscamos por nombre normalizado (parcial) y ubicación cercana (menor a 200m)
+          const potentialMatch = merchants.find(m => {
+            const mName = normalizeString(m.name);
+            const gName = normalizeString(name);
+            
+            // Similitud de nombre (uno contiene al otro)
+            const isSimilarName = mName.includes(gName) || gName.includes(mName);
+            
+            // Proximidad geográfica (si no tiene coordenadas precisas, comparamos locality)
+            const mLoc = m.locations?.[0];
+            let isNear = false;
+            
+            if (mLoc?.lat && mLoc?.lng) {
+              const dist = Math.sqrt(Math.pow(mLoc.lat - lat, 2) + Math.pow(mLoc.lng - lng, 2));
+              isNear = dist < 0.002; // Aprox 200 metros
+            } else if (mLoc?.locality) {
+              isNear = normalizeString(mLoc.locality) === normalizeString(place.formatted_address || '');
+            }
+            
+            return isSimilarName && isNear;
+          });
+
+          if (potentialMatch) {
+            console.log("Inspector: Duplicado detectado, seleccionando comercio interno:", potentialMatch.name);
+            setSelectedMerchant(potentialMatch);
+            setExternalPlaceSelected(null);
+            // Centrar el mapa en el comercio existente
+            const mLoc = potentialMatch.locations?.[0];
+            if (mLoc?.lat) setSearchCoords({ lat: mLoc.lat, lng: mLoc.lng });
+          } else if (place.types?.includes('establishment')) {
+            // Es un lugar nuevo de Google que no tenemos
             setExternalPlaceSelected({
               name,
               address: place.formatted_address,
@@ -460,7 +488,7 @@ export default function ExplorarPage() {
             setExternalPlaceSelected(null);
           }
           
-          trackClick('SEARCH_MAIN_SELECTED', { name });
+          trackClick('SEARCH_MAIN_SELECTED', { name, was_duplicate: !!potentialMatch });
         });
       }
     };
@@ -469,36 +497,57 @@ export default function ExplorarPage() {
 
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      handleAuthEvent(session);
+    };
+
+    // --- DETECTOR DE GOOGLE (IMÁN REACCIÓN RÁPIDA) ---
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("[AUTH EVENT MAPA]:", _event, !!session);
+      handleAuthEvent(session);
+    });
+
+    const handleAuthEvent = async (session: any) => {
+      let activeSession = session;
+
+      // --- [BRUTE FORCE GOOGLE] Si no hay sesión, buscamos la galletita secreta ---
+      if (!activeSession) {
+        const cookies = document.cookie.split('; ');
+        const authCookie = cookies.find(row => row.startsWith('sb-keagrrvtzmsukcmzxqrl-auth-token='));
+        if (authCookie) {
+          try {
+            const cookieValue = decodeURIComponent(authCookie.split('=')[1]);
+            const sessionData = JSON.parse(cookieValue);
+            if (sessionData?.access_token && sessionData?.refresh_token) {
+              console.log("[GOOGLE BRUTE FORCE]: Restaurando desde galletita...");
+              const { data: { session: restoredSession } } = await supabase.auth.setSession({
+                access_token: sessionData.access_token,
+                refresh_token: sessionData.refresh_token
+              });
+              if (restoredSession) activeSession = restoredSession;
+            }
+          } catch (e) { console.error(e); }
+        }
+      }
+
+      if (activeSession) {
         setIsLoggedIn(true);
-        setUser(session.user);
+        setUser(activeSession.user);
         
         // 1. Perfil
-        const { data: pData } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+        const { data: pData } = await supabase.from('profiles').select('*').eq('id', activeSession.user.id).single();
         if (pData) {
           setUserProfile(pData);
-          
-          // Trigger onboarding if name or locality is missing
           if (!pData.full_name || !pData.locality) {
             setShowOnboarding(true);
           }
-          
-          // --- INTELIGENCIA DE MAPA ALIMNET ---
-          // 1. Centrar en localidad si existe
           if (pData.locality) {
             setSearchLocation(pData.locality);
-            // No seteamos coords automáticamente para no filtrar por radio al inicio, 
-            // permitiendo que el usuario vea TODO en el mapa centrado.
           }
-          
-          // --- PREFERENCIAS (NO AUTO-APLICADAS) ---
-          // Se guardan en el perfil pero el estado inicial de filtros queda VACÍO 
-          // para cumplir con el pedido de "Inicio Limpio".
         } else {
-          // No profile found, definitely show onboarding
           setShowOnboarding(true);
         }
-        // Validaciones del usuario
+        
+        // Validaciones
         const { data: vData } = await supabase.from('validations').select('merchant_id').eq('user_id', session.user.id);
         if (vData) setValidatedMerchantIds(new Set(vData.map(v => v.merchant_id)));
 
@@ -513,7 +562,10 @@ export default function ExplorarPage() {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const fetchValidators = async (merchantId: string) => {
