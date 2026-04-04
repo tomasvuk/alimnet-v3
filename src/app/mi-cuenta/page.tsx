@@ -108,16 +108,23 @@ function MiCuentaContent() {
     router.push(`/mi-cuenta?tab=${tabId}`, { scroll: false });
   };
 
-  const fetchData = async () => {
+  const fetchData = async (retryCount = 0) => {
     try {
       // 1. Intentamos obtener el usuario de forma robusta
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
-        console.log("No hay usuario autenticado en el servidor.");
+        console.log(`Intento ${retryCount + 1}: No hay usuario en el servidor.`);
         const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.user && retryCount < 2) {
+          console.log("Reintentando carga en 800ms...");
+          setTimeout(() => fetchData(retryCount + 1), 800);
+          return;
+        }
+
         if (!session?.user) {
-          console.log("No hay sesión local tampoco. Parando carga.");
+          console.log("No hay sesión tras reintentos.");
           setLoading(false);
           return;
         }
