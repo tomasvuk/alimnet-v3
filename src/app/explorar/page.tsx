@@ -438,29 +438,36 @@ export default function ExplorarPage() {
         mainAutocomplete.addListener('place_changed', () => {
           const place = mainAutocomplete.getPlace();
           if (!place.geometry) return;
-          const name = place.name || place.formatted_address;
+          const name = place.name || place.formatted_address || '';
           const lat = place.geometry.location.lat();
           const lng = place.geometry.location.lng();
           
           setSearchQuery(name);
           setSearchCoords({ lat, lng });
           
-          // --- AGENTE INTELIGENTE: DETECTOR DE DUPLICADOS ---
-          // 1. Buscamos por nombre normalizado (parcial) y ubicación cercana (menor a 200m)
+          // --- AGENTE DE INTELIGENCIA: INSPECTOR DE DUPLICADOS (REFORZADO) ---
           const potentialMatch = merchants.find(m => {
             const mName = normalizeString(m.name);
             const gName = normalizeString(name);
             
-            // Similitud de nombre (uno contiene al otro)
-            const isSimilarName = mName.includes(gName) || gName.includes(mName);
+            // Similitud 1: Uno contiene al otro (clásico)
+            let isSimilarName = mName.includes(gName) || gName.includes(mName);
             
-            // Proximidad geográfica (si no tiene coordenadas precisas, comparamos locality)
+            // Similitud 2: Comparten palabras clave (para casos "Ayni Cocina" vs "Ayni Almacen Organico")
+            if (!isSimilarName) {
+              const mWords = mName.split(' ').filter(w => w.length > 3);
+              const gWords = gName.split(' ').filter(w => w.length > 3);
+              const sharedWords = mWords.filter(w => gWords.includes(w));
+              isSimilarName = sharedWords.length >= 2;
+            }
+            
+            // Proximidad geográfica (Radio de 500 metros)
             const mLoc = m.locations?.[0];
             let isNear = false;
             
             if (mLoc?.lat && mLoc?.lng) {
               const dist = Math.sqrt(Math.pow(mLoc.lat - lat, 2) + Math.pow(mLoc.lng - lng, 2));
-              isNear = dist < 0.002; // Aprox 200 metros
+              isNear = dist < 0.005; // ~500 metros (más elástico)
             } else if (mLoc?.locality) {
               isNear = normalizeString(mLoc.locality) === normalizeString(place.formatted_address || '');
             }
@@ -469,14 +476,15 @@ export default function ExplorarPage() {
           });
 
           if (potentialMatch) {
-            console.log("Inspector: Duplicado detectado, seleccionando comercio interno:", potentialMatch.name);
+            console.log("Inspector: Posible duplicado detectado ->", potentialMatch.name);
             setSelectedMerchant(potentialMatch);
-            setExternalPlaceSelected(null);
-            // Centrar el mapa en el comercio existente
+            setExternalPlaceSelected(null); // OCULTAR BANNER DE SUMAR NUEVO
+            
+            // Centrar mapa si el match tiene coordenadas
             const mLoc = potentialMatch.locations?.[0];
             if (mLoc?.lat) setSearchCoords({ lat: mLoc.lat, lng: mLoc.lng });
           } else if (place.types?.includes('establishment')) {
-            // Es un lugar nuevo de Google que no tenemos
+            // No existe en nuestra base, ofrecer Cargarlo
             setExternalPlaceSelected({
               name,
               address: place.formatted_address,
