@@ -715,8 +715,10 @@ export default function ExplorarPage() {
 
     if (tagsToFilter.length > 0) {
       result = result.filter(m => {
-        const merchantTags = m.tags || [];
-        return tagsToFilter.every(f => merchantTags.includes(f));
+        const merchantTags = (m.tags || []).map(t => t.toLowerCase());
+        const normSelected = tagsToFilter.map(f => f.toLowerCase());
+        // Usar 'some' en lugar de 'every' para ser inclusivos y no vaciar el mapa
+        return normSelected.some(f => merchantTags.includes(f));
       });
     }
 
