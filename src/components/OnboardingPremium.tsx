@@ -11,11 +11,11 @@ interface OnboardingPremiumProps {
 
 export default function OnboardingPremium({ user, onComplete }: OnboardingPremiumProps) {
   const [step, setStep] = useState(1);
+  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [firstName, setFirstName] = useState(user?.user_metadata?.full_name?.split(' ')[0] || '');
   const [locality, setLocality] = useState('');
   const [preferences, setPreferences] = useState<string[]>([]);
-
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -27,7 +27,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
         if (target && window.google?.maps?.places) {
           console.log("Onboarding: Inicializando Google Places Autocomplete");
           const autocomplete = new window.google.maps.places.Autocomplete(target, {
-            types: ['geocode'], // Más amplio que regions/cities para asegurar resultados
+            types: ['geocode', 'establishment'], 
             componentRestrictions: { country: 'ar' },
             fields: ['formatted_address', 'geometry', 'name']
           });
@@ -44,10 +44,10 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
 
       const interval = setInterval(() => {
         attempts++;
-        if (initAutocomplete() || attempts > 50) { // Up to 5 seconds of polling
+        if (initAutocomplete() || attempts > 50) {
           clearInterval(interval);
         }
-      }, 100);
+      }, 200);
 
       return () => clearInterval(interval);
     }
@@ -59,26 +59,32 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
 
   const handleFinish = async () => {
     setSaving(true);
+    setError(null);
     try {
-      // Create or update profile record
-      const { error } = await supabase.from('profiles').upsert({
+      console.log("Onboarding: Intentando guardar perfil para", user.id);
+      const { data, error: upsertError } = await supabase.from('profiles').upsert({
         id: user.id,
         full_name: firstName, 
         first_name: firstName,
         locality: locality,
-        preferences: preferences, // jsonb array
+        preferences: preferences,
         role: 'consumer',
         email: user.email,
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'id' });
+      }, { onConflict: 'id' }).select().single();
       
-      if (error) throw error;
+      if (upsertError) {
+        console.error('Onboarding: Upsert Error Details:', JSON.stringify(upsertError, null, 2));
+        throw upsertError;
+      }
       
+      console.log("Onboarding: Perfil guardado con éxito", data);
       onComplete();
-    } catch (err) {
-      console.error('Error saving profile:', err);
+    } catch (err: any) {
+      console.error('Onboarding: Catch Error:', err);
+      const msg = err.message || JSON.stringify(err);
+      setError(`Error al guardar: ${msg}`);
       setSaving(false);
-      onComplete();
     }
   };
 
@@ -226,6 +232,12 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
               {saving ? <Loader2 className="animate-spin" /> : 'Descubrir Mi Red'}
             </button>
             {!saving && <button onClick={handleFinish} style={{ width: '100%', background: 'none', border: 'none', color: '#888', marginTop: '1rem', fontWeight: '700', cursor: 'pointer' }}>Saltar</button>}
+            
+            {error && (
+              <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#FEE2E2', color: '#B91C1C', borderRadius: '15px', fontSize: '0.9rem', textAlign: 'center', fontWeight: '600', border: '1px solid #FECACA' }}>
+                {error}
+              </div>
+            )}
           </div>
         )}
       </div>

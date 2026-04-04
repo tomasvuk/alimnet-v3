@@ -952,10 +952,10 @@ function DonationsList({ donations, loading }: any) {
                         <td style={{padding:20}}>
                             <span style={{ 
                                 ...BadgeStyle, 
-                                background: d.status === 'succeeded' ? '#DCFCE7' : '#FEF3C7', 
-                                color: d.status === 'succeeded' ? '#166534' : '#B45309' 
+                                background: d.status === 'succeeded' ? '#DCFCE7' : (d.status === 'succeeded_test' ? '#F0F4ED' : '#FEF3C7'), 
+                                color: d.status === 'succeeded' ? '#166534' : (d.status === 'succeeded_test' ? '#5F7D4A' : '#B45309') 
                             }}>
-                                {d.status?.toUpperCase()}
+                                {d.status === 'succeeded_test' ? 'PRUEBA' : d.status?.toUpperCase()}
                             </span>
                         </td>
                     </tr>

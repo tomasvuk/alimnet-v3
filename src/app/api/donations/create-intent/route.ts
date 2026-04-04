@@ -105,7 +105,7 @@ export async function POST(req: Request) {
                     },
                     auto_return: 'approved',
                     external_reference: JSON.stringify({ frequency, type: 'donation' }),
-                    notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/donations/webhook`
+                    notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/donations/webhook?token=${process.env.MERCADOPAGO_WEBHOOK_SECRET}`
                 }
             });
             return NextResponse.json({ preferenceId: result.id, initPoint: result.init_point });
