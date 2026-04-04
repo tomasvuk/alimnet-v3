@@ -9,7 +9,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
-        storageKey: 'alimnet-auth',
         storage: typeof window !== 'undefined' ? window.localStorage : undefined
     }
 })

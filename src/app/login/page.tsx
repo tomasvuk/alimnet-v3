@@ -239,7 +239,7 @@ export default function LoginPage() {
       </main>
 
       <footer style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: '700' }}>
-        © 2026 Alimnet. Cultivando redes locales.
+        © 2025 Alimnet. Cultivando redes locales.
       </footer>
 
       <style jsx>{`
