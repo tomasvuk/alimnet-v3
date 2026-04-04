@@ -71,8 +71,19 @@ export default function LoginPage() {
         return;
       }
 
-      // NO redirigimos aquí. Dejamos que onAuthStateChange lo haga por nosotros.
-      console.log("Petición aceptada. Esperando sincronización...");
+      if (data.user) {
+        console.log("Login exitoso. Forzando entrada...");
+        if (data.session) setAuthCookie(data.session);
+        
+        // REDIRECCIÓN DIRECTA PARA NO DEPENDER SOLO DEL LISTENER
+        setTimeout(() => {
+          if (data.user?.email === 'info@alimnet.com') {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/mi-cuenta';
+          }
+        }, 300);
+      }
       
     } catch (err: any) {
       console.error("Falla crítica:", err);

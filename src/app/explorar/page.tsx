@@ -1735,36 +1735,67 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                       <span style={{ color: 'var(--text-secondary)' }}>Consultar horarios</span>
                     )}
                   </p>
-                  <button style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: '650', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <button onClick={() => trackClick('VIEW_HOURS', { id: merchant.id })} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: '650', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     Ver más horas <ChevronRight size={12} />
                   </button>
                 </div>
               </div>
 
-              {/* WHATSAPP / WEB */}
+              {/* WHATSAPP ACTION */}
               <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
                   <Globe size={18} color="var(--primary)" />
                 </div>
                 <div>
                    <a 
-                    href={merchant.whatsapp ? `https://wa.me/${merchant.whatsapp.replace(/[^0-9]/g, '')}` : '#'} 
+                    href={merchant.whatsapp ? `https://wa.me/${merchant.whatsapp.replace(/[^0-9]/g, '')}` : undefined} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    style={{ fontSize: '0.85rem', color: 'var(--primary-dark)', fontWeight: '600', textDecoration: 'none' }}
+                    onClick={() => {
+                      if (merchant.whatsapp) trackClick('CTA_WHATSAPP', { id: merchant.id, merchant: merchant.name });
+                    }}
+                    style={{ fontSize: '0.85rem', color: merchant.whatsapp ? 'var(--primary-dark)' : 'var(--text-secondary)', fontWeight: '600', textDecoration: 'none', cursor: merchant.whatsapp ? 'pointer' : 'default' }}
                    >
-                     {merchant.whatsapp ? `wa.me/${merchant.whatsapp.replace(/[^0-9]/g, '')}` : "chat.whatsapp.com"}
+                     {merchant.whatsapp ? "Consultar vía WhatsApp" : "WhatsApp no disponible"}
                    </a>
                 </div>
               </div>
 
-              {/* TELÉFONO */}
+              {/* INSTAGRAM (ALIMNET DATA) */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
+                  <Instagram size={18} color="var(--primary)" />
+                </div>
+                <div>
+                   <a 
+                    href={merchant.instagram_url || undefined} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      if (merchant.instagram_url) trackClick('CTA_INSTAGRAM', { id: merchant.id, merchant: merchant.name });
+                    }}
+                    style={{ fontSize: '0.85rem', color: merchant.instagram_url ? 'var(--primary-dark)' : 'var(--text-secondary)', fontWeight: '600', textDecoration: 'none', cursor: merchant.instagram_url ? 'pointer' : 'default' }}
+                   >
+                     {merchant.instagram_url ? "Ver Instagram Oficial" : "Sin Instagram cargado"}
+                   </a>
+                </div>
+              </div>
+
+              {/* WEB / TELÉFONO */}
               <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
                    <Phone size={18} color="var(--primary)" />
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: '600' }}>
-                  {merchant.phone || "Consultar directamente"}
+                <div>
+                  <a 
+                    href={merchant.phone ? `tel:${merchant.phone.replace(/[^0-9]/g, '')}` : undefined}
+                    onClick={() => {
+                      if (merchant.phone) trackClick('CTA_PHONE', { id: merchant.id, merchant: merchant.name });
+                    }}
+                    style={{ fontSize: '0.85rem', color: merchant.phone ? 'var(--primary-dark)' : 'var(--text-secondary)', fontWeight: '600', textDecoration: 'none', cursor: merchant.phone ? 'pointer' : 'default' }}
+                  >
+                    {merchant.phone ? "Llamar por teléfono" : "Teléfono no disponible"}
+                  </a>
                 </div>
               </div>
 
@@ -1782,6 +1813,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                         href={merchant.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(merchant.name)}+${encodeURIComponent(loc.locality || '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => trackClick('CTA_GMAPS_FICHA', { id: merchant.id, merchant: merchant.name })}
                         style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '800', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
                       >
                         Ver ficha en Google Maps <ExternalLink size={14} />
@@ -1823,6 +1855,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
         </div>
 
         {/* CONTACTO - Alineado a la paleta Alimnet */}
+        {/* CONTACTO - Alineado a la paleta Alimnet */}
         <div style={{ 
           padding: '1.5rem', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column', gap: '10px',
           filter: !isLoggedIn ? 'blur(25px) grayscale(20%)' : 'none',
@@ -1831,74 +1864,36 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
           opacity: !isLoggedIn ? 0.5 : 1,
           transition: 'all 0.4s ease'
         }}>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <a 
-              href={merchant.instagram_url || '#'} 
-              target={merchant.instagram_url ? "_blank" : undefined} 
-              rel="noopener noreferrer" 
-              onClick={(e) => {
-                if (!merchant.instagram_url) e.preventDefault();
-                trackClick('CTA_INSTAGRAM', { id: merchant.id });
-              }}
-              style={{ 
-                flex: 1, padding: '0.6rem', 
-                background: merchant.instagram_url ? 'var(--primary-dark)' : '#f0f0f0', 
-                color: merchant.instagram_url ? 'white' : '#999', 
-                borderRadius: '12px', textAlign: 'center', fontWeight: '900', 
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                textDecoration: 'none', cursor: merchant.instagram_url ? 'pointer' : 'default'
-              }}
-            >
-              <Instagram size={16} /> <span style={{ fontSize: '0.75rem' }}>{merchant.instagram_url ? 'Instagram' : 'N/D'}</span>
-            </a>
-            <a 
-              href={merchant.website_url ? (merchant.website_url.startsWith('http') ? merchant.website_url : `https://${merchant.website_url}`) : '#'} 
-              target={merchant.website_url ? "_blank" : undefined} 
-              rel="noopener noreferrer" 
-              onClick={(e) => {
-                if (!merchant.website_url) e.preventDefault();
-                trackClick('CTA_WEBSITE', { id: merchant.id });
-              }}
-              style={{ 
-                flex: 1, padding: '0.6rem', 
-                background: merchant.website_url ? 'white' : '#f0f0f0', 
-                color: merchant.website_url ? 'var(--primary-dark)' : '#999', 
-                borderRadius: '12px', textAlign: 'center', fontWeight: '900', 
-                border: merchant.website_url ? '2px solid var(--border)' : '1px solid transparent',
-                pointerEvents: merchant.website_url ? 'auto' : 'none',
-                textDecoration: 'none'
-              }}
-            >
-              <span style={{ fontSize: '0.75rem' }}>{merchant.website_url ? 'Web' : 'N/D'}</span>
-            </a>
-          </div>
           <a 
-            href={merchant.whatsapp ? `https://wa.me/${merchant.whatsapp.replace(/[^0-9]/g, '')}` : '#'} 
-            target={merchant.whatsapp ? "_blank" : undefined} 
+            href={merchant.whatsapp ? `https://wa.me/${merchant.whatsapp.replace(/[^0-9]/g, '')}` : undefined} 
+            target="_blank" 
             rel="noopener noreferrer" 
-            onClick={(e) => {
-              if (!merchant.whatsapp) e.preventDefault();
-              trackClick('CTA_WHATSAPP', { id: merchant.id });
+            onClick={() => {
+              if (merchant.whatsapp) trackClick('CTA_WHATSAPP_MAIN', { id: merchant.id, merchant: merchant.name });
             }}
             style={{ 
-              padding: '0.8rem', 
+              padding: '1rem', 
               background: merchant.whatsapp ? 'var(--primary)' : '#f0f0f0', 
               color: merchant.whatsapp ? 'white' : '#999', 
-              borderRadius: '12px', textAlign: 'center', fontWeight: '950', 
+              borderRadius: '16px', textAlign: 'center', fontWeight: '950', 
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
               pointerEvents: merchant.whatsapp ? 'auto' : 'none',
-              boxShadow: merchant.whatsapp ? '0 4px 12px rgba(95, 125, 74, 0.2)' : 'none',
+              boxShadow: merchant.whatsapp ? '0 4px 20px rgba(95, 125, 74, 0.25)' : 'none',
               textDecoration: 'none'
             }}
           >
-            <span style={{ fontSize: '0.75rem', fontWeight: '900' }}>{merchant.whatsapp ? 'WhatsApp Pedidos' : 'WhatsApp no disponible'}</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: '900' }}>{merchant.whatsapp ? 'Realizar un pedido' : 'WhatsApp no disponible'}</span>
           </a>
+          
           {/* ACCIÓN: SOY EL DUEÑO */}
           {!merchant.claimed && (
             <div style={{ marginTop: '1rem', textAlign: 'center', padding: '0.8rem', background: '#F8F9F5', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '800', marginBottom: '6px' }}>¿Sos el dueño?</p>
               <button 
-                onClick={() => router.push(`/unirse?merchantId=${merchant.id}`)}
+                onClick={() => {
+                  trackClick('CLAIM_MERCHANT_START', { id: merchant.id, merchant: merchant.name });
+                  router.push(`/unirse?merchantId=${merchant.id}`);
+                }}
                 style={{ 
                   background: 'none', border: '1.5px solid #5F7D4A', color: '#5F7D4A', 
                   padding: '0.5rem 1rem', borderRadius: '10px', fontSize: '0.75rem', 
