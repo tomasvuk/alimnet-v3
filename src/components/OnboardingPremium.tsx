@@ -39,8 +39,6 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
           console.log("Onboarding: Inicializando Google Places Autocomplete");
           setGmapsReady(true);
           const autocomplete = new window.google.maps.places.Autocomplete(target, {
-            types: ['geocode', 'establishment'], 
-            componentRestrictions: { country: 'ar' },
             fields: ['formatted_address', 'geometry', 'name']
           });
 
