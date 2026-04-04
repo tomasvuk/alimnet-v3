@@ -321,7 +321,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
           to { transform: rotate(360deg); }
         }
         .pac-container {
-          z-index: 99999 !important;
+          z-index: 100000 !important;
           border-radius: 16px;
           border: 1px solid #eee !important;
           box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
@@ -329,6 +329,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
           font-family: inherit !important;
           min-width: 320px !important;
           padding: 8px 0 !important;
+          pointer-events: auto !important;
         }
         .pac-item {
           padding: 10px 16px !important;

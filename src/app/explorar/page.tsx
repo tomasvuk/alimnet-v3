@@ -600,7 +600,14 @@ export default function ExplorarPage() {
 
   // Efecto principal para reactividad de filtros y búsquedas
   useEffect(() => {
-    let result = merchants.filter(m => selectedCategories.includes((m.type || '').toLowerCase()));
+    // Filtrado por Categorías (Actor) - MÁS FLEXIBLE
+    let result = merchants;
+    if (selectedCategories.length > 0 && selectedCategories.length < 4) {
+      result = merchants.filter(m => {
+        const type = (m.type || '').toLowerCase();
+        return selectedCategories.some(cat => type.includes(cat));
+      });
+    }
 
     // Filtrado por Búsqueda Libre (Nombre, Alimento, Lugar)
     const isRegionalQuery = ['zona norte', 'zona oeste', 'zona sur', 'gba', 'buenos aires'].some(r => normalizeString(searchQuery).includes(r));
