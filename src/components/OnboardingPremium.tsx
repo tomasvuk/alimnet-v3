@@ -16,28 +16,40 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
   const [locality, setLocality] = useState('');
   const [preferences, setPreferences] = useState<string[]>([]);
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
   React.useEffect(() => {
-    // If step 2 is reached, try to initialize autocomplete
-    if (step === 2 && typeof window !== 'undefined' && window.google) {
-      const initInterval = setInterval(() => {
-        const input = document.getElementById('onboarding-locality-input') as HTMLInputElement;
-        if (input && window.google) {
-          const autocomplete = new window.google.maps.places.Autocomplete(input, {
-            types: ['(regions)'],
+    if (step === 2 && typeof window !== 'undefined') {
+      let attempts = 0;
+      const initAutocomplete = () => {
+        const target = inputRef.current || document.getElementById('onboarding-locality-input') as HTMLInputElement;
+        
+        if (target && window.google?.maps?.places) {
+          console.log("Onboarding: Inicializando Google Places Autocomplete");
+          const autocomplete = new window.google.maps.places.Autocomplete(target, {
+            types: ['geocode'], // Más amplio que regions/cities para asegurar resultados
             componentRestrictions: { country: 'ar' },
             fields: ['formatted_address', 'geometry', 'name']
           });
 
           autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
-            if (place.formatted_address || place.name) {
-              setLocality(place.formatted_address || place.name);
-            }
+            const val = place.formatted_address || place.name;
+            if (val) setLocality(val);
           });
-          clearInterval(initInterval);
+          return true;
         }
-      }, 50); // Small interval to find the element
-      return () => clearInterval(initInterval);
+        return false;
+      };
+
+      const interval = setInterval(() => {
+        attempts++;
+        if (initAutocomplete() || attempts > 50) { // Up to 5 seconds of polling
+          clearInterval(interval);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
     }
   }, [step]);
 
@@ -144,6 +156,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
             <div style={{ position: 'relative', marginBottom: '2rem' }}>
               <input 
                 id="onboarding-locality-input"
+                ref={inputRef}
                 type="text" 
                 value={locality} 
                 onChange={e => setLocality(e.target.value)}
@@ -233,6 +246,12 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+        .pac-container {
+          z-index: 20000 !important;
+          border-radius: 12px;
+          border: none;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
       `}</style>
     </div>
