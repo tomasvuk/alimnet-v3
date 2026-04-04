@@ -127,7 +127,7 @@ const ADVANCED_CATEGORIES = {
 };
 const PRODUCT_OPTIONS = OFFICIAL_CATEGORIES;
 
-function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number }) {
+function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount, userProfile }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number, userProfile: any }) {
   // --- Soporte para tecla ESC ---
   useEffect(() => {
     if (!isOpen) return;
@@ -200,6 +200,54 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
           <div style={{ width: '40px' }} />
         </div>
         
+        <div style={{ padding: '2rem 2rem 0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {userProfile?.preferences && userProfile.preferences.length > 0 && (
+            <button 
+              onClick={() => {
+                const mapping: Record<string, string> = {
+                  'Gluten Free': 'Sin gluten',
+                  'Sugar Free': 'Sin azúcar',
+                  'Plant Based': 'Plant-based',
+                  'Sin Lactosa': 'Sin lactosa',
+                  'Keto': 'Keto',
+                  'Vegetariano': 'Vegetariano',
+                  'Sustentable': 'Sustentable',
+                  'Orgánico': 'Orgánico'
+                };
+                const newFilters = [...selectedFilters];
+                userProfile.preferences.forEach((p: string) => {
+                  const mapped = mapping[p] || p;
+                  if (!newFilters.includes(mapped)) newFilters.push(mapped);
+                });
+                // También activar categorías lógicas si están en las preferencias de actor
+                const actorMapping: Record<string, string> = {
+                  'Huertas': 'Productor',
+                  'Productores': 'Productor',
+                  'Mercados': 'Abastecedor'
+                };
+                userProfile.preferences.forEach((p: string) => {
+                  const cat = actorMapping[p];
+                  if (cat && !newFilters.includes(cat)) {
+                    newFilters.push(cat);
+                    toggleFilter(cat); // Sincroniza categorías
+                  }
+                });
+                newFilters.forEach(f => {
+                  if (!selectedFilters.includes(f)) toggleFilter(f);
+                });
+                onClose();
+              }}
+              style={{
+                width: '100%', padding: '1rem', background: '#F8F9F5', border: '2px dashed #5F7D4A',
+                borderRadius: '16px', color: '#3F5232', fontWeight: '900', fontSize: '0.9rem',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+              }}
+            >
+              ✨ Aplicar mi estilo (acorde a mi perfil)
+            </button>
+          )}
+        </div>
+
         <div style={{ padding: '0 2rem', overflowY: 'auto', flex: 1 }} className="no-scrollbar">
           {renderSection('modalidad')}
           {renderSection('alimentacion')}
@@ -244,7 +292,7 @@ declare global {
 
 export default function ExplorarPage() {
   const router = useRouter();
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(['productor', 'abastecedor', 'restaurante', 'chef']);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
@@ -258,8 +306,8 @@ export default function ExplorarPage() {
   const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
   
-  // Sincronizar selectedFilters con selectedCategories para el Modal
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(['Productor', 'Abastecedor', 'Restaurante', 'Chef']);
+  // Sincronizar selectedFilters con selectedCategories - INICIO LIMPIO (Sugerido por Tomas)
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showHamburger, setShowHamburger] = useState(false);
   const [stickyFilters, setStickyFilters] = useState(false);
@@ -405,30 +453,13 @@ export default function ExplorarPage() {
           // 1. Centrar en localidad si existe
           if (pData.locality) {
             setSearchLocation(pData.locality);
+            // No seteamos coords automáticamente para no filtrar por radio al inicio, 
+            // permitiendo que el usuario vea TODO en el mapa centrado.
           }
           
-          // 2. Traducir y pre-activar filtros del Onboarding
-          if (pData.preferences && Array.isArray(pData.preferences)) {
-            const prefs = pData.preferences;
-            const newFilters = [...selectedFilters];
-            
-            const mapping: Record<string, string> = {
-              'Gluten Free': 'Sin gluten',
-              'Sugar Free': 'Sin azúcar',
-              'Plant Based': 'Plant-based',
-              'Sin Lactosa': 'Sin lactosa',
-              'Keto': 'Keto',
-              'Vegetariano': 'Vegetariano'
-            };
-            
-            prefs.forEach((p: string) => {
-              const mapped = mapping[p];
-              if (mapped && !newFilters.includes(mapped)) {
-                newFilters.push(mapped);
-              }
-            });
-            setSelectedFilters(newFilters);
-          }
+          // --- PREFERENCIAS (NO AUTO-APLICADAS) ---
+          // Se guardan en el perfil pero el estado inicial de filtros queda VACÍO 
+          // para cumplir con el pedido de "Inicio Limpio".
         } else {
           // No profile found, definitely show onboarding
           setShowOnboarding(true);
@@ -1359,6 +1390,7 @@ export default function ExplorarPage() {
         toggleFilter={toggleFilter}
         clearAll={() => setSelectedFilters([])}
         resultCount={filteredMerchants.length}
+        userProfile={userProfile}
       />
       {/* ONBOARDING MODAL PREMIUM */}
       {showOnboarding && user && (
