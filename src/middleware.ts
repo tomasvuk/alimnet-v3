@@ -25,12 +25,16 @@ function parseSupabaseCookie(cookieValue: string): { valid: boolean; expired: bo
     if (parts.length !== 3) return { valid: false, expired: false };
 
     // Usamos atob para ser compatibles con Edge Runtime (Next.js Middleware)
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    // Agregamos padding al base64url para evitar errores de longitud
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+    const payload = JSON.parse(atob(padded));
     const now = Math.floor(Date.now() / 1000);
 
     return {
       valid: true,
-      expired: payload.exp ? payload.exp < now : false,
+      // Damos un margen de 10 minutos (600s) por diferencia de relojes entre servidor y cliente
+      expired: payload.exp ? payload.exp < (now - 600) : false,
       userId: payload.sub,
     };
   } catch (err) {

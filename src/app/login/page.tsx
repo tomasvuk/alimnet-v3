@@ -24,9 +24,9 @@ export default function LoginPage() {
           .eq('id', session.user.id)
           .single();
         
-        if (profile?.role === 'admin') router.push('/admin');
-        else if (profile?.role === 'merchant') router.push('/perfil');
-        else router.push('/mi-cuenta');
+        if (profile?.role === 'admin') window.location.href = '/admin';
+        else if (profile?.role === 'merchant') window.location.href = '/perfil';
+        else window.location.href = '/mi-cuenta';
       }
     }
     checkSession();
@@ -78,7 +78,7 @@ export default function LoginPage() {
         if (profileError) {
           console.error("Error fetching profile:", profileError);
           console.log("Redirigiendo a /mi-cuenta por error de perfil");
-          router.push('/mi-cuenta');
+          window.location.href = '/mi-cuenta';
           return;
         }
 
