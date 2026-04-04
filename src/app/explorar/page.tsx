@@ -127,7 +127,7 @@ const ADVANCED_CATEGORIES = {
 };
 const PRODUCT_OPTIONS = OFFICIAL_CATEGORIES;
 
-function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount, userProfile }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number, userProfile: any }) {
+function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount, userProfile, router }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number, userProfile: any, router: any }) {
   // --- Soporte para tecla ESC ---
   useEffect(() => {
     if (!isOpen) return;
@@ -200,51 +200,70 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
           <div style={{ width: '40px' }} />
         </div>
         
-        <div style={{ padding: '2rem 2rem 0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ padding: '2rem 2rem 0.5rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
           {userProfile?.preferences && userProfile.preferences.length > 0 && (
-            <button 
-              onClick={() => {
-                const mapping: Record<string, string> = {
-                  'Gluten Free': 'Sin gluten',
-                  'Sugar Free': 'Sin azúcar',
-                  'Plant Based': 'Plant-based',
-                  'Sin Lactosa': 'Sin lactosa',
-                  'Keto': 'Keto',
-                  'Vegetariano': 'Vegetariano',
-                  'Sustentable': 'Sustentable',
-                  'Orgánico': 'Orgánico'
-                };
-                const newFilters = [...selectedFilters];
-                userProfile.preferences.forEach((p: string) => {
-                  const mapped = mapping[p] || p;
-                  if (!newFilters.includes(mapped)) newFilters.push(mapped);
-                });
-                // También activar categorías lógicas si están en las preferencias de actor
-                const actorMapping: Record<string, string> = {
-                  'Huertas': 'Productor',
-                  'Productores': 'Productor',
-                  'Mercados': 'Abastecedor'
-                };
-                userProfile.preferences.forEach((p: string) => {
-                  const cat = actorMapping[p];
-                  if (cat && !newFilters.includes(cat)) {
-                    newFilters.push(cat);
-                    toggleFilter(cat); // Sincroniza categorías
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <button 
+                onClick={() => {
+                  const mapping: Record<string, string> = {
+                    'Gluten Free': 'Sin gluten',
+                    'Sugar Free': 'Sin azúcar',
+                    'Plant Based': 'Plant-based',
+                    'Sin Lactosa': 'Sin lactosa',
+                    'Keto': 'Keto',
+                    'Vegetariano': 'Vegetariano',
+                    'Sustentable': 'Sustentable',
+                    'Orgánico': 'Orgánico'
+                  };
+                  
+                  // Detectar si el estilo YA está aplicado (para toggle)
+                  const prefsInFilters = userProfile.preferences.some((p: string) => 
+                    selectedFilters.includes(mapping[p] || p)
+                  );
+
+                  if (prefsInFilters) {
+                    // SI YA ESTÁ: Quitar todo
+                    clearAll();
+                  } else {
+                    // SI NO ESTÁ: Aplicar estilo
+                    const newFilters = [...selectedFilters];
+                    userProfile.preferences.forEach((p: string) => {
+                      const mapped = mapping[p] || p;
+                      if (!newFilters.includes(mapped)) newFilters.push(mapped);
+                    });
+                    
+                    // Si el perfil es escueto, forzar los 4 tipos
+                    if (userProfile.preferences.length < 3) {
+                      ['Productor', 'Abastecedor', 'Restaurante', 'Chef'].forEach(cat => {
+                        if (!newFilters.includes(cat)) {
+                          newFilters.push(cat);
+                          toggleFilter(cat);
+                        }
+                      });
+                    }
+
+                    newFilters.forEach(f => {
+                      if (!selectedFilters.includes(f)) toggleFilter(f);
+                    });
                   }
-                });
-                newFilters.forEach(f => {
-                  if (!selectedFilters.includes(f)) toggleFilter(f);
-                });
-                onClose();
-              }}
-              style={{
-                width: '100%', padding: '1rem', background: '#F8F9F5', border: '2px dashed #5F7D4A',
-                borderRadius: '16px', color: '#3F5232', fontWeight: '900', fontSize: '0.9rem',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
-              }}
-            >
-              ✨ Aplicar mi estilo (acorde a mi perfil)
-            </button>
+                  onClose();
+                }}
+                style={{
+                  width: '100%', padding: '1rem', background: '#F8F9F5', border: '2px dashed #5F7D4A',
+                  borderRadius: '16px', color: '#3F5232', fontWeight: '900', fontSize: '0.9rem',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                }}
+              >
+                {userProfile.preferences.some((p: string) => selectedFilters.includes(p)) ? '❌ Quitar mis preferencias' : '✨ Aplicar mi estilo (acorde a mi perfil)'}
+              </button>
+              
+              <button 
+                onClick={() => router.push('/mi-cuenta')}
+                style={{ background: 'none', border: 'none', color: '#888', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Configurar mis preferencias en mi perfil
+              </button>
+            </div>
           )}
         </div>
 
@@ -314,7 +333,7 @@ export default function ExplorarPage() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [deliveryType, setDeliveryType] = useState<'Retiro en local' | 'Entrega a domicilio'>('Retiro en local');
+  const [deliveryType, setDeliveryType] = useState<'Retiro en local' | 'Entrega a domicilio' | 'Ambas'>('Ambas');
   const [searchQuery, setSearchQuery] = useState('');
   const [isHovered, setIsHovered] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -1027,6 +1046,7 @@ export default function ExplorarPage() {
                       onChange={(e) => setDeliveryType(e.target.value as any)}
                       style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
                     >
+                      <option value="Ambas">Ambas modalidades</option>
                       <option value="Retiro en local">Retiro en local</option>
                       <option value="Entrega a domicilio">Entrega a domicilio</option>
                     </select>
@@ -1391,6 +1411,7 @@ export default function ExplorarPage() {
         clearAll={() => setSelectedFilters([])}
         resultCount={filteredMerchants.length}
         userProfile={userProfile}
+        router={router}
       />
       {/* ONBOARDING MODAL PREMIUM */}
       {showOnboarding && user && (
