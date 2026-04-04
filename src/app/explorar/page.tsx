@@ -348,6 +348,15 @@ export default function ExplorarPage() {
   const [radiusKm, setRadiusKm] = useState<number>(30);
   const [finalCoords, setFinalCoords] = useState<{ lat: number, lng: number } | null>(null);
 
+  // Sincronizar deliveryType con selectedFilters (Modal -> Buscador)
+  useEffect(() => {
+    const hasRetiro = selectedFilters.includes('Retiro en local');
+    const hasDelivery = selectedFilters.includes('Entrega a domicilio');
+    if (hasRetiro && !hasDelivery) setDeliveryType('Retiro en local');
+    else if (!hasRetiro && hasDelivery) setDeliveryType('Entrega a domicilio');
+    else setDeliveryType('Ambas');
+  }, [selectedFilters]);
+
   // --- MEMOIZACIÓN PARA EVITAR EL SALTO ATRÁS (DERRAPE) ---
   const mapCenter = React.useMemo<[number, number]>(() => {
     return finalCoords ? [finalCoords.lat, finalCoords.lng] : [-34.6037, -58.3816];
@@ -753,9 +762,13 @@ export default function ExplorarPage() {
       });
     }
 
-    // Filtrado por Modalidad (Delivery vs Retiro)
-    if (deliveryType === 'Entrega a domicilio') {
-      result = result.filter(m => (m.tags || []).includes('Entrega a domicilio'));
+    // --- Filtrado por Modalidad (Sincronizado con selectedFilters) ---
+    const modalityFilter = selectedFilters.filter(f => ['Retiro en local', 'Entrega a domicilio'].includes(f));
+    if (modalityFilter.length === 1) {
+      // Si solo hay uno elegido (Solo Retiro o Solo Delivery), filtramos estrictamente
+      result = result.filter(m => (m.tags || []).includes(modalityFilter[0]));
+    } else {
+      // Si están los dos o ninguno, mostramos todo ("Ambas")
     }
 
     const tagsToFilter = selectedFilters.filter(f => 
@@ -1043,7 +1056,19 @@ export default function ExplorarPage() {
                     <label style={{ display: 'block', fontSize: isMobile ? '0.6rem' : '0.6rem', fontWeight: '900', color: '#000', marginBottom: '1px', textTransform: 'uppercase' }}>Modalidad</label>
                     <select 
                       value={deliveryType}
-                      onChange={(e) => setDeliveryType(e.target.value as any)}
+                      onChange={(e) => {
+                        const val = e.target.value as any;
+                        setDeliveryType(val);
+                        // Sincronizar hacia selectedFilters
+                        let newFilters = selectedFilters.filter(f => f !== 'Retiro en local' && f !== 'Entrega a domicilio');
+                        if (val === 'Retiro en local') newFilters.push('Retiro en local');
+                        if (val === 'Entrega a domicilio') newFilters.push('Entrega a domicilio');
+                        if (val === 'Ambas') {
+                          // Opcional: Podríamos prender ambos o dejar ambos apagados (que es "Ambas")
+                          // Dejamos vacío para que sea "Ver todos"
+                        }
+                        setSelectedFilters(newFilters);
+                      }}
                       style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', appearance: 'none', cursor: 'pointer' }}
                     >
                       <option value="Ambas">Ambas modalidades</option>

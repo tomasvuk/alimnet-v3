@@ -42,7 +42,6 @@ export const DIETARY_OPTIONS = [
 ];
 
 export const DELIVERY_PREFERENCES = [
-  'Retiro y Entrega', 
-  'Solo Entrega', 
-  'Solo Retiro'
+  'Retiro en local', 
+  'Entrega a domicilio'
 ];

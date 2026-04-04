@@ -17,16 +17,23 @@ export default function LoginPage() {
     async function checkSession() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        console.log("Sesión existente detectada para:", session.user.id);
+        console.log("Sesión existente detectada for:", session.user.id);
+        // ASEGURAR COOKIE PARA SESIÓN EXISTENTE (Evita loop de middleware)
+        setAuthCookie(session);
+
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .single();
         
-        if (profile?.role === 'admin') window.location.href = '/admin';
-        else if (profile?.role === 'merchant') window.location.href = '/perfil';
-        else window.location.href = '/mi-cuenta';
+        if (session.user.email === 'info@alimnet.com' || profile?.role === 'admin') {
+          window.location.href = '/admin';
+        } else if (profile?.role === 'merchant') {
+          window.location.href = '/perfil';
+        } else {
+          window.location.href = '/mi-cuenta';
+        }
       }
     }
     checkSession();
@@ -94,8 +101,8 @@ export default function LoginPage() {
           window.location.href = '/mi-cuenta';
         }
       } else {
-        console.warn("No hay usuario en la respuesta de auth");
-        setLoading(false);
+        console.log("Redirigiendo a /mi-cuenta (Hard redirect)");
+        window.location.href = '/mi-cuenta';
       }
     } catch (err: any) {
       console.error("Login catch error FATAL:", err);
