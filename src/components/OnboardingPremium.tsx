@@ -192,19 +192,39 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
               />
             </div>
             
-            <button 
-              onClick={() => setStep(3)} 
-              disabled={!locality.trim()}
-              style={{ 
-                width: '100%', padding: '1.2rem', borderRadius: '22px', 
-                background: locality.trim() ? 'var(--primary-dark)' : '#CCC', 
-                color: 'white', fontWeight: '850', border: 'none', cursor: locality.trim() ? 'pointer' : 'default',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '1.1rem'
-              }}
-            >
-              Un paso más <ChevronRight size={20} />
-            </button>
-            <button onClick={() => setStep(3)} style={{ width: '100%', background: 'none', border: 'none', color: '#888', marginTop: '1rem', fontWeight: '700', cursor: 'pointer' }}>Saltar por ahora</button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button 
+                onClick={() => setStep(3)} 
+                disabled={!locality.trim()}
+                style={{ 
+                  width: '100%', padding: '1.2rem', borderRadius: '22px', 
+                  background: locality.trim() ? 'var(--primary-dark)' : '#CCC', 
+                  color: 'white', fontWeight: '850', border: 'none', cursor: locality.trim() ? 'pointer' : 'default',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '1.1rem'
+                }}
+              >
+                Un paso más <ChevronRight size={20} />
+              </button>
+              
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                <button 
+                  onClick={() => setStep(1)} 
+                  style={{ background: 'none', border: 'none', color: '#BBB', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem', transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#888'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#BBB'}
+                >
+                  Atrás
+                </button>
+                <button 
+                  onClick={() => setStep(3)} 
+                  style={{ background: 'none', border: 'none', color: '#BBB', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem', transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#888'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#BBB'}
+                >
+                  Saltar por ahora
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -216,17 +236,20 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
             <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>Tipo de alimentación</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.1rem', fontWeight: '550' }}>¿Alguna preferencia alimenticia?</p>
             
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '2.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '15px', marginBottom: '2.5rem' }}>
               {['Gluten Free', 'Sugar Free', 'Plant Based', 'Sin Lactosa', 'Keto', 'Vegetariano'].map(p => (
                 <button 
                   key={p} 
                   onClick={() => togglePreference(p)} 
                   style={{ 
-                    padding: '0.8rem 1.5rem', borderRadius: '30px', 
-                    border: preferences.includes(p) ? '2.5px solid var(--primary-dark)' : '2.5px solid #E4EBDD', 
+                    padding: '1.2rem 1rem', borderRadius: '25px', 
+                    border: preferences.includes(p) ? '2.5px solid var(--primary-dark)' : '1px solid #E4EBDD', 
                     background: preferences.includes(p) ? '#F0F4ED' : 'white', 
-                    fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s',
-                    color: preferences.includes(p) ? 'var(--primary-dark)' : 'var(--text-secondary)'
+                    fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    color: preferences.includes(p) ? 'var(--primary-dark)' : 'var(--text-secondary)',
+                    fontSize: '0.95rem',
+                    textAlign: 'center',
+                    boxShadow: preferences.includes(p) ? '0 10px 15px -3px rgba(95, 125, 74, 0.2)' : 'none'
                   }}
                 >
                   {p}
@@ -234,19 +257,40 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
               ))}
             </div>
             
-            <button 
-              onClick={handleFinish} 
-              disabled={saving} 
-              style={{ 
-                width: '100%', padding: '1.2rem', borderRadius: '22px', 
-                background: 'var(--primary-dark)', 
-                color: 'white', fontWeight: '850', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '1.2rem'
-              }}
-            >
-              {saving ? <Loader2 className="animate-spin" /> : 'Descubrir Mi Red'}
-            </button>
-            {!saving && <button onClick={handleFinish} style={{ width: '100%', background: 'none', border: 'none', color: '#888', marginTop: '1rem', fontWeight: '700', cursor: 'pointer' }}>Saltar</button>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button 
+                onClick={handleFinish} 
+                disabled={saving} 
+                style={{ 
+                  width: '100%', padding: '1.2rem', borderRadius: '22px', 
+                  background: 'var(--primary-dark)', 
+                  color: 'white', fontWeight: '850', border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '1.2rem',
+                  boxShadow: '0 20px 25px -5px rgba(63, 82, 50, 0.2)'
+                }}
+              >
+                {saving ? <Loader2 className="animate-spin" /> : 'Descubrir Mi Red'}
+              </button>
+              
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                <button 
+                  onClick={() => setStep(2)} 
+                  style={{ background: 'none', border: 'none', color: '#BBB', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem', transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#888'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#BBB'}
+                >
+                  Atrás
+                </button>
+                <button 
+                  onClick={handleFinish} 
+                  style={{ background: 'none', border: 'none', color: '#BBB', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem', transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#888'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#BBB'}
+                >
+                  Saltar
+                </button>
+              </div>
+            </div>
             
             {error && (
               <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#FEE2E2', color: '#B91C1C', borderRadius: '15px', fontSize: '0.9rem', textAlign: 'center', fontWeight: '600', border: '1px solid #FECACA' }}>
