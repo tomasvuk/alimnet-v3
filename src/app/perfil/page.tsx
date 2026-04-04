@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
+import { removeAuthCookie } from '@/lib/auth-utils';
 
 export default function MerchantProfilePage() {
   const router = useRouter();
@@ -391,10 +392,19 @@ export default function MerchantProfilePage() {
                   </div>
                </div>
 
-               <div style={{ border: '1px solid #fee2e2', borderRadius: '24px', padding: '2rem', background: '#fef2f2' }}>
-                  <h3 style={{ fontSize: '0.9rem', fontWeight: '950', color: '#dc2626', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><LogOut size={18} /> Zona de Peligro</h3>
-                  <button style={{ width: '100%', padding: '1rem', background: 'white', border: '1px solid #fecaca', borderRadius: '12px', color: '#dc2626', fontWeight: '900', fontSize: '0.8rem' }}>Cerrar Sesión</button>
-               </div>
+             <div style={{ border: '1px solid #fee2e2', borderRadius: '24px', padding: '2rem', background: '#fef2f2' }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: '950', color: '#dc2626', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><LogOut size={18} /> Zona de Peligro</h3>
+                <button 
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    removeAuthCookie();
+                    router.push('/');
+                  }}
+                  style={{ width: '100%', padding: '1rem', background: 'white', border: '1px solid #fecaca', borderRadius: '12px', color: '#dc2626', fontWeight: '900', fontSize: '0.8rem', cursor: 'pointer' }}
+                >
+                  Cerrar Sesión
+                </button>
+             </div>
             </div>
           </div>
         );

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, User, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { setAuthCookie } from '@/lib/auth-utils';
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -49,6 +50,9 @@ export default function RegistroPage() {
     }
 
     if (data.user) {
+      if (data.session) {
+        setAuthCookie(data.session);
+      }
       // 1. Detect user language
       const userLang = navigator.language?.startsWith('es') ? 'es' : 'en';
 

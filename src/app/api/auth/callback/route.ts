@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       
       response.cookies.set(cookieName, cookieValue, {
         path: '/',
-        maxAge: 3600,
+        maxAge: 30 * 24 * 60 * 60, // 30 días
         sameSite: 'lax',
         secure: true,
       });

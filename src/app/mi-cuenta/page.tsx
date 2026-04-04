@@ -12,6 +12,7 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
+import { removeAuthCookie } from '@/lib/auth-utils';
 import { 
   OFFICIAL_CATEGORIES, 
   PRODUCTION_ADN_OPTIONS, 
@@ -296,7 +297,13 @@ function MiCuentaContent() {
               key={item.id}
               onClick={() => { 
                 if (item.id === 'sostener') { router.push('/sostener'); return; }
-                if (item.id === 'logout') { supabase.auth.signOut().then(() => { router.push('/'); }); return; }
+                if (item.id === 'logout') { 
+                  supabase.auth.signOut().then(() => { 
+                    removeAuthCookie();
+                    router.push('/'); 
+                  }); 
+                  return; 
+                }
                 if (item.id === 'mi-emprendimiento') { router.push('/perfil'); return; }
                 handleTabChange(item.id); 
                 setShowSidebar(false); 

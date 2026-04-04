@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { setAuthCookie } from '@/lib/auth-utils';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -56,11 +57,7 @@ export default function LoginPage() {
 
       console.log("Auth exitoso para:", data.user?.email);
       if (data.session) {
-        // Establecer cookie manualmente para que el middleware la lea correctamente
-        const cookieName = 'sb-keagrrvtzmsukcmzxqrl-auth-token';
-        const cookieValue = encodeURIComponent(JSON.stringify(data.session));
-        document.cookie = `${cookieName}=${cookieValue}; path=/; max-age=3600; SameSite=Lax; Secure`;
-        console.log("Cookie de sesión establecida para middleware");
+        setAuthCookie(data.session);
       }
 
       if (data.user) {

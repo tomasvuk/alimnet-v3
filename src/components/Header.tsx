@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store, Plus, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { setAuthCookie, removeAuthCookie } from '@/lib/auth-utils';
 
 export default function Header() {
   const router = useRouter();
@@ -46,6 +47,9 @@ export default function Header() {
         .eq('id', session.user.id)
         .single();
       if (profile) setProfile(profile);
+      
+      // Sincronizar cookie proactivamente
+      setAuthCookie(session);
 
       const { data: mData } = await supabase
         .from('merchants')
@@ -57,6 +61,8 @@ export default function Header() {
       setUser(null);
       setProfile(null);
       setIsMerchant(false);
+      // Limpiar cookie si no hay sesión
+      removeAuthCookie();
     }
     setLoading(false);
   };

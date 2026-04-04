@@ -24,7 +24,8 @@ function parseSupabaseCookie(cookieValue: string): { valid: boolean; expired: bo
     const parts = accessToken.split('.');
     if (parts.length !== 3) return { valid: false, expired: false };
 
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
+    // Usamos atob para ser compatibles con Edge Runtime (Next.js Middleware)
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
     const now = Math.floor(Date.now() / 1000);
 
     return {
@@ -32,7 +33,8 @@ function parseSupabaseCookie(cookieValue: string): { valid: boolean; expired: bo
       expired: payload.exp ? payload.exp < now : false,
       userId: payload.sub,
     };
-  } catch {
+  } catch (err) {
+    console.error('Middleware Auth Error:', err);
     return { valid: false, expired: false };
   }
 }
