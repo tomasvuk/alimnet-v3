@@ -18,14 +18,17 @@ export default function LoginPage() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          console.log("Sesión activa detectada, redirigiendo...");
+          console.log("Sesión activa detectada, sincronizando...");
           setAuthCookie(session);
           
-          if (session.user.email === 'info@alimnet.com') {
-            window.location.href = '/admin';
-          } else {
-            window.location.href = '/mi-cuenta';
-          }
+          // REPETIR COOKIE (Doble protección)
+          setTimeout(() => {
+            if (session.user.email === 'info@alimnet.com') {
+              window.location.href = '/admin';
+            } else {
+              window.location.href = '/mi-cuenta';
+            }
+          }, 400); // 400ms para asegurar la cookie en móvil
         }
       } catch (e) {
         console.error("Error en checkSession:", e);
@@ -62,10 +65,15 @@ export default function LoginPage() {
         setAuthCookie(data.session);
       }
 
-      if (data.user) {
+      // ESPERAR 500MS PARA QUE EL MÓVIL ESCRIBA LA COOKIE
+      setTimeout(async () => {
+        if (!data.user) {
+          window.location.href = '/mi-cuenta';
+          return;
+        }
+
         // BYPASS DIRECTO PARA ADMIN
         if (data.user.email === 'info@alimnet.com') {
-          console.log("Admin detectado por email. Pase VIP -> /admin");
           window.location.href = '/admin';
           return;
         }
@@ -79,12 +87,10 @@ export default function LoginPage() {
           .single();
 
         if (profileError || !profile) {
-          console.error("Error/Falta perfil:", profileError);
           window.location.href = '/mi-cuenta';
           return;
         }
 
-        console.log("Perfil encontrado, rol:", profile.role);
         if (profile.role === 'admin') {
           window.location.href = '/admin';
         } else if (profile.role === 'merchant') {
@@ -92,9 +98,8 @@ export default function LoginPage() {
         } else {
           window.location.href = '/mi-cuenta';
         }
-      } else {
-        window.location.href = '/mi-cuenta';
-      }
+      }, 500);
+      
     } catch (err: any) {
       console.error("Login catch error FATAL:", err);
       setError('Error de conexión o configuración. Intentá de nuevo. Detalle: ' + err.message);
