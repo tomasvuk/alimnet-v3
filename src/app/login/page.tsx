@@ -14,27 +14,36 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   React.useEffect(() => {
-    async function checkSession() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          console.log("Sesión activa detectada, sincronizando...");
-          setAuthCookie(session);
-          
-          // REPETIR COOKIE (Doble protección)
-          setTimeout(() => {
-            if (session.user.email === 'info@alimnet.com') {
-              window.location.href = '/admin';
-            } else {
-              window.location.href = '/mi-cuenta';
-            }
-          }, 400); // 400ms para asegurar la cookie en móvil
-        }
-      } catch (e) {
-        console.error("Error en checkSession:", e);
+    // 1. Escuchador en tiempo real (vital para que el móvil dispare solo cuando cargue la sesión)
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        console.log("Evento Auth Detectado:", event, session.user.id);
+        setAuthCookie(session);
+        
+        // Pequeño delay de cortesía antes del salto
+        setTimeout(() => {
+          if (session.user.email === 'info@alimnet.com') {
+             window.location.href = '/admin';
+          } else {
+             window.location.href = '/mi-cuenta';
+          }
+        }, 500);
+      }
+    });
+
+    // 2. Chequeo inicial robusto
+    async function checkInitial() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setAuthCookie(session);
+        window.location.href = '/mi-cuenta';
       }
     }
-    checkSession();
+    checkInitial();
+
+    return () => {
+      if (authListener) authListener.subscription.unsubscribe();
+    };
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
