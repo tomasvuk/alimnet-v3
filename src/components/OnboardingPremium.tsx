@@ -39,6 +39,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
           console.log("Onboarding: Inicializando Google Places Autocomplete");
           setGmapsReady(true);
           const autocomplete = new window.google.maps.places.Autocomplete(target, {
+            componentRestrictions: { country: 'ar' },
             fields: ['formatted_address', 'geometry', 'name']
           });
 
@@ -181,13 +182,14 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
                 placeholder="Ej: Pilar, Buenos Aires"
                 style={{ 
                   width: '100%', padding: '1.2rem 1.5rem', borderRadius: '20px', 
-                  border: gmapsReady ? '2px solid #3B82F6' : '2px solid #E4EBDD', 
+                  border: '2px solid #E4EBDD', 
                   background: 'white', fontSize: '1.1rem', 
                   outline: 'none',
-                  boxShadow: gmapsReady ? '0 0 10px rgba(59, 130, 246, 0.2)' : 'none'
+                  transition: 'border-color 0.2s'
                 }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--primary-dark)')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#E4EBDD')}
               />
-              {gmapsReady && <div style={{ fontSize: '0.7rem', color: '#3B82F6', marginTop: '4px', fontWeight: 'bold' }}>Google Maps conectado</div>}
             </div>
             
             <button 
