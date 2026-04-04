@@ -1189,9 +1189,9 @@ export default function ExplorarPage() {
             width: isMobile ? '100%' : '35%', 
             minWidth: isMobile ? '0' : '420px', 
             display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
-            padding: isMobile ? '1rem' : '0 1.5rem 1.5rem', 
+            padding: isMobile ? '1rem' : '0 0 1.5rem 1.5rem', 
             background: '#F8F9F5',
-            borderRight: isMobile ? 'none' : '1px solid var(--border)', 
+            borderRight: isMobile ? 'none' : '1px solid #E4EBDD', 
             height: '100%', 
             overflowY: 'auto',
             position: 'relative'
