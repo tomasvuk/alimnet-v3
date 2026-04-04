@@ -114,17 +114,20 @@ function MiCuentaContent() {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
-        console.log("No se detectó usuario en MiCuenta, reintentando con getSession...");
+        console.log("No hay usuario autenticado en el servidor.");
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) {
-          console.log("Definitivamente no hay sesión. Redirigiendo a Login.");
-          window.location.href = '/login?redirectedFrom=/mi-cuenta';
+          console.log("No hay sesión local tampoco. Parando carga.");
+          setLoading(false);
           return;
         }
       }
 
       const currentUser = user || (await supabase.auth.getSession()).data.session?.user;
-      if (!currentUser) return;
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
 
       const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
       if (data) {

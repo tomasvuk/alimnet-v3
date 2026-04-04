@@ -44,25 +44,8 @@ function parseSupabaseCookie(cookieValue: string): { valid: boolean; expired: bo
 }
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  const isAdminRoute = ADMIN_ROUTES.some((r) => pathname.startsWith(r));
-  const isProtectedRoute = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
-
-  if (!isAdminRoute && !isProtectedRoute) return NextResponse.next();
-
-  const supabaseCookie = request.cookies.get(SUPABASE_COOKIE_NAME);
-  const cookieValue = supabaseCookie?.value;
-
-  if (!cookieValue) {
-    console.log("No detecto cookie -> Login");
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirectedFrom', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Si hay cookie, lo dejamos pasar. 
-  // La validación real se hace en el cliente (que es más robusto).
+  // DESACTIVADO TEMPORALMENTE: No redirigir desde el servidor para romper el loop de refresco infinito.
+  // Confiamos en la validación del lado del cliente.
   return NextResponse.next();
 }
 
