@@ -61,8 +61,9 @@ export default function Header() {
       setUser(null);
       setProfile(null);
       setIsMerchant(false);
-      // Limpiar cookie si no hay sesión
-      removeAuthCookie();
+      // NO borramos la cookie automáticamente aquí. 
+      // Solo debe ocurrir en el Logout explícito. 
+      // Esto evita que en móviles el Header borre la sesión antes de tiempo.
     }
     setLoading(false);
   };
