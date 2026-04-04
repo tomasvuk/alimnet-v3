@@ -14,8 +14,8 @@ export const metadata: Metadata = {
   title: "Alimnet | Conectando con alimentos cuidados",
   description: "Descubrí productores, abastecedores, restaurantes y chefs que trabajan con alimentos conscientes.",
   icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
+    icon: "/icon.jpg",
+    apple: "/apple-icon.jpg",
   },
   openGraph: {
     title: "Alimnet | Conectando con alimentos cuidados",
