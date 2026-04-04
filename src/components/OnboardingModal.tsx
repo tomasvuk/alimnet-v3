@@ -16,6 +16,31 @@ export default function OnboardingModal({ user, onComplete }: OnboardingModalPro
   const [locality, setLocality] = useState('');
   const [preferences, setPreferences] = useState<string[]>([]);
 
+  React.useEffect(() => {
+    // If step 2 is reached, try to initialize autocomplete
+    if (step === 2 && typeof window !== 'undefined' && window.google) {
+      const initInterval = setInterval(() => {
+        const input = document.getElementById('onboarding-locality-input') as HTMLInputElement;
+        if (input && window.google) {
+          const autocomplete = new window.google.maps.places.Autocomplete(input, {
+            types: ['(regions)'],
+            componentRestrictions: { country: 'ar' },
+            fields: ['formatted_address', 'geometry', 'name']
+          });
+
+          autocomplete.addListener('place_changed', () => {
+            const place = autocomplete.getPlace();
+            if (place.formatted_address || place.name) {
+              setLocality(place.formatted_address || place.name);
+            }
+          });
+          clearInterval(initInterval);
+        }
+      }, 50); // Small interval to find the element
+      return () => clearInterval(initInterval);
+    }
+  }, [step]);
+
   const togglePreference = (pref: string) => {
     setPreferences(prev => prev.includes(pref) ? prev.filter(p => p !== pref) : [...prev, pref]);
   };
@@ -23,14 +48,16 @@ export default function OnboardingModal({ user, onComplete }: OnboardingModalPro
   const handleFinish = async () => {
     setSaving(true);
     try {
-      // Create profile record
+      // Create or update profile record
       const { error } = await supabase.from('profiles').upsert({
         id: user.id,
-        full_name: firstName, // Match existing column schema
+        full_name: firstName, 
+        first_name: firstName,
+        locality: locality,
+        preferences: preferences, // jsonb array
         role: 'consumer',
-        // Note: Check table schema for locality and dietary_preferences
-        // Based on previous list_tables, profiles has: id, full_name, role, created_at
-        // I might need to add these columns if they don't exist.
+        email: user.email,
+        updated_at: new Date().toISOString(),
       }, { onConflict: 'id' });
       
       if (error) throw error;
@@ -39,7 +66,6 @@ export default function OnboardingModal({ user, onComplete }: OnboardingModalPro
     } catch (err) {
       console.error('Error saving profile:', err);
       setSaving(false);
-      // Even if it fails, we let them proceed for now to not block the app
       onComplete();
     }
   };
@@ -117,6 +143,7 @@ export default function OnboardingModal({ user, onComplete }: OnboardingModalPro
             
             <div style={{ position: 'relative', marginBottom: '2rem' }}>
               <input 
+                id="onboarding-locality-input"
                 type="text" 
                 value={locality} 
                 onChange={e => setLocality(e.target.value)}
@@ -150,11 +177,11 @@ export default function OnboardingModal({ user, onComplete }: OnboardingModalPro
             <div style={{ width: '64px', height: '64px', background: 'var(--primary-light)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-dark)', marginBottom: '2rem' }}>
               <Sparkles size={32} />
             </div>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>Tu Estilo 🥗</h2>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>Tipo de alimentación 🥗</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.1rem', fontWeight: '550' }}>¿Alguna preferencia alimenticia?</p>
             
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '2.5rem' }}>
-              {['Plant Based', 'Sin Gluten', 'Orgánico', 'Natural'].map(p => (
+              {['Gluten Free', 'Sugar Free', 'Plant Based', 'Sin Lactosa', 'Keto', 'Vegetariano'].map(p => (
                 <button 
                   key={p} 
                   onClick={() => togglePreference(p)} 

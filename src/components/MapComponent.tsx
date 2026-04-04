@@ -90,13 +90,9 @@ interface MapProps {
 }
 
 const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down') => void }) => {
-  const lastInteraction = React.useRef<number>(0);
   useMapEvents({
-    drag: () => {
-      const now = Date.now();
-      if (now - lastInteraction.current < 400) return;
+    dragstart: () => {
       onInteraction?.('up');
-      lastInteraction.current = now;
     },
     zoomstart: () => onInteraction?.('up'),
   });

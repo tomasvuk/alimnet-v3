@@ -408,16 +408,17 @@ export default function ExplorarPage() {
           }
           
           // 2. Traducir y pre-activar filtros del Onboarding
-          if (pData.dietary_preferences) {
-            const prefs = pData.dietary_preferences.split(',').map((s: string) => s.trim());
+          if (pData.preferences && Array.isArray(pData.preferences)) {
+            const prefs = pData.preferences;
             const newFilters = [...selectedFilters];
             
             const mapping: Record<string, string> = {
-              'Plant Based': 'Plant-based',
               'Gluten Free': 'Sin gluten',
               'Sugar Free': 'Sin azúcar',
-              'Pastura / Grass Fed': 'Pastura',
-              'Orgánico / Agroecológico': 'Orgánico'
+              'Plant Based': 'Plant-based',
+              'Sin Lactosa': 'Sin lactosa',
+              'Keto': 'Keto',
+              'Vegetariano': 'Vegetariano'
             };
             
             prefs.forEach((p: string) => {
@@ -794,6 +795,11 @@ export default function ExplorarPage() {
   const handleMerchantSelect = (m: Merchant) => {
     trackClick('SELECT_MERCHANT', { id: m.id, name: m.name });
     setSelectedMerchant(m);
+    if (!isMobile) {
+      setTimeout(() => {
+        document.getElementById(`merchant-card-${m.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
   };
 
   const handleValidate = async (merchantId: string) => {
@@ -1054,8 +1060,9 @@ export default function ExplorarPage() {
         {/* CONTENEDOR DE PRODUCTOS (VERDURAS, etc) */}
       </div>
 
-      {/* 3. CONTENIDO PRINCIPAL - FIXED LAYOUT */}
+      {/* 3. CONTENIDO PRINCIPAL - FIXED LAYOUT (DASHBOARD STYLE) */}
       <div className="main-content" style={{ 
+        height: isMobile ? 'auto' : 'calc(100vh - 120px)',
         flex: 1, 
         display: 'flex', 
         flexDirection: isMobile ? 'column' : 'row',
@@ -1181,24 +1188,23 @@ export default function ExplorarPage() {
           </div>
         </section>
 
-        {/* MAPA - SIEMPRE CARGADO Y SIN ESPACIOS (Z-STRATEGY) */}
+        {/* COLUMNA DERECHA: MAPA (FIJO EN DESKTOP) */}
         <section 
           ref={mapSectionRef}
           className="map-section" 
           style={{ 
             flex: 1, 
-            position: isMobile ? 'absolute' : 'relative',
-            top: 0,
+            position: isMobile ? (selectedMerchant ? 'relative' : 'absolute') : 'sticky',
+            top: isMobile ? 0 : '120px',
             left: 0,
             right: 0,
             bottom: 0,
-            height: isMobile ? '100%' : 'calc(100vh - 120px)',
+            height: isMobile ? (selectedMerchant ? '35vh' : '100%') : 'calc(100vh - 120px)',
             width: '100%',
             background: '#EAEDE8',
             zIndex: (isMobile && mobileView !== 'map') ? -10 : 2,
             opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
-            pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto',
-            transition: 'opacity 0.2s ease-in-out',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
             overflow: 'hidden'
           }}
         >
@@ -1239,33 +1245,93 @@ export default function ExplorarPage() {
               zoom={mapZoom}
               onInteraction={() => {
                 if (isMobile) {
-                  setIsPillsVisible(false);
-                  setIsRolesVisible(false);
+                  // Solo hide si están actualmente visibles para no gatillar un re-render innecesario
+                  setIsPillsVisible(prev => prev ? false : prev);
+                  setIsRolesVisible(prev => prev ? false : prev);
                 }
               }}
               onMarkerClick={(id) => {
                 const m = merchants.find(mm => mm.id === id);
                 if (m) {
-                  handleMerchantSelect(m);
-                  if (isMobile) setMobileView('list');
+                  setSelectedMerchant(m);
                 }
               }}
             />
           )}
         </section>
 
-        {selectedMerchant && (
+        {isMobile && selectedMerchant && (
+          <div 
+            style={{ 
+              position: 'fixed', 
+              bottom: 0, left: 0, right: 0, 
+              zIndex: 10000, 
+              height: '65vh',
+              background: 'white',
+              boxShadow: '0 -10px 40px rgba(0,0,0,0.15)',
+              borderTopLeftRadius: '32px',
+              borderTopRightRadius: '32px',
+              overflowY: 'auto',
+              padding: '1.5rem',
+              animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <div style={{ width: '40px', height: '5px', background: '#eee', borderRadius: '5px', margin: '0 auto 1.5rem auto' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>{selectedMerchant.name}</h2>
+                <p style={{ margin: '5px 0 0 0', color: '#5F7D4A', fontWeight: '800', fontSize: '0.9rem', textTransform: 'uppercase' }}>{selectedMerchant.type}</p>
+              </div>
+              <button onClick={() => setSelectedMerchant(null)} style={{ background: '#F8F9F7', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{ flex: 1, marginTop: '1.5rem' }}>
+              <DetailPanel
+                merchant={selectedMerchant as Merchant}
+                isLoggedIn={isLoggedIn}
+                user={user}
+                userProfile={userProfile}
+                validators={validators}
+                hasValidatedInitial={validatedMerchantIds.has(selectedMerchant.id)}
+                onClose={() => setSelectedMerchant(null)}
+                trackClick={trackClick}
+                onValidate={(id) => {
+                  setValidatedMerchantIds(prev => {
+                    const next = new Set(prev);
+                    next.add(id);
+                    return next;
+                  });
+                }}
+                isMobile={true}
+              />
+            </div>
+          </div>
+        )}
+
+        <style jsx global>{`
+          @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+          }
+        `}</style>
+
+        {/* PANEL LATERAL DESKTOP SOLAMENTE */}
+        {!isMobile && selectedMerchant && (
           <DetailPanel
             merchant={selectedMerchant as Merchant}
             isLoggedIn={isLoggedIn}
             user={user}
             userProfile={userProfile}
             validators={validators}
-            hasValidatedInitial={validatedMerchantIds.has(selectedMerchant.id)}
+            hasValidatedInitial={selectedMerchant ? validatedMerchantIds.has(selectedMerchant.id) : false}
             onClose={() => setSelectedMerchant(null)}
             trackClick={trackClick}
             onValidate={handleValidate}
-            isMobile={isMobile}
+            isMobile={false}
           />
         )}
       </div>
