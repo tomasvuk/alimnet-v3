@@ -923,15 +923,46 @@ function DonationsList({ donations, loading }: any) {
     if (loading) return <div>Cargando donaciones...</div>;
     return (
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>MONTO</th><th style={THStyle}>ESTADO</th></tr></thead>
+            <thead>
+                <tr>
+                    <th style={THStyle}>FECHA</th>
+                    <th style={THStyle}>MONTO</th>
+                    <th style={THStyle}>DONANTE</th>
+                    <th style={THStyle}>MÉTODO</th>
+                    <th style={THStyle}>ESTADO</th>
+                </tr>
+            </thead>
             <tbody>
                 {donations.map((d: any) => (
                     <tr key={d.id} style={{borderBottom:'1px solid #F0F4ED'}}>
-                        <td style={{padding:20}}>{new Date(d.created_at).toLocaleDateString()}</td>
-                        <td style={{padding:20, fontWeight:1000}}>{d.currency} ${d.amount}</td>
-                        <td style={{padding:20}}>{d.status}</td>
+                        <td style={{padding:20, fontSize: '0.85rem', color: '#B2AC88', fontWeight: 700}}>{new Date(d.created_at).toLocaleDateString()}</td>
+                        <td style={{padding:20}}>
+                            <div style={{fontWeight:1000, color: '#2D3A20'}}>{d.currency} ${d.amount}</div>
+                            <div style={{fontSize: '0.7rem', color: '#5F7D4A', fontWeight: 800, textTransform: 'uppercase'}}>{d.metadata?.frequency || 'única'}</div>
+                        </td>
+                        <td style={{padding:20}}>
+                            <div style={{fontWeight:900, fontSize: '0.9rem'}}>{d.metadata?.donor_name || 'Amigo de Alimnet'}</div>
+                            <div style={{fontSize:'0.75rem', color:'#888', fontWeight: 600}}>{d.metadata?.donor_email || d.donor_email || '-'}</div>
+                        </td>
+                        <td style={{padding:20}}>
+                            <span style={{...BadgeStyle, background: '#F0F4ED', color: '#2D3A20'}}>
+                                {d.payment_method?.toUpperCase()}
+                            </span>
+                        </td>
+                        <td style={{padding:20}}>
+                            <span style={{ 
+                                ...BadgeStyle, 
+                                background: d.status === 'succeeded' ? '#DCFCE7' : '#FEF3C7', 
+                                color: d.status === 'succeeded' ? '#166534' : '#B45309' 
+                            }}>
+                                {d.status?.toUpperCase()}
+                            </span>
+                        </td>
                     </tr>
                 ))}
+                {donations.length === 0 && (
+                    <tr><td colSpan={5} style={{padding:60, textAlign:'center', color:'#B2AC88'}}>No hay registros de pagos aún.</td></tr>
+                )}
             </tbody>
         </table>
     );

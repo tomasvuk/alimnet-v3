@@ -91,19 +91,21 @@ export async function POST(req: Request) {
                     items: [
                         {
                             id: 'donation',
-                            title: 'Alimnet Support',
+                            title: frequency === 'monthly' ? 'Miembro Fundador Alimnet (Mensual)' : 'Aporte Único Alimnet',
                             quantity: 1,
                             unit_price: Number(amount),
-                            currency_id: 'ARS'
+                            currency_id: 'ARS',
+                            description: 'Gracias por apoyar la soberanía comercial.'
                         }
                     ],
                     back_urls: {
                         success: `${process.env.NEXT_PUBLIC_APP_URL}/gracias`,
-                        failure: `${process.env.NEXT_PUBLIC_APP_URL}/error`,
+                        failure: `${process.env.NEXT_PUBLIC_APP_URL}/sostener`,
                         pending: `${process.env.NEXT_PUBLIC_APP_URL}/pending`
                     },
                     auto_return: 'approved',
-                    notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/donations/webhook?token=${process.env.MERCADOPAGO_WEBHOOK_SECRET}`
+                    external_reference: JSON.stringify({ frequency, type: 'donation' }),
+                    notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/donations/webhook`
                 }
             });
             return NextResponse.json({ preferenceId: result.id, initPoint: result.init_point });

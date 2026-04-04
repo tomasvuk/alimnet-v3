@@ -110,7 +110,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
             <div style={{ width: '64px', height: '64px', background: 'var(--primary-light)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-dark)', marginBottom: '2rem' }}>
               <User size={32} />
             </div>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>¡Hola! 👋</h2>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>¡Hola!</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem', fontSize: '1.1rem', fontWeight: '550' }}>Confirmá tu nombre para ser parte de la red.</p>
             
             <div style={{ position: 'relative', marginBottom: '2rem' }}>
@@ -118,6 +118,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
                 type="text" 
                 value={firstName} 
                 onChange={e => setFirstName(e.target.value)}
+                autoComplete="off"
                 placeholder="Tu nombre"
                 style={{ 
                   width: '100%', padding: '1.2rem 1.5rem', borderRadius: '20px', 
@@ -150,7 +151,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
             <div style={{ width: '64px', height: '64px', background: 'var(--primary-light)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-dark)', marginBottom: '2rem' }}>
               <MapPin size={32} />
             </div>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>Tu Radar 🗺️</h2>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>Tu Radar</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem', fontSize: '1.1rem', fontWeight: '550' }}>¿En qué zona buscás comida real?</p>
             
             <div style={{ position: 'relative', marginBottom: '2rem' }}>
@@ -160,6 +161,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
                 type="text" 
                 value={locality} 
                 onChange={e => setLocality(e.target.value)}
+                autoComplete="new-password"
                 placeholder="Ej: Pilar, Buenos Aires"
                 style={{ 
                   width: '100%', padding: '1.2rem 1.5rem', borderRadius: '20px', 
@@ -190,7 +192,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
             <div style={{ width: '64px', height: '64px', background: 'var(--primary-light)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-dark)', marginBottom: '2rem' }}>
               <Sparkles size={32} />
             </div>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>Tipo de alimentación 🥗</h2>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>Tipo de alimentación</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.1rem', fontWeight: '550' }}>¿Alguna preferencia alimenticia?</p>
             
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '2.5rem' }}>

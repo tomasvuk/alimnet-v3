@@ -134,8 +134,15 @@ export async function POST(req: Request) {
                     const donorName = paymentData.payer?.first_name 
                         ? `${paymentData.payer.first_name} ${paymentData.payer.last_name || ''}`.trim()
                         : 'Amigo de Alimnet';
+                    
+                    // Decode metadata from external_reference
+                    let frequency = 'once';
+                    try {
+                        const metadata = paymentData.external_reference ? JSON.parse(paymentData.external_reference) : {};
+                        frequency = metadata.frequency || 'once';
+                    } catch (e) { console.error('Error parsing MP external_reference:', e); }
 
-                    console.log(`[Mercado Pago] Approved: ${amount} ${currency} from ${donorEmail}`);
+                    console.log(`[Mercado Pago] Approved: ${amount} ${currency} from ${donorEmail} (${frequency})`);
 
                     // Save to DB (using metadata since we can't alter columns)
                     await supabase.from('user_donations').insert({
@@ -147,12 +154,13 @@ export async function POST(req: Request) {
                         metadata: { 
                             donor_name: donorName, 
                             donor_email: donorEmail,
-                            mp_payment_id: mpPaymentId 
+                            mp_payment_id: mpPaymentId,
+                            frequency
                         }
                     });
 
                     // Send Notifications
-                    await sendAdminNotification(amount, currency, 'mercadopago', 'once', donorName, donorEmail);
+                    await sendAdminNotification(amount, currency, 'mercadopago', frequency, donorName, donorEmail);
                     await sendDonorThankYouEmail(donorEmail, donorName, amount, currency);
                 }
                 return NextResponse.json({ received: true });
