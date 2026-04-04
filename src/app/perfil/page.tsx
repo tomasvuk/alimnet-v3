@@ -90,17 +90,39 @@ export default function MerchantProfilePage() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (retryCount = 0) => {
     try {
-      // 1. Intentamos obtener el usuario de forma robusta
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      // 1. Intentamos obtener el usuario de forma estándar
+      let { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (userError || !user) {
-        console.log("No se detectó usuario en Perfil, reintentando con getSession...");
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) {
-          console.log("Definitivamente no hay sesión en Perfil. Redirigiendo a Login.");
-          window.location.href = '/login?redirectedFrom=/perfil';
+      // 2. [BRUTE FORCE PARA MÓVILES] Si falla, buscamos en la cookie
+      if (!user) {
+        console.log("Buscando sesión en la cookie (Copia de seguridad)...");
+        const cookies = document.cookie.split('; ');
+        const authCookie = cookies.find(row => row.startsWith('sb-keagrrvtzmsukcmzxqrl-auth-token='));
+        
+        if (authCookie) {
+          try {
+            const cookieValue = decodeURIComponent(authCookie.split('=')[1]);
+            const sessionData = JSON.parse(cookieValue);
+            if (sessionData?.access_token && sessionData?.refresh_token) {
+              console.log("Sesión encontrada en cookie. Restaurando en el motor...");
+              const { data: { session }, error: setSessionError } = await supabase.auth.setSession({
+                access_token: sessionData.access_token,
+                refresh_token: sessionData.refresh_token
+              });
+              if (session) user = session.user;
+            }
+          } catch (e) {
+            console.error("Error al restaurar sesión desde cookie:", e);
+          }
+        }
+      }
+
+      if (!user) {
+        console.log(`Intento ${retryCount + 1}: Perfil no detectó usuario.`);
+        if (retryCount < 2) {
+          setTimeout(() => fetchData(retryCount + 1), 800);
           return;
         }
       }
