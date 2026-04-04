@@ -587,25 +587,27 @@ export default function ExplorarPage() {
       );
     }
 
-    // --- LIMPIEZA DE DATOS: Ocultar puntos que están en el agua o mal geolocalizados ---
-    // Si no hay una búsqueda específica de ubicación, ocultamos los que tienen coordenadas por defecto en CABA pero son de otro lado
-    if (!searchLocation && !searchCoords) {
-      result = result.map(m => ({
-        ...m,
-        locations: m.locations?.filter(l => {
-          // Si está en el agua (aprox 0,0) o si es un punto por defecto (-34.6, -58.4) pero la localidad dice otra cosa
-          const isWater = Math.abs(l.lat) < 0.1 && Math.abs(l.lng) < 0.1;
-          const isProbablyDefaultCABA = Math.abs(l.lat + 34.6) < 0.01 && Math.abs(l.lng + 58.4) < 0.01;
-          const cityMentioned = normalizeString(l.locality || '');
-          
-          // Si el punto es CABA pero la descripción dice Mar del Plata, Cordoba, etc... ocultamos el punto del mapa
-          const isMismatched = isProbablyDefaultCABA && 
-            (cityMentioned.includes('mar del plata') || cityMentioned.includes('cordoba') || cityMentioned.includes('santa fe') || cityMentioned.includes('argentina'));
+    // --- LIMPIEZA DE DATOS: Ocultar puntos que están fuera de Argentina o mal geolocalizados ---
+    const ARG = { latMin: -55, latMax: -21, lngMin: -75, lngMax: -53 };
 
-          return !isWater && !isMismatched;
-        })
-      })).filter(m => (m.locations?.length || 0) > 0);
-    }
+    result = result.map(m => ({
+      ...m,
+      locations: m.locations?.filter(l => {
+        if (!l.lat || !l.lng) return false;
+        
+        // 1. Cerco Digital: Solo Argentina
+        const inArg = l.lat >= ARG.latMin && l.lat <= ARG.latMax && 
+                      l.lng >= ARG.lngMin && l.lng <= ARG.lngMax;
+        
+        // 2. Filtro de "Punto por Defecto": Si el punto es CABA pero la localidad dice otra cosa
+        const isProbablyDefaultCABA = Math.abs(l.lat + 34.6) < 0.01 && Math.abs(l.lng + 58.4) < 0.01;
+        const cityMentioned = normalizeString(l.locality || '');
+        const isMismatched = isProbablyDefaultCABA && 
+          (cityMentioned.includes('mar del plata') || cityMentioned.includes('cordoba') || cityMentioned.includes('santa fe'));
+
+        return inArg && !isMismatched;
+      })
+    })).filter(m => (m.locations?.length || 0) > 0);
 
     // Filtrado por Ubicación (Potenciado con Coordenadas y Regiones)
     let tempCoords = searchCoords;
@@ -1161,16 +1163,17 @@ export default function ExplorarPage() {
           </div>
         </section>
 
-        {/* MAPA - Z-STRATEGY CON ALTURA DEFINIDA POR VIEWPORT */}
+        {/* MAPA - Z-STRATEGY CON ALTURA DEFINIDA POR VIEWPORT (SIN LAG) */}
         <section 
+          ref={mapSectionRef}
           className="map-section" 
           style={{ 
             flex: 1, 
             position: isMobile ? 'absolute' : 'relative',
-            top: isMobile ? '118px' : '0', 
+            top: isMobile ? '112px' : '0', 
             left: 0,
             right: 0,
-            height: isMobile ? 'calc(100vh - 118px)' : 'calc(100vh - 120px)',
+            height: isMobile ? 'calc(100vh - 112px)' : 'calc(100vh - 120px)',
             bottom: isMobile ? '0' : 'auto',
             zIndex: (isMobile && mobileView !== 'map') ? -10 : 2,
             opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
@@ -1205,7 +1208,7 @@ export default function ExplorarPage() {
           </button>
           {hasMounted && (
             <MapComponent
-              key={`${isMobile ? mobileView : 'desktop'}-${filteredMerchants.length}-${searchCoords?.lat || ''}`}
+              key={`map-view-${isMobile ? mobileView : 'desktop'}`}
               onInteraction={(dir) => {
                 if (isMobile) {
                   if (dir === 'up') {
