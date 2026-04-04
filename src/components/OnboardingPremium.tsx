@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { User, MapPin, Sparkles, Loader2, X, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-interface OnboardingModalProps {
+interface OnboardingPremiumProps {
   user: any;
   onComplete: () => void;
 }
 
-export default function OnboardingModal({ user, onComplete }: OnboardingModalProps) {
+export default function OnboardingPremium({ user, onComplete }: OnboardingPremiumProps) {
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [firstName, setFirstName] = useState(user?.user_metadata?.full_name?.split(' ')[0] || '');

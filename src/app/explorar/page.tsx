@@ -40,7 +40,7 @@ import {
   Compass
 } from 'lucide-react';
 import Header from '@/components/Header';
-import OnboardingModal from '@/components/OnboardingModal';
+import OnboardingPremium from '@/components/OnboardingPremium';
 import { 
   OFFICIAL_CATEGORIES, 
   PRODUCTION_ADN_OPTIONS, 
@@ -1312,12 +1312,6 @@ export default function ExplorarPage() {
           </div>
         )}
 
-        <style jsx global>{`
-          @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-          }
-        `}</style>
 
         {/* PANEL LATERAL DESKTOP SOLAMENTE */}
         {!isMobile && selectedMerchant && (
@@ -1338,40 +1332,6 @@ export default function ExplorarPage() {
 
 
 
-      <style jsx>{` 
-        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .desktop-only { display: inline-flex; }
-        .mobile-only { display: none; }
-
-        @media (max-width: 768px) {
-          .mobile-only { display: flex; }
-          .desktop-only { display: none !important; }
-          
-          .results-section { width: 100% !important; min-width: 0 !important; }
-          .results-section.hidden { display: none; }
-
-          .map-section { 
-            width: 100%; 
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .detail-panel { 
-            width: 100% !important; 
-            height: 94% !important;
-            top: 6% !important;
-            border-radius: 30px 30px 0 0;
-            z-index: 4000;
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          }
-          
-          .is-sticky { border-bottom: 2px solid var(--primary); }
-        }
-      `}</style>
 
       {/* MODAL DE FILTROS AVANZADOS */}
       <AdvancedFiltersModal
@@ -1384,7 +1344,7 @@ export default function ExplorarPage() {
       />
       {/* ONBOARDING MODAL PREMIUM */}
       {showOnboarding && user && (
-        <OnboardingModal 
+        <OnboardingPremium 
           user={user} 
           onComplete={() => setShowOnboarding(false)} 
         />
@@ -1831,28 +1791,16 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
         )}
       </div>
 
-      <style jsx>{` 
+      <style jsx global>{` 
         @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .mobile-only { display: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         .desktop-only { display: inline-flex; }
+        .mobile-only { display: none; }
 
         @media (max-width: 768px) {
-          .mobile-only { display: flex; }
-          .desktop-only { display: none !important; }
-          
-          .main-header { padding: 0.7rem 1.2rem !important; }
-          
-          .filter-bar { display: none !important; }
-          
-          .main-content { flex-direction: column; }
-          
-          .sidebar { 
-            width: 300px !important; 
-            max-width: 85%;
-          }
-
           .mobile-only { display: flex; }
           .desktop-only { display: none !important; }
           
@@ -1860,11 +1808,10 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
           .results-section.hidden { display: none; }
 
           .map-section { 
-            display: flex !important;
-            height: 100% !important;
-            width: 100% !important;
+            width: 100%; 
+            display: flex;
+            flex-direction: column;
           }
-          .map-section.active { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; }
           
           .detail-panel { 
             width: 100% !important; 
@@ -1872,10 +1819,43 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
             top: 6% !important;
             border-radius: 30px 30px 0 0;
             z-index: 4000;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           }
-          .detail-panel { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
           
           .is-sticky { border-bottom: 2px solid var(--primary); }
+        }
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .desktop-only { display: inline-flex; }
+        .mobile-only { display: none; }
+
+        @media (max-width: 768px) {
+          .mobile-only { display: flex; }
+          .desktop-only { display: none !important; }
+          
+          .results-section { width: 100% !important; min-width: 0 !important; }
+          .results-section.hidden { display: none; }
+
+          .map-section { 
+            width: 100%; 
+            display: flex;
+            flex-direction: column;
+          }
+          
+          .detail-panel { 
+            width: 100% !important; 
+            height: 94% !important;
+            top: 6% !important;
+            border-radius: 30px 30px 0 0;
+            z-index: 4000;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+          
+          .is-sticky { border-bottom: 2px solid var(--primary); }
+          .map-section.active { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; }
         }
 
         /* REMOVE FOCUS OUTLINES AND SQUARES */

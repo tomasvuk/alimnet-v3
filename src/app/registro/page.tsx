@@ -81,7 +81,7 @@ export default function RegistroPage() {
         console.error('Error creating welcome notification:', err);
       }
 
-      router.push('/onboarding');
+      router.push('/explorar');
     }
   };
 
