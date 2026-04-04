@@ -40,6 +40,7 @@ import {
   Compass
 } from 'lucide-react';
 import Header from '@/components/Header';
+import OnboardingModal from '@/components/OnboardingModal';
 import { 
   OFFICIAL_CATEGORIES, 
   PRODUCTION_ADN_OPTIONS, 
@@ -250,6 +251,7 @@ export default function ExplorarPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [validators, setValidators] = useState<any[]>([]);
   const [validatedMerchantIds, setValidatedMerchantIds] = useState<Set<string>>(new Set());
   const [hasMounted, setHasMounted] = useState(false);
@@ -278,6 +280,17 @@ export default function ExplorarPage() {
   const [searchCoords, setSearchCoords] = useState<{ lat: number, lng: number } | null>(null);
   const [radiusKm, setRadiusKm] = useState<number>(30);
   const [finalCoords, setFinalCoords] = useState<{ lat: number, lng: number } | null>(null);
+
+  // --- MEMOIZACIÓN PARA EVITAR EL SALTO ATRÁS (DERRAPE) ---
+  const mapCenter = React.useMemo<[number, number]>(() => {
+    return finalCoords ? [finalCoords.lat, finalCoords.lng] : [-34.6037, -58.3816];
+  }, [finalCoords?.lat, finalCoords?.lng]);
+
+  const mapZoom = React.useMemo(() => {
+    const baseZoom = finalCoords ? (radiusKm > 40 ? 10 : 12) : (isMobile ? 10 : 11);
+    return baseZoom;
+  }, [finalCoords?.lat, radiusKm, isMobile]);
+
   const [externalPlaceSelected, setExternalPlaceSelected] = useState<any>(null);
   const resultsRef = React.useRef<HTMLElement>(null);
   const mapSectionRef = React.useRef<HTMLDivElement>(null);
@@ -382,6 +395,12 @@ export default function ExplorarPage() {
         const { data: pData } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
         if (pData) {
           setUserProfile(pData);
+          
+          // Trigger onboarding if name or locality is missing
+          if (!pData.full_name || !pData.locality) {
+            setShowOnboarding(true);
+          }
+          
           // --- INTELIGENCIA DE MAPA ALIMNET ---
           // 1. Centrar en localidad si existe
           if (pData.locality) {
@@ -409,6 +428,9 @@ export default function ExplorarPage() {
             });
             setSelectedFilters(newFilters);
           }
+        } else {
+          // No profile found, definitely show onboarding
+          setShowOnboarding(true);
         }
         // Validaciones del usuario
         const { data: vData } = await supabase.from('validations').select('merchant_id').eq('user_id', session.user.id);
@@ -1205,31 +1227,6 @@ export default function ExplorarPage() {
           </button>
           {hasMounted && (
             <MapComponent
-              key={`map-view-${isMobile ? mobileView : 'desktop'}`}
-              onInteraction={(dir) => {
-                if (isMobile) {
-                  if (dir === 'up') {
-                    setIsPillsVisible(false);
-                    setIsRolesVisible(false);
-                  } else {
-                    setIsRolesVisible(true);
-                    setIsPillsVisible(true);
-                  }
-                }
-              }}
-              onMarkerClick={(id) => {
-                const m = filteredMerchants.find(mm => mm.id === id) || merchants.find(mm => mm.id === id);
-                if (m) {
-                  handleMerchantSelect(m);
-                  if (window.innerWidth < 768) {
-                    setMobileView('list');
-                  } else {
-                    setTimeout(() => {
-                      document.getElementById(`merchant-card-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }, 50);
-                  }
-                }
-              }}
               providers={filteredMerchants.map(m => {
                 const loc = m.locations?.find((l: any) => l.is_primary) || m.locations?.[0];
                 return {
@@ -1238,8 +1235,21 @@ export default function ExplorarPage() {
                   is_exact_location: !!loc?.lat, city_zone: loc?.locality || 'Argentina'
                 };
               })}
-              center={finalCoords ? [finalCoords.lat, finalCoords.lng] : [-34.6037, -58.3816]}
-              zoom={finalCoords ? (radiusKm > 40 ? 10 : 12) : (isMobile ? 10 : 11)}
+              center={mapCenter}
+              zoom={mapZoom}
+              onInteraction={() => {
+                if (isMobile) {
+                  setIsPillsVisible(false);
+                  setIsRolesVisible(false);
+                }
+              }}
+              onMarkerClick={(id) => {
+                const m = merchants.find(mm => mm.id === id);
+                if (m) {
+                  handleMerchantSelect(m);
+                  if (isMobile) setMobileView('list');
+                }
+              }}
             />
           )}
         </section>
@@ -1306,6 +1316,13 @@ export default function ExplorarPage() {
         clearAll={() => setSelectedFilters([])}
         resultCount={filteredMerchants.length}
       />
+      {/* ONBOARDING MODAL PREMIUM */}
+      {showOnboarding && user && (
+        <OnboardingModal 
+          user={user} 
+          onComplete={() => setShowOnboarding(false)} 
+        />
+      )}
     </div>
   );
 }

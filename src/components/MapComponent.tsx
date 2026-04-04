@@ -9,35 +9,28 @@ import L from 'leaflet';
 const ChangeView = ({ center, zoom }: { center: [number, number], zoom: number }) => {
   const map = useMap();
   React.useEffect(() => {
-    map.setView(center, zoom, { animate: true, duration: 1 });
+    // Solo mover si las coordenadas cambiaron significativamente (más de 500 metros)
+    const dist = map.distance(center, map.getCenter());
+    if (dist > 500) { 
+      map.flyTo(center, zoom, { duration: 1.5, easeLinearity: 0.25 });
+    }
   }, [center, zoom, map]);
   return null;
 };
 
-// Subcomponente para arreglar el re-dibujado en smartphones (Optimizado para no laggear)
+// Subcomponente para arreglar el re-dibujado en smartphones
 const MapResizer = () => {
   const map = useMap();
   React.useEffect(() => {
     if (!map) return;
-
     let timeoutId: NodeJS.Timeout;
-    const trigger = () => {
-      map.invalidateSize();
-      // Solo forzar carga si es necesario, sin disparar eventos globales pesados
-    };
-
-    // 1. Observer para detectar cambios reales en el tamaño
+    const trigger = () => { map.invalidateSize(); };
     const resizeObserver = new ResizeObserver(() => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(trigger, 100);
     });
-
     const container = map.getContainer();
     if (container) resizeObserver.observe(container);
-
-    // 2. Un único disparo inicial para asegurar
-    timeoutId = setTimeout(trigger, 250);
-
     return () => {
       resizeObserver.disconnect();
       clearTimeout(timeoutId);
@@ -46,7 +39,7 @@ const MapResizer = () => {
   return null;
 };
 
-// --- Iconos por Categoría (SVG Paths simplificados y centrados) ---
+// --- ICONOGRAFÍA PERSONALIZADA ---
 const CATEGORY_PATHS: Record<string, string> = {
   productor: `<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#F4F1E6"/>`, 
   almacen: `<path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1z" fill="#F4F1E6"/>`,
@@ -57,7 +50,6 @@ const CATEGORY_PATHS: Record<string, string> = {
 const getAlimnetIcon = (type: string) => {
   const safeType = (type || 'productor').toLowerCase();
   const iconPath = CATEGORY_PATHS[safeType] || CATEGORY_PATHS['productor'];
-  
   return L.divIcon({
     html: `
       <div style="position: relative; width: 36px; height: 46px;">
@@ -99,13 +91,11 @@ interface MapProps {
 
 const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down') => void }) => {
   const lastInteraction = React.useRef<number>(0);
-
   useMapEvents({
-    drag: (e) => {
+    drag: () => {
       const now = Date.now();
-      if (now - lastInteraction.current < 200) return; // Throttle fuerte para fluidez
-      
-      onInteraction?.('up'); // Siempre ocultar al mover por defecto para ganar espacio
+      if (now - lastInteraction.current < 400) return;
+      onInteraction?.('up');
       lastInteraction.current = now;
     },
     zoomstart: () => onInteraction?.('up'),
@@ -116,82 +106,38 @@ const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down
 const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onInteraction, onMarkerClick }: MapProps) => {
   return (
     <div style={{ 
-      height: '100%', 
-      width: '100%', 
-      borderRadius: '16px', 
-      overflow: 'hidden', 
-      border: '1px solid var(--border)', 
-      boxShadow: 'var(--shadow-md)',
-      willChange: 'transform', // Aceleración por Hardware
-      transform: 'translateZ(0)' // Forzar capa de composición GPU
+      height: '100%', width: '100%', borderRadius: '16px', overflow: 'hidden', 
+      border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)',
+      willChange: 'transform', transform: 'translateZ(0)'
     }}>
       <MapContainer 
-        key="main-persistent-map" // KEY ESTÁTICO PARA QUE NO SE REINICIE
+        key="main-map-almn"
         center={center} 
         zoom={zoom} 
         scrollWheelZoom={true}
         zoomControl={false}
         attributionControl={false}
         style={{ height: '100%', width: '100%' }}
-        preferCanvas={true} // Usar Canvas en lugar de SVG para los círculos (más rápido)
+        preferCanvas={true}
+        dragging={true}
+        inertia={true}
       >
         <ChangeView center={center} zoom={zoom} />
         <MapEvents onInteraction={onInteraction} />
         <MapResizer />
         <ZoomControl position="bottomright" />
         <TileLayer
-          key={`${center[0]}-tiles-v2`} 
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          attribution='&copy; CARTO'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
-        
-        {providers.map((p) => {
-          const position: [number, number] = [p.location_lat, p.location_lng];
-          
-          return (
-            <React.Fragment key={p.id}>
-              {p.is_exact_location ? (
-                <Marker position={position} icon={getAlimnetIcon(p.type || p.category || 'productor')} eventHandlers={{ click: () => onMarkerClick?.(p.id) }}>
-                  <Popup>
-                    <div style={{ textAlign: 'center', padding: '3px 4px' }}>
-                      <strong style={{ display: 'block', fontSize: '0.85rem', marginBottom: '2px' }}>{p.name}</strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'capitalize' }}>{p.type || p.category}</span>
-                      <br />
-                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#5F7D4A' }}>{p.city_zone}</span>
-                    </div>
-                  </Popup>
-                </Marker>
-              ) : (
-                <>
-                  <Circle 
-                    center={position}
-                    radius={3000}
-                    pathOptions={{ 
-                      fillColor: 'var(--secondary)', 
-                      fillOpacity: 0.1, 
-                      color: 'var(--secondary)', 
-                      weight: 1,
-                      dashArray: '5, 5'
-                    }}
-                  >
-                    <Popup>
-                      <div style={{ textAlign: 'center' }}>
-                        <strong>{p.name}</strong>
-                        <br />
-                        <span style={{ fontSize: '0.8rem' }}>Zona de entrega: {p.city_zone}</span>
-                      </div>
-                    </Popup>
-                  </Circle>
-                  <Circle 
-                    center={position} 
-                    radius={200} 
-                    pathOptions={{ color: 'var(--secondary)', weight: 2 }} 
-                  />
-                </>
-              )}
-            </React.Fragment>
-          );
-        })}
+        {providers.map((p) => (
+          <Marker 
+            key={p.id} 
+            position={[p.location_lat, p.location_lng]} 
+            icon={getAlimnetIcon(p.type || p.category || 'productor')}
+            eventHandlers={{ click: () => onMarkerClick?.(p.id) }}
+          />
+        ))}
       </MapContainer>
     </div>
   );

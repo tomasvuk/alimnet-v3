@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED_ROUTES = ['/perfil', '/mi-cuenta', '/onboarding', '/registro-comercio'];
+const PROTECTED_ROUTES = ['/perfil', '/mi-cuenta', '/registro-comercio'];
 const ADMIN_ROUTES = ['/admin'];
 const SUPABASE_COOKIE_NAME = 'sb-keagrrvtzmsukcmzxqrl-auth-token';
 
@@ -77,7 +77,6 @@ export const config = {
     '/admin/:path*',
     '/perfil/:path*',
     '/mi-cuenta/:path*',
-    '/onboarding/:path*',
     '/registro-comercio/:path*',
   ],
 };
