@@ -37,7 +37,10 @@ import {
   Lock,
   Menu,
   Plus,
-  Compass
+  Compass,
+  Clock,
+  Globe,
+  Phone
 } from 'lucide-react';
 import Header from '@/components/Header';
 import OnboardingPremium from '@/components/OnboardingPremium';
@@ -92,6 +95,8 @@ interface Location {
   lng: number;
   is_primary: boolean;
   country?: string;
+  address?: string;
+  province?: string;
 }
 
 // --- ICONOGRAFÍA PERSONALIZADA (Inspirada en las imágenes del usuario) ---
@@ -1696,36 +1701,90 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
 
           <div style={{ marginBottom: '2rem' }}>
             <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--soft-leaf)', marginBottom: '0.8rem', fontWeight: '900' }}>Logística</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <Store size={16} color="var(--primary)" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* DIRECCIÓN / ADDRESS */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
+                  <MapPin size={18} color="var(--primary)" />
+                </div>
                 <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: '800' }}>Días y Horarios</p>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{merchant.working_hours || "Consultar directamente."}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: '600', marginBottom: '2px' }}>
+                    {merchant.locations?.find((l: any) => l.is_primary)?.address || `${merchant.locations?.[0]?.locality || 'Ubicación local'}`}
+                  </p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '500' }}>
+                    {merchant.locations?.[0]?.district ? `${merchant.locations?.[0]?.district}, ` : ''}
+                    {merchant.locations?.[0]?.province || 'Argentina'}
+                  </p>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <MapPin size={16} color="var(--primary)" />
+
+              {/* HORARIOS / HOURS WITH STATUS */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
+                  <Clock size={18} color="var(--primary)" />
+                </div>
                 <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: '800' }}>Zona de Reparto / Retiro</p>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{merchant.delivery_info || "Consultar alcance."}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {merchant.working_hours ? (
+                      <>
+                        <span style={{ color: '#E47D00', fontWeight: '900' }}>Abre pronto</span>
+                        <span style={{ opacity: 0.4 }}>•</span>
+                        <span>{merchant.working_hours.split('\n')[0]}</span>
+                      </>
+                    ) : (
+                      <span style={{ color: 'var(--text-secondary)' }}>Consultar horarios</span>
+                    )}
+                  </p>
+                  <button style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: '650', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    Ver más horas <ChevronRight size={12} />
+                  </button>
                 </div>
               </div>
+
+              {/* WHATSAPP / WEB */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
+                  <Globe size={18} color="var(--primary)" />
+                </div>
+                <div>
+                   <a 
+                    href={merchant.whatsapp ? `https://wa.me/${merchant.whatsapp.replace(/[^0-9]/g, '')}` : '#'} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ fontSize: '0.85rem', color: 'var(--primary-dark)', fontWeight: '600', textDecoration: 'none' }}
+                   >
+                     {merchant.whatsapp ? `wa.me/${merchant.whatsapp.replace(/[^0-9]/g, '')}` : "chat.whatsapp.com"}
+                   </a>
+                </div>
+              </div>
+
+              {/* TELÉFONO */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
+                   <Phone size={18} color="var(--primary)" />
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: '600' }}>
+                  {merchant.phone || "Consultar directamente"}
+                </div>
+              </div>
+
+              {/* GOOGLE MAPS LINK */}
               {(() => {
                 const loc = merchant.locations?.find((l: any) => l.is_primary) || merchant.locations?.[0];
-                if (!loc?.lat || !loc?.lng) return null;
+                if (!loc) return null;
                 return (
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <Navigation size={16} color="var(--primary)" />
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
+                      <Navigation size={18} color="var(--primary)" />
+                    </div>
                     <div>
-                      <p style={{ fontSize: '0.75rem', fontWeight: '800' }}>Cómo llegar</p>
                       <a
                         href={merchant.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(merchant.name)}+${encodeURIComponent(loc.locality || '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '700', textDecoration: 'none' }}
+                        style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '800', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
                       >
-                        Ver ficha en Google Maps →
+                        Ver ficha en Google Maps <ExternalLink size={14} />
                       </a>
                     </div>
                   </div>

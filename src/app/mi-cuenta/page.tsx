@@ -110,31 +110,44 @@ function MiCuentaContent() {
 
   const fetchData = async (retryCount = 0) => {
     try {
-      // 1. Intentamos obtener el usuario de forma robusta
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      // 1. Intentamos obtener el usuario de forma estándar
+      let { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (userError || !user) {
-        console.log(`Intento ${retryCount + 1}: No hay usuario en el servidor.`);
-        const { data: { session } } = await supabase.auth.getSession();
+      // 2. [BRUTE FORCE PARA MÓVILES] Si falla, buscamos en la cookie
+      if (!user) {
+        console.log("Buscando sesión en la cookie (Copia de seguridad)...");
+        const cookies = document.cookie.split('; ');
+        const authCookie = cookies.find(row => row.startsWith('sb-keagrrvtzmsukcmzxqrl-auth-token='));
         
-        if (!session?.user && retryCount < 2) {
-          console.log("Reintentando carga en 800ms...");
+        if (authCookie) {
+          try {
+            const cookieValue = decodeURIComponent(authCookie.split('=')[1]);
+            const sessionData = JSON.parse(cookieValue);
+            if (sessionData?.access_token && sessionData?.refresh_token) {
+              console.log("Sesión encontrada en cookie. Restaurando en el motor...");
+              const { data: { session }, error: setSessionError } = await supabase.auth.setSession({
+                access_token: sessionData.access_token,
+                refresh_token: sessionData.refresh_token
+              });
+              if (session) user = session.user;
+            }
+          } catch (e) {
+            console.error("Error al restaurar sesión desde cookie:", e);
+          }
+        }
+      }
+
+      if (!user) {
+        console.log(`Intento ${retryCount + 1}: No hay usuario detectado.`);
+        if (retryCount < 2) {
           setTimeout(() => fetchData(retryCount + 1), 800);
           return;
         }
-
-        if (!session?.user) {
-          console.log("No hay sesión tras reintentos.");
-          setLoading(false);
-          return;
-        }
-      }
-
-      const currentUser = user || (await supabase.auth.getSession()).data.session?.user;
-      if (!currentUser) {
         setLoading(false);
         return;
       }
+
+      const currentUser = user;
 
       const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
       if (data) {
