@@ -31,6 +31,19 @@ export default function LoginPage() {
       }
     });
 
+    // 2. Portero de Reserva (Chequeo a sangre fría al cargar)
+    const checkManual = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        console.log("Sesión encontrada manualmente al cargar.");
+        setAuthCookie(session);
+        setTimeout(() => {
+          window.location.href = session.user.email === 'info@alimnet.com' ? '/admin' : '/mi-cuenta';
+        }, 300);
+      }
+    };
+    checkManual();
+
     return () => {
       if (authListener) authListener.subscription.unsubscribe();
     };
