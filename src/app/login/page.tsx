@@ -14,32 +14,22 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   React.useEffect(() => {
-    // 1. Escuchador en tiempo real (vital para que el móvil dispare solo cuando cargue la sesión)
+    // Motor único de redirección: Escucha cualquier cambio de sesión (Manual o Automático)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        console.log("Evento Auth Detectado:", event, session.user.id);
+      if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        console.log("Sesión confirmada por evento:", event);
         setAuthCookie(session);
         
-        // Pequeño delay de cortesía antes del salto
+        // Espera mínima para que el navegador guarde todo bien
         setTimeout(() => {
           if (session.user.email === 'info@alimnet.com') {
-             window.location.href = '/admin';
+            window.location.href = '/admin';
           } else {
-             window.location.href = '/mi-cuenta';
+            window.location.href = '/mi-cuenta';
           }
-        }, 500);
+        }, 600);
       }
     });
-
-    // 2. Chequeo inicial robusto
-    async function checkInitial() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setAuthCookie(session);
-        window.location.href = '/mi-cuenta';
-      }
-    }
-    checkInitial();
 
     return () => {
       if (authListener) authListener.subscription.unsubscribe();
@@ -52,66 +42,28 @@ export default function LoginPage() {
     setError('');
 
     try {
-      console.log("Iniciando login para:", email);
+      console.log("Enviando credenciales...");
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (authError) {
-        console.error("Auth error:", authError);
-        if (authError.message.includes('Invalid login')) {
-          setError('Email o contraseña incorrectos. Intentá de nuevo.');
-        } else {
-          setError(authError.message);
-        }
+        console.error("Error al entrar:", authError.message);
+        setError(authError.message.includes('Invalid login') 
+          ? 'Email o contraseña incorrectos.' 
+          : authError.message
+        );
         setLoading(false);
         return;
       }
 
-      console.log("Auth exitoso para:", data.user?.email);
-      if (data.session) {
-        setAuthCookie(data.session);
-      }
-
-      // ESPERAR 500MS PARA QUE EL MÓVIL ESCRIBA LA COOKIE
-      setTimeout(async () => {
-        if (!data.user) {
-          window.location.href = '/mi-cuenta';
-          return;
-        }
-
-        // BYPASS DIRECTO PARA ADMIN
-        if (data.user.email === 'info@alimnet.com') {
-          window.location.href = '/admin';
-          return;
-        }
-
-        // Redirección inteligente según rol para otros usuarios
-        console.log("Consultando rol para:", data.user.id);
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-
-        if (profileError || !profile) {
-          window.location.href = '/mi-cuenta';
-          return;
-        }
-
-        if (profile.role === 'admin') {
-          window.location.href = '/admin';
-        } else if (profile.role === 'merchant') {
-          window.location.href = '/perfil';
-        } else {
-          window.location.href = '/mi-cuenta';
-        }
-      }, 500);
+      // NO redirigimos aquí. Dejamos que onAuthStateChange lo haga por nosotros.
+      console.log("Petición aceptada. Esperando sincronización...");
       
     } catch (err: any) {
-      console.error("Login catch error FATAL:", err);
-      setError('Error de conexión o configuración. Intentá de nuevo. Detalle: ' + err.message);
+      console.error("Falla crítica:", err);
+      setError('Error de conexión. Reintentá en un momento.');
       setLoading(false);
     }
   };
