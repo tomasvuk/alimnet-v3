@@ -1855,7 +1855,6 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
         </div>
 
         {/* CONTACTO - Alineado a la paleta Alimnet */}
-        {/* CONTACTO - Alineado a la paleta Alimnet */}
         <div style={{ 
           padding: '1.5rem', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column', gap: '10px',
           filter: !isLoggedIn ? 'blur(25px) grayscale(20%)' : 'none',
