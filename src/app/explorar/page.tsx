@@ -79,6 +79,7 @@ interface Merchant {
   locations?: Location[];
   claimed: boolean;
   verified: boolean;
+  google_maps_url?: string;
 }
 
 interface Location {
@@ -1719,12 +1720,12 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                     <div>
                       <p style={{ fontSize: '0.75rem', fontWeight: '800' }}>Cómo llegar</p>
                       <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`}
+                        href={merchant.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(merchant.name)}+${encodeURIComponent(loc.locality || '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: '700', textDecoration: 'none' }}
                       >
-                        Ver en Google Maps →
+                        Ver ficha en Google Maps →
                       </a>
                     </div>
                   </div>
