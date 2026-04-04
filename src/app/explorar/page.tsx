@@ -85,9 +85,11 @@ interface Location {
   merchant_id: string;
   location_type: string;
   locality: string;
+  district?: string;
   lat: number;
   lng: number;
   is_primary: boolean;
+  country?: string;
 }
 
 // --- ICONOGRAFÍA PERSONALIZADA (Inspirada en las imágenes del usuario) ---
@@ -587,25 +589,19 @@ export default function ExplorarPage() {
       );
     }
 
-    // --- LIMPIEZA DE DATOS: Ocultar puntos que están fuera de Argentina o mal geolocalizados ---
-    const ARG = { latMin: -55, latMax: -21, lngMin: -75, lngMax: -53 };
-
+    // --- LIMPIEZA DE DATOS: Ocultar puntos mal geolocalizados ---
     result = result.map(m => ({
       ...m,
       locations: m.locations?.filter(l => {
         if (!l.lat || !l.lng) return false;
         
-        // 1. Cerco Digital: Solo Argentina
-        const inArg = l.lat >= ARG.latMin && l.lat <= ARG.latMax && 
-                      l.lng >= ARG.lngMin && l.lng <= ARG.lngMax;
-        
-        // 2. Filtro de "Punto por Defecto": Si el punto es CABA pero la localidad dice otra cosa
-        const isProbablyDefaultCABA = Math.abs(l.lat + 34.6) < 0.01 && Math.abs(l.lng + 58.4) < 0.01;
-        const cityMentioned = normalizeString(l.locality || '');
-        const isMismatched = isProbablyDefaultCABA && 
-          (cityMentioned.includes('mar del plata') || cityMentioned.includes('cordoba') || cityMentioned.includes('santa fe'));
+        // 1. Validación de País: Evitar que un "Cordoba, Argentina" termine en España
+        // (Solo si el comercio tiene país definido)
+        const countryMatch = l.country ? (normalizeString(l.country) === 'argentina' ? 
+          (l.lat < -21 && l.lat > -55) : true // Si no es Argentina, confiamos en la coordenada por ahora
+        ) : true;
 
-        return inArg && !isMismatched;
+        return countryMatch;
       })
     })).filter(m => (m.locations?.length || 0) > 0);
 
@@ -1163,24 +1159,19 @@ export default function ExplorarPage() {
           </div>
         </section>
 
-        {/* MAPA - Z-STRATEGY CON ALTURA DEFINIDA POR VIEWPORT (SIN LAG) */}
+        {/* MAPA - GLOBAL Y SIN MARGENES */}
         <section 
           ref={mapSectionRef}
           className="map-section" 
           style={{ 
             flex: 1, 
-            position: isMobile ? 'absolute' : 'relative',
-            top: isMobile ? '112px' : '0', 
-            left: 0,
-            right: 0,
-            height: isMobile ? 'calc(100vh - 112px)' : 'calc(100vh - 120px)',
-            bottom: isMobile ? '0' : 'auto',
-            zIndex: (isMobile && mobileView !== 'map') ? -10 : 2,
-            opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
-            pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto',
+            position: 'relative',
+            display: (isMobile && mobileView !== 'map') ? 'none' : 'block',
             width: '100%',
+            height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)',
             background: '#EAEDE8',
-            transition: 'opacity 0.2s ease-in-out'
+            transition: 'opacity 0.2s ease-in-out',
+            zIndex: 1
           }}
         >
           {/* BOTÓN SUMAR COMERCIO - TOP CENTER MOBILE PREMIUM */}
