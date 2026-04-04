@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store, Plus, ShieldCheck } from 'lucide-react';
+import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store, Plus, ShieldCheck, LogOut } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { setAuthCookie, removeAuthCookie } from '@/lib/auth-utils';
 
@@ -159,6 +159,7 @@ export default function Header() {
             background: 'white', borderRadius: '30px', boxShadow: '0 25px 60px rgba(0,0,0,0.15)', 
             padding: '1.2rem 1rem', zIndex: 4999, display: 'flex', flexDirection: 'column', gap: '0.4rem',
             border: '1px solid rgba(0,0,0,0.04)',
+            maxHeight: '85vh', overflowY: 'auto', paddingBottom: '2.5rem'
           }}>
             {/* 1. MI PERFIL (DESTACADO B2C - SIMPLIFICADO) */}
              <MenuItem 
@@ -187,6 +188,24 @@ export default function Header() {
             
             <MenuItem href="/perfil" icon={<MapIcon size={18} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} variant="text-only" />
             <MenuItem href="/registro-comercio" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="text-only" />
+            
+            {user && (
+              <button 
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  removeAuthCookie();
+                  window.location.href = '/';
+                }}
+                style={{ 
+                  marginTop: '0.8rem', padding: '12px 18px', borderRadius: '18px', border: '1px solid #fee2e2',
+                  background: '#fef2f2', color: '#dc2626', fontWeight: '950', fontSize: '0.8rem', 
+                  display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', textAlign: 'left'
+                }}
+              >
+                <LogOut size={18} />
+                CERRAR SESIÓN
+              </button>
+            )}
             
           </div>
         </>
