@@ -322,11 +322,26 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
         }
         .pac-container {
           z-index: 99999 !important;
-          border-radius: 12px;
-          border: none !important;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
-          margin-top: 5px;
+          border-radius: 16px;
+          border: 1px solid #eee !important;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+          margin-top: 8px;
           font-family: inherit !important;
+          min-width: 320px !important;
+          padding: 8px 0 !important;
+        }
+        .pac-item {
+          padding: 10px 16px !important;
+          font-size: 0.95rem !important;
+          border-top: none !important;
+          cursor: pointer !important;
+          transition: background 0.2s !important;
+        }
+        .pac-item:hover {
+          background-color: #F0F4ED !important;
+        }
+        .pac-icon {
+          margin-right: 12px !important;
         }
         .pac-item {
           padding: 12px 16px !important;

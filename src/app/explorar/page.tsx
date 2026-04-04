@@ -668,13 +668,18 @@ export default function ExplorarPage() {
         return R * c;
       };
 
-      result = result.filter(m => 
+      const nearby = result.filter(m => 
         m.locations?.some(l => getDistance(tempCoords!.lat, tempCoords!.lng, l.lat, l.lng) <= tempRadius)
       );
+      
+      // Si el filtrado por coordenadas es demasiado estricto (0 resultados), 
+      // pero el texto dice algo genérico como Buenos Aires, mantenemos la lista base 
+      // para no dejar el mapa vacío, pero centrada en esas coordenadas.
+      if (nearby.length > 0) {
+        result = nearby;
+      }
     } else if (searchLocation.trim().length > 0) {
-      // Fallback a búsqueda por texto literal en localidad si no hay mapeo de región ni coords
       const loc = normalizeString(searchLocation);
-      // Solo filtramos si hay un texto real que buscar y no es una búsqueda vacía o genérica
       if (loc && loc !== 'buenos aires') {
         result = result.filter(m => 
           m.locations?.some(l => normalizeString(l.locality || '').includes(loc))
