@@ -110,11 +110,23 @@ function MiCuentaContent() {
 
   const fetchData = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user;
-      if (!user) { router.push('/login'); return; }
+      // 1. Intentamos obtener el usuario de forma robusta
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.log("No se detectó usuario en MiCuenta, reintentando con getSession...");
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          console.log("Definitivamente no hay sesión. Redirigiendo a Login.");
+          window.location.href = '/login?redirectedFrom=/mi-cuenta';
+          return;
+        }
+      }
 
-      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      const currentUser = user || (await supabase.auth.getSession()).data.session?.user;
+      if (!currentUser) return;
+
+      const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
       if (data) {
         setProfile(data);
         setFormData({
@@ -126,7 +138,7 @@ function MiCuentaContent() {
         });
       }
 
-      const { count } = await supabase.from('validations').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+      const { count } = await supabase.from('validations').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
       setCounts(prev => ({ ...prev, validations: count || 0 }));
 
       // Traer los locales validados reales
@@ -141,7 +153,7 @@ function MiCuentaContent() {
             locations (locality)
           )
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', currentUser.id);
       
       if (vData) {
         setValidatedMerchants(vData.map((v: any) => v.merchants).filter(Boolean));
@@ -151,7 +163,7 @@ function MiCuentaContent() {
       const { data: mData } = await supabase
         .from('merchants')
         .select('*')
-        .eq('owner_id', user.id)
+        .eq('owner_id', currentUser.id)
         .single();
       
       if (mData) {
@@ -181,7 +193,7 @@ function MiCuentaContent() {
         const { data: cData, count: cCount } = await supabase
           .from('merchants')
           .select('*', { count: 'exact' })
-          .eq('created_by', user.id)
+          .eq('created_by', currentUser.id)
           .eq('created_by_type', 'neighborhood_recommendation');
         
         if (cData) {

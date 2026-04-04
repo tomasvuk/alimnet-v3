@@ -92,13 +92,26 @@ export default function MerchantProfilePage() {
 
   const fetchData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/login'); return; }
+      // 1. Intentamos obtener el usuario de forma robusta
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.log("No se detectó usuario en Perfil, reintentando con getSession...");
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          console.log("Definitivamente no hay sesión en Perfil. Redirigiendo a Login.");
+          window.location.href = '/login?redirectedFrom=/perfil';
+          return;
+        }
+      }
 
-      const { data: pData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      const currentUser = user || (await supabase.auth.getSession()).data.session?.user;
+      if (!currentUser) return;
+
+      const { data: pData } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
       if (pData) setProfile(pData);
 
-      const { data: mData } = await supabase.from('merchants').select('*, locations(*)').eq('owner_id', user.id);
+      const { data: mData } = await supabase.from('merchants').select('*, locations(*)').eq('owner_id', currentUser.id);
       
       if (mData && mData.length > 0) {
         setMerchant(mData[0]);
