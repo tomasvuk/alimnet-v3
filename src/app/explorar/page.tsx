@@ -920,13 +920,13 @@ export default function ExplorarPage() {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
+      height: isMobile ? 'auto' : '100vh', 
       display: 'flex', 
       flexDirection: 'column', 
       background: '#F0F4ED',
       paddingTop: 0,
       position: 'relative',
-      overflow: isMobile ? 'hidden' : 'visible' // Evitar doble scroll en el mapa
+      overflow: 'hidden' 
     }}>
       
       <Header />
@@ -1155,8 +1155,8 @@ export default function ExplorarPage() {
 
       {/* 3. CONTENIDO PRINCIPAL - FIXED LAYOUT (DASHBOARD STYLE) */}
       <div className="main-content" style={{ 
-        height: isMobile ? 'auto' : 'calc(100vh - 120px)',
         flex: 1, 
+        height: isMobile ? 'auto' : '0', // Zero height + flex:1 makes it fill the container
         display: 'flex', 
         flexDirection: isMobile ? 'column' : 'row',
         overflow: 'hidden', 
@@ -1288,12 +1288,12 @@ export default function ExplorarPage() {
           className="map-section" 
           style={{ 
             flex: 1, 
-            position: isMobile ? (selectedMerchant ? 'relative' : 'absolute') : 'sticky',
-            top: isMobile ? 0 : '120px',
+            position: isMobile ? (selectedMerchant ? 'relative' : 'absolute') : 'relative',
+            top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            height: isMobile ? (selectedMerchant ? '35vh' : '100%') : 'calc(100vh - 120px)',
+            height: '100%',
             width: '100%',
             background: '#EAEDE8',
             zIndex: (isMobile && mobileView !== 'map') ? -10 : 2,
