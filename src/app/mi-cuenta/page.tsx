@@ -44,10 +44,13 @@ function MiCuentaContent() {
 
   const [formData, setFormData] = useState({
     first_name: '',
+    last_name: '',
     locality: '',
     delivery_pref: 'Retiro y Entrega',
     production_interest: [] as string[],
-    display_name_style: 'full' as 'full' | 'initial'
+    display_name_style: 'full' as 'full' | 'initial',
+    avatar_url: '',
+    user_number: ''
   });
   const [merchantProducts, setMerchantProducts] = useState<any[]>([]); // NUEVO: Estado de Productos
   const [merchantFormData, setMerchantFormData] = useState<any>({
@@ -166,10 +169,13 @@ function MiCuentaContent() {
         setProfile(data);
         setFormData({
           first_name: data.first_name || '',
+          last_name: data.last_name || '',
           locality: data.locality || '',
           delivery_pref: data.delivery_pref || 'Retiro y Entrega',
           production_interest: data.production_interest || [],
-          display_name_style: data.display_name_style || 'full'
+          display_name_style: data.display_name_style || 'full',
+          avatar_url: data.avatar_url || '',
+          user_number: data.user_number || ''
         });
       }
 
@@ -915,23 +921,77 @@ function MiCuentaContent() {
               
               {/* BLOQUE 1: IDENTIDAD Y ACCESO */}
               <div>
-                <div style={{ marginBottom: '1rem' }}>
-                   <h2 style={{ fontSize: '1.4rem', fontWeight: '1000', color: '#5F7D4A', margin: 0 }}>Identidad y Acceso</h2>
-                   <p style={{ color: '#888', fontWeight: '600', fontSize: '0.8rem' }}>Tus datos oficiales en la red Alimnet.</p>
+                <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                   <div>
+                     <h2 style={{ fontSize: '1.4rem', fontWeight: '1000', color: '#5F7D4A', margin: 0 }}>Identidad y Acceso</h2>
+                     <p style={{ color: '#888', fontWeight: '600', fontSize: '0.8rem' }}>Tus datos oficiales en la red Alimnet.</p>
+                   </div>
+                   {formData.user_number && (
+                     <div style={{ textAlign: 'right' }}>
+                       <span style={{ fontSize: '0.65rem', fontWeight: '950', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>DNI Alimnet</span>
+                       <div style={{ fontSize: '1.2rem', fontWeight: '1000', color: '#5F7D4A' }}>Socio N° {formData.user_number}</div>
+                     </div>
+                   )}
                 </div>
 
                 <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                   
+                   {/* SELECTOR DE AVATAR / FOTO */}
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', background: '#F8F9F5', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
+                      <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setMessage({ type: 'success', text: 'Galería de Avatares en desarrollo... 🧑‍🌾' })}>
+                         <div style={{ 
+                            width: '100px', height: '100px', borderRadius: '35px', 
+                            background: formData.avatar_url ? `url(${formData.avatar_url}) center/cover` : '#F4F1E6',
+                            border: '3px solid white', boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
+                         }}>
+                            {!formData.avatar_url && <User size={40} color="#5F7D4A" />}
+                         </div>
+                         <div style={{ 
+                            position: 'absolute', bottom: '-5px', right: '-5px', 
+                            background: '#2D3A20', color: 'white', width: '32px', height: '32px', 
+                            borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: '3px solid #F8F9F5', boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+                         }}>
+                            <Edit3 size={16} />
+                         </div>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                         <h4 style={{ fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '4px' }}>Rostro de Alimnet</h4>
+                         <p style={{ fontSize: '0.75rem', color: '#666', fontWeight: '600', lineHeight: '1.4' }}>
+                            Elegí uno de los 21 avatares de nuestra colección "Gente de Campo" o subí tu propia foto oficial.
+                         </p>
+                         <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                            <button className="button-primary-small" style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
+                            <button style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '800', cursor: 'pointer' }}>Subir Imagen</button>
+                         </div>
+                      </div>
+                   </div>
+
                    <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth <= 900 ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase' }}>Nombre Completo Oficial</label>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase' }}>Nombre</label>
                         <input 
                           type="text" 
                           value={formData.first_name}
                           onChange={(e) => setFormData({...formData, first_name: e.target.value})}
-                          placeholder="Tomas Vukojicic"
-                          style={{ width: '100%', padding: '1rem 1.4rem', borderRadius: '18px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '750', fontSize: '0.9rem', color: '#2D3A20' }}
+                          placeholder="Tu nombre"
+                          style={{ width: '100%', padding: '1rem 1.4rem', borderRadius: '18px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '750', fontSize: '0.94rem', color: '#2D3A20' }}
                         />
                       </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase' }}>Apellido Oficial</label>
+                        <input 
+                          type="text" 
+                          value={formData.last_name || ''}
+                          onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                          placeholder="Tu apellido"
+                          style={{ width: '100%', padding: '1rem 1.4rem', borderRadius: '18px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '750', fontSize: '0.94rem', color: '#2D3A20' }}
+                        />
+                      </div>
+                   </div>
+
+                   <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth <= 900 ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase' }}>Correo Electrónico (Solo Acceso)</label>
                         <input 
@@ -941,44 +1001,43 @@ function MiCuentaContent() {
                           style={{ width: '100%', padding: '1rem 1.4rem', borderRadius: '18px', border: 'none', background: '#F0F4ED', outline: 'none', fontWeight: '750', fontSize: '0.9rem', color: '#888', cursor: 'not-allowed' }}
                         />
                       </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase' }}>Ubicación Actual (Radar)</label>
+                        <div style={{ position: 'relative' }}>
+                          <MapPin size={18} style={{ position: 'absolute', right: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
+                          <input 
+                            type="text" 
+                            value={formData.locality}
+                            onChange={(e) => setFormData({...formData, locality: e.target.value})}
+                            placeholder="Ej: San Isidro, Buenos Aires"
+                            style={{ width: '100%', padding: '1rem 1.4rem', borderRadius: '18px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '750', fontSize: '0.9rem', color: '#2D3A20' }}
+                          />
+                        </div>
+                      </div>
                    </div>
 
                    <div>
                       <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Nombre de Perfil Público</label>
-                      <p style={{ fontSize: '0.7rem', color: '#888', marginBottom: '1rem', fontWeight: '600' }}>¿Cómo quieres que te vean en validaciones y en el mapa?</p>
-                      <div style={{ display: 'flex', gap: '10px' }}>
+                      <p style={{ fontSize: '0.7rem', color: '#888', marginBottom: '1.2rem', fontWeight: '600' }}>¿Cómo quieres que te vean en validaciones y en el mapa?</p>
+                      <div style={{ display: 'flex', gap: '12px' }}>
                         {[
-                          { id: 'full' as const, label: formData.first_name || 'Nombre Completo' },
-                          { id: 'initial' as const, label: (formData.first_name?.split(' ')?.[0] || 'Nombre') + ' ' + (formData.first_name?.split(' ')?.[1]?.[0] || 'A') + '.' }
+                          { id: 'full' as const, label: `${formData.first_name || 'Nombre'} ${formData.last_name || ''}`.trim() || 'Visualización Completa' },
+                          { id: 'initial' as const, label: `${formData.first_name || 'Nombre'} ${formData.last_name ? (formData.last_name[0] + '.') : ''}`.trim() || 'Visualización Corta' }
                         ].map(style => (
                           <button 
                             key={style.id}
                             onClick={() => setFormData({...formData, display_name_style: style.id})}
                             style={{ 
-                              padding: '1rem 1.5rem', borderRadius: '18px', border: '1.5px solid',
+                              padding: '1.2rem', borderRadius: '22px', border: '1.8px solid',
                               borderColor: formData.display_name_style === style.id ? '#5F7D4A' : '#E4EBDD',
                               background: formData.display_name_style === style.id ? '#F0F4ED' : 'white',
-                              color: '#5F7D4A', fontWeight: '900', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s', flex: 1
+                              color: '#2D3A20', fontWeight: '1000', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s', flex: 1
                             }}
                           >
                             {style.label}
                           </button>
                         ))}
                       </div>
-                   </div>
-
-                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                     <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase' }}>Ubicación Actual (Radar)</label>
-                     <div style={{ position: 'relative' }}>
-                       <MapPin size={18} style={{ position: 'absolute', right: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: '#AAA' }} />
-                       <input 
-                         type="text" 
-                         value={formData.locality}
-                         onChange={(e) => setFormData({...formData, locality: e.target.value})}
-                         placeholder="Ej: San Isidro, Buenos Aires"
-                         style={{ width: '100%', padding: '1rem 1.4rem', borderRadius: '18px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '750', fontSize: '0.9rem', color: '#2D3A20' }}
-                       />
-                     </div>
                    </div>
                 </div>
               </div>
@@ -1083,10 +1142,12 @@ function MiCuentaContent() {
                             if (!user) return;
                             const { error } = await supabase.from('profiles').update({
                               first_name: formData.first_name,
+                              last_name: formData.last_name,
                               locality: formData.locality,
                               delivery_pref: formData.delivery_pref,
                               production_interest: formData.production_interest,
                               display_name_style: formData.display_name_style,
+                              avatar_url: formData.avatar_url,
                               updated_at: new Date().toISOString()
                             }).eq('id', user.id);
                             if (error) throw error;

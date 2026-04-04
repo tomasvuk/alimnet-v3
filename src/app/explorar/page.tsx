@@ -319,6 +319,8 @@ export default function ExplorarPage() {
   const router = useRouter();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
+  const [potentialDuplicateCandidates, setPotentialDuplicateCandidates] = useState<Merchant[]>([]);
+  const [isMerchant, setIsMerchant] = useState(false);
   const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -348,7 +350,6 @@ export default function ExplorarPage() {
   const [isPillsVisible, setIsPillsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [isMerchant, setIsMerchant] = useState(false);
   const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
   const [searchCoords, setSearchCoords] = useState<{ lat: number, lng: number } | null>(null);
   const [radiusKm, setRadiusKm] = useState<number>(30);
@@ -446,45 +447,51 @@ export default function ExplorarPage() {
           setSearchCoords({ lat, lng });
           
           // --- AGENTE DE INTELIGENCIA: INSPECTOR DE DUPLICADOS (REFORZADO) ---
-          const potentialMatch = merchants.find(m => {
+          const matchingMerchants = merchants.filter(m => {
             const mName = normalizeString(m.name);
             const gName = normalizeString(name);
             
             // Similitud 1: Uno contiene al otro (clásico)
-            let isSimilarName = mName.includes(gName) || gName.includes(mName);
+            const isSimilarName = mName.includes(gName) || gName.includes(mName);
             
             // Similitud 2: Comparten palabras clave (para casos "Ayni Cocina" vs "Ayni Almacen Organico")
-            if (!isSimilarName) {
-              const mWords = mName.split(' ').filter(w => w.length > 3);
-              const gWords = gName.split(' ').filter(w => w.length > 3);
-              const sharedWords = mWords.filter(w => gWords.includes(w));
-              isSimilarName = sharedWords.length >= 2;
-            }
+            const mWords = mName.split(' ').filter(w => w.length > 3);
+            const gWords = gName.split(' ').filter(w => w.length > 3);
+            const sharedWords = mWords.filter(w => gWords.includes(w));
+            const hasSharedWords = sharedWords.length >= 2;
             
-            // Proximidad geográfica (Radio de 500 metros)
-            const mLoc = m.locations?.[0];
-            let isNear = false;
-            
-            if (mLoc?.lat && mLoc?.lng) {
-              const dist = Math.sqrt(Math.pow(mLoc.lat - lat, 2) + Math.pow(mLoc.lng - lng, 2));
-              isNear = dist < 0.005; // ~500 metros (más elástico)
-            } else if (mLoc?.locality) {
-              isNear = normalizeString(mLoc.locality) === normalizeString(place.formatted_address || '');
-            }
-            
-            return isSimilarName && isNear;
+            return isSimilarName || hasSharedWords;
           });
 
-          if (potentialMatch) {
-            console.log("Inspector: Posible duplicado detectado ->", potentialMatch.name);
-            setSelectedMerchant(potentialMatch);
-            setExternalPlaceSelected(null); // OCULTAR BANNER DE SUMAR NUEVO
-            
-            // Centrar mapa si el match tiene coordenadas
-            const mLoc = potentialMatch.locations?.[0];
-            if (mLoc?.lat) setSearchCoords({ lat: mLoc.lat, lng: mLoc.lng });
+          if (matchingMerchants.length > 0) {
+            // El Agente tiene dudas o encontró un match perfecto
+            const exactMatch = matchingMerchants.find(m => {
+              const mLoc = m.locations?.[0];
+              if (!mLoc?.lat) return false;
+              const dist = Math.sqrt(Math.pow(mLoc.lat - lat, 2) + Math.pow(mLoc.lng - lng, 2));
+              return dist < 0.005; // 500m
+            });
+
+            if (exactMatch) {
+              console.log("Inspector: Match exacto (Cercanía) detectado ->", exactMatch.name);
+              setSelectedMerchant(exactMatch);
+              setExternalPlaceSelected(null);
+              setPotentialDuplicateCandidates([]);
+            } else {
+              // Duda inteligente: Se llaman parecido pero están LEJOS
+              console.log("Inspector: Duda Inteligente detectada (Similares pero lejos)");
+              setPotentialDuplicateCandidates(matchingMerchants.slice(0, 3));
+              setExternalPlaceSelected({
+                name,
+                address: place.formatted_address,
+                lat,
+                lng,
+                placeId: place.place_id,
+                has_potential_duplicates: true
+              });
+            }
           } else if (place.types?.includes('establishment')) {
-            // No existe en nuestra base, ofrecer Cargarlo
+            // No hay nada que se le parezca, ofrecer Cargarlo directamente
             setExternalPlaceSelected({
               name,
               address: place.formatted_address,
@@ -492,11 +499,13 @@ export default function ExplorarPage() {
               lng,
               placeId: place.place_id
             });
+            setPotentialDuplicateCandidates([]);
           } else {
             setExternalPlaceSelected(null);
+            setPotentialDuplicateCandidates([]);
           }
           
-          trackClick('SEARCH_MAIN_SELECTED', { name, was_duplicate: !!potentialMatch });
+          trackClick('SEARCH_MAIN_SELECTED', { name, was_duplicate: matchingMerchants.length > 0 });
         });
       }
     };
@@ -1280,7 +1289,7 @@ export default function ExplorarPage() {
             <Compass size={16} color="var(--primary)" />
             <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center' }}>
               {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
-              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.0.7</span>
+              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.2.0</span>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
@@ -1310,32 +1319,84 @@ export default function ExplorarPage() {
               </div>
             )}
 
-            {/* OPCIÓN: SUMAR COMERCIO EXTERNO (SUGERENCIA GENERAL SI NO HAY RESULTADOS) */}
-            {filteredMerchants.length === 0 && searchQuery.trim().length > 3 && !externalPlaceSelected && (
+            {/* --- AGENTE DE INTELIGENCIA: SECCIÓN DE DUDA / SUMAR COMERCIO --- */}
+            {(filteredMerchants.length === 0 || potentialDuplicateCandidates.length > 0) && searchQuery.trim().length > 3 && (
               <div 
-                onClick={() => {
-                  const params = new URLSearchParams();
-                  params.set('name', searchQuery);
-                  router.push(`/sumar-comercio-vecino?${params.toString()}`);
-                }}
                 style={{ 
-                  padding: '1.5rem', background: 'white', borderRadius: '24px', 
-                  border: '1.5px dashed #5F7D4A', cursor: 'pointer', textAlign: 'center',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.05)'
+                  padding: '1.5rem', background: '#F8F9F5', borderRadius: '24px', 
+                  border: '1.5px dashed #5F7D4A', textAlign: 'center',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                  display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center'
                 }}>
-                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#F0F4ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'white', border: '2px solid #5F7D4A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 0 4px' }}>
                   <Plus size={24} color="#5F7D4A" />
                 </div>
-                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20' }}>¿No encontraste "{searchQuery}"?</h4>
-                <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600', lineHeight: '1.5' }}>
-                  ¡Sumalo vos mismo a la comunidad! Ayudanos a mapear la comida real.
-                </p>
-                <button style={{ 
-                  marginTop: '1.2rem', padding: '0.8rem 1.5rem', borderRadius: '14px', border: 'none',
-                  background: 'var(--primary)', color: 'white', fontWeight: '900', fontSize: '0.85rem'
-                }}>
-                  SUMAR COMERCIO
-                </button>
+
+                {potentialDuplicateCandidates.length > 0 ? (
+                  <div style={{ width: '100%' }}>
+                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20' }}>Encontramos algo parecido en la red...</h4>
+                    <p style={{ margin: '6px 0 12px', fontSize: '0.75rem', color: '#888', fontWeight: '700', lineHeight: '1.4' }}>
+                      Buscaste "{searchQuery}", ¿es alguno de estos locales?
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                      {potentialDuplicateCandidates.map(pm => (
+                        <button 
+                          key={pm.id}
+                          onClick={() => {
+                            setSelectedMerchant(pm);
+                            setPotentialDuplicateCandidates([]);
+                            setExternalPlaceSelected(null);
+                            trackClick('DUPLICATE_RESOLVED_YES', { merchant: pm.name });
+                          }}
+                          style={{
+                            padding: '12px', background: 'var(--primary-dark)', color: 'white', borderRadius: '16px', border: 'none',
+                            fontSize: '0.8rem', fontWeight: '800', cursor: 'pointer', textAlign: 'left',
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontWeight: '950' }}>{pm.name}</div>
+                            <div style={{ fontSize: '0.65rem', opacity: 0.8 }}>{pm.locations?.[0]?.locality || 'Ubicación local'}</div>
+                          </div>
+                          <ChevronRight size={16} />
+                        </button>
+                      ))}
+                      <button 
+                        onClick={() => {
+                          trackClick('DUPLICATE_RESOLVED_NO', { name: searchQuery });
+                          setPotentialDuplicateCandidates([]);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#888', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}
+                      >
+                        No, es uno nuevo (Cargar al mapa)
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20' }}>¿No encontraste "{searchQuery}"?</h4>
+                    <p style={{ margin: '8px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600', lineHeight: '1.5' }}>
+                      ¡Sumalo vos mismo a nuestra red soberana! Ayudanos a mapear la comida real.
+                    </p>
+                    <button 
+                      onClick={() => {
+                        if (externalPlaceSelected) {
+                          trackClick('CTA_SUMAR_NEW_GOOGLE', { name: externalPlaceSelected.name });
+                          router.push(`/unirse?placeId=${externalPlaceSelected.placeId}&name=${encodeURIComponent(externalPlaceSelected.name)}&address=${encodeURIComponent(externalPlaceSelected.address)}&lat=${externalPlaceSelected.lat}&lng=${externalPlaceSelected.lng}`);
+                        } else {
+                          trackClick('CTA_SUMAR_NEW_BLANK', { query: searchQuery });
+                          router.push(`/unirse?name=${encodeURIComponent(searchQuery)}`);
+                        }
+                      }}
+                      style={{ 
+                        marginTop: '1.2rem', padding: '0.9rem 1.8rem', borderRadius: '16px', border: 'none',
+                        background: '#5F7D4A', color: 'white', fontWeight: '950', fontSize: '0.85rem', cursor: 'pointer',
+                        boxShadow: '0 8px 15px rgba(95, 125, 74, 0.25)'
+                      }}>
+                      SUMAR COMERCIO
+                    </button>
+                  </>
+                )}
               </div>
             )}
 
