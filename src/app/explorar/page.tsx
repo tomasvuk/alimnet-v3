@@ -674,9 +674,12 @@ export default function ExplorarPage() {
     } else if (searchLocation.trim().length > 0) {
       // Fallback a búsqueda por texto literal en localidad si no hay mapeo de región ni coords
       const loc = normalizeString(searchLocation);
-      result = result.filter(m => 
-        m.locations?.some(l => normalizeString(l.locality || '').includes(loc))
-      );
+      // Solo filtramos si hay un texto real que buscar y no es una búsqueda vacía o genérica
+      if (loc && loc !== 'buenos aires') {
+        result = result.filter(m => 
+          m.locations?.some(l => normalizeString(l.locality || '').includes(loc))
+        );
+      }
     }
 
     // Filtrado por Productos (Verduras, Frutas, Carne...)
