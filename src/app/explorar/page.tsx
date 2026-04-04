@@ -1159,19 +1159,25 @@ export default function ExplorarPage() {
           </div>
         </section>
 
-        {/* MAPA - GLOBAL Y SIN MARGENES */}
+        {/* MAPA - SIEMPRE CARGADO Y SIN ESPACIOS (Z-STRATEGY) */}
         <section 
           ref={mapSectionRef}
           className="map-section" 
           style={{ 
             flex: 1, 
-            position: 'relative',
-            display: (isMobile && mobileView !== 'map') ? 'none' : 'block',
+            position: isMobile ? 'absolute' : 'relative',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: isMobile ? '100%' : 'calc(100vh - 120px)',
             width: '100%',
-            height: isMobile ? 'calc(100vh - 180px)' : 'calc(100vh - 120px)',
             background: '#EAEDE8',
+            zIndex: (isMobile && mobileView !== 'map') ? -10 : 2,
+            opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
+            pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto',
             transition: 'opacity 0.2s ease-in-out',
-            zIndex: 1
+            overflow: 'hidden'
           }}
         >
           {/* BOTÓN SUMAR COMERCIO - TOP CENTER MOBILE PREMIUM */}
