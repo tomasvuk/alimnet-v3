@@ -177,7 +177,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
                 type="text" 
                 value={locality} 
                 onChange={e => setLocality(e.target.value)}
-                autoComplete="new-password"
+                autoComplete="off"
                 placeholder="Ej: Pilar, Buenos Aires"
                 style={{ 
                   width: '100%', padding: '1.2rem 1.5rem', borderRadius: '20px', 
@@ -255,7 +255,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
         )}
       </div>
       
-      <style jsx>{`
+      <style jsx global>{`
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(30px) scale(0.95); }
           to { opacity: 1; transform: translateY(0) scale(1); }
@@ -275,10 +275,19 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
           to { transform: rotate(360deg); }
         }
         .pac-container {
-          z-index: 20000 !important;
+          z-index: 99999 !important;
           border-radius: 12px;
-          border: none;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+          border: none !important;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
+          margin-top: 5px;
+          font-family: inherit !important;
+        }
+        .pac-item {
+          padding: 12px 16px !important;
+          cursor: pointer !important;
+        }
+        .pac-item:hover {
+          background-color: #f9fafb !important;
         }
       `}</style>
     </div>

@@ -70,10 +70,11 @@ async function sendDonorThankYouEmail(donorEmail: string, donorName: string, amo
                 html: `
                     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6; color: #333;">
                         <div style="padding: 20px; background-color: #f9fbf7; border-radius: 12px; border: 1px solid #e1e8db;">
-                            <h2 style="color: #2D3A20; margin-top: 0;">${testLabel}¡Hola ${donorName.split(' ')[0]}!</h2>
+                            <h2 style="color: #2D3A20; margin-top: 0;">${testLabel}¡Hola ${donorName.split(' ')[0]}! 👋</h2>
                             <p>Te escribo personalmente para agradecerte enormemente por tu aporte de <strong>${formatted}</strong> a Alimnet.</p>
-                            <p>Tu apoyo es lo que nos permite sostener esta red y seguir creciendo. Para mí, Alimnet no es solo una plataforma, es un compromiso con la soberanía comercial y con los productores que hacen que esto sea posible. Saber que hay personas como vos que valoran este esfuerzo significa todo.</p>
-                            <p>Gracias por confiar, por sostener y por ser parte de este camino.</p>
+                            <p>Para mí, Alimnet es mucho más que una plataforma: es un movimiento comunitario para unir puntas, facilitar el acceso a alimentos locales y achicar las distancias (y la huella) entre el productor y nuestra mesa. Tu apoyo es el motor que nos permite seguir conectando información y abriendo nuevas posibilidades de consumo más conscientes y placenteras. ✨</p>
+                            <p>Saber que hay personas como vos, que valoran este encuentro y se suman a este camino de transformación cultural, significa todo para este proyecto.</p>
+                            <p>Gracias por confiar, por sostener y por ser parte de Alimnet. 🌿</p>
                             <p style="margin-bottom: 0;">Un gran abrazo,</p>
                             <p style="margin-top: 5px; font-weight: bold; color: #5F7D4A;">Tomás Vukojicic</p>
                             <p style="font-size: 0.8rem; color: #888;">Fundador de Alimnet</p>
