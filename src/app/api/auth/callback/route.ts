@@ -16,9 +16,14 @@ export async function GET(request: Request) {
     if (!error && data.session) {
       const response = NextResponse.redirect(`${origin}${next}`);
       
-      // Manually set the cookie for the middleware
+      // Optimizamos la cookie para móviles (Máximo 4kb)
+      const essentialSession = {
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token
+      };
+      
       const cookieName = 'sb-keagrrvtzmsukcmzxqrl-auth-token';
-      const cookieValue = encodeURIComponent(JSON.stringify(data.session));
+      const cookieValue = encodeURIComponent(JSON.stringify(essentialSession));
       
       response.cookies.set(cookieName, cookieValue, {
         path: '/',
