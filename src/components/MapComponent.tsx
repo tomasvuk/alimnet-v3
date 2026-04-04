@@ -5,47 +5,42 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, ZoomControl, us
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Subcomponente para arreglar el re-dibujado en smartphones (Múltiples disparos para asegurar el área)
+// GPS Interno para mover el mapa suavemente sin reiniciarlo
+const ChangeView = ({ center, zoom }: { center: [number, number], zoom: number }) => {
+  const map = useMap();
+  React.useEffect(() => {
+    map.setView(center, zoom, { animate: true, duration: 1 });
+  }, [center, zoom, map]);
+  return null;
+};
+
+// Subcomponente para arreglar el re-dibujado en smartphones (Optimizado para no laggear)
 const MapResizer = () => {
   const map = useMap();
   React.useEffect(() => {
     if (!map) return;
 
+    let timeoutId: NodeJS.Timeout;
     const trigger = () => {
       map.invalidateSize();
-      window.dispatchEvent(new Event('resize')); // Shock eléctrico global
-      map.panBy([0, 0], { animate: false }); // Forzar carga de tiles
+      // Solo forzar carga si es necesario, sin disparar eventos globales pesados
     };
 
-    // 1. Observer para detectar cambios reales en el tamaño del contenedor (display: none -> block)
+    // 1. Observer para detectar cambios reales en el tamaño
     const resizeObserver = new ResizeObserver(() => {
-      trigger();
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(trigger, 100);
     });
 
     const container = map.getContainer();
     if (container) resizeObserver.observe(container);
 
-    // 2. Disparos manuales preventivos
-    const timers = [
-      setTimeout(trigger, 100),
-      setTimeout(trigger, 500),
-      setTimeout(trigger, 1500),
-      setTimeout(trigger, 3000) // Un extra para conexiones lentas
-    ];
+    // 2. Un único disparo inicial para asegurar
+    timeoutId = setTimeout(trigger, 250);
 
-    // 3. Salvaguarda para Mobile: Detectar cuando el componente ganan visibilidad real
-    const visibilityHandler = () => {
-      if (document.visibilityState === 'visible') trigger();
-    };
-    document.addEventListener('visibilitychange', visibilityHandler);
-    
-    window.addEventListener('resize', trigger);
-    
     return () => {
       resizeObserver.disconnect();
-      timers.forEach(t => clearTimeout(t));
-      window.removeEventListener('resize', trigger);
-      document.removeEventListener('visibilitychange', visibilityHandler);
+      clearTimeout(timeoutId);
     };
   }, [map]);
   return null;
@@ -103,21 +98,15 @@ interface MapProps {
 }
 
 const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down') => void }) => {
-  const prevLat = React.useRef<number | null>(null);
+  const lastInteraction = React.useRef<number>(0);
 
   useMapEvents({
-    dragstart: (e) => {
-      prevLat.current = e.target.getCenter().lat;
-    },
     drag: (e) => {
-      if (prevLat.current === null) return;
-      const currentLat = e.target.getCenter().lat;
-      const diff = currentLat - prevLat.current;
+      const now = Date.now();
+      if (now - lastInteraction.current < 200) return; // Throttle fuerte para fluidez
       
-      if (Math.abs(diff) > 0.0001) { // Pequeño umbral para evitar saltos
-        onInteraction?.(diff < 0 ? 'up' : 'down');
-        prevLat.current = currentLat;
-      }
+      onInteraction?.('up'); // Siempre ocultar al mover por defecto para ganar espacio
+      lastInteraction.current = now;
     },
     zoomstart: () => onInteraction?.('up'),
   });
@@ -126,16 +115,27 @@ const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down
 
 const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onInteraction, onMarkerClick }: MapProps) => {
   return (
-    <div style={{ height: '100%', width: '100%', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
+    <div style={{ 
+      height: '100%', 
+      width: '100%', 
+      borderRadius: '16px', 
+      overflow: 'hidden', 
+      border: '1px solid var(--border)', 
+      boxShadow: 'var(--shadow-md)',
+      willChange: 'transform', // Aceleración por Hardware
+      transform: 'translateZ(0)' // Forzar capa de composición GPU
+    }}>
       <MapContainer 
-        key={`map-${center[0]}-${center[1]}-${zoom}`}
+        key="main-persistent-map" // KEY ESTÁTICO PARA QUE NO SE REINICIE
         center={center} 
         zoom={zoom} 
         scrollWheelZoom={true}
         zoomControl={false}
         attributionControl={false}
         style={{ height: '100%', width: '100%' }}
+        preferCanvas={true} // Usar Canvas en lugar de SVG para los círculos (más rápido)
       >
+        <ChangeView center={center} zoom={zoom} />
         <MapEvents onInteraction={onInteraction} />
         <MapResizer />
         <ZoomControl position="bottomright" />
