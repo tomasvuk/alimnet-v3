@@ -186,26 +186,28 @@ export default function Header() {
             
             <div style={{ height: '1.5px', background: '#F8F9F5', margin: '0.8rem 0.5rem' }} />
             
+            {/* ACCIONES DE SESIÓN (MODALIDAD FUERZA BRUTA) */}
+            <button 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                removeAuthCookie();
+                window.location.href = '/';
+              }}
+              style={{ 
+                marginTop: '1rem', padding: '12px 18px', borderRadius: '20px', border: '1.5px solid #fee2e2',
+                background: '#fef2f2', color: '#dc2626', fontWeight: '1000', fontSize: '0.85rem', 
+                display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', textAlign: 'left',
+                boxShadow: '0 8px 20px rgba(220, 38, 38, 0.08)'
+              }}
+            >
+              <LogOut size={20} strokeWidth={3} />
+              CERRAR SESIÓN
+            </button>
+
+            <div style={{ height: '1.5px', background: '#F8F9F5', margin: '1rem 0.5rem' }} />
+
             <MenuItem href="/perfil" icon={<MapIcon size={18} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} variant="text-only" />
             <MenuItem href="/registro-comercio" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="text-only" />
-            
-            {user && (
-              <button 
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  removeAuthCookie();
-                  window.location.href = '/';
-                }}
-                style={{ 
-                  marginTop: '0.8rem', padding: '12px 18px', borderRadius: '18px', border: '1px solid #fee2e2',
-                  background: '#fef2f2', color: '#dc2626', fontWeight: '950', fontSize: '0.8rem', 
-                  display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', textAlign: 'left'
-                }}
-              >
-                <LogOut size={18} />
-                CERRAR SESIÓN
-              </button>
-            )}
             
           </div>
         </>
