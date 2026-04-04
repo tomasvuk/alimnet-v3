@@ -18,14 +18,26 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
   const [preferences, setPreferences] = useState<string[]>([]);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const [gmapsReady, setGmapsReady] = useState(false);
+
   React.useEffect(() => {
     if (step === 2 && typeof window !== 'undefined') {
+      // 1. Force Load Script if not present
+      if (!window.google?.maps?.places) {
+        console.log("Onboarding: Forzando carga de script Google Maps");
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
+        script.async = true;
+        document.head.appendChild(script);
+      }
+
       let attempts = 0;
       const initAutocomplete = () => {
         const target = inputRef.current || document.getElementById('onboarding-locality-input') as HTMLInputElement;
         
         if (target && window.google?.maps?.places) {
           console.log("Onboarding: Inicializando Google Places Autocomplete");
+          setGmapsReady(true);
           const autocomplete = new window.google.maps.places.Autocomplete(target, {
             types: ['geocode', 'establishment'], 
             componentRestrictions: { country: 'ar' },
@@ -47,7 +59,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
         if (initAutocomplete() || attempts > 50) {
           clearInterval(interval);
         }
-      }, 200);
+      }, 300);
 
       return () => clearInterval(interval);
     }
@@ -171,10 +183,13 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
                 placeholder="Ej: Pilar, Buenos Aires"
                 style={{ 
                   width: '100%', padding: '1.2rem 1.5rem', borderRadius: '20px', 
-                  border: '2px solid #E4EBDD', background: 'white', fontSize: '1.1rem', 
-                  outline: 'none'
+                  border: gmapsReady ? '2px solid #3B82F6' : '2px solid #E4EBDD', 
+                  background: 'white', fontSize: '1.1rem', 
+                  outline: 'none',
+                  boxShadow: gmapsReady ? '0 0 10px rgba(59, 130, 246, 0.2)' : 'none'
                 }}
               />
+              {gmapsReady && <div style={{ fontSize: '0.7rem', color: '#3B82F6', marginTop: '4px', fontWeight: 'bold' }}>Google Maps conectado</div>}
             </div>
             
             <button 
