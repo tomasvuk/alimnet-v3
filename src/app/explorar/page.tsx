@@ -562,8 +562,8 @@ export default function ExplorarPage() {
     try {
       const { data, error } = await supabase
         .from('merchants')
-        .select('*, locations(*)')
-        .eq('status', 'active');
+        .select('*, locations(*)');
+        // .eq('status', 'active'); // TEMPORALMENTE DESHABILITADO PARA ASEGURAR VISIBILIDAD
 
       if (error) {
         console.error('[SUPABASE ERROR]:', error);
