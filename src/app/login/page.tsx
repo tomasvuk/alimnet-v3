@@ -15,25 +15,20 @@ export default function LoginPage() {
 
   React.useEffect(() => {
     async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        console.log("Sesión existente detectada for:", session.user.id);
-        // ASEGURAR COOKIE PARA SESIÓN EXISTENTE (Evita loop de middleware)
-        setAuthCookie(session);
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (session.user.email === 'info@alimnet.com' || profile?.role === 'admin') {
-          window.location.href = '/admin';
-        } else if (profile?.role === 'merchant') {
-          window.location.href = '/perfil';
-        } else {
-          window.location.href = '/mi-cuenta';
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          console.log("Sesión activa detectada, redirigiendo...");
+          setAuthCookie(session);
+          
+          if (session.user.email === 'info@alimnet.com') {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/mi-cuenta';
+          }
         }
+      } catch (e) {
+        console.error("Error en checkSession:", e);
       }
     }
     checkSession();
@@ -76,32 +71,28 @@ export default function LoginPage() {
         }
 
         // Redirección inteligente según rol para otros usuarios
+        console.log("Consultando rol para:", data.user.id);
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', data.user.id)
           .single();
 
-        if (profileError) {
-          console.error("Error fetching profile:", profileError);
-          console.log("Redirigiendo a /mi-cuenta por error de perfil");
+        if (profileError || !profile) {
+          console.error("Error/Falta perfil:", profileError);
           window.location.href = '/mi-cuenta';
           return;
         }
 
-        console.log("Perfil encontrado, rol:", profile?.role);
-        if (profile?.role === 'admin') {
-          console.log("Redirigiendo a /admin (Hard redirect)");
+        console.log("Perfil encontrado, rol:", profile.role);
+        if (profile.role === 'admin') {
           window.location.href = '/admin';
-        } else if (profile?.role === 'merchant') {
-          console.log("Redirigiendo a /perfil (Hard redirect)");
+        } else if (profile.role === 'merchant') {
           window.location.href = '/perfil';
         } else {
-          console.log("Redirigiendo a /mi-cuenta (Hard redirect)");
           window.location.href = '/mi-cuenta';
         }
       } else {
-        console.log("Redirigiendo a /mi-cuenta (Hard redirect)");
         window.location.href = '/mi-cuenta';
       }
     } catch (err: any) {
