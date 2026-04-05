@@ -29,7 +29,13 @@ import ImageCropper from '@/components/ImageCropper';
 export default function MiCuentaPage() {
   return (
     <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>}>
-      <MiCuentaContent />
+      <div style={{ position: 'relative' }}>
+        {/* Etiqueta de Versión para verificar Deploy */}
+        <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
+          v3.1 - Foto Fix Active
+        </div>
+        <MiCuentaContent />
+      </div>
     </Suspense>
   );
 }
@@ -907,40 +913,41 @@ function MiCuentaContent() {
                            background: merchantFormData.logo_url ? `url(${merchantFormData.logo_url}) center/cover` : '#F0F4ED',
                            border: '1px solid #E4EBDD', flexShrink: 0
                          }} />
+                        <div style={{ position: 'relative', flex: 1 }}>
                           <button 
-                            onClick={(e) => {
-                              e.preventDefault();
-                              console.log("Triggering merchant logo...");
-                              merchantLogoInputRef.current?.click();
-                            }}
-                            style={{ 
-                              flex: 1, padding: '0.8rem', borderRadius: '12px', border: '1px dashed #5F7D4A', 
-                              background: '#F8F9F5', cursor: 'pointer', textAlign: 'center',
-                              fontSize: '0.75rem', fontWeight: '800', color: '#5F7D4A'
-                            }}
-                          >
-                            {saving ? 'Subiendo...' : 'SUBIR LOGO'}
-                          </button>
+                             style={{ 
+                               width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px dashed #5F7D4A', 
+                               background: '#F8F9F5', cursor: 'pointer', textAlign: 'center',
+                               fontSize: '0.75rem', fontWeight: '800', color: '#5F7D4A'
+                             }}
+                           >
+                             {saving ? 'Subiendo...' : 'SUBIR LOGO'}
+                           </button>
+                           <input 
+                             ref={merchantLogoInputRef}
+                             type="file" 
+                             style={{ 
+                               position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+                               opacity: 0, cursor: 'pointer', zIndex: 10 
+                             }} 
+                             accept="image/*" 
+                             onChange={(e) => {
+                               const file = e.target.files?.[0];
+                               if (!file) return;
+                               console.log("File detected:", file.name);
+                               if (file.size > 2 * 1024 * 1024) {
+                                 setMessage({ type: 'error', text: 'Imagen muy pesada. Máximo 2MB.' });
+                                 return;
+                               }
+                               const reader = new FileReader();
+                               reader.onload = () => setCroppingImage({ url: reader.result as string, type: 'merchant_logo', aspect: 1 });
+                               reader.readAsDataURL(file);
+                               e.target.value = '';
+                             }} 
+                           />
+                        </div>
                       </div>
-                      <input 
-                        ref={merchantLogoInputRef}
-                        type="file" 
-                        style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }} 
-                        accept="image/*" 
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          console.log("File detected:", file.name);
-                          if (file.size > 2 * 1024 * 1024) {
-                            setMessage({ type: 'error', text: 'Imagen muy pesada. Máximo 2MB.' });
-                            return;
-                          }
-                          const reader = new FileReader();
-                          reader.onload = () => setCroppingImage({ url: reader.result as string, type: 'merchant_logo', aspect: 1 });
-                          reader.readAsDataURL(file);
-                          e.target.value = '';
-                        }} 
-                      />
+
 
                     </div>
                     <div>
@@ -1029,13 +1036,9 @@ function MiCuentaContent() {
                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
                             <button className="button-primary-small" onClick={() => setShowAvatarPicker(true)} style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
                             
-                            <button 
+                            <div style={{ position: 'relative' }}>
+                              <button 
                                 className="hover-scale"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  console.log("Triggering avatar upload...");
-                                  avatarInputRef.current?.click();
-                                }}
                                 style={{ 
                                   display: 'inline-block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
                                   border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '1000'
@@ -1046,7 +1049,10 @@ function MiCuentaContent() {
                               <input 
                                 ref={avatarInputRef}
                                 type="file" 
-                                style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }} 
+                                style={{ 
+                                  position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+                                  opacity: 0, cursor: 'pointer', zIndex: 10 
+                                }} 
                                 accept="image/*"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
@@ -1063,6 +1069,8 @@ function MiCuentaContent() {
                                   e.target.value = '';
                                 }}
                               />
+                            </div>
+
 
 
                          </div>

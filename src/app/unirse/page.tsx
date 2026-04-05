@@ -338,7 +338,7 @@ export default function JoinPage() {
                     {logo ? (
                       <>
                         <img src={logo.url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <div onClick={(e) => { e.stopPropagation(); removeImage(0, 'logo'); }} style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', padding: '4px' }}><X size={12} /></div>
+                        <div onClick={(e) => { e.stopPropagation(); removeImage(0, 'logo'); }} style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', padding: '4px', zIndex: 20 }}><X size={12} /></div>
                       </>
                     ) : (
                       <>
@@ -346,18 +346,22 @@ export default function JoinPage() {
                         <span style={{ fontSize: '0.7rem', fontWeight: '800', marginTop: '8px' }}>LOGO</span>
                       </>
                     )}
+                    <input 
+                      ref={logoInputRef}
+                      type="file" 
+                      style={{ 
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+                        opacity: 0, cursor: 'pointer', zIndex: 10 
+                      }}
+                      accept="image/*" 
+                      onChange={(e) => {
+                        console.log("Onboarding Logo triggered");
+                        handleFileSelect(e, 'logo');
+                        e.target.value = '';
+                      }} 
+                    />
                   </div>
-                  <input 
-                    ref={logoInputRef}
-                    type="file" 
-                    style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }}
-                    accept="image/*" 
-                    onChange={(e) => {
-                      console.log("Onboarding Logo triggered");
-                      handleFileSelect(e, 'logo');
-                      e.target.value = '';
-                    }} 
-                  />
+
 
 
                   {/* GALLERY UPLOAD */}
@@ -398,19 +402,23 @@ export default function JoinPage() {
                         )}
                       </>
                     )}
+                    <input 
+                      ref={galleryInputRef}
+                      type="file" 
+                      style={{ 
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+                        opacity: 0, cursor: 'pointer', zIndex: 10 
+                      }}
+                      multiple 
+                      accept="image/*" 
+                      onChange={(e) => {
+                        console.log("Onboarding Gallery triggered");
+                        handleFileSelect(e, 'gallery');
+                        e.target.value = '';
+                      }} 
+                    />
                   </div>
-                  <input 
-                    ref={galleryInputRef}
-                    type="file" 
-                    style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }}
-                    multiple 
-                    accept="image/*" 
-                    onChange={(e) => {
-                      console.log("Onboarding Gallery triggered");
-                      handleFileSelect(e, 'gallery');
-                      e.target.value = '';
-                    }} 
-                  />
+
 
                 </div>
 
