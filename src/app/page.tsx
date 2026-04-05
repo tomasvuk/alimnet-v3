@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from 'next/navigation';
 import Header from "@/components/Header";
 import { LogIn, Rocket, UserPlus, MapPin, CheckCircle, Heart, Instagram, Linkedin, Mail, Store, UtensilsCrossed, ChefHat, ArrowRight } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const ProductorIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,6 +18,30 @@ const ProductorIcon = ({ size = 20 }: { size?: number }) => (
 
 export default function Home() {
   const router = useRouter();
+  const [projectCount, setProjectCount] = React.useState<number>(100);
+
+  React.useEffect(() => {
+    async function fetchCount() {
+      const { count } = await supabase
+        .from('merchants')
+        .select('*', { count: 'exact', head: true });
+      
+      if (count) {
+        // Lógica de redondeo solicitada:
+        // Si < 1000: de 100 en 100 (ej: 246 -> 200)
+        // Si >= 1000: de 500 en 500 (ej: 1200 -> 1000, 1600 -> 1500)
+        let rounded = 100;
+        if (count < 1000) {
+          rounded = Math.floor(count / 100) * 100;
+        } else {
+          rounded = Math.floor(count / 500) * 500;
+        }
+        setProjectCount(rounded || 100);
+      }
+    }
+    fetchCount();
+  }, []);
+
   return (
     <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--background)", color: "var(--text-primary)", width: '100vw', overflowX: 'hidden' }}>
       
@@ -101,16 +126,24 @@ export default function Home() {
 
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
-              {[1,2,3,4,5].map(i => (
+              {[
+                "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=150", 
+                "https://images.unsplash.com/photo-1584281722573-030a08e70a96?auto=format&fit=crop&q=80&w=150",
+                "https://images.unsplash.com/photo-1622329712061-00455dbd7cda?auto=format&fit=crop&q=80&w=150",
+                "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?auto=format&fit=crop&q=80&w=150",
+                "https://images.unsplash.com/photo-1601275224320-94ed187f3b89?auto=format&fit=crop&q=80&w=150"
+              ].map((src, i) => (
                 <div key={i} style={{ 
-                  width: "36px", height: "36px", borderRadius: "50%", border: "3px solid white", 
-                  marginLeft: i === 1 ? 0 : "-10px", overflow: "hidden", boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+                  width: "40px", height: "40px", borderRadius: "50%", border: "3px solid white", 
+                  marginLeft: i === 0 ? 0 : "-12px", overflow: "hidden", 
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.12)", flexShrink: 0,
+                  aspectRatio: '1/1'
                 }}>
-                  <img src={`https://i.pravatar.cc/100?img=${i+20}`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img src={src} alt="Socio Alimnet" style={{ width: "100%", height: "100%", objectFit: "cover", display: 'block' }} />
                 </div>
               ))}
-              <div style={{ marginLeft: "1rem", fontWeight: "900", fontSize: "0.85rem", color: "var(--primary-dark)" }}>
-                Más de <span style={{ color: "var(--primary)" }}>+100 proyectos</span> ya son parte.
+              <div style={{ marginLeft: "1.2rem", fontWeight: "950", fontSize: "0.9rem", color: "var(--primary-dark)", letterSpacing: '-0.01em' }}>
+                Más de <span style={{ color: "var(--primary)" }}>+{projectCount} proyectos</span> ya son parte.
               </div>
             </div>
           </div>
