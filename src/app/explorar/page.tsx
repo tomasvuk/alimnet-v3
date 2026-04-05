@@ -1386,7 +1386,7 @@ export default function ExplorarPage() {
             className="toggle-view-btn"
             onClick={() => setMobileView(mobileView === 'list' ? 'map' : 'list')}
             style={{ 
-              position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', zIndex: 3000, 
+              position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', zIndex: 10001, 
               background: '#2D3A20', color: 'white', border: 'none', borderRadius: '30px', padding: '1rem 2rem',
               boxShadow: '0 12px 30px rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', gap: '10px',
               fontWeight: '900', fontSize: '0.9rem', letterSpacing: '0.05em'
@@ -1556,19 +1556,17 @@ export default function ExplorarPage() {
           ref={mapSectionRef}
           className="map-section" 
           style={{ 
-            flex: 1, 
-            position: isMobile ? (selectedMerchant ? 'relative' : 'absolute') : 'relative',
+            background: '#EAEDE8',
+            // NUEVO: En mobile, si el mapa está activo, es un overlay fijo total
+            zIndex: (isMobile && mobileView === 'map') ? 9999 : (isMobile ? -10 : 2),
+            opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
+            pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto',
+            position: (isMobile && mobileView === 'map') ? 'fixed' : 'relative',
             top: 0,
             left: 0,
-            right: 0,
-            bottom: 0,
-            height: '100%',
-            width: '100%',
-            background: '#EAEDE8',
-            zIndex: (isMobile && mobileView !== 'map') ? -10 : 100, // Z-Index competitivo en mobile
-            opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
-            pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto', // Evitar clics fantasma
-            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            width: '100vw',
+            height: (isMobile && mobileView === 'map') ? '100dvh' : '100%',
+            transition: 'opacity 0.3s ease-in-out',
             overflow: 'hidden'
           }}
         >
@@ -1597,16 +1595,18 @@ export default function ExplorarPage() {
           </button>
           {hasMounted && (
             <MapComponent
-              providers={filteredMerchants.flatMap(m => (m.locations || []).map(l => ({
-                id: `${m.id}-${l.id}`,
-                name: m.name,
-                category: m.type,
-                type: m.type,
-                location_lat: l.lat,
-                location_lng: l.lng,
-                city_zone: l.locality,
-                is_exact_location: true
-              })))}
+              providers={filteredMerchants.flatMap(m => (m.locations || [])
+                .filter(l => l.lat && l.lng) // FILTRO DE SEGURIDAD (V-9.5.20)
+                .map(l => ({
+                  id: `${m.id}-${l.id}`,
+                  name: m.name,
+                  category: m.type,
+                  type: m.type,
+                  location_lat: l.lat,
+                  location_lng: l.lng,
+                  city_zone: l.locality,
+                  is_exact_location: true
+                })))}
               center={searchCoords ? [searchCoords.lat, searchCoords.lng] : undefined}
               zoom={searchCoords ? 13 : 11}
               onInteraction={(dir) => {
