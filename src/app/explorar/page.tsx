@@ -202,7 +202,7 @@ function IdentityWallModal({ isOpen, user, onComplete }: { isOpen: boolean, user
   );
 }
 
-function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount, userProfile, router }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number, userProfile: any, router: any }) {
+function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount, userProfile, router, isStyleActive, setIsStyleActive }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number, userProfile: any, router: any, isStyleActive: boolean, setIsStyleActive: (v:boolean)=>void }) {
   // --- Soporte para tecla ESC ---
   useEffect(() => {
     if (!isOpen) return;
@@ -280,6 +280,13 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <button 
                 onClick={() => {
+                  if (!userProfile?.preferences || userProfile.preferences.length === 0) {
+                    alert("¡Tu radar de estilo está vacío! 🍱\nConfigurá tus preferencias en tu perfil para filtrar con un solo click.");
+                    router.push('/mi-cuenta?tab=estilo');
+                    onClose();
+                    return;
+                  }
+
                   const mapping: Record<string, string> = {
                     'Gluten Free': 'Sin gluten',
                     'Sugar Free': 'Sin azúcar',
@@ -291,13 +298,10 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
                     'Orgánico': 'Orgánico'
                   };
                   
-                  // Detectar si el estilo YA está aplicado completamente
-                  const isStyleApplied = userProfile.preferences && userProfile.preferences.length > 0 && 
-                    userProfile.preferences.every((p: string) => selectedFilters.includes(mapping[p] || p));
-
-                  if (isStyleApplied) {
+                  if (isStyleActive) {
                     // SI YA ESTÁ: Quitar todo (Volver a neutro)
                     clearAll();
+                    setIsStyleActive(false);
                   } else {
                     // SI NO ESTÁ: Limpiar primero y aplicar EL ESTILO DEL PERFIL PURO
                     clearAll(); 
@@ -312,16 +316,24 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
                         if (!selectedFilters.includes(cat)) toggleFilter(cat);
                       });
                     }
+                    setIsStyleActive(true);
                   }
                   onClose();
                 }}
                 style={{
-                  width: '100%', padding: '1rem', background: '#F8F9F5', border: '2px dashed #5F7D4A',
-                  borderRadius: '16px', color: '#3F5232', fontWeight: '900', fontSize: '0.9rem',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                  width: '100%', padding: '1.2rem', 
+                  background: isStyleActive ? '#2D3A20' : '#F8F9F5', 
+                  border: isStyleActive ? 'none' : '2px dashed #5F7D4A',
+                  borderRadius: '16px', 
+                  color: isStyleActive ? 'white' : '#3F5232', 
+                  fontWeight: '1000', fontSize: '0.9rem',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                  boxShadow: isStyleActive ? '0 10px 25px rgba(45,58,32,0.2)' : 'none',
+                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
               >
-                {userProfile.preferences.some((p: string) => selectedFilters.includes(p)) ? '❌ Quitar mis preferencias' : '✨ Aplicar mi estilo (acorde a mi perfil)'}
+                {isStyleActive ? <Check size={18} /> : null}
+                {isStyleActive ? 'MODO ESTILO ACTIVADO' : '✨ Aplicar mi estilo (acorde a mi perfil)'}
               </button>
               
               <button 
@@ -416,6 +428,7 @@ export default function ExplorarPage() {
   const [radiusKm, setRadiusKm] = useState<number>(30);
   const [finalCoords, setFinalCoords] = useState<{ lat: number, lng: number } | null>(null);
   const [showIdentityWall, setShowIdentityWall] = useState(false);
+  const [isStyleActive, setIsStyleActive] = useState(false);
   const merchantsRef = React.useRef<Merchant[]>([]);
 
   useEffect(() => {
@@ -651,9 +664,8 @@ export default function ExplorarPage() {
           if (!pData.first_name || !pData.last_name) {
             setShowIdentityWall(true);
           }
-          if (pData.locality) {
-            setSearchLocation(pData.locality);
-          }
+          // Limpiamos la localidad del buscador inicial (Pedida por Tomas V-9.3.0)
+          // setInitialLocationFromProfile(pData.locality); -> Obtenida de forma silenciosa por las coordenadas
         } else {
           setShowIdentityWall(true);
         }
@@ -1383,7 +1395,7 @@ export default function ExplorarPage() {
             <Compass size={16} color="var(--primary)" />
             <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center' }}>
               {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
-              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.2.2</span>
+              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.3.0</span>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
@@ -1658,6 +1670,8 @@ export default function ExplorarPage() {
         resultCount={filteredMerchants.length}
         userProfile={userProfile}
         router={router}
+        isStyleActive={isStyleActive}
+        setIsStyleActive={setIsStyleActive}
       />
       {/* ONBOARDING MODAL PREMIUM */}
       {showOnboarding && user && (
