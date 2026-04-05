@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.5.X - Mobile Layout & Early Feedback
+          v3.5.X - Global Toasts & Label Fix
         </div>
         <MiCuentaContent />
       </div>
@@ -448,6 +448,21 @@ function MiCuentaContent() {
       }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '5rem' }}>
           
+          {message && (
+            <div style={{ 
+              position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+              zIndex: 10000, padding: '1rem 2rem', borderRadius: '16px', 
+              background: message.type === 'success' ? '#EEF8F1' : '#FFF2F2',
+              border: `1px solid ${message.type === 'success' ? '#27AE60' : '#D32F2F'}`,
+              color: message.type === 'success' ? '#27AE60' : '#D32F2F',
+              fontWeight: '1000', fontSize: '0.9rem', textAlign: 'center',
+              boxShadow: '0 15px 40px rgba(0,0,0,0.1)',
+              display: 'flex', alignItems: 'center', gap: '10px'
+            }}>
+              {message.type === 'success' ? '✨ ' : '⚠️ '}
+              {message.text}
+            </div>
+          )}
           {!user && !loading && (
             <div style={{ 
               marginBottom: '2rem', padding: '1.5rem 2rem', background: 'white', borderRadius: '24px', 
