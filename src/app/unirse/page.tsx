@@ -319,12 +319,11 @@ export default function JoinPage() {
 
                 <div style={{ display: 'flex', gap: '2rem', marginBottom: '2.5rem' }}>
                   {/* LOGO UPLOAD */}
-                  <div 
+                  <label 
+                    htmlFor="logo-upload"
                     onDragOver={(e) => onDragOver(e, 'logo')}
                     onDragLeave={() => onDragLeave('logo')}
                     onDrop={(e) => onDrop(e, 'logo')}
-                    onClick={() => logoInputRef.current?.click()}
-
                     style={{ 
                       width: '120px', height: '120px', 
                       background: logo ? 'white' : (isDragging.logo ? '#F0F4ED' : '#F8F9F5'), 
@@ -338,7 +337,7 @@ export default function JoinPage() {
                     {logo ? (
                       <>
                         <img src={logo.url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <div onClick={(e) => { e.stopPropagation(); removeImage(0, 'logo'); }} style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', padding: '4px', zIndex: 20 }}><X size={12} /></div>
+                        <div onClick={(e) => { e.stopPropagation(); e.preventDefault(); removeImage(0, 'logo'); }} style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', padding: '4px', zIndex: 20 }}><X size={12} /></div>
                       </>
                     ) : (
                       <>
@@ -347,30 +346,24 @@ export default function JoinPage() {
                       </>
                     )}
                     <input 
+                      id="logo-upload"
                       ref={logoInputRef}
                       type="file" 
-                      style={{ 
-                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
-                        opacity: 0, cursor: 'pointer', zIndex: 10 
-                      }}
+                      style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }}
                       accept="image/*" 
                       onChange={(e) => {
-                        console.log("Onboarding Logo triggered");
                         handleFileSelect(e, 'logo');
                         e.target.value = '';
                       }} 
                     />
-                  </div>
-
-
+                  </label>
 
                   {/* GALLERY UPLOAD */}
-                  <div 
+                  <label 
+                    htmlFor="gallery-upload"
                     onDragOver={(e) => onDragOver(e, 'gallery')}
                     onDragLeave={() => onDragLeave('gallery')}
                     onDrop={(e) => onDrop(e, 'gallery')}
-                    onClick={() => gallery.length < 3 && galleryInputRef.current?.click()}
-
                     style={{ 
                       flex: 1, minHeight: '120px', 
                       background: isDragging.gallery ? '#F0F4ED' : '#F8F9F5', 
@@ -378,7 +371,7 @@ export default function JoinPage() {
                       borderRadius: '32px', display: 'flex', flexWrap: 'wrap', 
                       gap: '10px', padding: '10px', alignItems: 'center', 
                       justifyContent: gallery.length === 0 ? 'center' : 'flex-start',
-                      cursor: gallery.length < 3 ? 'pointer' : 'default',
+                      cursor: 'pointer',
                       transition: 'all 0.2s'
                     }}
                   >
@@ -392,7 +385,7 @@ export default function JoinPage() {
                         {gallery.map((img, idx) => (
                           <div key={idx} style={{ width: '80px', height: '80px', borderRadius: '16px', overflow: 'hidden', position: 'relative' }}>
                             <img src={img.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            <div onClick={(e) => { e.stopPropagation(); removeImage(idx, 'gallery'); }} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', padding: '2px' }}><X size={10} /></div>
+                            <div onClick={(e) => { e.stopPropagation(); e.preventDefault(); removeImage(idx, 'gallery'); }} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', padding: '2px', zIndex: 20 }}><X size={10} /></div>
                           </div>
                         ))}
                         {gallery.length < 3 && (
@@ -403,23 +396,18 @@ export default function JoinPage() {
                       </>
                     )}
                     <input 
+                      id="gallery-upload"
                       ref={galleryInputRef}
                       type="file" 
-                      style={{ 
-                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
-                        opacity: 0, cursor: 'pointer', zIndex: 10 
-                      }}
+                      style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }}
                       multiple 
                       accept="image/*" 
                       onChange={(e) => {
-                        console.log("Onboarding Gallery triggered");
                         handleFileSelect(e, 'gallery');
                         e.target.value = '';
                       }} 
                     />
-                  </div>
-
-
+                  </label>
                 </div>
 
                 {uploadError && (
