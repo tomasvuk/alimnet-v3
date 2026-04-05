@@ -8,11 +8,24 @@ import {
   Leaf,
   LogIn,
   UserCircle,
+  Navigation,
+  CheckCircle,
+  Layout,
+  Compass,
+  X,
+  Plus,
+  ChevronRight,
+  Clock,
+  Globe,
+  Instagram,
+  Phone,
+  ExternalLink,
+  Heart,
+  CheckCircle2,
+  Filter,
   Map as MapIcon,
   Search as SearchIcon,
   ChevronDown,
-  Navigation,
-  CheckCircle,
   Wheat,
   Sprout,
   Milk,
@@ -20,29 +33,18 @@ import {
   Coffee,
   Sun,
   CloudSun,
-  X,
   Store,
   ChefHat,
   UtensilsCrossed,
   MapPin,
-  Heart,
-  Instagram,
-  CheckCircle2,
-  ExternalLink,
-  ChevronRight,
   Shield,
   ShieldCheck,
   User,
-  Filter,
   Lock,
   Menu,
-  Plus,
-  Compass,
-  Clock,
-  Globe,
-  Phone,
   Check,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import Header from '@/components/Header';
 
@@ -430,14 +432,24 @@ export default function ExplorarPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
+  const [stagingMode, setStagingMode] = useState(false);
+
+  // PERSISTENCIA DEL MODO PULIENDO (V-9.5.21)
+  useEffect(() => {
+    const saved = localStorage.getItem('stagingMode') === 'true';
+    if (saved) setStagingMode(true);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('stagingMode', stagingMode.toString());
+  }, [stagingMode]);
 
   // TRIGGER RESIZE PARA LEAFLET (V-9.5.19)
   useEffect(() => {
     if (isMobile) {
       const timer = setTimeout(() => {
         window.dispatchEvent(new Event('resize'));
-        console.log("[MAP DEBUG]: Resize triggered for mobile view:", mobileView);
-      }, 400); // 400ms para asegurar que la transición de opacidad/display terminó
+      }, 400); 
       return () => clearTimeout(timer);
     }
   }, [mobileView, isMobile]);
@@ -495,13 +507,18 @@ export default function ExplorarPage() {
 
   // --- MEMOIZACIÓN PARA EVITAR EL SALTO ATRÁS (DERRAPE) ---
   const mapCenter = React.useMemo<[number, number]>(() => {
+    if (selectedMerchant && selectedMerchant.locations?.[0]) {
+      const loc = selectedMerchant.locations[0];
+      return [loc.lat, loc.lng];
+    }
     return finalCoords ? [finalCoords.lat, finalCoords.lng] : [-34.6037, -58.3816];
-  }, [finalCoords?.lat, finalCoords?.lng]);
+  }, [finalCoords?.lat, finalCoords?.lng, selectedMerchant?.id]);
 
   const mapZoom = React.useMemo(() => {
+    if (selectedMerchant) return 14; 
     const baseZoom = finalCoords ? (radiusKm > 40 ? 10 : 12) : (isMobile ? 10 : 11);
     return baseZoom;
-  }, [finalCoords?.lat, radiusKm, isMobile]);
+  }, [finalCoords?.lat, radiusKm, isMobile, selectedMerchant?.id]);
 
   const [externalPlaceSelected, setExternalPlaceSelected] = useState<any>(null);
   const resultsRef = React.useRef<HTMLElement>(null);
@@ -1431,7 +1448,24 @@ export default function ExplorarPage() {
           }}>
             <Compass size={16} color="var(--primary)" />
             <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center' }}>
-              {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
+              </span>
+              <button 
+                id="btn-staging-mode"
+                onClick={() => setStagingMode(!stagingMode)}
+                style={{ 
+                  marginLeft: 'auto', padding: '8px 14px', 
+                  background: stagingMode ? '#2D3A20' : '#FBBF24', 
+                  color: stagingMode ? 'white' : '#000', 
+                  border: '2px solid #000', borderRadius: '30px', 
+                  fontSize: '11px', fontWeight: '1000', cursor: 'pointer', 
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  boxShadow: '0 4px 0 #000',
+                  transition: 'all 0.1s'
+                }}>
+                <Layout size={12} /> {stagingMode ? 'MODO PULIENDO: ON' : 'MODO PULIENDO: OFF'}
+              </button>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
@@ -1543,10 +1577,12 @@ export default function ExplorarPage() {
             )}
 
             {filteredMerchants.map(m => (
-              <MerchantCard key={m.id} merchant={m} onClick={() => {
-                handleMerchantSelect(m);
-                if (window.innerWidth < 768) setMobileView('map');
-              }} />
+              <div key={m.id} id={`merchant-card-${m.id}`}>
+                <MerchantCard merchant={m} onClick={() => {
+                  handleMerchantSelect(m);
+                  if (window.innerWidth < 768) setMobileView('map');
+                }} />
+              </div>
             ))}
           </div>
         </section>
@@ -1598,7 +1634,7 @@ export default function ExplorarPage() {
               providers={filteredMerchants.flatMap(m => (m.locations || [])
                 .filter(l => l.lat && l.lng) // FILTRO DE SEGURIDAD (V-9.5.20)
                 .map(l => ({
-                  id: `${m.id}-${l.id}`,
+                  id: `${m.id}:::${l.id}`,
                   name: m.name,
                   category: m.type,
                   type: m.type,
@@ -1607,16 +1643,38 @@ export default function ExplorarPage() {
                   city_zone: l.locality,
                   is_exact_location: true
                 })))}
-              center={searchCoords ? [searchCoords.lat, searchCoords.lng] : undefined}
-              zoom={searchCoords ? 13 : 11}
+              center={mapCenter}
+              zoom={mapZoom}
               onInteraction={(dir) => {
                 if (dir === 'up') setStickyFilters(true);
                 else setStickyFilters(false);
               }}
               onMarkerClick={(id) => {
-                const merchantId = id.split('-')[0];
+                const merchantId = id.split(':::')[0];
                 const m = merchants.find(mm => mm.id === merchantId);
-                if (m) setSelectedMerchant(m);
+                if (m) {
+                  setSelectedMerchant(m);
+                  
+                  // Si estamos en mobile y vista mapa, el slide-up ya se muestra.
+                  // Pero para la "Sincronización" (Punto 1), aseguramos el scroll en la lista.
+                  setTimeout(() => {
+                    const element = document.getElementById(`merchant-card-${m.id}`);
+                    if (element) {
+                       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                       // Highlight visual premium
+                       element.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                       element.style.transform = 'scale(1.02)';
+                       element.style.backgroundColor = '#F0F4ED';
+                       element.style.borderColor = '#5F7D4A';
+                       
+                       setTimeout(() => {
+                         element.style.transform = 'scale(1)';
+                         element.style.backgroundColor = 'white';
+                         element.style.borderColor = '#eee';
+                       }, 2000);
+                    }
+                  }, 100);
+                }
               }}
               onBoundsChange={(bounds) => setCurrentMapBounds(bounds)}
             />
@@ -1655,7 +1713,7 @@ export default function ExplorarPage() {
             <div style={{ flex: 1, marginTop: '1.5rem' }}>
               <DetailPanel
                 merchant={selectedMerchant as Merchant}
-                isLoggedIn={isLoggedIn}
+                isLoggedIn={stagingMode || isLoggedIn}
                 user={user}
                 userProfile={userProfile}
                 validators={validators}
@@ -1680,7 +1738,7 @@ export default function ExplorarPage() {
         {!isMobile && selectedMerchant && (
           <DetailPanel
             merchant={selectedMerchant as Merchant}
-            isLoggedIn={isLoggedIn}
+            isLoggedIn={stagingMode || isLoggedIn}
             user={user}
             userProfile={userProfile}
             validators={validators}
@@ -1751,7 +1809,7 @@ export default function ExplorarPage() {
       )}
       {/* MURO DE IDENTIDAD (MANDATORY) */}
       <IdentityWallModal 
-        isOpen={showIdentityWall} 
+        isOpen={showIdentityWall && !stagingMode} 
         user={user} 
         onComplete={() => {
           setShowIdentityWall(false);

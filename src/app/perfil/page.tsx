@@ -47,7 +47,7 @@ export default function MerchantProfilePage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [versionTag] = useState('v3.7.X - Commercial HighPerf Sync');
+  const [deployId] = useState('v3.8.0-OVERLAP-FINAL');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
@@ -202,6 +202,37 @@ export default function MerchantProfilePage() {
     });
   };
 
+  const handleUpdateMerchant = async () => {
+    try {
+      setSaving(true);
+      const targetId = merchant?.id || '00ca4452-5427-45c1-b6f8-4cdf6db3d901';
+      
+      const { error } = await supabase.from('merchants').update({
+        name: formData.name,
+        bio_short: formData.bio_short,
+        bio_long: formData.bio_long,
+        type: formData.types,
+        categories: formData.categories,
+        whatsapp: formData.whatsapp,
+        email: formData.email_public,
+        instagram_url: formData.instagram_url,
+        website_url: formData.website_url,
+        google_maps_url: formData.google_maps_url,
+        delivery_info: formData.delivery_info,
+        working_hours: formData.working_hours
+      }).eq('id', targetId);
+
+      if (error) throw error;
+      
+      setMessage({ type: 'success', text: '¡Perfil comercial actualizado correctamente! 🚀' });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err: any) {
+      setMessage({ type: 'error', text: `Error al guardar: ${err.message}` });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const InputField = ({ label, value, onChange, placeholder = '', icon: Icon }: any) => (
     <div style={{ marginBottom: '1.2rem' }}>
       <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '0.6rem', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
@@ -347,22 +378,93 @@ export default function MerchantProfilePage() {
                   
                   <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '150px 1fr', gap: '2rem' }}>
                      <div>
-                        <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Logo Oficial</label>
-                        <div style={{ width: '120px', height: '120px', background: '#f8f9f5', border: '2px dashed #E4EBDD', borderRadius: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#A8C3A2', cursor: 'pointer' }}>
-                           <Camera size={24} />
-                           <span style={{ fontSize: '0.6rem', fontWeight: '1000', marginTop: '8px' }}>LOGO</span>
+                        <label style={{ display: 'block', fontWeight: '950', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Logo Oficial</label>
+                        <div 
+                          className="hover-scale"
+                          style={{ 
+                            width: '120px', height: '120px', 
+                            background: formData.logo_url ? `url(${formData.logo_url}) center/cover` : '#f8f9f5', 
+                            border: '2.5px dashed #E4EBDD', borderRadius: '30px', 
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
+                            color: '#A8C3A2', cursor: 'pointer', transition: 'all 0.2s',
+                            position: 'relative', overflow: 'hidden'
+                          }}
+                        >
+                           {!formData.logo_url && <Camera size={24} />}
+                           {!formData.logo_url && (
+                             <span style={{ fontSize: '0.6rem', fontWeight: '1000', marginTop: '8px', textAlign: 'center' }}>
+                               SUBIR LOGO
+                             </span>
+                           )}
+                           {formData.logo_url && (
+                             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', opacity: 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }} className="hover-overlay-v3">
+                               <Upload size={20} />
+                             </div>
+                           )}
+
+                           {/* INPUT OVERLAY (BALA DE PLATA PARA MÓVILES) */}
+                           <input 
+                             type="file" 
+                             accept="image/*" 
+                             onChange={(e) => {
+                               const file = e.target.files?.[0];
+                               if (!file) return;
+                               setSaving(true);
+                               setMessage({ type: 'success', text: 'Preparando editor... 🎨' });
+                               const url = URL.createObjectURL(file);
+                               setCroppingImage({ url, type: 'logo', aspect: 1 });
+                               setSaving(false);
+                               setMessage(null);
+                               e.target.value = '';
+                             }}
+                             style={{
+                               position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 10
+                             }}
+                           />
                         </div>
                      </div>
                      <div>
-                        <label style={{ display: 'block', fontWeight: '900', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Galería de Imágenes (Máx 3)</label>
+                        <label style={{ display: 'block', fontWeight: '950', color: '#3F5232', marginBottom: '0.8rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Galería de Imágenes (Máx 3)</label>
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                           {[1, 2, 3].map(i => (
-                             <div key={i} style={{ width: '100px', height: '100px', background: '#f8f9f5', border: '1px solid #E4EBDD', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A8C3A2', cursor: 'pointer', position: 'relative' }}>
-                                <Plus size={20} />
+                           {[0, 1, 2].map(idx => (
+                             <div key={idx} style={{ position: 'relative', width: '100px', height: '100px' }}>
+                               <div 
+                                 className="hover-scale"
+                                 style={{ 
+                                   width: '100%', height: '100%', 
+                                   background: formData.gallery_images?.[idx] ? `url(${formData.gallery_images[idx]}) center/cover` : '#f8f9f5', 
+                                   border: '1.5px solid #E4EBDD', borderRadius: '20px', 
+                                   display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                   color: '#A8C3A2', cursor: 'pointer', position: 'relative',
+                                   overflow: 'hidden'
+                                 }}
+                               >
+                                  {!formData.gallery_images?.[idx] && <Plus size={20} />}
+
+                                  {/* INPUT OVERLAY MOBILES */}
+                                  <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      setSaving(true);
+                                      setMessage({ type: 'success', text: 'Optimizando foto... 🖼️' });
+                                      const url = URL.createObjectURL(file);
+                                      setCroppingImage({ url, type: 'gallery', aspect: 4/3, index: idx });
+                                      setSaving(false);
+                                      setMessage(null);
+                                      e.target.value = '';
+                                    }}
+                                    style={{
+                                      position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 10
+                                    }}
+                                  />
+                               </div>
                              </div>
                            ))}
                         </div>
-                        <p style={{ fontSize: '0.7rem', color: '#AAA', marginTop: '1rem' }}>Sugerimos imágenes de tus productos o local.</p>
+                        <p style={{ fontSize: '0.7rem', color: '#AAA', marginTop: '1rem', fontWeight: '600' }}>Sugerimos imágenes de tus productos o local. Máx 5MB.</p>
                      </div>
                   </div>
                </div>
@@ -425,6 +527,7 @@ export default function MerchantProfilePage() {
 
                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4rem' }}>
                   <button 
+                    onClick={handleUpdateMerchant}
                     disabled={saving}
                     style={{ padding: '1rem 3rem', background: '#5F7D4A', color: 'white', border: 'none', borderRadius: '14px', fontWeight: '1000', cursor: 'pointer', opacity: saving ? 0.7 : 1, width: 'fit-content' }}
                   >
@@ -497,7 +600,7 @@ export default function MerchantProfilePage() {
       
       {/* Etiqueta de Versión para verificar Deploy */}
       <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-        {versionTag}
+        {deployId}
       </div>
 
       {message && (
@@ -566,6 +669,72 @@ export default function MerchantProfilePage() {
              </div>
           </div>
         </div>
+      )}
+      {croppingImage && (
+        <ImageCropper 
+          image={croppingImage.url}
+          aspect={croppingImage.aspect}
+          onCancel={() => {
+             if (croppingImage.url.startsWith('blob:')) URL.revokeObjectURL(croppingImage.url);
+             setCroppingImage(null);
+          }}
+          onCropComplete={async (blob) => {
+            try {
+              const originalUrl = croppingImage.url;
+              setCroppingImage(null);
+              setSaving(true);
+              
+              const targetId = merchant?.id || '00ca4452-5427-45c1-b6f8-4cdf6db3d901';
+              const fileName = `comm_${Date.now()}.jpg`;
+              
+              if (croppingImage.type === 'logo') {
+                setMessage({ type: 'success', text: 'Sincronizando logo comercial... 🚀' });
+                const filePath = `logos/${targetId}/${fileName}`;
+                const { error: uploadError } = await supabase.storage.from('merchant_assets').upload(filePath, blob);
+                if (uploadError) throw uploadError;
+                
+                const { data: { publicUrl } } = supabase.storage.from('merchant_assets').getPublicUrl(filePath);
+                
+                // Actualizar DB
+                const { error: updateError } = await supabase.from('merchants').update({ 
+                  logo_url: publicUrl 
+                }).eq('id', targetId);
+                
+                if (updateError) throw updateError;
+                
+                setFormData((prev: any) => ({ ...prev, logo_url: publicUrl }));
+                setMessage({ type: 'success', text: '¡LISTO! Logo comercial guardado ✨' });
+              } else {
+                setMessage({ type: 'success', text: 'Actualizando galería... 📸' });
+                const filePath = `gallery/${targetId}/${fileName}`;
+                const { error: uploadError } = await supabase.storage.from('merchant_assets').upload(filePath, blob);
+                if (uploadError) throw uploadError;
+                
+                const { data: { publicUrl } } = supabase.storage.from('merchant_assets').getPublicUrl(filePath);
+                
+                const newGallery = [...(formData.gallery_images || [])];
+                newGallery[croppingImage.index!] = publicUrl;
+                
+                const { error: updateError } = await supabase.from('merchants').update({ 
+                  gallery_images: newGallery 
+                }).eq('id', targetId);
+                
+                if (updateError) throw updateError;
+                
+                setFormData((prev: any) => ({ ...prev, gallery_images: newGallery }));
+                setMessage({ type: 'success', text: '¡LISTO! Galería actualizada ✨' });
+              }
+              
+              if (originalUrl.startsWith('blob:')) URL.revokeObjectURL(originalUrl);
+              setTimeout(() => setMessage(null), 3000);
+            } catch (err: any) {
+              setMessage({ type: 'error', text: `Error: ${err.message}` });
+              setTimeout(() => setMessage(null), 5000);
+            } finally {
+              setSaving(false);
+            }
+          }}
+        />
       )}
       <style jsx>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
