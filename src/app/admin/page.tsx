@@ -487,11 +487,7 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0F4ED', paddingTop: '70px', fontFamily: 'Manrope, sans-serif' }}>
-      {/* V-9.5.12 - BANNER DE SEGURIDAD PARA TOMÁS */}
-      <div style={{ background: '#2D3A20', color: '#FFF', textAlign: 'center', padding: '12px', fontWeight: '1000', fontSize: '1.2rem', letterSpacing: '2px', position: 'fixed', top: 0, width: '100%', zIndex: 10000 }}>
-        🛰️ ESTÁS MIRANDO: V-9.5.12 (RAMA PULIENDO) 🚀
-      </div>
+    <div style={{ minHeight: '100vh', background: '#F8F9F5', paddingTop: '70px', fontFamily: 'Manrope, sans-serif' }}>
       <Header />
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
