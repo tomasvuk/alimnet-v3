@@ -333,12 +333,8 @@ export default function JoinPage() {
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem' }}>Identidad visual y categorías de tu comercio.</p>
 
                 <div style={{ display: 'flex', gap: '2rem', marginBottom: '2.5rem' }}>
-                  {/* LOGO UPLOAD */}
-                  <label 
-                    htmlFor="logo-upload"
-                    onDragOver={(e) => onDragOver(e, 'logo')}
-                    onDragLeave={() => onDragLeave('logo')}
-                    onDrop={(e) => onDrop(e, 'logo')}
+                  {/* LOGO BOX (PARCHE OVERLAY MÓVILES) */}
+                  <div 
                     style={{ 
                       width: '120px', height: '120px', 
                       background: logo ? 'white' : (isDragging.logo ? '#F0F4ED' : '#F8F9F5'), 
@@ -361,24 +357,21 @@ export default function JoinPage() {
                         <span style={{ fontSize: '0.7rem', fontWeight: '800', marginTop: '8px' }}>LOGO</span>
                       </>
                     )}
-                  </label>
-                  <input 
-                    id="logo-upload"
-                    type="file" 
-                    style={{ display: 'none' }}
-                    accept="image/*" 
-                    onChange={(e) => {
-                      handleFileSelect(e, 'logo');
-                      e.target.value = '';
-                    }} 
-                  />
 
-                  {/* GALLERY UPLOAD */}
-                  <label 
-                    htmlFor="gallery-upload"
-                    onDragOver={(e) => onDragOver(e, 'gallery')}
-                    onDragLeave={() => onDragLeave('gallery')}
-                    onDrop={(e) => onDrop(e, 'gallery')}
+                    {/* INPUT OVERLAY */}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={(e) => {
+                        handleFileSelect(e, 'logo');
+                        e.target.value = '';
+                      }}
+                      style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 10 }}
+                    />
+                  </div>
+
+                  {/* GALLERY BOX (PARCHE OVERLAY MÓVILES) */}
+                  <div 
                     style={{ 
                       flex: 1, minHeight: '120px', 
                       background: isDragging.gallery ? '#F0F4ED' : '#F8F9F5', 
@@ -386,10 +379,13 @@ export default function JoinPage() {
                       borderRadius: '32px', display: 'flex', flexWrap: 'wrap', 
                       gap: '10px', padding: '10px', alignItems: 'center', 
                       justifyContent: gallery.length === 0 ? 'center' : 'flex-start',
-                      cursor: 'pointer',
+                      cursor: 'pointer', position: 'relative', overflow: 'hidden',
                       transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(0,0,0,0.03)'
                     }}
                     className="hover-scale"
+                    onDragOver={(e) => onDragOver(e, 'gallery')}
+                    onDragLeave={() => onDragLeave('gallery')}
+                    onDrop={(e) => onDrop(e, 'gallery')}
                   >
                     {gallery.length === 0 ? (
                       <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -411,18 +407,19 @@ export default function JoinPage() {
                         )}
                       </>
                     )}
-                  </label>
-                  <input 
-                    id="gallery-upload"
-                    type="file" 
-                    style={{ display: 'none' }}
-                    multiple 
-                    accept="image/*" 
-                    onChange={(e) => {
-                      handleFileSelect(e, 'gallery');
-                      e.target.value = '';
-                    }} 
-                  />
+
+                    {/* INPUT OVERLAY MULTIPLE */}
+                    <input 
+                      type="file" 
+                      multiple 
+                      accept="image/*" 
+                      onChange={(e) => {
+                        handleFileSelect(e, 'gallery');
+                        e.target.value = '';
+                      }}
+                      style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 10 }}
+                    />
+                  </div>
                 </div>
 
                 {uploadError && (

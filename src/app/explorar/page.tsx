@@ -2051,20 +2051,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
              </div>
           </div>
 
-          <button 
-            onClick={() => { if (!hasValidated) { onValidate(merchant.id); setHasValidated(true); } }}
-            disabled={hasValidated}
-            style={{ 
-              width: '100%', padding: '1rem', borderRadius: '16px', border: 'none', 
-              background: hasValidated ? '#F0F4ED' : 'var(--primary)', 
-              color: hasValidated ? 'var(--primary)' : 'white', fontWeight: '900', 
-              cursor: hasValidated ? 'default' : 'pointer', display: 'flex', alignItems: 'center', 
-              justifyContent: 'center', gap: '8px', marginBottom: '1.5rem' 
-            }}
-          >
-            {hasValidated ? <CheckCircle2 size={18} /> : <Heart size={18} />}
-            {hasValidated ? '¡Proyecto Validado!' : 'Validar este proyecto'}
-          </button>
+
 
           <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--soft-leaf)', marginBottom: '0.6rem', fontWeight: '900' }}>Historia</h4>
           <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-primary)', marginBottom: '2rem' }}>{merchant.bio_long || merchant.bio_short}</p>
@@ -2226,55 +2213,54 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
 
         {/* CONTACTO - Alineado a la paleta Alimnet */}
         <div style={{ 
-          padding: '1.5rem', borderTop: '1px solid #eee', display: 'flex', flexDirection: 'column', gap: '10px',
+          padding: '0.75rem 1.5rem', borderTop: '1px solid #eee', 
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'white', gap: '15px',
           filter: !isLoggedIn ? 'blur(25px) grayscale(20%)' : 'none',
           pointerEvents: !isLoggedIn ? 'none' : 'auto',
           userSelect: !isLoggedIn ? 'none' : 'auto',
           opacity: !isLoggedIn ? 0.5 : 1,
           transition: 'all 0.4s ease'
         }}>
-          <a 
-            href={merchant.whatsapp ? `https://wa.me/${merchant.whatsapp.replace(/[^0-9]/g, '')}` : undefined} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            onClick={() => {
-              if (merchant.whatsapp) trackClick('CTA_WHATSAPP_MAIN', { id: merchant.id, merchant: merchant.name });
-            }}
-            style={{ 
-              padding: '1rem', 
-              background: merchant.whatsapp ? 'var(--primary)' : '#f0f0f0', 
-              color: merchant.whatsapp ? 'white' : '#999', 
-              borderRadius: '16px', textAlign: 'center', fontWeight: '950', 
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
-              pointerEvents: merchant.whatsapp ? 'auto' : 'none',
-              boxShadow: merchant.whatsapp ? '0 4px 20px rgba(95, 125, 74, 0.25)' : 'none',
-              textDecoration: 'none'
-            }}
-          >
-            <span style={{ fontSize: '0.9rem', fontWeight: '900' }}>{merchant.whatsapp ? 'Realizar un pedido' : 'WhatsApp no disponible'}</span>
-          </a>
-          
-          {/* ACCIÓN: SOY EL DUEÑO */}
-          {!merchant.claimed && (
-            <div style={{ marginTop: '1rem', textAlign: 'center', padding: '0.8rem', background: '#F8F9F5', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '800', marginBottom: '6px' }}>¿Sos el dueño?</p>
+          {/* Soy el Dueño (Link sutil) */}
+          {!merchant.claimed ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#ACB5BD', textTransform: 'uppercase' }}>¿Sos el dueño?</span>
               <button 
                 onClick={() => {
                   trackClick('CLAIM_MERCHANT_START', { id: merchant.id, merchant: merchant.name });
                   router.push(`/unirse?merchantId=${merchant.id}`);
                 }}
                 style={{ 
-                  background: 'none', border: '1.5px solid #5F7D4A', color: '#5F7D4A', 
-                  padding: '0.5rem 1rem', borderRadius: '10px', fontSize: '0.75rem', 
-                  fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s'
+                  background: 'none', border: 'none', color: '#5F7D4A', 
+                  padding: 0, fontSize: '0.75rem', 
+                  fontWeight: '950', cursor: 'pointer', textDecoration: 'underline',
+                  textAlign: 'left'
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = '#5F7D4A'; e.currentTarget.style.color = 'white'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#5F7D4A'; }}
               >
-                Reivindicar Comercio
+                Reivindicar
               </button>
             </div>
+          ) : (
+            <div style={{ flex: 1 }} /> 
           )}
+          
+          {/* Botón Validar (CTA Principal Compacto) */}
+          <button 
+            onClick={() => { if (!hasValidated) { onValidate(merchant.id); setHasValidated(true); } }}
+            disabled={hasValidated}
+            style={{ 
+              padding: '0.6rem 1.4rem', borderRadius: '12px', border: 'none', 
+              background: hasValidated ? '#F0F4ED' : 'var(--primary)', 
+              color: hasValidated ? 'var(--primary)' : 'white', fontWeight: '1000', 
+              fontSize: '0.8rem', cursor: hasValidated ? 'default' : 'pointer', 
+              display: 'flex', alignItems: 'center', gap: '8px',
+              boxShadow: hasValidated ? 'none' : '0 8px 15px rgba(95,125,74,0.15)'
+            }}
+          >
+            {hasValidated ? <Check size={14} strokeWidth={3} /> : <ShieldCheck size={14} strokeWidth={3} />}
+            {hasValidated ? 'VALIDADO' : 'VALIDAR COMERCIO'}
+          </button>
         </div>
 
         {!isLoggedIn && (
