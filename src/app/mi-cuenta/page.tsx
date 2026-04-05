@@ -44,13 +44,13 @@ function MiCuentaContent() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const [formData, setFormData] = useState({
+    avatar_url: '/avatars/default-alimnet.png',
     first_name: '',
     last_name: '',
     locality: '',
     delivery_pref: 'Retiro y Entrega',
     production_interest: [] as string[],
     display_name_style: 'full' as 'full' | 'initial',
-    avatar_url: '',
     user_number: '',
     preferences: [] as string[]
   });
@@ -60,33 +60,32 @@ function MiCuentaContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ALIMNET_AVATARS = [
-    { id: '1', path: '/avatars/v2-front-agronomo.png' },
-    { id: '2', path: '/avatars/v2-front-apicultor.png' },
-    { id: '3', path: '/avatars/v2-front-jinete.png' },
-    { id: '4', path: '/avatars/v2-front-pastor.png' },
-    { id: '5', path: '/avatars/v2-front-puestero.png' },
-    { id: '6', path: '/avatars/v2-front-vinatero.png' },
-    { id: '7', path: '/avatars/v2-front-alambrador.png' },
-    { id: '8', path: '/avatars/v2-front-transportista.png' },
+    // 3 MUJERES
     { id: '9', path: '/avatars/v2-front-campesina.png' },
     { id: '10', path: '/avatars/v2-front-floricultora.png' },
     { id: '11', path: '/avatars/v2-front-hortelana.png' },
-    { id: '12', path: '/avatars/v2-front-polista.png' },
+    // 3 VARONES
+    { id: '1', path: '/avatars/v2-front-agronomo.png' },
+    { id: '2', path: '/avatars/v2-front-apicultor.png' },
+    { id: '3', path: '/avatars/v2-front-jinete.png' },
+    // 3 MUJERES
     { id: '13', path: '/avatars/v2-front-quesera.png' },
     { id: '14', path: '/avatars/v2-front-recolectora.png' },
     { id: '15', path: '/avatars/v2-front-tejedora.png' },
-    { id: '16', path: '/avatars/v2-front-agronomo.png' },
-    { id: '17', path: '/avatars/v2-front-apicultor.png' },
-    { id: '18', path: '/avatars/v2-front-jinete.png' },
-    { id: '19', path: '/avatars/v2-front-campesina.png' },
-    { id: '20', path: '/avatars/v2-front-floricultora.png' },
-    { id: '21', path: '/avatars/v2-front-tejedora.png' }
+    // 3 VARONES
+    { id: '4', path: '/avatars/v2-front-pastor.png' },
+    { id: '5', path: '/avatars/v2-front-puestero.png' },
+    { id: '6', path: '/avatars/v2-front-vinatero.png' },
+    // MIXTO / COMPLEMENTARIO
+    { id: '12', path: '/avatars/v2-front-polista.png' },
+    { id: '7', path: '/avatars/v2-front-alambrador.png' },
+    { id: '8', path: '/avatars/v2-front-transportista.png' }
   ];
   const [merchantProducts, setMerchantProducts] = useState<any[]>([]); // NUEVO: Estado de Productos
   const [merchantFormData, setMerchantFormData] = useState<any>({
-    name: '',
-    bio_short: '',
-    bio_long: '',
+    avatar_url: '/avatars/default-alimnet.png',
+    first_name: '',
+    last_name: '',
     instagram_url: '',
     whatsapp: '',
     preferred_contact_channel: 'whatsapp',
@@ -984,7 +983,7 @@ function MiCuentaContent() {
                       <div style={{ flex: 1 }}>
                          <h4 style={{ fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '4px' }}>Rostro de Alimnet</h4>
                          <p style={{ fontSize: '0.75rem', color: '#666', fontWeight: '600', lineHeight: '1.4' }}>
-                            Elegí uno de los 21 avatares de nuestra colección "Gente de Campo" o subí tu propia foto oficial.
+                            Elegí un avatar de nuestra colección o subí tu propia foto de perfil.
                          </p>
                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
                             <button className="button-primary-small" onClick={() => setShowAvatarPicker(true)} style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
@@ -995,18 +994,31 @@ function MiCuentaContent() {
                               accept="image/*"
                               onChange={async (e) => {
                                 const file = e.target.files?.[0];
-                                if (!file) return;
+                                if (!file) {
+                                  console.log("No file selected");
+                                  return;
+                                }
+
+                                console.log("File detected:", file.name, file.size, file.type);
+                                setMessage({ type: 'success', text: 'Analizando imagen... 📸' });
 
                                 if (file.size > 2 * 1024 * 1024) {
                                   setMessage({ type: 'error', text: 'Imagen muy pesada. El máximo permitido es 2MB.' });
                                   return;
                                 }
                                 
+                                if (!file.type.startsWith('image/')) {
+                                  setMessage({ type: 'error', text: 'Tipo de archivo no válido. Subí una imagen (JPG, PNG).' });
+                                  return;
+                                }
+
                                 try {
-                                  setMessage({ type: 'success', text: 'Subiendo imagen oficial... 📸' });
+                                  setMessage({ type: 'success', text: 'Subiendo imagen oficial... 🚀' });
                                   const fileExt = file.name.split('.').pop();
                                   const fileName = `${Math.random()}.${fileExt}`;
                                   const filePath = `${profile?.id}/${fileName}`;
+
+                                  console.log("Uploading to:", filePath);
 
                                   const { error: uploadError } = await supabase.storage
                                     .from('avatars')
@@ -1014,15 +1026,17 @@ function MiCuentaContent() {
 
                                   if (uploadError) throw uploadError;
 
+                                  console.log("Upload success, getting URL...");
                                   const { data: { publicUrl } } = supabase.storage
                                     .from('avatars')
                                     .getPublicUrl(filePath);
 
                                   setFormData({ ...formData, avatar_url: publicUrl });
-                                  setMessage({ type: 'success', text: '¡Imagen actualizada con éxito!' });
+                                  setMessage({ type: 'success', text: '¡Imagen actualizada con éxito! ✨' });
+                                  setTimeout(() => setMessage(null), 3000);
                                 } catch (err) {
-                                  console.error(err);
-                                  setMessage({ type: 'error', text: 'Error al subir la imagen' });
+                                  console.error("Upload error details:", err);
+                                  setMessage({ type: 'error', text: 'Error en la subida: Verifica tu conexión o tamaño.' });
                                 }
                               }}
                             />
@@ -1259,7 +1273,7 @@ function MiCuentaContent() {
         </div>
       </main>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .main-content::-webkit-scrollbar { display: none; }
         .card-hover:hover {
           transform: translateY(-8px);
@@ -1282,7 +1296,7 @@ function MiCuentaContent() {
           .main-content { margin-left: 0; }
           .desktop-only { display: flex !important; }
         }
-      `}</style>
+      `}} />
       </div>
     {/* MODAL PICKER DE AVATARES */}
     {showAvatarPicker && (
@@ -1366,10 +1380,10 @@ function MiCuentaContent() {
                    </div>
                  )}
               </div>
-              <style jsx>{`
+              <style dangerouslySetInnerHTML={{ __html: `
                 @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
                 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-              `}</style>
+              `}} />
               
               <div style={{ marginTop: '2rem', textAlign: 'center' }}>
                  <button 

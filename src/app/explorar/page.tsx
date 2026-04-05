@@ -430,6 +430,7 @@ export default function ExplorarPage() {
   const [finalCoords, setFinalCoords] = useState<{ lat: number, lng: number } | null>(null);
   const [showIdentityWall, setShowIdentityWall] = useState(false);
   const [isStyleActive, setIsStyleActive] = useState(false);
+  const [currentMapBounds, setCurrentMapBounds] = useState<L.LatLngBounds | null>(null);
   const merchantsRef = React.useRef<Merchant[]>([]);
 
   useEffect(() => {
@@ -968,8 +969,17 @@ export default function ExplorarPage() {
       });
     }
 
+    // --- FILTRADO DINÁMICO POR BORDERS DEL MAPA (Tomas V-9.5.0) ---
+    if (currentMapBounds) {
+      result = result.filter(m => {
+        const locations = m.locations || [];
+        if (locations.length === 0) return true; // Dejar los que no tienen loc si hay filtros activos
+        return locations.some(l => currentMapBounds.contains([l.lat, l.lng]));
+      });
+    }
+
     setFilteredMerchants(result);
-  }, [selectedCategories, selectedFilters, merchants, searchQuery, searchLocation, searchCoords, deliveryType]);
+  }, [selectedCategories, selectedFilters, merchants, searchQuery, searchLocation, searchCoords, deliveryType, currentMapBounds]);
 
   const filterData = (data: Merchant[], categories: string[], types: string[]) => {
     let result = data.filter(m => {
@@ -1397,7 +1407,7 @@ export default function ExplorarPage() {
             <Compass size={16} color="var(--primary)" />
             <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center' }}>
               {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
-              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.3.2</span>
+              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.5.0</span>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
@@ -1562,29 +1572,28 @@ export default function ExplorarPage() {
           </button>
           {hasMounted && (
             <MapComponent
-              providers={filteredMerchants.map(m => {
-                const loc = m.locations?.find((l: any) => l.is_primary) || m.locations?.[0];
-                return {
-                  id: m.id, name: m.name, category: m.type, type: m.type,
-                  location_lat: loc?.lat || -34.6037, location_lng: loc?.lng || -58.3816,
-                  is_exact_location: !!loc?.lat, city_zone: loc?.locality || 'Argentina'
-                };
-              })}
-              center={mapCenter}
-              zoom={mapZoom}
-              onInteraction={() => {
-                if (isMobile) {
-                  // Solo hide si están actualmente visibles para no gatillar un re-render innecesario
-                  setIsPillsVisible(prev => prev ? false : prev);
-                  setIsRolesVisible(prev => prev ? false : prev);
-                }
+              providers={filteredMerchants.flatMap(m => (m.locations || []).map(l => ({
+                id: `${m.id}-${l.id}`,
+                name: m.name,
+                category: m.type,
+                type: m.type,
+                location_lat: l.lat,
+                location_lng: l.lng,
+                city_zone: l.locality,
+                is_exact_location: true
+              })))}
+              center={searchCoords ? [searchCoords.lat, searchCoords.lng] : undefined}
+              zoom={searchCoords ? 13 : 11}
+              onInteraction={(dir) => {
+                if (dir === 'up') setStickyFilters(true);
+                else setStickyFilters(false);
               }}
               onMarkerClick={(id) => {
-                const m = merchants.find(mm => mm.id === id);
-                if (m) {
-                  setSelectedMerchant(m);
-                }
+                const merchantId = id.split('-')[0];
+                const m = merchants.find(mm => mm.id === merchantId);
+                if (m) setSelectedMerchant(m);
               }}
+              onBoundsChange={(bounds) => setCurrentMapBounds(bounds)}
             />
           )}
         </section>

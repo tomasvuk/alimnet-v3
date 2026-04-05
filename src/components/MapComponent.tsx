@@ -87,19 +87,23 @@ interface MapProps {
   zoom?: number;
   onInteraction?: (direction: 'up' | 'down') => void;
   onMarkerClick?: (id: string) => void;
+  onBoundsChange?: (bounds: L.LatLngBounds) => void;
 }
 
-const MapEvents = ({ onInteraction }: { onInteraction?: (direction: 'up' | 'down') => void }) => {
+const MapEvents = ({ onInteraction, onBoundsChange }: { onInteraction?: (direction: 'up' | 'down') => void, onBoundsChange?: (bounds: L.LatLngBounds) => void }) => {
   useMapEvents({
     dragstart: () => {
       onInteraction?.('up');
     },
     zoomstart: () => onInteraction?.('up'),
+    moveend: (e) => {
+      onBoundsChange?.(e.target.getBounds());
+    }
   });
   return null;
 };
 
-const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onInteraction, onMarkerClick }: MapProps) => {
+const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onInteraction, onMarkerClick, onBoundsChange }: MapProps) => {
   return (
     <div style={{ 
       height: '100%', width: '100%', borderRadius: '16px', overflow: 'hidden', 
@@ -119,7 +123,7 @@ const MapComponent = ({ providers, center = [-34.6037, -58.3816], zoom = 11, onI
         inertia={true}
       >
         <ChangeView center={center} zoom={zoom} />
-        <MapEvents onInteraction={onInteraction} />
+        <MapEvents onInteraction={onInteraction} onBoundsChange={onBoundsChange} />
         <MapResizer />
         <ZoomControl position="bottomright" />
         <TileLayer
