@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.5.X - Syntax Fixed
+          v3.5.X - Final Upload Fix
         </div>
         <MiCuentaContent />
       </div>
@@ -958,7 +958,6 @@ function MiCuentaContent() {
                          }} />
                         <div style={{ flex: 1 }}>
                           <label 
-                             htmlFor="merchant-logo-upload"
                              className="hover-scale"
                              style={{ 
                                display: 'block', width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px dashed #5F7D4A', 
@@ -968,27 +967,26 @@ function MiCuentaContent() {
                              }}
                            >
                              {saving ? 'Cargando...' : 'SUBIR LOGO'}
+                             <input 
+                               type="file" 
+                               style={{ display: 'none' }} 
+                               accept="image/*" 
+                               onChange={(e) => {
+                                 const file = e.target.files?.[0];
+                                 if (!file) return;
+                                 setSaving(true);
+                                 setMessage({ type: 'success', text: 'Preparando editor de imagen... ⏳' });
+                                 const reader = new FileReader();
+                                 reader.onload = () => {
+                                   setCroppingImage({ url: reader.result as string, type: 'merchant_logo', aspect: 1 });
+                                   setSaving(false);
+                                   setMessage(null);
+                                 };
+                                 reader.readAsDataURL(file);
+                                 e.target.value = '';
+                               }} 
+                             />
                            </label>
-                           <input 
-                             id="merchant-logo-upload"
-                             type="file" 
-                             style={{ display: 'none' }} 
-                             accept="image/*" 
-                             onChange={(e) => {
-                               const file = e.target.files?.[0];
-                               if (!file) return;
-                               setSaving(true);
-                               setMessage({ type: 'success', text: 'Preparando editor de imagen... ⏳' });
-                               const reader = new FileReader();
-                               reader.onload = () => {
-                                 setCroppingImage({ url: reader.result as string, type: 'merchant_logo', aspect: 1 });
-                                 setSaving(false);
-                                 setMessage(null);
-                               };
-                               reader.readAsDataURL(file);
-                               e.target.value = '';
-                             }} 
-                           />
                         </div>
                       </div>
 
@@ -1081,9 +1079,7 @@ function MiCuentaContent() {
                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
                             <button className="button-primary-small" onClick={() => setShowAvatarPicker(true)} style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
                             
-                            <div>
-                              <label 
-                                htmlFor="avatar-upload"
+                            <label 
                                 className="hover-scale"
                                 style={{ 
                                   display: 'inline-block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
@@ -1092,30 +1088,26 @@ function MiCuentaContent() {
                                 }}
                               >
                                 {saving ? 'Cargando...' : 'Subir Imagen'}
+                                <input 
+                                  type="file" 
+                                  style={{ display: 'none' }} 
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    setSaving(true);
+                                    setMessage({ type: 'success', text: 'Preparando editor de imagen... ⏳' });
+                                    const reader = new FileReader();
+                                    reader.onload = () => {
+                                      setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
+                                      setSaving(false);
+                                      setMessage(null);
+                                    };
+                                    reader.readAsDataURL(file);
+                                    e.target.value = '';
+                                  }}
+                                />
                               </label>
-                              <input 
-                                id="avatar-upload"
-                                type="file" 
-                                style={{ display: 'none' }} 
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (!file) return;
-                                  setSaving(true);
-                                  setMessage({ type: 'success', text: 'Preparando editor de imagen... ⏳' });
-                                  const reader = new FileReader();
-                                  reader.onload = () => {
-                                    setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
-                                    setSaving(false);
-                                    setMessage(null);
-                                  };
-                                  reader.readAsDataURL(file);
-                                  e.target.value = '';
-                                }}
-                              />
-                            </div>
-
-
 
 
                          </div>
