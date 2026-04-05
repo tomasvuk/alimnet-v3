@@ -41,9 +41,11 @@ import {
   Clock,
   Globe,
   Phone,
-  Check
+  Check,
+  Sparkles
 } from 'lucide-react';
 import Header from '@/components/Header';
+
 import OnboardingPremium from '@/components/OnboardingPremium';
 import { 
   OFFICIAL_CATEGORIES, 

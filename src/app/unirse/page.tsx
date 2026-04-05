@@ -20,8 +20,11 @@ import {
   ChefHat,
   UtensilsCrossed,
   X,
-  Mail
+  Mail, 
+  Loader2
 } from 'lucide-react';
+import ImageCropper from '@/components/ImageCropper';
+
 
 // Reusando el Granjero
 const FarmerIcon = ({ size = 20, color = "currentColor" }) => (
@@ -79,13 +82,33 @@ export default function JoinPage() {
   const [gallery, setGallery] = useState<{file: File, url: string}[]>([]);
   const [isDragging, setIsDragging] = useState<{ logo: boolean, gallery: boolean }>({ logo: false, gallery: false });
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [croppingImage, setCroppingImage] = useState<{ url: string, type: 'logo' | 'gallery', index?: number } | null>(null);
+  const logoInputRef = React.useRef<HTMLInputElement>(null);
+  const galleryInputRef = React.useRef<HTMLInputElement>(null);
+
 
   const FILE_SIZE_LIMIT = 2 * 1024 * 1024; // 2MB
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'gallery') => {
     const files = e.target.files;
     if (!files) return;
-    processFiles(Array.from(files), type);
+    
+    const file = files[0];
+    if (!file) return;
+
+    if (file.size > FILE_SIZE_LIMIT) {
+      setUploadError(`El archivo "${file.name}" es muy pesado. Máximo 2MB.`);
+      return;
+    }
+
+    if (type === 'logo') {
+       const reader = new FileReader();
+       reader.onload = () => setCroppingImage({ url: reader.result as string, type: 'logo' });
+       reader.readAsDataURL(file);
+    } else {
+       // Para galería simplemente los agregamos por ahora, o podríamos croppear uno por uno
+       processFiles(Array.from(files), type);
+    }
   };
 
   const processFiles = (files: File[], type: 'logo' | 'gallery') => {
@@ -110,6 +133,7 @@ export default function JoinPage() {
       setGallery([...gallery, ...newFiles]);
     }
   };
+
 
   const uploadImage = async (file: File, path: string) => {
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
@@ -299,7 +323,8 @@ export default function JoinPage() {
                     onDragOver={(e) => onDragOver(e, 'logo')}
                     onDragLeave={() => onDragLeave('logo')}
                     onDrop={(e) => onDrop(e, 'logo')}
-                    onClick={() => document.getElementById('logo-input')?.click()}
+                    onClick={() => logoInputRef.current?.click()}
+
                     style={{ 
                       width: '120px', height: '120px', 
                       background: logo ? 'white' : (isDragging.logo ? '#F0F4ED' : '#F8F9F5'), 
@@ -321,15 +346,27 @@ export default function JoinPage() {
                         <span style={{ fontSize: '0.7rem', fontWeight: '800', marginTop: '8px' }}>LOGO</span>
                       </>
                     )}
-                    <input id="logo-input" type="file" hidden accept="image/*" onChange={(e) => handleFileSelect(e, 'logo')} />
                   </div>
+                  <input 
+                    ref={logoInputRef}
+                    type="file" 
+                    style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }}
+                    accept="image/*" 
+                    onChange={(e) => {
+                      console.log("Onboarding Logo triggered");
+                      handleFileSelect(e, 'logo');
+                      e.target.value = '';
+                    }} 
+                  />
+
 
                   {/* GALLERY UPLOAD */}
                   <div 
                     onDragOver={(e) => onDragOver(e, 'gallery')}
                     onDragLeave={() => onDragLeave('gallery')}
                     onDrop={(e) => onDrop(e, 'gallery')}
-                    onClick={() => gallery.length < 3 && document.getElementById('gallery-input')?.click()}
+                    onClick={() => gallery.length < 3 && galleryInputRef.current?.click()}
+
                     style={{ 
                       flex: 1, minHeight: '120px', 
                       background: isDragging.gallery ? '#F0F4ED' : '#F8F9F5', 
@@ -361,8 +398,20 @@ export default function JoinPage() {
                         )}
                       </>
                     )}
-                    <input id="gallery-input" type="file" hidden multiple accept="image/*" onChange={(e) => handleFileSelect(e, 'gallery')} />
                   </div>
+                  <input 
+                    ref={galleryInputRef}
+                    type="file" 
+                    style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }}
+                    multiple 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      console.log("Onboarding Gallery triggered");
+                      handleFileSelect(e, 'gallery');
+                      e.target.value = '';
+                    }} 
+                  />
+
                 </div>
 
                 {uploadError && (
@@ -608,6 +657,19 @@ export default function JoinPage() {
           color: rgba(244, 241, 230, 0.6) !important;
         }
       `}</style>
+      {croppingImage && (
+        <ImageCropper 
+          image={croppingImage.url}
+          aspect={1}
+          onCancel={() => setCroppingImage(null)}
+          onCropComplete={(blob) => {
+            const file = new File([blob], "logo.jpg", { type: "image/jpeg" });
+            setLogo({ file, url: URL.createObjectURL(file) });
+            setCroppingImage(null);
+          }}
+        />
+      )}
     </div>
   );
 }
+

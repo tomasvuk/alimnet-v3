@@ -20,6 +20,8 @@ import {
   DIETARY_OPTIONS,
   DELIVERY_PREFERENCES 
 } from '@/lib/constants';
+import ImageCropper from '@/components/ImageCropper';
+
 
 // Constants moved to @/lib/constants
 
@@ -97,6 +99,10 @@ function MiCuentaContent() {
   const [validatedMerchants, setValidatedMerchants] = useState<any[]>([]);
   const [merchantData, setMerchantData] = useState<any>(null); // Datos del emprendimiento si es dueño
   const [showSidebar, setShowSidebar] = useState(false);
+  const [croppingImage, setCroppingImage] = useState<{ url: string, type: 'avatar' | 'merchant_logo', aspect: number } | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const merchantLogoInputRef = useRef<HTMLInputElement>(null);
+
   const [counts, setCounts] = useState({
     validations: 0,
     referents: 1, // Carlos de base
@@ -894,14 +900,48 @@ function MiCuentaContent() {
                   {/* GALERÍA LIVIANA Y WEB */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>URL Logo (Liviano, Max 1MB)</label>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Logo del Proyecto (Recomendado 512x512)</label>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                         <div style={{ 
+                           width: '50px', height: '50px', borderRadius: '12px', 
+                           background: merchantFormData.logo_url ? `url(${merchantFormData.logo_url}) center/cover` : '#F0F4ED',
+                           border: '1px solid #E4EBDD', flexShrink: 0
+                         }} />
+                          <button 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              console.log("Triggering merchant logo...");
+                              merchantLogoInputRef.current?.click();
+                            }}
+                            style={{ 
+                              flex: 1, padding: '0.8rem', borderRadius: '12px', border: '1px dashed #5F7D4A', 
+                              background: '#F8F9F5', cursor: 'pointer', textAlign: 'center',
+                              fontSize: '0.75rem', fontWeight: '800', color: '#5F7D4A'
+                            }}
+                          >
+                            {saving ? 'Subiendo...' : 'SUBIR LOGO'}
+                          </button>
+                      </div>
                       <input 
-                        type="text" 
-                        placeholder="Pega el link de tu logo"
-                        value={merchantFormData.logo_url || ''}
-                        onChange={(e) => setMerchantFormData({...merchantFormData, logo_url: e.target.value})}
-                        style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
+                        ref={merchantLogoInputRef}
+                        type="file" 
+                        style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }} 
+                        accept="image/*" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          console.log("File detected:", file.name);
+                          if (file.size > 2 * 1024 * 1024) {
+                            setMessage({ type: 'error', text: 'Imagen muy pesada. Máximo 2MB.' });
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = () => setCroppingImage({ url: reader.result as string, type: 'merchant_logo', aspect: 1 });
+                          reader.readAsDataURL(file);
+                          e.target.value = '';
+                        }} 
                       />
+
                     </div>
                     <div>
                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Web / Linktree</label>
@@ -917,6 +957,7 @@ function MiCuentaContent() {
                        </div>
                     </div>
                   </div>
+
 
                   {message && (
                     <div style={{ 
@@ -988,63 +1029,42 @@ function MiCuentaContent() {
                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
                             <button className="button-primary-small" onClick={() => setShowAvatarPicker(true)} style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
                             
-                            <label 
-                               style={{ 
-                                 display: 'inline-block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
-                                 border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '1000'
-                               }}
-                               className="hover-scale"
-                             >
-                               Subir Imagen
-                               <input 
-                                 type="file" 
-                                 style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden' }} 
-                                 accept="image/*"
-                                 onChange={async (e) => {
-                                   const file = e.target.files?.[0];
-                                   if (!file) return;
+                            <button 
+                                className="hover-scale"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  console.log("Triggering avatar upload...");
+                                  avatarInputRef.current?.click();
+                                }}
+                                style={{ 
+                                  display: 'inline-block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
+                                  border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '1000'
+                                }}
+                              >
+                                Subir Imagen
+                              </button>
+                              <input 
+                                ref={avatarInputRef}
+                                type="file" 
+                                style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }} 
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  console.log("Avatar detected:", file.name);
+                                  if (file.size > 2 * 1024 * 1024) {
+                                    setMessage({ type: 'error', text: 'Imagen muy pesada. Máximo 2MB.' });
+                                    return;
+                                  }
 
-                                   if (!profile?.id) {
-                                     alert("ERROR: No se encontró ID de perfil");
-                                     return;
-                                   }
+                                  const reader = new FileReader();
+                                  reader.onload = () => setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
+                                  reader.readAsDataURL(file);
+                                  e.target.value = '';
+                                }}
+                              />
 
-                                   alert("¡Archivo detectado! 📸 Analizando...");
-                                   setMessage({ type: 'success', text: 'Analizando imagen... 📸' });
 
-                                   if (file.size > 2 * 1024 * 1024) {
-                                     alert("ERROR: Imagen muy pesada (>2MB)");
-                                     setMessage({ type: 'error', text: 'Imagen muy pesada. Máximo 2MB.' });
-                                     return;
-                                   }
-
-                                   try {
-                                     alert("Subiendo a Alimnet... 🚀");
-                                     const fileExt = file.name.split('.').pop();
-                                     const fileName = `${Math.random()}.${fileExt}`;
-                                     const filePath = `${profile.id}/${fileName}`;
-
-                                     const { error: uploadError } = await supabase.storage
-                                       .from('avatars')
-                                       .upload(filePath, file, { cacheControl: '3600', upsert: true });
-
-                                     if (uploadError) throw uploadError;
-
-                                     const { data: { publicUrl } } = supabase.storage
-                                       .from('avatars')
-                                       .getPublicUrl(filePath);
-
-                                     setFormData({ ...formData, avatar_url: publicUrl });
-                                     alert("¡Imagen actualizada! ✨");
-                                     setMessage({ type: 'success', text: '¡Imagen actualizada con éxito!' });
-                                     setTimeout(() => setMessage(null), 3000);
-                                   } catch (err: any) {
-                                     alert("ERROR EN SUBIDA: " + err.message);
-                                     setMessage({ type: 'error', text: 'Fallo al subir.' });
-                                   }
-                                 }}
-                               />
-                             </label>
                          </div>
                       </div>
                    </div>
@@ -1445,6 +1465,59 @@ function MiCuentaContent() {
            </div>
         </div>
       )}
+
+      {/* CROPPER MODAL */}
+      {croppingImage && (
+        <ImageCropper 
+          image={croppingImage.url}
+          aspect={croppingImage.aspect}
+          circular={croppingImage.type === 'avatar'}
+          onCancel={() => setCroppingImage(null)}
+          onCropComplete={async (blob) => {
+            setCroppingImage(null);
+            setSaving(true);
+            setMessage({ type: 'success', text: 'Subiendo imagen centrada... 🚀' });
+
+            try {
+              const fileExt = 'jpg';
+              const fileName = `${Date.now()}.${fileExt}`;
+              
+              if (croppingImage.type === 'avatar') {
+                if (!profile?.id) throw new Error("ID de perfil no encontrado");
+                const filePath = `${profile.id}/${fileName}`;
+                
+                const { error: uploadError } = await supabase.storage
+                  .from('avatars')
+                  .upload(filePath, blob, { cacheControl: '3600', upsert: true });
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
+                setFormData({ ...formData, avatar_url: publicUrl });
+              } else {
+                if (!merchantData?.id) throw new Error("ID de comercio no encontrado");
+                const filePath = `logos/${merchantData.id}/${fileName}`;
+                
+                const { error: uploadError } = await supabase.storage
+                  .from('merchant_assets')
+                  .upload(filePath, blob, { cacheControl: '3600', upsert: true });
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage.from('merchant_assets').getPublicUrl(filePath);
+                setMerchantFormData({ ...merchantFormData, logo_url: publicUrl });
+              }
+
+              setMessage({ type: 'success', text: '¡Imagen actualizada correctamente! ✨' });
+              setTimeout(() => setMessage(null), 3000);
+            } catch (err: any) {
+              console.error(err);
+              setMessage({ type: 'error', text: `Error: ${err.message}` });
+            } finally {
+              setSaving(false);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
+
