@@ -444,7 +444,8 @@ export default function ExplorarPage() {
           const { latitude, longitude } = position.coords;
           console.log("GPS detected:", latitude, longitude);
           setSearchCoords({ lat: latitude, lng: longitude });
-          setFinalCoords({ lat: latitude, lng: longitude });
+          // Importante: No seteamos finalCoords para NO filtrar la lista al inicio (Tomas V-9.3.2)
+          // setFinalCoords({ lat: latitude, lng: longitude }); 
           // Importante: No seteamos searchLocation con texto para dejarlo limpio ("¿A dónde?")
         },
         (error) => {
@@ -1396,7 +1397,7 @@ export default function ExplorarPage() {
             <Compass size={16} color="var(--primary)" />
             <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center' }}>
               {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
-              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.3.1</span>
+              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.3.2</span>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
