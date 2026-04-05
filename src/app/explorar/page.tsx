@@ -2182,9 +2182,13 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
             </div>
           </div>
 
-          <div style={{ padding: '1.2rem', background: 'var(--primary-dark)', borderRadius: '20px', color: 'white', marginBottom: '2rem' }}>
-            <h4 style={{ fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.6rem', fontWeight: '900', opacity: 0.8 }}>¿Cómo hacer tu pedido?</h4>
-            <p style={{ fontSize: '0.85rem', lineHeight: '1.5' }}>{merchant.order_instructions || "Contactar directamente para consultar catálogo y envíos."}</p>
+          <div style={{ padding: '1rem 1.2rem', background: '#F8F9F5', borderRadius: '18px', border: '1px solid #E4EBDD', marginBottom: '2rem' }}>
+            <h4 style={{ fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem', fontWeight: '1000', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '1.2rem' }}>📦</span> ¿Cómo hacer tu pedido?
+            </h4>
+            <p style={{ fontSize: '0.85rem', lineHeight: '1.5', color: '#495057', fontWeight: '550' }}>
+              {merchant.order_instructions || "Contactar directamente para consultar catálogo y envíos."}
+            </p>
           </div>
 
           {/* SECCIÓN DE AYUDA / FEEDBACK */}
@@ -2222,20 +2226,19 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
           opacity: !isLoggedIn ? 0.5 : 1,
           transition: 'all 0.4s ease'
         }}>
-          {/* Soy el Dueño (Link sutil) */}
+          {/* Soy el Dueño (Link con presencia real) */}
           {!merchant.claimed ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-              <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#ACB5BD', textTransform: 'uppercase' }}>¿Sos el dueño?</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#FFFFFF', padding: '0.5rem 0.8rem', borderRadius: '12px', border: '1.5px solid #5F7D4A', boxShadow: '0 4px 12px rgba(95,125,74,0.1)' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: '1000', color: '#2D3436' }}>¿Dueño?</span>
               <button 
                 onClick={() => {
                   trackClick('CLAIM_MERCHANT_START', { id: merchant.id, merchant: merchant.name });
                   router.push(`/unirse?merchantId=${merchant.id}`);
                 }}
                 style={{ 
-                  background: 'none', border: 'none', color: '#5F7D4A', 
-                  padding: 0, fontSize: '0.75rem', 
-                  fontWeight: '950', cursor: 'pointer', textDecoration: 'underline',
-                  textAlign: 'left'
+                  background: '#5F7D4A', border: 'none', color: 'white', 
+                  padding: '0.3rem 0.8rem', borderRadius: '8px', fontSize: '0.75rem', 
+                  fontWeight: '1000', cursor: 'pointer', transition: 'all 0.2s',
                 }}
               >
                 Reivindicar

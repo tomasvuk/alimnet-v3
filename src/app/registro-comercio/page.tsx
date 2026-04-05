@@ -21,12 +21,20 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
+import ImageCropper from '@/components/ImageCropper';
 
 export default function MerchantRegistrationPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Estados para Imágenes
+  const [logo, setLogo] = useState<any>(null);
+  const [gallery, setGallery] = useState<any[]>([]);
+  const [croppingImage, setCroppingImage] = useState<{ url: string, type: 'logo' | 'gallery', aspect: number, index?: number } | null>(null);
 
   // Categorías y Tipos (Sincronizados)
   const officialCategories = [
@@ -88,6 +96,57 @@ export default function MerchantRegistrationPage() {
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'gallery') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError(null);
+    const url = URL.createObjectURL(file);
+    setCroppingImage({ url, type, aspect: type === 'logo' ? 1 : 4/3, index: type === 'gallery' ? gallery.length : undefined });
+  };
+
+  const onCropComplete = async (blob: Blob) => {
+    if (!croppingImage) return;
+    setSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No auth');
+
+      const fileName = `${user.id}-${Date.now()}-${croppingImage.type}.jpg`;
+      const bucket = croppingImage.type === 'logo' ? 'merchants-logos' : 'merchants-gallery';
+      
+      const { data, error } = await supabase.storage.from(bucket).upload(fileName, blob, { contentType: 'image/jpeg' });
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+
+      if (croppingImage.type === 'logo') {
+        setLogo(publicUrl);
+        setFormData((prev: any) => ({ ...prev, logo_url: publicUrl }));
+      } else {
+        const newGallery = [...gallery, publicUrl];
+        setGallery(newGallery);
+        setFormData((prev: any) => ({ ...prev, gallery_images: newGallery }));
+      }
+    } catch (err) {
+      console.error(err);
+      setUploadError('Error al subir imagen. Reintentá.');
+    } finally {
+      setSaving(false);
+      setCroppingImage(null);
+    }
+  };
+
+  const removeImage = (index: number, type: 'logo' | 'gallery') => {
+    if (type === 'logo') {
+      setLogo(null);
+      setFormData((prev: any) => ({ ...prev, logo_url: null }));
+    } else {
+      const newGallery = gallery.filter((_, i) => i !== index);
+      setGallery(newGallery);
+      setFormData((prev: any) => ({ ...prev, gallery_images: newGallery }));
+    }
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -105,6 +164,8 @@ export default function MerchantRegistrationPage() {
         instagram_url: formData.instagram_url,
         google_maps_url: formData.google_maps_url,
         website_url: formData.website_url,
+        logo_url: logo, // AGREGADO
+        gallery_images: gallery, // AGREGADO
         status: 'pending'
       }]).select().single();
 
@@ -185,15 +246,63 @@ export default function MerchantRegistrationPage() {
                <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.1rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.4rem', letterSpacing: '-0.04em', textAlign: 'center' }}>Contanos tu historia</h1>
                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2.5rem', textAlign: 'center' }}>Identidad visual y categorías de tu comercio.</p>
 
-               {/* MULTIMEDIA (Más compacto) */}
+               {/* MULTIMEDIA (INTERACTIVO CON OVERLAY) */}
                <div style={{ display: 'flex', gap: '15px', marginBottom: '2.5rem', flexDirection: isMobile ? 'column' : 'row' }}>
-                  <div style={{ width: '110px', height: '110px', background: 'white', border: '1.5px dashed #D1D8CC', borderRadius: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#2D3A20', cursor: 'pointer' }}>
-                     <Camera size={22} strokeWidth={2.5} />
-                     <span style={{ fontSize: '0.6rem', fontWeight: '1000', marginTop: '8px' }}>LOGO</span>
+                  
+                  {/* LOGO BOX */}
+                  <div style={{ 
+                     width: '110px', height: '110px', background: logo ? 'white' : 'white', 
+                     border: '1.5px dashed #D1D8CC', borderRadius: '30px', 
+                     display: 'flex', flexDirection: 'column', alignItems: 'center', 
+                     justifyContent: 'center', color: '#2D3A20', cursor: 'pointer',
+                     position: 'relative', overflow: 'hidden'
+                  }}>
+                     {logo ? (
+                        <>
+                          <img src={logo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <div onClick={(e) => { e.stopPropagation(); removeImage(0, 'logo'); }} style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', padding: '4px', zIndex: 20 }}><X size={12} /></div>
+                        </>
+                     ) : (
+                        <>
+                          <Camera size={22} strokeWidth={2.5} />
+                          <span style={{ fontSize: '0.6rem', fontWeight: '1000', marginTop: '8px' }}>LOGO</span>
+                        </>
+                     )}
+                     <input type="file" accept="image/*" onChange={(e) => handleFileSelect(e, 'logo')} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
                   </div>
-                  <div style={{ flex: 1, minHeight: '110px', background: 'white', border: '1.5px dashed #D1D8CC', borderRadius: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#2D3A20', cursor: 'pointer' }}>
-                     <Upload size={22} strokeWidth={2.5} />
-                     <span style={{ fontSize: '0.6rem', fontWeight: '1000', marginTop: '8px' }}>Galería (Subí hasta 3 Fotos)</span>
+
+                  {/* GALLERY BOX */}
+                  <div style={{ 
+                     flex: 1, minHeight: '110px', background: 'white', 
+                     border: '1.5px dashed #D1D8CC', borderRadius: '30px', 
+                     display: 'flex', flexWrap: 'wrap', gap: '10px', 
+                     padding: '10px', alignItems: 'center', 
+                     justifyContent: gallery.length === 0 ? 'center' : 'flex-start',
+                     color: '#2D3A20', cursor: 'pointer', position: 'relative'
+                  }}>
+                     {gallery.length === 0 ? (
+                        <>
+                          <Upload size={22} strokeWidth={2.5} />
+                          <span style={{ fontSize: '0.6rem', fontWeight: '1000', marginTop: '8px' }}>Galería (Subí hasta 3 Fotos)</span>
+                        </>
+                     ) : (
+                        <>
+                          {gallery.map((img, idx) => (
+                             <div key={idx} style={{ width: '70px', height: '70px', borderRadius: '15px', overflow: 'hidden', position: 'relative' }}>
+                                <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <div onClick={(e) => { e.stopPropagation(); removeImage(idx, 'gallery'); }} style={{ position: 'absolute', top: '3px', right: '3px', background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', padding: '2px', zIndex: 20 }}><X size={10} /></div>
+                             </div>
+                          ))}
+                          {gallery.length < 3 && (
+                             <div style={{ width: '70px', height: '70px', border: '1px dashed #D1D8CC', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Plus size={20} color="#D1D8CC" />
+                             </div>
+                          )}
+                        </>
+                     )}
+                     {gallery.length < 3 && (
+                        <input type="file" accept="image/*" onChange={(e) => handleFileSelect(e, 'gallery')} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10 }} />
+                     )}
                   </div>
                </div>
 
@@ -292,6 +401,24 @@ export default function MerchantRegistrationPage() {
       <style jsx>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
+      
+      {/* EDITOR DE IMÁGENES */}
+      {croppingImage && (
+        <ImageCropper
+          image={croppingImage.url}
+          aspect={croppingImage.aspect}
+          onCropComplete={onCropComplete}
+          onCancel={() => setCroppingImage(null)}
+        />
+      )}
+
+      {/* OVERLAY DE CARGA */}
+      {(saving || loading) && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(5px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+           <Loader2 size={40} className="animate-spin" color="#657D51" />
+           <p style={{ marginTop: '15px', fontWeight: '1000', color: '#2D3A20' }}>Procesando {saving ? 'Imagen' : 'Registro'}... ⏳</p>
+        </div>
+      )}
     </div>
   );
 }
