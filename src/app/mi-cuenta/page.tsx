@@ -470,34 +470,10 @@ function MiCuentaContent() {
                 <AlertCircle size={24} />
               </div>
               <div style={{ flex: 1 }}>
-                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '950', color: '#2D3A20' }}>Modo Vista (Sin sesión local)</h4>
-                <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Para subir fotos y guardar en esta rama, ingresá aquí:</p>
+                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '950', color: '#2D3A20' }}>Sesión no detectada</h4>
+                <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Iniciá sesión para ver tu actividad y gestionar tu perfil.</p>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button 
-                  onClick={() => {
-                    // MOCK MODE: Bypass login barrier for staging testing with VALID UUID format
-                    const validTomId = 'fbe6e467-172a-4eb9-84ff-cbdd7c1edb60';
-                    const validMerId = '00ca4452-5427-45c1-b6f8-4cdf6db3d901';
-                    
-                    setProfile({
-                      id: validTomId,
-                      first_name: 'Tomas (Staging)',
-                      last_name: 'Vukojicic',
-                      email: 'info@alimnet.com',
-                      avatar_url: ''
-                    });
-                    setMerchantData({ id: validMerId, name: 'Buena Cosecha Staging' });
-                    setMerchantFormData({ name: 'Buena Cosecha Staging' });
-                    setUser({ id: validTomId } as any);
-                    setMessage({ type: 'success', text: '¡MODO PRUEBAS ACTIVO! Buckets y DB Listos. ⚡' });
-                    setTimeout(() => setMessage(null), 5000);
-                  }}
-                  className="hover-scale"
-                  style={{ background: '#2D3A20', color: 'white', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900', border: 'none', cursor: 'pointer' }}
-                >
-                  MODO PRUEBAS (SIMULAR LOGIN)
-                </button>
                 <button 
                   onClick={() => router.push('/login')}
                   className="hover-scale"
@@ -1592,7 +1568,8 @@ function MiCuentaContent() {
               const fileName = `v3_${Date.now()}.jpg`;
               
               if (croppingImage.type === 'avatar') {
-                const targetProfileId = profile?.id || 'mock-id-st-tomas';
+                const targetProfileId = profile?.id;
+                if (!targetProfileId) throw new Error("Perfil no detectado.");
                 setMessage({ type: 'success', text: 'Procesando tu nuevo rostro... 🎨' });
                 const filePath = `avatars/${targetProfileId}/${fileName}`;
                 
@@ -1610,7 +1587,8 @@ function MiCuentaContent() {
                 setFormData({ ...formData, avatar_url: publicUrl });
                 setProfile({ ...profile, avatar_url: publicUrl });
               } else {
-                const targetMerchantId = merchantData?.id || 'mock-id-st-tomas';
+                const targetMerchantId = merchantData?.id;
+                if (!targetMerchantId) throw new Error("ID de comercio no detectado.");
                 setMessage({ type: 'success', text: 'Procesando logo... 🛠️' });
                 const filePath = `logos/${targetMerchantId}/${fileName}`;
                 

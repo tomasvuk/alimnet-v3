@@ -169,18 +169,8 @@ export default function MerchantProfilePage() {
           gallery_images: mData[0].gallery_images || []
         });
       } else {
-        // Fallback para visualización
-        setMerchant({
-          name: 'Agroecología La Esperanza',
-          validation_count: 24,
-          bio_short: 'Productores de hortalizas orgánicas y miel de monte.',
-          website_url: 'https://linktr.ee/esperanza',
-          instagram_url: '@huerta_esperanza',
-          google_maps_url: 'https://goo.gl/maps/example',
-          type: ['Productor'],
-          categories: ['Verduras', 'Frutas']
-        });
-        setFormData((prev: any) => ({ ...prev, types: ['Productor'], categories: ['Verduras', 'Frutas'] }));
+        // No hay comercio asociado aún
+        setMerchant(null);
       }
 
       // 4. [NUEVO] Traer Guardados y Me Gusta del Usuario
@@ -223,7 +213,8 @@ export default function MerchantProfilePage() {
   const handleUpdateMerchant = async () => {
     try {
       setSaving(true);
-      const targetId = merchant?.id || '00ca4452-5427-45c1-b6f8-4cdf6db3d901';
+      const targetId = merchant?.id;
+      if (!targetId) throw new Error("No hay comercio detectado");
       
       const { error } = await supabase.from('merchants').update({
         name: formData.name,
@@ -351,39 +342,6 @@ export default function MerchantProfilePage() {
             <h1 style={{ fontSize: '2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Editar Perfil</h1>
             <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Asegúrate de que tus datos estén al día.</p>
             
-            {!user && !loading && (
-              <div style={{ 
-                marginBottom: '2rem', padding: '1.5rem 2rem', background: 'white', borderRadius: '24px', 
-                border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '1.5rem',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.03)', borderLeft: '6px solid #F2994A',
-                animation: 'slideDown 0.5s ease-out', flexWrap: 'wrap'
-              }}>
-                <div style={{ width: '45px', height: '45px', background: '#FFF4E5', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F2994A', flexShrink: 0 }}>
-                  <AlertCircle size={24} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '950', color: '#2D3A20' }}>Panel Comercial (Vista Offline)</h4>
-                  <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Para probar subidas y recortes en esta rama de staging:</p>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button 
-                    onClick={() => {
-                        const validTomId = 'fbe6e467-172a-4eb9-84ff-cbdd7c1edb60';
-                        const validMerId = '00ca4452-5427-45c1-b6f8-4cdf6db3d901';
-                        setUser({ id: validTomId } as any);
-                        setMerchant({ id: validMerId, name: 'Staging Store' });
-                        setFormData((prev: any) => ({ ...prev, logo_url: '', gallery_images: [] }));
-                        setMessage({ type: 'success', text: '¡MODO PRUEBAS COMERCIAL ACTIVO! 🚀' });
-                        setTimeout(() => setMessage(null), 4000);
-                    }}
-                    className="hover-scale"
-                    style={{ background: '#2D3A20', color: 'white', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900', border: 'none', cursor: 'pointer' }}
-                  >
-                    ACTIVAR PRUEBAS
-                  </button>
-                </div>
-              </div>
-            )}
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                
@@ -783,7 +741,8 @@ export default function MerchantProfilePage() {
               setCroppingImage(null);
               setSaving(true);
               
-              const targetId = merchant?.id || '00ca4452-5427-45c1-b6f8-4cdf6db3d901';
+              const targetId = merchant?.id;
+      if (!targetId) throw new Error("No hay comercio detectado");
               const fileName = `comm_${Date.now()}.jpg`;
               
               if (croppingImage.type === 'logo') {

@@ -434,7 +434,6 @@ export default function ExplorarPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
-  const [stagingMode, setStagingMode] = useState(false);
   
   // ESTADOS DE INTERACCIÓN (V-10.0)
   const [userLiked, setUserLiked] = useState(false);
@@ -443,15 +442,6 @@ export default function ExplorarPage() {
   const [merchantValidators, setMerchantValidators] = useState<any[]>([]);
   const [showValidatorsSlider, setShowValidatorsSlider] = useState(false);
 
-  // PERSISTENCIA DEL MODO PULIENDO (V-9.5.21)
-  useEffect(() => {
-    const saved = localStorage.getItem('stagingMode') === 'true';
-    if (saved) setStagingMode(true);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('stagingMode', stagingMode.toString());
-  }, [stagingMode]);
 
   // TRIGGER RESIZE PARA LEAFLET (V-9.5.19)
   useEffect(() => {
@@ -1491,21 +1481,6 @@ export default function ExplorarPage() {
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
               </span>
-              <button 
-                id="btn-staging-mode"
-                onClick={() => setStagingMode(!stagingMode)}
-                style={{ 
-                  marginLeft: 'auto', padding: '8px 14px', 
-                  background: stagingMode ? '#2D3A20' : '#FBBF24', 
-                  color: stagingMode ? 'white' : '#000', 
-                  border: '2px solid #000', borderRadius: '30px', 
-                  fontSize: '11px', fontWeight: '1000', cursor: 'pointer', 
-                  display: 'flex', alignItems: 'center', gap: '6px',
-                  boxShadow: '0 4px 0 #000',
-                  transition: 'all 0.1s'
-                }}>
-                <Layout size={12} /> {stagingMode ? 'MODO PULIENDO: ON' : 'MODO PULIENDO: OFF'}
-              </button>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
@@ -1753,7 +1728,7 @@ export default function ExplorarPage() {
             <div style={{ flex: 1, marginTop: '1.5rem' }}>
               <DetailPanel
                 merchant={selectedMerchant as Merchant}
-                isLoggedIn={stagingMode || isLoggedIn}
+                isLoggedIn={isLoggedIn}
                 user={user}
                 userProfile={userProfile}
                 onClose={() => setSelectedMerchant(null)}
@@ -1779,7 +1754,7 @@ export default function ExplorarPage() {
         {!isMobile && selectedMerchant && (
           <DetailPanel
             merchant={selectedMerchant as Merchant}
-            isLoggedIn={stagingMode || isLoggedIn}
+            isLoggedIn={isLoggedIn}
             user={user}
             userProfile={userProfile}
             onClose={() => setSelectedMerchant(null)}
@@ -1857,7 +1832,7 @@ export default function ExplorarPage() {
       )}
       {/* MURO DE IDENTIDAD (MANDATORY) */}
       <IdentityWallModal 
-        isOpen={showIdentityWall && !stagingMode} 
+        isOpen={showIdentityWall} 
         user={user} 
         onComplete={() => {
           setShowIdentityWall(false);
