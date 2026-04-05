@@ -487,7 +487,8 @@ export default function AdminDashboard() {
   });
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F9F5', paddingTop: '70px', fontFamily: 'Manrope, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#F0F4ED', paddingTop: '70px', fontFamily: 'Manrope, sans-serif' }}>
+      {/* V-9.5.11 - Visual Anchor (Green-Refesh) */}
       <Header />
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
@@ -604,10 +605,13 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{padding:20}}>
                         <div style={{fontWeight:1000, color:'#2D3A20'}}>
-                          {/* Priorizamos la combinación de Nombre + Apellido */}
-                          {(u.first_name || u.last_name) 
-                            ? `${u.first_name || ''} ${u.last_name || ''}`.trim() 
-                            : (u.full_name || 'Sin Nombre')}
+                          {/* Log para cazar el error si persiste */}
+                          {(() => {
+                            const name = (u.first_name || u.last_name) 
+                              ? `${u.first_name || ''} ${u.last_name || ''}`.trim() 
+                              : (u.full_name || 'Sin Nombre');
+                            return name;
+                          })()}
                         </div>
                         <div style={{fontSize:'0.75rem', color:'#B2AC88', fontWeight:800}}>{u.email || 'No email synced'}</div>
                       </td>
