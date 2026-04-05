@@ -428,11 +428,23 @@ export default function ExplorarPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isHovered, setIsHovered] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
+
+  // TRIGGER RESIZE PARA LEAFLET (V-9.5.19)
+  useEffect(() => {
+    if (isMobile) {
+      const timer = setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        console.log("[MAP DEBUG]: Resize triggered for mobile view:", mobileView);
+      }, 400); // 400ms para asegurar que la transición de opacidad/display terminó
+      return () => clearTimeout(timer);
+    }
+  }, [mobileView, isMobile]);
+
   const [isRolesVisible, setIsRolesVisible] = useState(true);
   const [isPillsVisible, setIsPillsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
   const [isAddButtonHovered, setIsAddButtonHovered] = useState(false);
   const [searchCoords, setSearchCoords] = useState<{ lat: number, lng: number } | null>(null);
   const [radiusKm, setRadiusKm] = useState<number>(30);
@@ -1553,8 +1565,9 @@ export default function ExplorarPage() {
             height: '100%',
             width: '100%',
             background: '#EAEDE8',
-            zIndex: (isMobile && mobileView !== 'map') ? -10 : 2,
+            zIndex: (isMobile && mobileView !== 'map') ? -10 : 100, // Z-Index competitivo en mobile
             opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
+            pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto', // Evitar clics fantasma
             transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
             overflow: 'hidden'
           }}
@@ -2241,72 +2254,6 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
       </div>
 
       <style jsx global>{` 
-        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .desktop-only { display: inline-flex; }
-        .mobile-only { display: none; }
-
-        @media (max-width: 768px) {
-          .mobile-only { display: flex; }
-          .desktop-only { display: none !important; }
-          
-          .results-section { width: 100% !important; min-width: 0 !important; }
-          .results-section.hidden { display: none; }
-
-          .map-section { 
-            width: 100%; 
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .detail-panel { 
-            width: 100% !important; 
-            height: 94% !important;
-            top: 6% !important;
-            border-radius: 30px 30px 0 0;
-            z-index: 4000;
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          }
-          
-          .is-sticky { border-bottom: 2px solid var(--primary); }
-        }
-        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } } 
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .desktop-only { display: inline-flex; }
-        .mobile-only { display: none; }
-
-        @media (max-width: 768px) {
-          .mobile-only { display: flex; }
-          .desktop-only { display: none !important; }
-          
-          .results-section { width: 100% !important; min-width: 0 !important; }
-          .results-section.hidden { display: none; }
-
-          .map-section { 
-            width: 100%; 
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .detail-panel { 
-            width: 100% !important; 
-            height: 94% !important;
-            top: 6% !important;
-            border-radius: 30px 30px 0 0;
-            z-index: 4000;
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          }
-          
-          .is-sticky { border-bottom: 2px solid var(--primary); }
-          .map-section.active { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; }
-        }
-
         /* REMOVE FOCUS OUTLINES AND SQUARES */
         input:focus, select:focus, textarea:focus, button:focus {
           outline: none !important;
@@ -2314,14 +2261,8 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
           -webkit-tap-highlight-color: transparent;
         }
         
-        /* Specific Fix for Search Capsule Focus */
-        .search-capsule input:focus {
-          background: transparent !important;
-        }
-        
-        .search-capsule select:focus {
-          background: transparent !important;
-        }
+        .search-capsule input:focus { background: transparent !important; }
+        .search-capsule select:focus { background: transparent !important; }
       `}</style>
     </div>
   );
