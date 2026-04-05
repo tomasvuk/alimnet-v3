@@ -127,11 +127,11 @@ export default function Home() {
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               {[
-                "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=150", 
-                "https://images.unsplash.com/photo-1584281722573-030a08e70a96?auto=format&fit=crop&q=80&w=150",
-                "https://images.unsplash.com/photo-1622329712061-00455dbd7cda?auto=format&fit=crop&q=80&w=150",
-                "https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?auto=format&fit=crop&q=80&w=150",
-                "https://images.unsplash.com/photo-1601275224320-94ed187f3b89?auto=format&fit=crop&q=80&w=150"
+                "/avatars/v2-front-agronomo.png", 
+                "/avatars/v2-front-floricultora.png",
+                "/avatars/v2-front-apicultor.png",
+                "/avatars/v2-front-hortelana.png",
+                "/avatars/v2-front-quesera.png"
               ].map((src, i) => (
                 <div key={i} style={{ 
                   width: "40px", height: "40px", borderRadius: "50%", border: "3px solid white", 

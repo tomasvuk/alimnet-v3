@@ -44,6 +44,7 @@ function MiCuentaContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [validationCount, setValidationCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -182,7 +183,8 @@ function MiCuentaContent() {
   const fetchData = async (retryCount = 0) => {
     try {
       // 1. Intentamos obtener el usuario de forma estándar
-      let { data: { user }, error: userError } = await supabase.auth.getUser();
+      let { data: { user: supabaseUser }, error: userError } = await supabase.auth.getUser();
+      let user = supabaseUser;
       
       // 2. [BRUTE FORCE PARA MÓVILES] Si falla, buscamos en la cookie
       if (!user) {
@@ -196,7 +198,7 @@ function MiCuentaContent() {
             const sessionData = JSON.parse(cookieValue);
             if (sessionData?.access_token && sessionData?.refresh_token) {
               console.log("Sesión encontrada en cookie. Restaurando en el motor...");
-              const { data: { session }, error: setSessionError } = await supabase.auth.setSession({
+              const { data: { session } } = await supabase.auth.setSession({
                 access_token: sessionData.access_token,
                 refresh_token: sessionData.refresh_token
               });
@@ -214,13 +216,12 @@ function MiCuentaContent() {
           setTimeout(() => fetchData(retryCount + 1), 800);
           return;
         }
+        setUser(null);
         setLoading(false);
-        // YA NO REDIRIGIMOS AUTOMÁTICAMENTE PARA EVITAR CONFUSIÓN EN RAMAS DE PRUEBA
         return;
       }
 
-
-
+      setUser(user);
       const currentUser = user;
 
       const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
@@ -248,13 +249,11 @@ function MiCuentaContent() {
         .select(`
           merchant_id,
           merchants (
-            id,
-            name,
-            type,
-            locations (locality)
+            id, name, logo_url, bio_short, locality, average_rating
           )
         `)
-        .eq('user_id', currentUser.id);
+        .eq('user_id', currentUser.id)
+        .limit(3);
       
       if (vData) {
         setValidatedMerchants(vData.map((v: any) => v.merchants).filter(Boolean));
@@ -278,7 +277,8 @@ function MiCuentaContent() {
           preferred_contact_channel: mData.preferred_contact_channel || 'whatsapp',
           tags: mData.tags || [],
           logo_url: mData.logo_url || '',
-          website_url: mData.website_url || ''
+          website_url: mData.website_url || '',
+          display_name_style: mData.display_name_style || 'full'
         });
 
         // TRAER PRODUCTOS DEL CATALOGO
@@ -448,7 +448,7 @@ function MiCuentaContent() {
       }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '5rem' }}>
           
-          {!profile && !loading ? (
+          {!user && !loading ? (
             <div style={{ padding: '3.5rem', textAlign: 'center', background: 'white', borderRadius: '40px', border: '1px solid #E4EBDD', boxShadow: '0 20px 50px rgba(0,0,0,0.05)', maxWidth: '600px', margin: '2rem auto' }}>
               <div style={{ width: '80px', height: '80px', background: '#FFF4E5', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', color: '#F2994A' }}>
                 <AlertCircle size={40} />
@@ -961,19 +961,24 @@ function MiCuentaContent() {
                                transition: 'all 0.2s'
                              }}
                            >
-                             {saving ? 'Subiendo...' : 'SUBIR LOGO'}
+                             {saving ? 'Cargando...' : 'SUBIR LOGO'}
                            </label>
                            <input 
                              id="merchant-logo-upload"
-                             ref={merchantLogoInputRef}
                              type="file" 
-                             style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }} 
+                             style={{ display: 'none' }} 
                              accept="image/*" 
                              onChange={(e) => {
                                const file = e.target.files?.[0];
                                if (!file) return;
+                               setSaving(true);
+                               setMessage({ type: 'success', text: 'Preparando editor de imagen... ⏳' });
                                const reader = new FileReader();
-                               reader.onload = () => setCroppingImage({ url: reader.result as string, type: 'merchant_logo', aspect: 1 });
+                               reader.onload = () => {
+                                 setCroppingImage({ url: reader.result as string, type: 'merchant_logo', aspect: 1 });
+                                 setSaving(false);
+                                 setMessage(null);
+                               };
                                reader.readAsDataURL(file);
                                e.target.value = '';
                              }} 
@@ -1080,19 +1085,24 @@ function MiCuentaContent() {
                                   transition: 'all 0.2s'
                                 }}
                               >
-                                Subir Imagen
+                                {saving ? 'Cargando...' : 'Subir Imagen'}
                               </label>
                               <input 
                                 id="avatar-upload"
-                                ref={avatarInputRef}
                                 type="file" 
-                                style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }} 
+                                style={{ display: 'none' }} 
                                 accept="image/*"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (!file) return;
+                                  setSaving(true);
+                                  setMessage({ type: 'success', text: 'Preparando editor de imagen... ⏳' });
                                   const reader = new FileReader();
-                                  reader.onload = () => setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
+                                  reader.onload = () => {
+                                    setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
+                                    setSaving(false);
+                                    setMessage(null);
+                                  };
                                   reader.readAsDataURL(file);
                                   e.target.value = '';
                                 }}

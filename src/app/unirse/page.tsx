@@ -59,6 +59,21 @@ export default function JoinPage() {
   const [success, setSuccess] = useState(false);
   const [showOtherCategory, setShowOtherCategory] = useState(false);
   const [otherCategory, setOtherCategory] = useState('');
+ 
+  // CSS dinámico para reacciones visuales
+  React.useEffect(() => {
+    const styleId = 'alimnet-dynamic-styles-unirse';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.innerHTML = `
+        .hover-scale { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .hover-scale:hover { transform: scale(1.02); filter: brightness(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.06); }
+        .hover-scale:active { transform: scale(0.98); }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -331,8 +346,9 @@ export default function JoinPage() {
                       borderRadius: '32px', display: 'flex', flexDirection: 'column', 
                       alignItems: 'center', justifyContent: 'center', cursor: 'pointer', 
                       color: 'var(--text-secondary)', position: 'relative', overflow: 'hidden',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(0,0,0,0.03)'
                     }}
+                    className="hover-scale"
                   >
                     {logo ? (
                       <>
@@ -345,18 +361,17 @@ export default function JoinPage() {
                         <span style={{ fontSize: '0.7rem', fontWeight: '800', marginTop: '8px' }}>LOGO</span>
                       </>
                     )}
-                    <input 
-                      id="logo-upload"
-                      ref={logoInputRef}
-                      type="file" 
-                      style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }}
-                      accept="image/*" 
-                      onChange={(e) => {
-                        handleFileSelect(e, 'logo');
-                        e.target.value = '';
-                      }} 
-                    />
                   </label>
+                  <input 
+                    id="logo-upload"
+                    type="file" 
+                    style={{ display: 'none' }}
+                    accept="image/*" 
+                    onChange={(e) => {
+                      handleFileSelect(e, 'logo');
+                      e.target.value = '';
+                    }} 
+                  />
 
                   {/* GALLERY UPLOAD */}
                   <label 
@@ -372,8 +387,9 @@ export default function JoinPage() {
                       gap: '10px', padding: '10px', alignItems: 'center', 
                       justifyContent: gallery.length === 0 ? 'center' : 'flex-start',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(0,0,0,0.03)'
                     }}
+                    className="hover-scale"
                   >
                     {gallery.length === 0 ? (
                       <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -395,19 +411,18 @@ export default function JoinPage() {
                         )}
                       </>
                     )}
-                    <input 
-                      id="gallery-upload"
-                      ref={galleryInputRef}
-                      type="file" 
-                      style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', zIndex: -1 }}
-                      multiple 
-                      accept="image/*" 
-                      onChange={(e) => {
-                        handleFileSelect(e, 'gallery');
-                        e.target.value = '';
-                      }} 
-                    />
                   </label>
+                  <input 
+                    id="gallery-upload"
+                    type="file" 
+                    style={{ display: 'none' }}
+                    multiple 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      handleFileSelect(e, 'gallery');
+                      e.target.value = '';
+                    }} 
+                  />
                 </div>
 
                 {uploadError && (
