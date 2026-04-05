@@ -291,35 +291,27 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
                     'Orgánico': 'Orgánico'
                   };
                   
-                  // Detectar si el estilo YA está aplicado (para toggle)
-                  const prefsInFilters = userProfile.preferences.some((p: string) => 
-                    selectedFilters.includes(mapping[p] || p)
-                  );
+                  // Detectar si el estilo YA está aplicado completamente
+                  const isStyleApplied = userProfile.preferences && userProfile.preferences.length > 0 && 
+                    userProfile.preferences.every((p: string) => selectedFilters.includes(mapping[p] || p));
 
-                  if (prefsInFilters) {
-                    // SI YA ESTÁ: Quitar todo
+                  if (isStyleApplied) {
+                    // SI YA ESTÁ: Quitar todo (Volver a neutro)
                     clearAll();
                   } else {
-                    // SI NO ESTÁ: Aplicar estilo
-                    const newFilters = [...selectedFilters];
+                    // SI NO ESTÁ: Limpiar primero y aplicar EL ESTILO DEL PERFIL PURO
+                    clearAll(); 
                     userProfile.preferences.forEach((p: string) => {
                       const mapped = mapping[p] || p;
-                      if (!newFilters.includes(mapped)) newFilters.push(mapped);
+                      toggleFilter(mapped);
                     });
                     
-                    // Si el perfil es escueto, forzar los 4 tipos
-                    if (userProfile.preferences.length < 3) {
+                    // Si el perfil tiene pocas preferencias, reforzamos con los tipos básicos
+                    if (userProfile.preferences.length < 2) {
                       ['Productor', 'Abastecedor', 'Restaurante', 'Chef'].forEach(cat => {
-                        if (!newFilters.includes(cat)) {
-                          newFilters.push(cat);
-                          toggleFilter(cat);
-                        }
+                        if (!selectedFilters.includes(cat)) toggleFilter(cat);
                       });
                     }
-
-                    newFilters.forEach(f => {
-                      if (!selectedFilters.includes(f)) toggleFilter(f);
-                    });
                   }
                   onClose();
                 }}
@@ -429,6 +421,30 @@ export default function ExplorarPage() {
   useEffect(() => {
     merchantsRef.current = merchants;
   }, [merchants]);
+
+  // --- LOCALIZACIÓN AUTOMÁTICA (GPS/IP) AL INICIO ---
+  useEffect(() => {
+    if (typeof window !== 'undefined' && navigator.geolocation && !searchCoords) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("GPS detected:", latitude, longitude);
+          setSearchCoords({ lat: latitude, lng: longitude });
+          setFinalCoords({ lat: latitude, lng: longitude });
+          // Importante: No seteamos searchLocation con texto para dejarlo limpio ("¿A dónde?")
+        },
+        (error) => {
+          console.log("Geolocation error / denied:", error);
+          // Fallback al obelisco si falla
+          if (!searchCoords) {
+            setSearchCoords({ lat: -34.6037, lng: -58.3816 });
+            setFinalCoords({ lat: -34.6037, lng: -58.3816 });
+          }
+        },
+        { timeout: 10000 }
+      );
+    }
+  }, []);
 
   // Sincronizar deliveryType con selectedFilters (Modal -> Buscador)
   useEffect(() => {
@@ -1367,7 +1383,7 @@ export default function ExplorarPage() {
             <Compass size={16} color="var(--primary)" />
             <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center' }}>
               {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
-              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.2.1</span>
+              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.2.2</span>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>

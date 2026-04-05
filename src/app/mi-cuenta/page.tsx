@@ -50,28 +50,34 @@ function MiCuentaContent() {
     production_interest: [] as string[],
     display_name_style: 'full' as 'full' | 'initial',
     avatar_url: '',
-    user_number: ''
+    user_number: '',
+    preferences: [] as string[]
   });
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ALIMNET_AVATARS = [
-    { id: 'hombre-agronomo', path: '/avatars/hombre-agronomo.png', label: 'Agrónomo' },
-    { id: 'hombre-apicultor', path: '/avatars/hombre-apicultor.png', label: 'Apicultor' },
-    { id: 'hombre-jinete', path: '/avatars/hombre-jinete.png', label: 'Jinete' },
-    { id: 'hombre-pastor', path: '/avatars/hombre-pastor.png', label: 'Pastor' },
-    { id: 'hombre-puestero', path: '/avatars/hombre-puestero.png', label: 'Puestero' },
-    { id: 'hombre-vinatero', path: '/avatars/hombre-vinatero.png', label: 'Viñatero' },
-    { id: 'hombre-alambrador', path: '/avatars/hombre-alambrador.png', label: 'Alambrador' },
-    { id: 'hombre-transportista', path: '/avatars/hombre-transportista.png', label: 'Transportista' },
-    { id: 'mujer-campesina', path: '/avatars/mujer-campesina.png', label: 'Campesina' },
-    { id: 'mujer-floricultora', path: '/avatars/mujer-floricultora.png', label: 'Floricultora' },
-    { id: 'mujer-hortelana', path: '/avatars/mujer-hortelana.png', label: 'Hortelana' },
-    { id: 'mujer-polista', path: '/avatars/mujer-polista.png', label: 'Polista' },
-    { id: 'mujer-quesera', path: '/avatars/mujer-quesera.png', label: 'Quesera' },
-    { id: 'mujer-recolectora', path: '/avatars/mujer-recolectora.png', label: 'Recolectora' },
-    { id: 'mujer-tejedora', path: '/avatars/mujer-tejedora.png', label: 'Tejedora' },
-    { id: 'mujer-ceramista', path: '/avatars/mujer-ceramista.png', label: 'Ceramista' }
+    { id: 'agronomo', path: '/avatars/v2-front-agronomo.png' },
+    { id: 'apicultor', path: '/avatars/v2-front-apicultor.png' },
+    { id: 'jinete', path: '/avatars/v2-front-jinete.png' },
+    { id: 'pastor', path: '/avatars/v2-front-pastor.png' },
+    { id: 'puestero', path: '/avatars/v2-front-puestero.png' },
+    { id: 'vinatero', path: '/avatars/v2-front-vinatero.png' },
+    { id: 'alambrador', path: '/avatars/v2-front-alambrador.png' },
+    { id: 'transportista', path: '/avatars/v2-front-transportista.png' },
+    { id: 'campesina', path: '/avatars/v2-front-campesina.png' },
+    { id: 'floricultora', path: '/avatars/v2-front-floricultora.png' },
+    { id: 'hortelana', path: '/avatars/v2-front-hortelana.png' },
+    { id: 'polista', path: '/avatars/v2-front-polista.png' },
+    { id: 'quesera', path: '/avatars/v2-front-quesera.png' },
+    { id: 'recolectora', path: '/avatars/v2-front-recolectora.png' },
+    { id: 'tejedora', path: '/avatars/v2-front-tejedora.png' },
+    { id: 'ceramista', path: '/avatars/mujer-ceramista.png' },
+    { id: 'tractorista', path: '/avatars/v2-front-transportista.png' }, // Placeholder v2
+    { id: 'criador', path: '/avatars/hombre-pastor.png' }, // Placeholder v1
+    { id: 'agronoma', path: '/avatars/mujer-floricultora.png' }, // Placeholder v1
+    { id: 'vet-f', path: '/avatars/mujer-hortelana.png' }, // Placeholder v1
+    { id: 'artesana', path: '/avatars/mujer-tejedora.png' } // Placeholder v1
   ];
   const [merchantProducts, setMerchantProducts] = useState<any[]>([]); // NUEVO: Estado de Productos
   const [merchantFormData, setMerchantFormData] = useState<any>({
@@ -196,7 +202,8 @@ function MiCuentaContent() {
           production_interest: data.production_interest || [],
           display_name_style: data.display_name_style || 'full',
           avatar_url: data.avatar_url || '',
-          user_number: data.user_number || ''
+          user_number: data.user_number || '',
+          preferences: data.preferences || []
         });
       }
 
@@ -297,7 +304,8 @@ function MiCuentaContent() {
     { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
     ...(merchantData ? [{ id: 'mi-emprendimiento', label: 'Mi Emprendimiento', icon: Package }] : []),
     { id: 'perfil', label: 'Mi Perfil', icon: User },
-    { id: 'contribuciones', label: 'Mis Contribuciones', icon: Sparkles },
+    { id: 'estilo', label: 'Mi Estilo Alimenticio', icon: Sparkles },
+    { id: 'contribuciones', label: 'Mis Contribuciones', icon: Share2 },
     { id: 'validaciones', label: 'Validaciones', icon: ShieldCheck },
     { id: 'referentes', label: 'Referentes', icon: Users },
     { id: 'favoritos', label: 'Guardados', icon: Star },
@@ -1094,134 +1102,132 @@ function MiCuentaContent() {
                    </div>
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* BLOQUE 2: ADN ALIMENTARIO Y PREFERENCIAS */}
-              <div>
-                <div style={{ marginBottom: '1rem' }}>
-                   <h2 style={{ fontSize: '1.4rem', fontWeight: '1000', color: '#5F7D4A', margin: 0 }}>ADN Alimentario y Preferencias</h2>
-                   <p style={{ color: '#888', fontWeight: '600', fontSize: '0.8rem' }}>Tu radar de búsqueda sincronizado con la red.</p>
-                </div>
+          {activeTab === 'estilo' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.8rem', fontWeight: '1000', color: '#5F7D4A', margin: 0 }}>Mi Estilo Alimenticio</h2>
+                <p style={{ color: '#888', fontWeight: '600', fontSize: '0.9rem', marginTop: '4px' }}>Configurá tu radar para que Alimnet te muestre exactamente lo que buscás.</p>
+              </div>
 
-                <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                   
-                   <div>
-                  <h4 style={{ fontSize: '0.75rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                     <Sparkles size={16} /> ADN Alimentario y Preferencias
+              <div style={{ background: 'white', padding: '3rem', borderRadius: '40px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+                
+                {/* SECCIÓN 1: ¿QUÉ BUSCÁS EN ALIMNET? */}
+                <div>
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Search size={18} /> ¿Qué proyectos buscás encontrar?
                   </h4>
-                  
-                  {/* CATEGORÍAS MADRE */}
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#888', marginBottom: '1rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03em' }}>¿Qué productos buscás encontrar?</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                       {OFFICIAL_CATEGORIES.map(cat => (
-                         <button 
-                           key={cat}
-                           onClick={() => {
-                             const current = formData.production_interest;
-                             const next = current.includes(cat) ? current.filter(c => c !== cat) : [...current, cat];
-                             setFormData({...formData, production_interest: next});
-                           }}
-                           style={{ 
-                             padding: '0.6rem 1.1rem', borderRadius: '14px', border: '1.5px solid',
-                             borderColor: formData.production_interest.includes(cat) ? '#5F7D4A' : '#E4EBDD',
-                             background: formData.production_interest.includes(cat) ? 'rgba(95, 125, 74, 0.05)' : 'white',
-                             color: formData.production_interest.includes(cat) ? '#5F7D4A' : '#888',
-                             fontWeight: '900', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s'
-                           }}
-                         >
-                           {cat}
-                         </button>
-                       ))}
-                    </div>
-                  </div>
-
-                  {/* CALIDAD Y ADN */}
-                  <div>
-                    <p style={{ fontSize: '0.75rem', color: '#888', marginBottom: '1rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Calidad, ADN y Estilo de Vida</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                       {PRODUCTION_ADN_OPTIONS.map(adn => (
-                         <button 
-                           key={adn}
-                           onClick={() => {
-                             const current = formData.production_interest;
-                             const next = current.includes(adn) ? current.filter(c => c !== adn) : [...current, adn];
-                             setFormData({...formData, production_interest: next});
-                           }}
-                           style={{ 
-                             padding: '0.6rem 1.1rem', borderRadius: '14px', border: '1.5px solid',
-                             borderColor: formData.production_interest.includes(adn) ? '#2D3A20' : '#E4EBDD',
-                             background: formData.production_interest.includes(adn) ? 'rgba(45, 58, 32, 0.05)' : 'white',
-                             color: formData.production_interest.includes(adn) ? '#2D3A20' : '#AAA',
-                             fontWeight: '950', fontSize: '0.7rem', cursor: 'pointer', transition: 'all 0.2s'
-                           }}
-                         >
-                           {adn}
-                         </button>
-                       ))}
-                    </div>
-                  </div>
-                </div>
-
-                   {/* LOGISTICA MADRE */}
-                   <div>
-                      <h4 style={{ fontSize: '0.75rem', fontWeight: '950', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Truck size={16} /> Logística y Retiro
-                      </h4>
-                      <div style={{ display: 'flex', gap: '10px' }}>
-                        {DELIVERY_PREFERENCES.map(pref => (
-                          <button 
-                            key={pref}
-                            onClick={() => setFormData({...formData, delivery_pref: pref})}
-                            style={{ 
-                              flex: 1, padding: '1rem', borderRadius: '18px', border: '1.5px solid',
-                              borderColor: formData.delivery_pref === pref ? '#2D3A20' : '#E4EBDD',
-                              background: formData.delivery_pref === pref ? '#F0F4ED' : 'white',
-                              color: '#2D3A20', fontWeight: '1000', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s'
-                            }}
-                          >
-                            {pref}
-                          </button>
-                        ))}
-                      </div>
-                   </div>
-
-                   {/* BOTON DE ACCION UNIFICADO */}
-                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                    {['Productor', 'Abastecedor', 'Restaurante', 'Chef', 'Emprendedor', 'Comunidad'].map(cat => (
                       <button 
-                        onClick={async () => {
-                          setSaving(true);
-                          try {
-                            const { data: { user } } = await supabase.auth.getUser();
-                            if (!user) return;
-                            const { error } = await supabase.from('profiles').update({
-                              first_name: formData.first_name,
-                              last_name: formData.last_name,
-                              locality: formData.locality,
-                              delivery_pref: formData.delivery_pref,
-                              production_interest: formData.production_interest,
-                              display_name_style: formData.display_name_style,
-                              avatar_url: formData.avatar_url,
-                              updated_at: new Date().toISOString()
-                            }).eq('id', user.id);
-                            if (error) throw error;
-                            setMessage({ type: 'success', text: '¡Cambios guardados correctamente! ✨' });
-                            setTimeout(() => setMessage(null), 3000);
-                          } catch (err) { console.error(err); } finally { setSaving(false); }
+                        key={cat}
+                        onClick={() => {
+                          const current = formData.preferences || [];
+                          const next = current.includes(cat) ? current.filter(c => c !== cat) : [...current, cat];
+                          setFormData({...formData, preferences: next});
                         }}
-                        disabled={saving}
                         style={{ 
-                          padding: '1.2rem 3.5rem', background: '#2D3A20', color: 'white', 
-                          border: 'none', borderRadius: '24px', fontWeight: '1000', fontSize: '1rem',
-                          cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 12px 35px rgba(0,0,0,0.12)',
-                          display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.3s'
+                          padding: '1.1rem 1.8rem', borderRadius: '22px', border: '2px solid',
+                          borderColor: (formData.preferences || []).includes(cat) ? '#5F7D4A' : '#F0F4ED',
+                          background: (formData.preferences || []).includes(cat) ? '#F0F4ED' : 'white',
+                          color: (formData.preferences || []).includes(cat) ? '#2D3A20' : '#888',
+                          fontWeight: '900', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s'
                         }}
                       >
-                        {saving ? <Loader2 className="animate-spin" size={20} /> : null}
-                        {saving ? 'GUARDANDO...' : 'GUARDAR TODO'}
+                        {cat}
                       </button>
-                   </div>
-
+                    ))}
+                  </div>
                 </div>
+
+                {/* SECCIÓN 2: CALIDAD Y FILOSOFÍA */}
+                <div>
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Leaf size={18} /> Calidad y Filosofía de Vida
+                  </h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                    {['Orgánico', 'Sustentable', 'Agroecológico', 'Biodinámico', 'Comercio Justo', 'Triple Impacto'].map(adn => (
+                      <button 
+                        key={adn}
+                        onClick={() => {
+                          const current = formData.preferences || [];
+                          const next = current.includes(adn) ? current.filter(c => c !== adn) : [...current, adn];
+                          setFormData({...formData, preferences: next});
+                        }}
+                        style={{ 
+                          padding: '1.1rem 1.8rem', borderRadius: '22px', border: '2px solid',
+                          borderColor: (formData.preferences || []).includes(adn) ? '#2D3A20' : '#F0F4ED',
+                          background: (formData.preferences || []).includes(adn) ? '#F0F4ED' : 'white',
+                          color: (formData.preferences || []).includes(adn) ? '#2D3A20' : '#888',
+                          fontWeight: '900', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s'
+                        }}
+                      >
+                        {adn}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SECCIÓN 3: RECOMENDACIONES DIETÉTICAS */}
+                <div>
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Heart size={18} /> Mi ADN Alimenticio (Dietas)
+                  </h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                    {['Sin gluten', 'Sin azúcar', 'Plant-based', 'Keto', 'Vegetariano', 'Vegano', 'Sin lactosa'].map(diet => (
+                      <button 
+                        key={diet}
+                        onClick={() => {
+                          const current = formData.preferences || [];
+                          const next = current.includes(diet) ? current.filter(c => c !== diet) : [...current, diet];
+                          setFormData({...formData, preferences: next});
+                        }}
+                        style={{ 
+                          padding: '1.1rem 1.8rem', borderRadius: '22px', border: '2px solid',
+                          borderColor: (formData.preferences || []).includes(diet) ? '#5F7D4A' : '#F0F4ED',
+                          background: (formData.preferences || []).includes(diet) ? '#F0F4ED' : 'white',
+                          color: (formData.preferences || []).includes(diet) ? '#2D3A20' : '#888',
+                          fontWeight: '900', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s'
+                        }}
+                      >
+                        {diet}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* BOTON GUARDAR ESTILO */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', borderTop: '1px solid #F0F4ED', paddingTop: '2.5rem' }}>
+                  <button 
+                    onClick={async () => {
+                      setSaving(true);
+                      try {
+                        const { data: { user } } = await supabase.auth.getUser();
+                        if (!user) return;
+                        const { error } = await supabase.from('profiles').update({
+                          preferences: formData.preferences,
+                          updated_at: new Date().toISOString()
+                        }).eq('id', user.id);
+                        if (error) throw error;
+                        setMessage({ type: 'success', text: '¡Tu Estilo Alimenticio ha sido actualizado! ✨🍱' });
+                        setTimeout(() => setMessage(null), 3000);
+                      } catch (err) { console.error(err); } finally { setSaving(false); }
+                    }}
+                    disabled={saving}
+                    style={{ 
+                      padding: '1.3rem 4rem', background: '#2D3A20', color: 'white', 
+                      border: 'none', borderRadius: '24px', fontWeight: '1000', fontSize: '1.1rem',
+                      cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 15px 40px rgba(45,58,32,0.25)',
+                      display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.3s'
+                    }}
+                  >
+                    {saving ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
+                    {saving ? 'GUARDANDO...' : 'GUARDAR MI ESTILO'}
+                  </button>
+                </div>
+
               </div>
             </div>
           )}
@@ -1289,9 +1295,9 @@ function MiCuentaContent() {
                  </button>
               </div>
 
-              <div style={{ flex: 1, overflowY: 'auto', padding: '5px' }}>
-                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '1rem' }}>
-                    {ALIMNET_AVATARS.slice(0, 21).map(avatar => (
+              <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+                    {ALIMNET_AVATARS.map(avatar => (
                        <div 
                          key={avatar.id}
                          onClick={() => {
@@ -1301,15 +1307,15 @@ function MiCuentaContent() {
                          style={{ 
                            textAlign: 'center', cursor: 'pointer', 
                            background: formData.avatar_url === avatar.path ? '#F0F4ED' : 'transparent',
-                           padding: '1.2rem', borderRadius: '32px', border: '4px solid',
+                           padding: '1.5rem', borderRadius: '40px', border: '5px solid',
                            borderColor: formData.avatar_url === avatar.path ? '#5F7D4A' : 'transparent',
                            transition: 'all 0.3s'
                          }}
                        >
                           <div style={{ 
-                             width: '100%', aspectRatio: '1/1', borderRadius: '28px', 
+                             width: '100%', aspectRatio: '1/1', borderRadius: '35px', 
                              background: `url(${avatar.path}) center/cover`, 
-                             border: '2px solid white', boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+                             border: '3px solid white', boxShadow: '0 8px 25px rgba(0,0,0,0.1)'
                           }} />
                        </div>
                     ))}
