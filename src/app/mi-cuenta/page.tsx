@@ -395,7 +395,7 @@ function MiCuentaContent() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontWeight: '950', fontSize: '1.2rem', color: '#2D3A20', letterSpacing: '-0.02em' }}>
-                {profile ? `${profile.first_name} ${profile.last_name || ''}` : 'Tomas Vukojicic'}
+                {profile ? `${profile.first_name} ${profile.last_name || ''}` : (user ? 'Usuario Registrado' : 'Invitado Alimnet')}
               </span>
               {merchantData && (
                 <span style={{ fontSize: '0.6rem', fontWeight: '950', color: '#5F7D4A', background: '#F0F4ED', padding: '4px 8px', borderRadius: '6px', width: 'fit-content', marginTop: '4px' }}>
@@ -448,25 +448,31 @@ function MiCuentaContent() {
       }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '5rem' }}>
           
-          {!user && !loading ? (
-            <div style={{ padding: '3.5rem', textAlign: 'center', background: 'white', borderRadius: '40px', border: '1px solid #E4EBDD', boxShadow: '0 20px 50px rgba(0,0,0,0.05)', maxWidth: '600px', margin: '2rem auto' }}>
-              <div style={{ width: '80px', height: '80px', background: '#FFF4E5', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', color: '#F2994A' }}>
-                <AlertCircle size={40} />
+          {!user && !loading && (
+            <div style={{ 
+              marginBottom: '2rem', padding: '1.5rem 2rem', background: 'white', borderRadius: '24px', 
+              border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '1.5rem',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.03)', borderLeft: '6px solid #F2994A',
+              animation: 'slideDown 0.5s ease-out'
+            }}>
+              <div style={{ width: '45px', height: '45px', background: '#FFF4E5', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F2994A', flexShrink: 0 }}>
+                <AlertCircle size={24} />
               </div>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1rem' }}>Sessión no detectada en Puliendo</h2>
-              <p style={{ color: '#666', fontWeight: '600', marginBottom: '2.5rem', lineHeight: '1.6' }}>
-                Para cargar imágenes y guardar cambios en esta versión de desarrollo, necesitas iniciar sesión específicamente en este subdominio.
-              </p>
+              <div style={{ flex: 1 }}>
+                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '950', color: '#2D3A20' }}>Modo Vista (Sin sesión local)</h4>
+                <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Para subir fotos y guardar cambios en esta rama, debés iniciar sesión aquí.</p>
+              </div>
               <button 
                 onClick={() => router.push('/login')}
-                className="button hover-scale"
-                style={{ background: '#5F7D4A', color: 'white', width: '100%', borderRadius: '20px', padding: '1.2rem', fontSize: '1.1rem', fontWeight: '900', cursor: 'pointer', border: 'none' }}
+                className="hover-scale"
+                style={{ background: '#5F7D4A', color: 'white', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900', border: 'none', cursor: 'pointer' }}
               >
-                LOGUEARME EN ESTA RAMA (PULIENDO)
+                LOGUEARME
               </button>
             </div>
-          ) : (
-            <>
+          )}
+
+          <>
               {activeTab === 'dashboard' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
               
@@ -1334,36 +1340,6 @@ function MiCuentaContent() {
               <p style={{ color: '#888', marginTop: '1rem' }}>Estamos puliendo esta sección.</p>
             </div>
           )}
-            </>
-          )}
-        </div>
-      </main>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .main-content::-webkit-scrollbar { display: none; }
-        .card-hover:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-          border-color: #5F7D4A;
-        }
-        .stat-bar { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        .stat-bar:hover {
-          transform: translateY(-5px);
-          border-color: #5F7D4A;
-          box-shadow: 0 10px 20px rgba(0,0,0,0.03);
-        }
-         @media (max-width: 900px) {
-          .mobile-only { display: flex !important; }
-          .desktop-only { display: none !important; }
-          .main-content { padding: 2rem 1rem !important; }
-          h1 { font-size: 1.8rem !important; }
-        }
-        @media (min-width: 901px) {
-          .main-content { margin-left: 0; }
-          .desktop-only { display: flex !important; }
-        }
-      `}} />
-      </div>
     {/* MODAL PICKER DE AVATARES */}
     {showAvatarPicker && (
         <div style={{ 
@@ -1580,9 +1556,11 @@ function MiCuentaContent() {
             }
           }}
         />
-      )}
-
+            </>
+        </div>
+      </main>
     </div>
+  </div>
   );
 }
 

@@ -1125,7 +1125,7 @@ export default function ExplorarPage() {
 
   return (
     <div style={{ 
-      height: isMobile ? 'auto' : '100vh', 
+      height: '100vh', 
       display: 'flex', 
       flexDirection: 'column', 
       background: '#F0F4ED',
@@ -1361,7 +1361,7 @@ export default function ExplorarPage() {
       {/* 3. CONTENIDO PRINCIPAL - FIXED LAYOUT (DASHBOARD STYLE) */}
       <div className="main-content" style={{ 
         flex: 1, 
-        height: isMobile ? 'auto' : '0', // Zero height + flex:1 makes it fill the container
+        height: '0', // Let flex:1 manage height (Dashboard style)
         display: 'flex', 
         flexDirection: isMobile ? 'column' : 'row',
         overflow: 'hidden', 
