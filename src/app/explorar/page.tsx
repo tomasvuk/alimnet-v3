@@ -1407,7 +1407,7 @@ export default function ExplorarPage() {
             width: isMobile ? '100%' : '35%', 
             minWidth: isMobile ? '0' : '420px', 
             display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
-            padding: isMobile ? '1.5rem 1rem 120px' : '0 0 1.5rem 1.5rem', 
+            padding: isMobile ? '0 0 120px' : '0 0 1.5rem 1.5rem', 
             background: '#F8F9F5',
             borderRight: isMobile ? 'none' : '1px solid #E4EBDD', 
             overflowY: 'auto',
@@ -1432,7 +1432,7 @@ export default function ExplorarPage() {
             <Compass size={16} color="var(--primary)" />
             <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center' }}>
               {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
-              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.5.4 (Global)</span>
+              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.5.26 (Global)</span>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
