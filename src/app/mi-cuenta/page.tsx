@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.1 - Foto Fix Active
+          v3.2 - Persistencia Ready
         </div>
         <MiCuentaContent />
       </div>
@@ -930,6 +930,7 @@ function MiCuentaContent() {
                                position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
                                opacity: 0, cursor: 'pointer', zIndex: 10 
                              }} 
+                             title=""
                              accept="image/*" 
                              onChange={(e) => {
                                const file = e.target.files?.[0];
@@ -1053,6 +1054,7 @@ function MiCuentaContent() {
                                   position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
                                   opacity: 0, cursor: 'pointer', zIndex: 10 
                                 }} 
+                                title=""
                                 accept="image/*"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
@@ -1500,7 +1502,13 @@ function MiCuentaContent() {
                 if (uploadError) throw uploadError;
 
                 const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
+                
+                // --- PERSISTENCIA INMEDIATA EN DB ---
+                const { error: dbError } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', profile.id);
+                if (dbError) throw dbError;
+
                 setFormData({ ...formData, avatar_url: publicUrl });
+                setProfile({ ...profile, avatar_url: publicUrl });
               } else {
                 if (!merchantData?.id) throw new Error("ID de comercio no encontrado");
                 const filePath = `logos/${merchantData.id}/${fileName}`;
@@ -1511,8 +1519,17 @@ function MiCuentaContent() {
                 if (uploadError) throw uploadError;
 
                 const { data: { publicUrl } } = supabase.storage.from('merchant_assets').getPublicUrl(filePath);
+                
+                // --- PERSISTENCIA INMEDIATA EN DB ---
+                const { error: dbError } = await supabase.from('merchants').update({ logo_url: publicUrl }).eq('id', merchantData.id);
+                if (dbError) throw dbError;
+
                 setMerchantFormData({ ...merchantFormData, logo_url: publicUrl });
+                setMerchantData({ ...merchantData, logo_url: publicUrl });
               }
+              
+              setMessage({ type: 'success', text: '¡Imagen actualizada con éxito! ✨' });
+              setTimeout(() => setMessage(null), 3000);
 
               setMessage({ type: 'success', text: '¡Imagen actualizada correctamente! ✨' });
               setTimeout(() => setMessage(null), 3000);
