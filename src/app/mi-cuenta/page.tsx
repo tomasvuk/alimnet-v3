@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.4 - Debug Redirección
+          v3.5 - Feedback & Login
         </div>
         <MiCuentaContent />
       </div>
@@ -215,11 +215,10 @@ function MiCuentaContent() {
           return;
         }
         setLoading(false);
-        // Si después de los reintentos no hay usuario, mandamos al login
-        setMessage({ type: 'error', text: 'Sesión no encontrada. Redirigiendo...' });
-        setTimeout(() => router.push('/login'), 2000);
+        // YA NO REDIRIGIMOS AUTOMÁTICAMENTE PARA EVITAR CONFUSIÓN EN RAMAS DE PRUEBA
         return;
       }
+
 
 
       const currentUser = user;
@@ -449,7 +448,26 @@ function MiCuentaContent() {
       }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '5rem' }}>
           
-          {activeTab === 'dashboard' && (
+          {!profile && !loading ? (
+            <div style={{ padding: '3.5rem', textAlign: 'center', background: 'white', borderRadius: '40px', border: '1px solid #E4EBDD', boxShadow: '0 20px 50px rgba(0,0,0,0.05)', maxWidth: '600px', margin: '2rem auto' }}>
+              <div style={{ width: '80px', height: '80px', background: '#FFF4E5', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', color: '#F2994A' }}>
+                <AlertCircle size={40} />
+              </div>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '950', color: '#2D3A20', marginBottom: '1rem' }}>Sessión no detectada en Puliendo</h2>
+              <p style={{ color: '#666', fontWeight: '600', marginBottom: '2.5rem', lineHeight: '1.6' }}>
+                Para cargar imágenes y guardar cambios en esta versión de desarrollo, necesitas iniciar sesión específicamente en este subdominio.
+              </p>
+              <button 
+                onClick={() => router.push('/login')}
+                className="button hover-scale"
+                style={{ background: '#5F7D4A', color: 'white', width: '100%', borderRadius: '20px', padding: '1.2rem', fontSize: '1.1rem', fontWeight: '900', cursor: 'pointer', border: 'none' }}
+              >
+                LOGUEARME EN ESTA RAMA (PULIENDO)
+              </button>
+            </div>
+          ) : (
+            <>
+              {activeTab === 'dashboard' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
               
               <div style={{ marginBottom: '1rem' }}>
@@ -1306,7 +1324,8 @@ function MiCuentaContent() {
               <p style={{ color: '#888', marginTop: '1rem' }}>Estamos puliendo esta sección.</p>
             </div>
           )}
-
+            </>
+          )}
         </div>
       </main>
 
