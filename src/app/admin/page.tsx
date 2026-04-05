@@ -582,6 +582,7 @@ export default function AdminDashboard() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr>
+                    <th style={THStyle}>SOCIO N°</th>
                     <th style={THStyle}>USUARIO</th>
                     <th style={THStyle}>ROL</th>
                     <th style={THStyle}>LOCALIDAD</th>
@@ -592,6 +593,15 @@ export default function AdminDashboard() {
                 <tbody>
                   {usersLoading ? <tr><td colSpan={5} style={{padding:40, textAlign:'center'}}>Cargando...</td></tr> : users.map(u => (
                     <tr key={u.id} style={{borderBottom:'1px solid #F0F4ED'}}>
+                      <td style={{padding:20}}>
+                        <div style={{
+                          background: '#F0F4ED', color: '#5F7D4A', padding: '4px 10px', 
+                          borderRadius: '8px', fontSize: '0.75rem', fontWeight: '1000',
+                          display: 'inline-block', border: '1px solid #E4EBDD'
+                        }}>
+                          #{u.user_number || '---'}
+                        </div>
+                      </td>
                       <td style={{padding:20}}>
                         <div style={{fontWeight:1000, color:'#2D3A20'}}>{u.full_name || 'Sin Nombre'}</div>
                         <div style={{fontSize:'0.75rem', color:'#B2AC88', fontWeight:800}}>{u.email || 'No email synced'}</div>

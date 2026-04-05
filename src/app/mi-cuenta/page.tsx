@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { 
   User, Settings, Heart, MapPin, LogOut, ChevronRight, 
   Edit3, Shield, Star, Clock, Leaf, Package, Truck,
   Bell, Award, TrendingUp, Check, X, Plus, Search,
   Map as MapIcon, Loader2, AlertCircle, MessageSquare, 
   ExternalLink, ShieldCheck, LayoutDashboard, History,
-  Activity, Users, Share2, Eye, Sparkles
+  Activity, Users, Share2, Eye, Sparkles, ArrowLeft
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -52,6 +52,27 @@ function MiCuentaContent() {
     avatar_url: '',
     user_number: ''
   });
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const ALIMNET_AVATARS = [
+    { id: 'hombre-agronomo', path: '/avatars/hombre-agronomo.png', label: 'Agrónomo' },
+    { id: 'hombre-apicultor', path: '/avatars/hombre-apicultor.png', label: 'Apicultor' },
+    { id: 'hombre-jinete', path: '/avatars/hombre-jinete.png', label: 'Jinete' },
+    { id: 'hombre-pastor', path: '/avatars/hombre-pastor.png', label: 'Pastor' },
+    { id: 'hombre-puestero', path: '/avatars/hombre-puestero.png', label: 'Puestero' },
+    { id: 'hombre-vinatero', path: '/avatars/hombre-vinatero.png', label: 'Viñatero' },
+    { id: 'hombre-alambrador', path: '/avatars/hombre-alambrador.png', label: 'Alambrador' },
+    { id: 'hombre-transportista', path: '/avatars/hombre-transportista.png', label: 'Transportista' },
+    { id: 'mujer-campesina', path: '/avatars/mujer-campesina.png', label: 'Campesina' },
+    { id: 'mujer-floricultora', path: '/avatars/mujer-floricultora.png', label: 'Floricultora' },
+    { id: 'mujer-hortelana', path: '/avatars/mujer-hortelana.png', label: 'Hortelana' },
+    { id: 'mujer-polista', path: '/avatars/mujer-polista.png', label: 'Polista' },
+    { id: 'mujer-quesera', path: '/avatars/mujer-quesera.png', label: 'Quesera' },
+    { id: 'mujer-recolectora', path: '/avatars/mujer-recolectora.png', label: 'Recolectora' },
+    { id: 'mujer-tejedora', path: '/avatars/mujer-tejedora.png', label: 'Tejedora' },
+    { id: 'mujer-ceramista', path: '/avatars/mujer-ceramista.png', label: 'Ceramista' }
+  ];
   const [merchantProducts, setMerchantProducts] = useState<any[]>([]); // NUEVO: Estado de Productos
   const [merchantFormData, setMerchantFormData] = useState<any>({
     name: '',
@@ -926,19 +947,12 @@ function MiCuentaContent() {
                      <h2 style={{ fontSize: '1.4rem', fontWeight: '1000', color: '#5F7D4A', margin: 0 }}>Identidad y Acceso</h2>
                      <p style={{ color: '#888', fontWeight: '600', fontSize: '0.8rem' }}>Tus datos oficiales en la red Alimnet.</p>
                    </div>
-                   {formData.user_number && (
-                     <div style={{ textAlign: 'right' }}>
-                       <span style={{ fontSize: '0.65rem', fontWeight: '950', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>DNI Alimnet</span>
-                       <div style={{ fontSize: '1.2rem', fontWeight: '1000', color: '#5F7D4A' }}>Socio N° {formData.user_number}</div>
-                     </div>
-                   )}
                 </div>
 
-                <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                   
+                 <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                    {/* SELECTOR DE AVATAR / FOTO */}
                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', background: '#F8F9F5', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
-                      <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setMessage({ type: 'success', text: 'Galería de Avatares en desarrollo... 🧑‍🌾' })}>
+                      <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setShowAvatarPicker(true)}>
                          <div style={{ 
                             width: '100px', height: '100px', borderRadius: '35px', 
                             background: formData.avatar_url ? `url(${formData.avatar_url}) center/cover` : '#F4F1E6',
@@ -962,8 +976,47 @@ function MiCuentaContent() {
                             Elegí uno de los 21 avatares de nuestra colección "Gente de Campo" o subí tu propia foto oficial.
                          </p>
                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                            <button className="button-primary-small" style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
-                            <button style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '800', cursor: 'pointer' }}>Subir Imagen</button>
+                            <button className="button-primary-small" onClick={() => setShowAvatarPicker(true)} style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
+                            <input 
+                              type="file" 
+                              ref={fileInputRef} 
+                              style={{ display: 'none' }} 
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                
+                                try {
+                                  setMessage({ type: 'success', text: 'Subiendo imagen oficial... 📸' });
+                                  const fileExt = file.name.split('.').pop();
+                                  const fileName = `${Math.random()}.${fileExt}`;
+                                  const filePath = `${profile?.id}/${fileName}`;
+
+                                  const { error: uploadError } = await supabase.storage
+                                    .from('avatars')
+                                    .upload(filePath, file);
+
+                                  if (uploadError) throw uploadError;
+
+                                  const { data: { publicUrl } } = supabase.storage
+                                    .from('avatars')
+                                    .getPublicUrl(filePath);
+
+                                  setFormData({ ...formData, avatar_url: publicUrl });
+                                  setMessage({ type: 'success', text: '¡Imagen actualizada con éxito!' });
+                                } catch (err) {
+                                  console.error(err);
+                                  setMessage({ type: 'error', text: 'Error al subir la imagen' });
+                                }
+                              }}
+                            />
+                            <button 
+                              onClick={() => fileInputRef.current?.click()}
+                              style={{ 
+                                fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px', 
+                                border: '1px solid #E4EBDD', background: 'white', color: '#666', 
+                                fontWeight: '800', cursor: 'pointer' 
+                            }}>Subir Imagen</button>
                          </div>
                       </div>
                    </div>
@@ -1208,6 +1261,73 @@ function MiCuentaContent() {
         }
       `}</style>
       </div>
+    {/* MODAL PICKER DE AVATARES */}
+    {showAvatarPicker && (
+        <div style={{ 
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
+          background: 'rgba(0,0,0,0.5)', zIndex: 5000, display: 'flex', 
+          alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(5px)' 
+        }} onClick={() => setShowAvatarPicker(false)}>
+           <div 
+             style={{ 
+               width: '90%', maxWidth: '600px', background: 'white', borderRadius: '40px', 
+               padding: '2.5rem', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.3)',
+               maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+             }} 
+             onClick={(e) => e.stopPropagation()}
+           >
+              <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                 <div>
+                    <h2 style={{ fontSize: '1.6rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>Gabinete de Identidad</h2>
+                    <p style={{ color: '#888', fontWeight: '600', fontSize: '0.85rem' }}>Elegí el rostro que más te represente en Alimnet.</p>
+                 </div>
+                 <button 
+                   onClick={() => setShowAvatarPicker(false)}
+                   style={{ background: '#F0F4ED', border: 'none', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                 >
+                    <X size={18} color="#5F7D4A" />
+                 </button>
+              </div>
+
+              <div style={{ flex: 1, overflowY: 'auto', padding: '5px' }}>
+                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '1rem' }}>
+                    {ALIMNET_AVATARS.slice(0, 21).map(avatar => (
+                       <div 
+                         key={avatar.id}
+                         onClick={() => {
+                           setFormData({ ...formData, avatar_url: avatar.path });
+                           setShowAvatarPicker(false);
+                         }}
+                         style={{ 
+                           textAlign: 'center', cursor: 'pointer', 
+                           background: formData.avatar_url === avatar.path ? '#F0F4ED' : 'transparent',
+                           padding: '1.2rem', borderRadius: '32px', border: '4px solid',
+                           borderColor: formData.avatar_url === avatar.path ? '#5F7D4A' : 'transparent',
+                           transition: 'all 0.3s'
+                         }}
+                       >
+                          <div style={{ 
+                             width: '100%', aspectRatio: '1/1', borderRadius: '28px', 
+                             background: `url(${avatar.path}) center/cover`, 
+                             border: '2px solid white', boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+                          }} />
+                       </div>
+                    ))}
+                 </div>
+              </div>
+              
+              <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                 <button 
+                    onClick={() => setShowAvatarPicker(false)}
+                    className="button-primary"
+                    style={{ width: '100%', padding: '1.2rem', borderRadius: '22px' }}
+                 >
+                    Listo, este soy yo
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
