@@ -1146,13 +1146,15 @@ export default function ExplorarPage() {
       overflow: 'hidden' 
     }}>
       
-      <Header />
+      <div style={{ zIndex: 10100, position: 'relative' }}>
+        <Header />
+      </div>
 
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
         padding: isMobile ? '70px 1rem 0.8rem' : '72px 1.5rem 0.8rem', 
         background: 'white', 
         borderBottom: '1px solid #E4EBDD',
-        zIndex: 1400,
+        zIndex: (isMobile && mobileView === 'map') ? 10090 : 1400, // Por encima del mapa en modo mapa
         display: 'flex',
         flexDirection: 'column',
         gap: isMobile ? '0.6rem' : '1rem',
