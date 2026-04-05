@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.5.X - Global Toasts & Label Fix
+          v3.5.X - Staging Test Mode Active
         </div>
         <MiCuentaContent />
       </div>
@@ -468,22 +468,44 @@ function MiCuentaContent() {
               marginBottom: '2rem', padding: '1.5rem 2rem', background: 'white', borderRadius: '24px', 
               border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '1.5rem',
               boxShadow: '0 10px 30px rgba(0,0,0,0.03)', borderLeft: '6px solid #F2994A',
-              animation: 'slideDown 0.5s ease-out'
+              animation: 'slideDown 0.5s ease-out', flexWrap: 'wrap'
             }}>
               <div style={{ width: '45px', height: '45px', background: '#FFF4E5', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F2994A', flexShrink: 0 }}>
                 <AlertCircle size={24} />
               </div>
               <div style={{ flex: 1 }}>
                 <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '950', color: '#2D3A20' }}>Modo Vista (Sin sesión local)</h4>
-                <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Para subir fotos y guardar cambios en esta rama, debés iniciar sesión aquí.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Para subir fotos y guardar en esta rama, ingresá aquí:</p>
               </div>
-              <button 
-                onClick={() => router.push('/login')}
-                className="hover-scale"
-                style={{ background: '#5F7D4A', color: 'white', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900', border: 'none', cursor: 'pointer' }}
-              >
-                LOGUEARME
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={() => {
+                    // MOCK MODE: Bypass login barrier for staging testing
+                    setProfile({
+                      id: 'mock-id-st-tomas',
+                      first_name: 'Tomas',
+                      last_name: 'Vukojicic (Prueba)',
+                      email: 'info@alimnet.com',
+                      avatar_url: ''
+                    });
+                    setMerchantData({ id: 'mock-merchant-id' });
+                    setUser({ id: 'mock-user-id' } as any);
+                    setMessage({ type: 'success', text: '¡Modo Pruebas activado! Ahora podés probar el subidor de imágenes. 🛠️' });
+                    setTimeout(() => setMessage(null), 5000);
+                  }}
+                  className="hover-scale"
+                  style={{ background: '#2D3A20', color: 'white', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900', border: 'none', cursor: 'pointer' }}
+                >
+                  MODO PRUEBAS (SIMULAR LOGIN)
+                </button>
+                <button 
+                  onClick={() => router.push('/login')}
+                  className="hover-scale"
+                  style={{ background: '#5F7D4A', color: 'white', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900', border: 'none', cursor: 'pointer' }}
+                >
+                  LOGUEARME
+                </button>
+              </div>
             </div>
           )}
 
