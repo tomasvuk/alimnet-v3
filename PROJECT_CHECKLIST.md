@@ -1,7 +1,8 @@
-# 📝 PROYECTO ALIMNET: RECTA FINAL
-## (Auditoría Global de Agentes v3.2 - Estado Real)
+---
 
-Este checklist marca la ruta crítica para el paso de "Diseño y Prototipado" a "Producto Vivo en Producción".
+### 🛡️ REGLA DE ORO: PROTECCIÓN DE PRODUCCIÓN
+- [x] **[WORKFLOW]** Todo desarrollo ocurre EXCLUSIVAMENTE en la rama `v3-puliendo`.
+- [ ] **[MERGE]** No se migran cambios a `main` (alimnet.com) sin autorización explícita del USER.
 
 ---
 
