@@ -46,7 +46,7 @@ import {
   Sparkles,
   Loader2,
   Bookmark,
-  Share
+  Share2
 } from 'lucide-react';
 import Header from '@/components/Header';
 
@@ -435,6 +435,13 @@ export default function ExplorarPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [stagingMode, setStagingMode] = useState(false);
+  
+  // ESTADOS DE INTERACCIÓN (V-10.0)
+  const [userLiked, setUserLiked] = useState(false);
+  const [userSaved, setUserSaved] = useState(false);
+  const [userValidated, setUserValidated] = useState(false);
+  const [merchantValidators, setMerchantValidators] = useState<any[]>([]);
+  const [showValidatorsSlider, setShowValidatorsSlider] = useState(false);
 
   // PERSISTENCIA DEL MODO PULIENDO (V-9.5.21)
   useEffect(() => {
@@ -1119,38 +1126,69 @@ export default function ExplorarPage() {
   };
 
   const handleValidate = async (merchantId: string) => {
-    if (!isLoggedIn || !user) { router.push('/login'); return; }
+    if (!user || !selectedMerchant) { setShowIdentityWall(true); return; }
+    if (userValidated) return;
     
     try {
-      // 1. Guardar con el ID de Tomas real
-      const { error: valError } = await supabase
-        .from('validations')
-        .insert([{ merchant_id: merchantId, user_id: user.id }]);
+      setUserValidated(true);
+      // Fetch profile to add to local list immediately
+      const { data: profile } = await supabase.from('profiles').select('id, first_name, last_name, avatar_url').eq('id', user.id).single();
+      if (profile) setMerchantValidators(prev => [profile, ...prev]);
 
-      if (valError) {
-        if (valError.code === '23505') {
-          setValidatedMerchantIds(prev => new Set(prev).add(merchantId));
-          return;
-        }
-        throw valError;
-      }
+      // Atomic DB operations
+      await supabase.from('merchant_validations').insert({ merchant_id: merchantId, user_id: user.id });
+      
+      const { data: mData } = await supabase.from('merchants').select('validation_count').eq('id', merchantId).single();
+      const newCount = (mData?.validation_count || 0) + 1;
+      await supabase.from('merchants').update({ validation_count: newCount }).eq('id', merchantId);
 
-      // 2. Incrementar contador en merchants (Persistencia total)
-      const currentMerchant = merchants.find(m => m.id === merchantId);
-      if (currentMerchant) {
-        const newCount = (currentMerchant.validation_count || 0) + 1;
-        await supabase.from('merchants').update({ validation_count: newCount }).eq('id', merchantId);
-
-        setMerchants(prev => prev.map(m => m.id === merchantId ? { ...m, validation_count: newCount } : m));
-        setValidatedMerchantIds(prev => new Set(prev).add(merchantId));
-        if (selectedMerchant?.id === merchantId) {
-          setSelectedMerchant({ ...selectedMerchant, validation_count: newCount });
-        }
+      setMerchants(prev => prev.map(m => m.id === merchantId ? { ...m, validation_count: newCount } : m));
+      if (selectedMerchant?.id === merchantId) {
+        setSelectedMerchant({ ...selectedMerchant, validation_count: newCount });
       }
     } catch (e) {
       console.error("Error validando:", e);
     }
   };
+
+  // --- PERSISTENCE LOGIC START (V-10.0) ---
+  const fetchMerchantInteractionStatus = async (mId: string) => {
+    if (!user) return;
+    try {
+      const { data: fav } = await supabase.from('favorites').select('id').eq('merchant_id', mId).eq('user_id', user.id).maybeSingle();
+      setUserLiked(!!fav);
+      
+      const { data: save } = await supabase.from('user_saved_merchants').select('id').eq('merchant_id', mId).eq('user_id', user.id).maybeSingle();
+      setUserSaved(!!save);
+      
+      const { data: val } = await supabase.from('merchant_validations').select('id').eq('merchant_id', mId).eq('user_id', user.id).maybeSingle();
+      setUserValidated(!!val);
+      
+      const { data: vals } = await supabase.from('merchant_validations').select(`user_id, profiles:user_id (id, first_name, last_name, avatar_url)`).eq('merchant_id', mId);
+      setMerchantValidators(vals?.map(v => v.profiles) || []);
+    } catch (err) { console.error(err); }
+  };
+
+  useEffect(() => {
+    if (selectedMerchant) fetchMerchantInteractionStatus(selectedMerchant.id);
+  }, [selectedMerchant?.id, user?.id]);
+
+  const handleLikeToggle = async () => {
+    if (!user || !selectedMerchant) { setShowIdentityWall(true); return; }
+    const prev = userLiked;
+    setUserLiked(!prev);
+    if (prev) await supabase.from('favorites').delete().eq('merchant_id', selectedMerchant.id).eq('user_id', user.id);
+    else await supabase.from('favorites').insert({ merchant_id: selectedMerchant.id, user_id: user.id });
+  };
+
+  const handleSaveToggle = async () => {
+    if (!user || !selectedMerchant) { setShowIdentityWall(true); return; }
+    const prev = userSaved;
+    setUserSaved(!prev);
+    if (prev) await supabase.from('user_saved_merchants').delete().eq('merchant_id', selectedMerchant.id).eq('user_id', user.id);
+    else await supabase.from('user_saved_merchants').insert({ merchant_id: selectedMerchant.id, user_id: user.id });
+  };
+  // --- PERSISTENCE LOGIC END ---
 
   // No bloqueamos toda la página, solo el acceso a info sensible
 
@@ -1560,10 +1598,10 @@ export default function ExplorarPage() {
                       onClick={() => {
                         if (externalPlaceSelected) {
                           trackClick('CTA_SUMAR_NEW_GOOGLE', { name: externalPlaceSelected.name });
-                          router.push(`/unirse?placeId=${externalPlaceSelected.placeId}&name=${encodeURIComponent(externalPlaceSelected.name)}&address=${encodeURIComponent(externalPlaceSelected.address)}&lat=${externalPlaceSelected.lat}&lng=${externalPlaceSelected.lng}`);
+                          router.push(`/registro-comercio?placeId=${externalPlaceSelected.placeId}&name=${encodeURIComponent(externalPlaceSelected.name)}&address=${encodeURIComponent(externalPlaceSelected.address)}&lat=${externalPlaceSelected.lat}&lng=${externalPlaceSelected.lng}`);
                         } else {
                           trackClick('CTA_SUMAR_NEW_BLANK', { query: searchQuery });
-                          router.push(`/unirse?name=${encodeURIComponent(searchQuery)}`);
+                          router.push(`/registro-comercio?name=${encodeURIComponent(searchQuery)}`);
                         }
                       }}
                       style={{ 
@@ -1718,17 +1756,18 @@ export default function ExplorarPage() {
                 isLoggedIn={stagingMode || isLoggedIn}
                 user={user}
                 userProfile={userProfile}
-                validators={validators}
-                hasValidatedInitial={validatedMerchantIds.has(selectedMerchant.id)}
                 onClose={() => setSelectedMerchant(null)}
                 trackClick={trackClick}
-                onValidate={(id) => {
-                  setValidatedMerchantIds(prev => {
-                    const next = new Set(prev);
-                    next.add(id);
-                    return next;
-                  });
+                onValidate={handleValidate}
+                interactionStatus={{
+                  liked: userLiked,
+                  saved: userSaved,
+                  validated: userValidated,
+                  validators: merchantValidators
                 }}
+                onLikeToggle={handleLikeToggle}
+                onSaveToggle={handleSaveToggle}
+                onShowValidators={() => setShowValidatorsSlider(true)}
                 isMobile={true}
               />
             </div>
@@ -1743,11 +1782,18 @@ export default function ExplorarPage() {
             isLoggedIn={stagingMode || isLoggedIn}
             user={user}
             userProfile={userProfile}
-            validators={validators}
-            hasValidatedInitial={selectedMerchant ? validatedMerchantIds.has(selectedMerchant.id) : false}
             onClose={() => setSelectedMerchant(null)}
             trackClick={trackClick}
             onValidate={handleValidate}
+            interactionStatus={{
+              liked: userLiked,
+              saved: userSaved,
+              validated: userValidated,
+              validators: merchantValidators
+            }}
+            onLikeToggle={handleLikeToggle}
+            onSaveToggle={handleSaveToggle}
+            onShowValidators={() => setShowValidatorsSlider(true)}
             isMobile={false}
           />
         )}
@@ -1823,6 +1869,63 @@ export default function ExplorarPage() {
           }
         }} 
       />
+
+      {/* SLIDE-UP DE VALIDADORES (V-10.0) */}
+      <div 
+        style={{ 
+          position: 'fixed', bottom: 0, left: 0, width: '100%', height: 'auto', maxHeight: '78vh',
+          zIndex: 3001, transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: showValidatorsSlider ? 'translateY(0)' : 'translateY(100%)',
+          background: 'white', borderTopLeftRadius: '32px', borderTopRightRadius: '32px',
+          boxShadow: '0 -20px 60px rgba(0,0,0,0.15)', overflowY: 'auto', pointerEvents: 'auto',
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)',
+          display: 'flex', flexDirection: 'column'
+        }}
+      >
+        <div style={{ padding: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+             <h3 style={{ fontSize: '1.2rem', fontWeight: '1000', color: 'var(--primary-dark)', letterSpacing: '-0.02em' }}>Comunidad que valida</h3>
+             <button onClick={() => setShowValidatorsSlider(false)} style={{ background: '#F8F9FA', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+               <X size={22} color="var(--primary-dark)" />
+             </button>
+          </div>
+          
+          {!merchantValidators || merchantValidators.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✨</div>
+               <p style={{ color: '#888', fontWeight: '600' }}>Este comercio todavía no tiene validaciones.</p>
+               <p style={{ fontSize: '0.8rem', color: '#aaa' }}>¡Sé el primero en darle tu sello de confianza!</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              {merchantValidators.filter(Boolean).map((v, i) => (
+                <div key={v?.id || i} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '1.2rem', background: '#F8F9F5', borderRadius: '22px', border: '1px solid #E4EBDD' }}>
+                  {v?.avatar_url ? (
+                    <img src={v.avatar_url} alt={v.first_name} style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid white' }} />
+                  ) : (
+                    <div style={{ width: '50px', height: '50px', borderRadius: '18px', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '950', fontSize: '1.3rem', boxShadow: '0 4px 10px rgba(95,125,74,0.2)' }}>
+                      {v?.first_name?.[0] || 'A'}
+                    </div>
+                  )}
+                  <div>
+                    <p style={{ fontWeight: '950', color: 'var(--primary-dark)', fontSize: '0.95rem', marginBottom: '2px' }}>{v?.first_name} {v?.last_name || ''}</p>
+                    <p style={{ fontSize: '0.75rem', color: '#666', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <CheckCircle2 size={12} color="var(--primary)" /> Miembro Alimnet
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {showValidatorsSlider && (
+        <div 
+          onClick={() => setShowValidatorsSlider(false)}
+          style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.4)', zIndex: 3000, backdropFilter: 'blur(3px)', animation: 'fadeIn 0.3s ease' }} 
+        />
+      )}
     </div>
   );
 }
@@ -1976,19 +2079,19 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
   );
 }
 
-function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasValidatedInitial, onClose, trackClick, onValidate, isMobile }: { merchant: Merchant, isLoggedIn: boolean, user: any, userProfile: any, validators: any[], hasValidatedInitial: boolean, onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, onValidate: (id: string) => void, isMobile: boolean }) {
+function DetailPanel({ 
+  merchant, isLoggedIn, user, userProfile, onClose, trackClick, onValidate, isMobile,
+  interactionStatus, onLikeToggle, onSaveToggle, onShowValidators
+}: { 
+  merchant: Merchant, isLoggedIn: boolean, user: any, userProfile: any, 
+  onClose: () => void, trackClick: (eventName: string, params?: Record<string, unknown>) => void, 
+  onValidate: (id: string) => void, isMobile: boolean,
+  interactionStatus?: { liked: boolean, saved: boolean, validated: boolean, validators: any[] },
+  onLikeToggle?: () => void, onSaveToggle?: () => void, onShowValidators?: () => void
+}) {
   const router = useRouter();
-  const [hasValidated, setHasValidated] = useState(hasValidatedInitial);
+  const displayValidators = interactionStatus?.validators || [];
   
-  // Lógica inteligente de visualización:
-  const displayValidators = [...validators];
-  const currentUserName = userProfile?.first_name || 'Tomas';
-  
-  if (hasValidated && !displayValidators.some(v => v.user_id === user?.id)) {
-    displayValidators.unshift({ user_id: user?.id, profiles: { first_name: currentUserName } });
-  }
-
-  const othersCount = Math.max(0, (merchant.validation_count || 0) - (displayValidators.length));
   const [feedback, setFeedback] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
 
@@ -2032,23 +2135,32 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
             <span style={{ padding: '0.3rem 0.8rem', background: 'var(--soft-leaf)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900' }}>Aval de la Comunidad</span>
           </div>
 
-          <div style={{ background: '#F8F9F5', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', marginBottom: '1rem' }}>
+          <div 
+            onClick={onShowValidators}
+            style={{ background: '#F8F9F5', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', marginBottom: '1rem', cursor: 'pointer' }}
+          >
              <div style={{ marginBottom: '0.4rem' }}>
                 <span style={{ fontSize: '0.65rem', fontWeight: '950', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Validación Comunitaria</span>
-                <div style={{ marginTop: '5px', fontSize: '0.85rem', fontWeight: '700', color: '#2D3A20', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <CheckCircle size={16} color="#5F7D4A" /> 
-                {displayValidators && displayValidators.length > 0 ? (
-                  <span style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
-                    Validado por {displayValidators.map((v: any, i: number) => (
-                      <strong key={v.user_id + (v.profiles?.first_name || 'Alimneter') + i} style={{ color: '#5F7D4A' }}>
-                        {v.profiles?.first_name || 'Alimneter'}{i < displayValidators.length - 1 ? ', ' : ''}
-                      </strong>
+                <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex' }}>
+                    {displayValidators.slice(0, 3).map((v: any, i: number) => (
+                      <div key={v?.id || i} style={{ width: '28px', height: '28px', borderRadius: '50%', border: '2px solid white', overflow: 'hidden', marginLeft: i > 0 ? '-10px' : 0, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {v?.avatar_url ? (
+                          <img src={v.avatar_url} alt="val" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <span style={{ fontSize: '0.7rem', color: 'white', fontWeight: '900' }}>{v?.first_name?.[0]}</span>
+                        )}
+                      </div>
                     ))}
-                    {othersCount > 0 && <span style={{ color: '#888' }}>{` y ${othersCount} más`}</span>}
-                  </span>
-                ) : (
-                  <span style={{ fontSize: '0.8rem', color: '#888' }}>Sin validaciones aún</span>
-                )}
+                    {displayValidators.length > 3 && (
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: '2px solid white', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: '800', color: '#666', marginLeft: '-10px' }}>
+                        +{displayValidators.length - 3}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#2D3A20', textDecoration: 'underline', textUnderlineOffset: '3px', textDecorationColor: 'rgba(95,125,74,0.3)' }}>
+                    {displayValidators.length || 0} {displayValidators.length === 1 ? 'Validación' : 'Validaciones'}
+                  </div>
                 </div>
              </div>
           </div>
@@ -2224,7 +2336,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                 <button 
                   onClick={() => {
                     trackClick('CLAIM_MERCHANT_START', { id: merchant.id, merchant: merchant.name });
-                    router.push(`/unirse?merchantId=${merchant.id}`);
+                    router.push(`/registro-comercio?merchantId=${merchant.id}`);
                   }}
                   style={{ background: '#5F7D4A', border: 'none', color: 'white', padding: '0.7rem 1.4rem', borderRadius: '14px', fontSize: '0.8rem', fontWeight: '1000', cursor: 'pointer', boxShadow: '0 4px 12px rgba(95,125,74,0.2)' }}
                 >
@@ -2237,7 +2349,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                 <p style={{ fontSize: '0.75rem', color: '#888', marginBottom: '1.2rem' }}>¡Ayudanos a que se sume! Mandale la invitación para que valide su comercio.</p>
                 <button 
                   onClick={() => {
-                    const shareUrl = `${window.location.origin}/unirse?merchantId=${merchant.id}`;
+                    const shareUrl = `${window.location.origin}/registro-comercio?merchantId=${merchant.id}`;
                     if (navigator.share) {
                        navigator.share({ title: `Invitación Alimnet: ${merchant.name}`, text: `¡Hola! Te recomiendo sumar tu comercio a Alimnet.`, url: shareUrl });
                     } else {
@@ -2247,7 +2359,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
                   }}
                   style={{ background: 'white', border: '1.5px solid #5F7D4A', color: '#5F7D4A', padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '950', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                   <Share size={14} /> Compartir invitación
+                   <Share2 size={14} /> Compartir invitación
                 </button>
               </div>
             </div>
@@ -2267,43 +2379,47 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
         }}>
           {/* Botón Guardar */}
           <button 
-            onClick={() => trackClick('SAVE_MERCHANT', { id: merchant.id })}
+            onClick={onSaveToggle}
             style={{ 
-              minWidth: '46px', height: '46px', border: '1.5px solid #E9ECEF', background: '#F8F9FA', 
+              minWidth: '46px', height: '46px', 
+              border: interactionStatus?.saved ? '1.5px solid var(--primary)' : '1.5px solid #E9ECEF', 
+              background: interactionStatus?.saved ? 'rgba(95,125,74,0.08)' : '#F8F9FA', 
               borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-              cursor: 'pointer', color: '#495057' 
+              cursor: 'pointer', transition: 'all 0.2s'
             }}
           >
-            <Bookmark size={20} strokeWidth={2.5} />
+            <Bookmark size={20} fill={interactionStatus?.saved ? 'var(--primary)' : 'none'} color={interactionStatus?.saved ? 'var(--primary)' : '#495057'} strokeWidth={2.5} />
           </button>
 
           {/* Botón Me Gusta */}
           <button 
-            onClick={() => trackClick('LIKE_MERCHANT', { id: merchant.id })}
+            onClick={onLikeToggle}
             style={{ 
-              minWidth: '46px', height: '46px', border: '1.5px solid #E9ECEF', background: '#F8F9FA', 
+              minWidth: '46px', height: '46px', 
+              border: interactionStatus?.liked ? '1.5px solid #ff4d4f' : '1.5px solid #E9ECEF', 
+              background: interactionStatus?.liked ? 'rgba(255,77,79,0.08)' : '#F8F9FA', 
               borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-              cursor: 'pointer', color: '#495057' 
+              cursor: 'pointer', transition: 'all 0.2s'
             }}
           >
-            <Heart size={20} strokeWidth={2.5} />
+            <Heart size={20} fill={interactionStatus?.liked ? '#ff4d4f' : 'none'} color={interactionStatus?.liked ? '#ff4d4f' : '#495057'} strokeWidth={2.5} />
           </button>
           
           {/* Botón VALIDAR (Protagonista) */}
           <button 
-            onClick={() => { if (!hasValidated) { onValidate(merchant.id); setHasValidated(true); } }}
-            disabled={hasValidated}
+            onClick={() => { if (!interactionStatus?.validated) { onValidate(merchant.id); } }}
+            disabled={interactionStatus?.validated}
             style={{ 
               flex: 1, height: '46px', borderRadius: '14px', border: 'none', 
-              background: hasValidated ? '#F0F4ED' : 'var(--primary)', 
-              color: hasValidated ? 'var(--primary)' : 'white', fontWeight: '1000', 
-              fontSize: '0.85rem', cursor: hasValidated ? 'default' : 'pointer', 
+              background: interactionStatus?.validated ? '#F0F4ED' : 'var(--primary)', 
+              color: interactionStatus?.validated ? 'var(--primary)' : 'white', fontWeight: '1000', 
+              fontSize: '0.85rem', cursor: interactionStatus?.validated ? 'default' : 'pointer', 
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              boxShadow: hasValidated ? 'none' : '0 8px 15px rgba(95,125,74,0.2)'
+              boxShadow: interactionStatus?.validated ? 'none' : '0 8px 15px rgba(95,125,74,0.2)'
             }}
           >
-            {hasValidated ? <Check size={16} strokeWidth={3} /> : <ShieldCheck size={16} strokeWidth={3} />}
-            {hasValidated ? 'VALIDADO' : 'VALIDAR COMERCIO'}
+            {interactionStatus?.validated ? <Check size={16} strokeWidth={3} /> : <ShieldCheck size={16} strokeWidth={3} />}
+            {interactionStatus?.validated ? 'VALIDADO' : 'VALIDAR COMERCIO'}
           </button>
         </div>
 

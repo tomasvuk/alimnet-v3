@@ -107,9 +107,10 @@ export default function Header() {
       {/* Brand Logo */}
       <div 
         onClick={() => router.push('/')}
-        style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em", cursor: 'pointer' }}
+        style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em", cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         ALIMNET
+        <span style={{ fontSize: '9px', background: '#5F7D4A', color: 'white', padding: '2px 6px', borderRadius: '8px', opacity: 0.8 }}>v4.1.0</span>
       </div>
 
       {/* Acciones */}
@@ -127,7 +128,7 @@ export default function Header() {
         </button>
 
         <button 
-          onClick={() => router.push('/registro-comercio')}
+          onClick={() => router.push('/sumate')}
           style={{ 
             display: 'flex', alignItems: 'center', gap: '8px', background: '#F0F4ED', 
             padding: '8px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', 
@@ -228,7 +229,7 @@ export default function Header() {
             <div style={{ height: '1.5px', background: '#F8F9F5', margin: '1rem 0.5rem' }} />
 
             <MenuItem href="/perfil" icon={<MapIcon size={18} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} variant="text-only" />
-            <MenuItem href="/registro-comercio" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="text-only" />
+            <MenuItem href="/sumate" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="text-only" />
             
           </div>
         </>

@@ -209,7 +209,7 @@ export default function LoginPage() {
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
               ¿Eres productor o comerciante? <br />
               <button 
-                onClick={() => router.push('/unirse')}
+                onClick={() => router.push('/registro-comercio')}
                 style={{ background: 'none', border: 'none', color: 'var(--primary-dark)', fontWeight: '800', cursor: 'pointer', padding: '5px', fontSize: '0.8rem', textDecoration: 'underline' }}
               >
                 Registrar mi comercio en Alimnet

@@ -232,7 +232,7 @@ export default function Home() {
             Sumá tu proyecto a la red y conectá con personas que buscan alimentos cuidados.
           </p>
           <button 
-            onClick={() => router.push('/unirse')}
+            onClick={() => router.push('/registro-comercio')}
             className="btn-v3-primary"
             style={{ padding: "1.1rem 3.5rem" }}
           >
@@ -304,7 +304,7 @@ export default function Home() {
               <nav style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontWeight: "800", fontSize: "0.85rem" }}>
                 <a href="/blog" className="footer-link-v3">Blog</a>
                 <a href="/perfil" className="footer-link-v3">Panel Comercial</a>
-                <a href="/unirse" className="footer-link-v3">Registrar mi comercio</a>
+                <a href="/registro-comercio" className="footer-link-v3">Registrar mi comercio</a>
               </nav>
             </div>
 

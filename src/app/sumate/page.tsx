@@ -79,7 +79,7 @@ export default function SumatePage() {
 
           {/* OPCIÓN 2: DUEÑO / PRODUCTOR */}
           <div 
-            onClick={() => router.push('/unirse')}
+            onClick={() => router.push('/registro-comercio')}
             style={{ 
               background: 'white', borderRadius: '40px', padding: '3rem', border: '1px solid #E4EBDD', 
               cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',

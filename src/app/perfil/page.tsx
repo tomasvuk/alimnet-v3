@@ -10,6 +10,7 @@ import {
   Loader2,
   MapPin,
   Clock,
+  Bookmark,
   ShieldCheck,
   Instagram,
   Download,
@@ -30,10 +31,12 @@ import {
   Fingerprint,
   Shield,
   Eye,
-  LogOut,
   Image as ImageIcon,
   Palette,
-  Upload
+  Upload,
+  Heart,
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
@@ -47,7 +50,7 @@ export default function MerchantProfilePage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deployId] = useState('v3.8.0-OVERLAP-FINAL');
+  const [deployId] = useState('v4.1.0 🚀');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
@@ -55,8 +58,8 @@ export default function MerchantProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [croppingImage, setCroppingImage] = useState<{ url: string, type: 'logo' | 'gallery', aspect: number, index?: number } | null>(null);
-
-  // Categorías Exactas (Alineación con el Mapa)
+  const [savedMerchants, setSavedMerchants] = useState<any[]>([]);
+  const [likedMerchants, setLikedMerchants] = useState<any[]>([]);
   const officialCategories = [
     'Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 
     'Panificados', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'
@@ -179,6 +182,21 @@ export default function MerchantProfilePage() {
         });
         setFormData((prev: any) => ({ ...prev, types: ['Productor'], categories: ['Verduras', 'Frutas'] }));
       }
+
+      // 4. [NUEVO] Traer Guardados y Me Gusta del Usuario
+      const { data: savedData } = await supabase
+        .from('user_saved_merchants')
+        .select('*, merchants(*)')
+        .eq('user_id', currentUser.id);
+      
+      const { data: likedData } = await supabase
+        .from('favorites')
+        .select('*, merchants(*)')
+        .eq('user_id', currentUser.id);
+
+      if (savedData) setSavedMerchants(savedData.map(s => s.merchants).filter(Boolean));
+      if (likedData) setLikedMerchants(likedData.map(l => l.merchants).filter(Boolean));
+
     } catch (err) {
       console.error(err);
     } finally {
@@ -537,6 +555,85 @@ export default function MerchantProfilePage() {
             </div>
           </div>
         );
+      case 'favoritos':
+        return (
+          <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Mi Selección</h1>
+            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Tus comercios favoritos y guardados para consultar pronto.</p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr', gap: '1.5rem', marginBottom: '3rem' }}>
+               {/* CARD DE GUARDADOS */}
+               <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                     <div style={{ width: '40px', height: '40px', background: '#F0F4ED', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Bookmark size={20} color="#5F7D4A" fill="#5F7D4A" />
+                     </div>
+                     <div>
+                        <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20' }}>Mis Guardados</h3>
+                        <p style={{ fontSize: '0.75rem', color: '#999', fontWeight: '700' }}>{savedMerchants.length} {savedMerchants.length === 1 ? 'comercio' : 'comercios'}</p>
+                     </div>
+                  </div>
+                  
+                  {savedMerchants.length === 0 ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', background: '#F8F9F5', borderRadius: '18px', border: '1px dashed #E4EBDD' }}>
+                       <p style={{ fontSize: '0.8rem', color: '#AAA', fontWeight: '700' }}>Todavía no guardaste ningún comercio.</p>
+                       <button onClick={() => router.push('/explorar')} style={{ marginTop: '1rem', background: '#5F7D4A', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '900', cursor: 'pointer' }}>Explorar Mapa</button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                      {savedMerchants.map((m: any) => (
+                        <div key={m.id} onClick={() => router.push(`/explorar?id=${m.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', background: '#F8F9F5', borderRadius: '16px', cursor: 'pointer', transition: 'transform 0.2s' }}>
+                           <div style={{ width: '45px', height: '45px', borderRadius: '10px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                              {m.logo_url ? <img src={m.logo_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Leaf size={20} color="#CFDDC8" />}
+                           </div>
+                           <div style={{ flex: 1 }}>
+                              <p style={{ fontSize: '0.85rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>{m.name}</p>
+                              <p style={{ fontSize: '0.7rem', color: '#888', fontWeight: '700', margin: 0 }}>{m.locations?.[0]?.locality || 'Ubicación local'}</p>
+                           </div>
+                           <ChevronRight size={16} color="#AAA" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+               </div>
+
+               {/* CARD DE ME GUSTA */}
+               <div style={{ background: 'white', borderRadius: '24px', padding: '1.5rem', border: '1px solid #E4EBDD', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                     <div style={{ width: '40px', height: '40px', background: '#FFF2F2', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Heart size={20} color="#FF4D4F" fill="#FF4D4F" />
+                     </div>
+                     <div>
+                        <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20' }}>Mis Favoritos</h3>
+                        <p style={{ fontSize: '0.75rem', color: '#999', fontWeight: '700' }}>{likedMerchants.length} {likedMerchants.length === 1 ? 'comercio' : 'comercios'}</p>
+                     </div>
+                  </div>
+
+                  {likedMerchants.length === 0 ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', background: '#FFFDFD', borderRadius: '18px', border: '1px dashed #FFDADA' }}>
+                       <p style={{ fontSize: '0.8rem', color: '#AAA', fontWeight: '700' }}>Dale <Heart size={10} /> a los comercios que recomendás.</p>
+                       <button onClick={() => router.push('/explorar')} style={{ marginTop: '1rem', background: '#FF4D4F', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '900', cursor: 'pointer' }}>Ir al mapa</button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                      {likedMerchants.map((m: any) => (
+                        <div key={m.id} onClick={() => router.push(`/explorar?id=${m.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', background: '#FFFDFD', border: '1px solid #FFEDEE', borderRadius: '16px', cursor: 'pointer', transition: 'transform 0.2s' }}>
+                           <div style={{ width: '45px', height: '45px', borderRadius: '10px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                              {m.logo_url ? <img src={m.logo_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Leaf size={20} color="#FFDADA" />}
+                           </div>
+                           <div style={{ flex: 1 }}>
+                              <p style={{ fontSize: '0.85rem', fontWeight: '950', color: '#2D3A20', margin: 0 }}>{m.name}</p>
+                              <p style={{ fontSize: '0.7rem', color: '#FF4D4F', fontWeight: '850', margin: 0, opacity: 0.8 }}>{m.validation_count || 0} validaciones</p>
+                           </div>
+                           <ChevronRight size={16} color="#FFBABA" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+               </div>
+            </div>
+          </div>
+        );
       case 'config':
         return (
           <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
@@ -623,6 +720,7 @@ export default function MerchantProfilePage() {
         <div style={{ background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.6rem 1rem', display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', position: 'sticky', top: '56px', zIndex: 4000 }}>
            {[
             { id: 'inicio', label: 'Panel', icon: BarChart3 },
+            { id: 'favoritos', label: 'Mi Selección', icon: Bookmark },
             { id: 'perfil', label: 'Perfil', icon: User },
             { id: 'config', label: 'Ajustes', icon: Settings }
           ].map(item => (
@@ -637,6 +735,7 @@ export default function MerchantProfilePage() {
           <div style={{ width: '240px', background: 'white', borderRight: '1px solid #E4EBDD', padding: '2rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', position: 'sticky', top: '56px', height: 'calc(100vh - 56px)' }}>
              {[
                { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
+               { id: 'favoritos', label: 'Mi Selección', icon: Bookmark },
                { id: 'perfil', label: 'Editar Perfil', icon: User },
                { id: 'config', label: 'Configuración', icon: Settings }
              ].map(item => (

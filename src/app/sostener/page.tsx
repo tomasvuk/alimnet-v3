@@ -181,7 +181,7 @@ export default function SostenerAlimnetPage() {
                  <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '12px', fontSize: '0.88rem', fontWeight: '800' }}>
                     <li><a href="/blog" style={{ color: '#666', textDecoration: 'none' }}>Blog</a></li>
                     <li><a href="/perfil" style={{ color: '#666', textDecoration: 'none' }}>Panel Comercial</a></li>
-                    <li><a href="/unirse" style={{ color: '#666', textDecoration: 'none' }}>Registrar mi comercio</a></li>
+                    <li><a href="/registro-comercio" style={{ color: '#666', textDecoration: 'none' }}>Registrar mi comercio</a></li>
                 </ul>
             </div>
             <div>
