@@ -987,70 +987,64 @@ function MiCuentaContent() {
                          </p>
                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
                             <button className="button-primary-small" onClick={() => setShowAvatarPicker(true)} style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
-                            <input 
-                              type="file" 
-                              ref={fileInputRef} 
-                              style={{ display: 'none' }} 
-                              accept="image/*"
-                              onChange={async (e) => {
-                                 const file = e.target.files?.[0];
-                                 if (!file) return;
-
-                                 if (!profile?.id) {
-                                   setMessage({ type: 'error', text: 'Error: Perfil no identificado. Reiniciá sesión.' });
-                                   return;
-                                 }
-
-                                 console.log("File detected:", file.name, file.size, file.type);
-                                 setMessage({ type: 'success', text: 'Analizando imagen... 📸' });
-
-                                 if (file.size > 2 * 1024 * 1024) {
-                                   setMessage({ type: 'error', text: 'Imagen muy pesada. El máximo permitido es 2MB.' });
-                                   return;
-                                 }
-                                 
-                                 if (!file.type.startsWith('image/')) {
-                                   setMessage({ type: 'error', text: 'Tipo de archivo no válido. Subí una imagen (JPG, PNG).' });
-                                   return;
-                                 }
-
-                                 try {
-                                   setMessage({ type: 'success', text: 'Subiendo imagen oficial... 🚀' });
-                                   const fileExt = file.name.split('.').pop();
-                                   const fileName = `${Math.random()}.${fileExt}`;
-                                   const filePath = `${profile.id}/${fileName}`;
-
-                                   console.log("Uploading to:", filePath);
-
-                                   const { error: uploadError } = await supabase.storage
-                                     .from('avatars')
-                                     .upload(filePath, file, { cacheControl: '3600', upsert: true });
-
-                                   if (uploadError) throw uploadError;
-
-                                   console.log("Upload success, getting URL...");
-                                   const { data: { publicUrl } } = supabase.storage
-                                     .from('avatars')
-                                     .getPublicUrl(filePath);
-
-                                   setFormData({ ...formData, avatar_url: publicUrl });
-                                   setMessage({ type: 'success', text: '¡Imagen actualizada con éxito! ✨' });
-                                   setTimeout(() => setMessage(null), 3000);
-                                 } catch (err) {
-                                   console.error("Upload error details:", err);
-                                   setMessage({ type: 'error', text: 'Error en la subida: Verifica tu conexión o tamaño.' });
-                                 } finally {
-                                   if (fileInputRef.current) fileInputRef.current.value = '';
-                                 }
+                            
+                            <label 
+                               style={{ 
+                                 display: 'inline-block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
+                                 border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '1000'
                                }}
-                            />
-                            <button 
-                              onClick={() => fileInputRef.current?.click()}
-                              style={{ 
-                                fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px', 
-                                border: '1px solid #E4EBDD', background: 'white', color: '#666', 
-                                fontWeight: '800', cursor: 'pointer' 
-                            }}>Subir Imagen</button>
+                               className="hover-scale"
+                             >
+                               Subir Imagen
+                               <input 
+                                 type="file" 
+                                 style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden' }} 
+                                 accept="image/*"
+                                 onChange={async (e) => {
+                                   const file = e.target.files?.[0];
+                                   if (!file) return;
+
+                                   if (!profile?.id) {
+                                     alert("ERROR: No se encontró ID de perfil");
+                                     return;
+                                   }
+
+                                   alert("¡Archivo detectado! 📸 Analizando...");
+                                   setMessage({ type: 'success', text: 'Analizando imagen... 📸' });
+
+                                   if (file.size > 2 * 1024 * 1024) {
+                                     alert("ERROR: Imagen muy pesada (>2MB)");
+                                     setMessage({ type: 'error', text: 'Imagen muy pesada. Máximo 2MB.' });
+                                     return;
+                                   }
+
+                                   try {
+                                     alert("Subiendo a Alimnet... 🚀");
+                                     const fileExt = file.name.split('.').pop();
+                                     const fileName = `${Math.random()}.${fileExt}`;
+                                     const filePath = `${profile.id}/${fileName}`;
+
+                                     const { error: uploadError } = await supabase.storage
+                                       .from('avatars')
+                                       .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+                                     if (uploadError) throw uploadError;
+
+                                     const { data: { publicUrl } } = supabase.storage
+                                       .from('avatars')
+                                       .getPublicUrl(filePath);
+
+                                     setFormData({ ...formData, avatar_url: publicUrl });
+                                     alert("¡Imagen actualizada! ✨");
+                                     setMessage({ type: 'success', text: '¡Imagen actualizada con éxito!' });
+                                     setTimeout(() => setMessage(null), 3000);
+                                   } catch (err: any) {
+                                     alert("ERROR EN SUBIDA: " + err.message);
+                                     setMessage({ type: 'error', text: 'Fallo al subir.' });
+                                   }
+                                 }}
+                               />
+                             </label>
                          </div>
                       </div>
                    </div>
