@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import Header from '@/components/Header';
 import { 
-  Leaf, 
   ArrowRight, 
   ArrowLeft, 
   Check, 
@@ -102,7 +102,7 @@ export default function JoinPage() {
   const galleryInputRef = React.useRef<HTMLInputElement>(null);
 
 
-  const FILE_SIZE_LIMIT = 2 * 1024 * 1024; // 2MB
+  const FILE_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'gallery') => {
     const files = e.target.files;
@@ -112,7 +112,7 @@ export default function JoinPage() {
     if (!file) return;
 
     if (file.size > FILE_SIZE_LIMIT) {
-      setUploadError(`El archivo "${file.name}" es muy pesado. Máximo 2MB.`);
+       setUploadError(`El archivo "${file.name}" es muy pesado. Máximo 10MB.`);
       return;
     }
 
@@ -130,7 +130,7 @@ export default function JoinPage() {
     setUploadError(null);
     const validFiles = files.filter(file => {
       if (file.size > FILE_SIZE_LIMIT) {
-        setUploadError(`El archivo "${file.name}" es muy pesado. Máximo 2MB.`);
+        setUploadError(`El archivo "${file.name}" es muy pesado. Máximo 10MB.`);
         return false;
       }
       return true;
@@ -308,20 +308,12 @@ export default function JoinPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', flexDirection: 'column' }}>
-      {/* Header Fijo */}
-      <header style={{ padding: '1.5rem 2rem', background: 'white', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div 
-          onClick={() => router.push('/')}
-          style={{ fontSize: "1.2rem", fontWeight: "950", color: "var(--primary-dark)", display: "flex", alignItems: "center", gap: "8px", cursor: 'pointer' }}
-        >
-          <Leaf size={24} fill="var(--primary)" fillOpacity={0.25} /> ALIMNET
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {[1, 2, 3].map(i => (
-            <div key={i} style={{ width: '30px', height: '6px', borderRadius: '3px', background: i <= step ? 'var(--primary)' : '#eee', transition: 'all 0.3s' }}></div>
-          ))}
-        </div>
-      </header>
+      <Header />
+      <div style={{ padding: '70px 20px 20px', display: 'flex', justifyContent: 'center', gap: '8px', zIndex: 100 }}>
+        {[1, 2, 3].map(i => (
+          <div key={i} style={{ width: '40px', height: '4px', borderRadius: '10px', background: i <= step ? '#657D51' : '#E4EBDD', transition: 'all 0.3s' }}></div>
+        ))}
+      </div>
 
       <main style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '3rem 1rem' }}>
         <div style={{ maxWidth: '700px', width: '100%', background: 'white', borderRadius: '40px', boxShadow: 'var(--shadow-lg)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

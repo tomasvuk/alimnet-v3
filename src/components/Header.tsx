@@ -127,7 +127,7 @@ export default function Header() {
         </button>
 
         <button 
-          onClick={() => router.push('/sumate')}
+          onClick={() => router.push('/registro-comercio')}
           style={{ 
             display: 'flex', alignItems: 'center', gap: '8px', background: '#F0F4ED', 
             padding: '8px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', 

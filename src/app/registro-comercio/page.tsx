@@ -111,13 +111,15 @@ export default function MerchantRegistrationPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No auth');
 
-      const fileName = `${user.id}-${Date.now()}-${croppingImage.type}.jpg`;
-      const bucket = croppingImage.type === 'logo' ? 'merchants-logos' : 'merchants-gallery';
+      const fileName = `${Date.now()}-${croppingImage.type}.jpg`;
+      const bucket = 'merchant_assets';
+      const folder = croppingImage.type === 'logo' ? 'logos' : 'gallery';
+      const filePath = `${folder}/${user.id}/${fileName}`;
       
-      const { data, error } = await supabase.storage.from(bucket).upload(fileName, blob, { contentType: 'image/jpeg' });
+      const { data, error } = await supabase.storage.from(bucket).upload(filePath, blob, { contentType: 'image/jpeg' });
       if (error) throw error;
 
-      const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+      const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
 
       if (croppingImage.type === 'logo') {
         setLogo(publicUrl);
@@ -243,7 +245,12 @@ export default function MerchantRegistrationPage() {
           
           {step === 1 && (
             <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-               <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.1rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.4rem', letterSpacing: '-0.04em', textAlign: 'center' }}>Contanos tu historia</h1>
+               <div style={{ position: 'relative' }}>
+                  <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.1rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.4rem', letterSpacing: '-0.04em', textAlign: 'center' }}>Contanos tu historia</h1>
+                  <div style={{ position: 'absolute', top: '-20px', right: '0', background: '#FFD700', color: '#000', fontSize: '0.6rem', padding: '2px 8px', borderRadius: '10px', fontWeight: '1000', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                     v4.0.0-REGISTRO-FIX 🚀
+                  </div>
+               </div>
                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2.5rem', textAlign: 'center' }}>Identidad visual y categorías de tu comercio.</p>
 
                {/* MULTIMEDIA (INTERACTIVO CON OVERLAY) */}
@@ -305,6 +312,14 @@ export default function MerchantRegistrationPage() {
                      )}
                   </div>
                </div>
+
+               {/* VISIBILIDAD DE ERRORES */}
+               {uploadError && (
+                 <div style={{ marginBottom: '2rem', padding: '1rem', background: '#FFF2F2', border: '1px solid #D32F2F', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '10px', color: '#D32F2F', fontSize: '0.85rem', fontWeight: '850', animation: 'fadeIn 0.3s ease-out' }}>
+                    <AlertCircle size={18} />
+                    {uploadError}
+                 </div>
+               )}
 
                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   <div>

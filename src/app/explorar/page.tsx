@@ -44,7 +44,9 @@ import {
   Menu,
   Check,
   Sparkles,
-  Loader2
+  Loader2,
+  Bookmark,
+  Share
 } from 'lucide-react';
 import Header from '@/components/Header';
 
@@ -2213,55 +2215,94 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
               </>
             )}
           </div>
+          {/* SECCIÓN DE COMUNIDAD: CLAIM & VIRALIDAD */}
+          {!merchant.claimed && (
+            <div style={{ marginTop: '1rem', padding: '1.8rem', background: '#F8F9F5', borderRadius: '24px', border: '1.5px solid #E4EBDD', marginBottom: '2rem' }}>
+              <div style={{ marginBottom: '1.8rem' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: '1000', color: 'var(--primary-dark)', marginBottom: '0.5rem' }}>¿Sos el dueño de este comercio?</h4>
+                <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '1.2rem', lineHeight: '1.4' }}>Reivindicá tu perfil para cargar fotos de tus productos, actualizar horarios y recibir pedidos directos.</p>
+                <button 
+                  onClick={() => {
+                    trackClick('CLAIM_MERCHANT_START', { id: merchant.id, merchant: merchant.name });
+                    router.push(`/unirse?merchantId=${merchant.id}`);
+                  }}
+                  style={{ background: '#5F7D4A', border: 'none', color: 'white', padding: '0.7rem 1.4rem', borderRadius: '14px', fontSize: '0.8rem', fontWeight: '1000', cursor: 'pointer', boxShadow: '0 4px 12px rgba(95,125,74,0.2)' }}
+                >
+                  Reivindicar y Configurar
+                </button>
+              </div>
+              
+              <div style={{ borderTop: '1px solid #E4EBDD', paddingTop: '1.5rem' }}>
+                <p style={{ fontSize: '0.8rem', fontWeight: '900', color: '#495057', marginBottom: '0.3rem' }}>¿Conocés al dueño?</p>
+                <p style={{ fontSize: '0.75rem', color: '#888', marginBottom: '1.2rem' }}>¡Ayudanos a que se sume! Mandale la invitación para que valide su comercio.</p>
+                <button 
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/unirse?merchantId=${merchant.id}`;
+                    if (navigator.share) {
+                       navigator.share({ title: `Invitación Alimnet: ${merchant.name}`, text: `¡Hola! Te recomiendo sumar tu comercio a Alimnet.`, url: shareUrl });
+                    } else {
+                       navigator.clipboard.writeText(shareUrl);
+                       alert('¡Enlace de invitación copiado! 🚀');
+                    }
+                  }}
+                  style={{ background: 'white', border: '1.5px solid #5F7D4A', color: '#5F7D4A', padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '950', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                   <Share size={14} /> Compartir invitación
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* CONTACTO - Alineado a la paleta Alimnet */}
+        {/* FOOTER TRIPLE: GUARDAR, ME GUSTA, VALIDAR (CTA PRINCIPAL) */}
         <div style={{ 
-          padding: '0.75rem 1.5rem', borderTop: '1px solid #eee', 
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'white', gap: '15px',
+          padding: '0.8rem 1.2rem', borderTop: '1px solid #eee', 
+          display: 'flex', alignItems: 'center', gap: '10px',
+          background: 'white',
           filter: !isLoggedIn ? 'blur(25px) grayscale(20%)' : 'none',
           pointerEvents: !isLoggedIn ? 'none' : 'auto',
           userSelect: !isLoggedIn ? 'none' : 'auto',
           opacity: !isLoggedIn ? 0.5 : 1,
           transition: 'all 0.4s ease'
         }}>
-          {/* Soy el Dueño (Link con presencia real) */}
-          {!merchant.claimed ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#FFFFFF', padding: '0.5rem 0.8rem', borderRadius: '12px', border: '1.5px solid #5F7D4A', boxShadow: '0 4px 12px rgba(95,125,74,0.1)' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: '1000', color: '#2D3436' }}>¿Dueño?</span>
-              <button 
-                onClick={() => {
-                  trackClick('CLAIM_MERCHANT_START', { id: merchant.id, merchant: merchant.name });
-                  router.push(`/unirse?merchantId=${merchant.id}`);
-                }}
-                style={{ 
-                  background: '#5F7D4A', border: 'none', color: 'white', 
-                  padding: '0.3rem 0.8rem', borderRadius: '8px', fontSize: '0.75rem', 
-                  fontWeight: '1000', cursor: 'pointer', transition: 'all 0.2s',
-                }}
-              >
-                Reivindicar
-              </button>
-            </div>
-          ) : (
-            <div style={{ flex: 1 }} /> 
-          )}
+          {/* Botón Guardar */}
+          <button 
+            onClick={() => trackClick('SAVE_MERCHANT', { id: merchant.id })}
+            style={{ 
+              minWidth: '46px', height: '46px', border: '1.5px solid #E9ECEF', background: '#F8F9FA', 
+              borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+              cursor: 'pointer', color: '#495057' 
+            }}
+          >
+            <Bookmark size={20} strokeWidth={2.5} />
+          </button>
+
+          {/* Botón Me Gusta */}
+          <button 
+            onClick={() => trackClick('LIKE_MERCHANT', { id: merchant.id })}
+            style={{ 
+              minWidth: '46px', height: '46px', border: '1.5px solid #E9ECEF', background: '#F8F9FA', 
+              borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+              cursor: 'pointer', color: '#495057' 
+            }}
+          >
+            <Heart size={20} strokeWidth={2.5} />
+          </button>
           
-          {/* Botón Validar (CTA Principal Compacto) */}
+          {/* Botón VALIDAR (Protagonista) */}
           <button 
             onClick={() => { if (!hasValidated) { onValidate(merchant.id); setHasValidated(true); } }}
             disabled={hasValidated}
             style={{ 
-              padding: '0.6rem 1.4rem', borderRadius: '12px', border: 'none', 
+              flex: 1, height: '46px', borderRadius: '14px', border: 'none', 
               background: hasValidated ? '#F0F4ED' : 'var(--primary)', 
               color: hasValidated ? 'var(--primary)' : 'white', fontWeight: '1000', 
-              fontSize: '0.8rem', cursor: hasValidated ? 'default' : 'pointer', 
-              display: 'flex', alignItems: 'center', gap: '8px',
-              boxShadow: hasValidated ? 'none' : '0 8px 15px rgba(95,125,74,0.15)'
+              fontSize: '0.85rem', cursor: hasValidated ? 'default' : 'pointer', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              boxShadow: hasValidated ? 'none' : '0 8px 15px rgba(95,125,74,0.2)'
             }}
           >
-            {hasValidated ? <Check size={14} strokeWidth={3} /> : <ShieldCheck size={14} strokeWidth={3} />}
+            {hasValidated ? <Check size={16} strokeWidth={3} /> : <ShieldCheck size={16} strokeWidth={3} />}
             {hasValidated ? 'VALIDADO' : 'VALIDAR COMERCIO'}
           </button>
         </div>
@@ -2321,7 +2362,7 @@ function LoginWall() {
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', padding: '2rem' }}>
       <div style={{ maxWidth: '450px', width: '100%', padding: '3.5rem', background: 'white', border: '1px solid var(--border)', borderRadius: '40px', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', animation: 'slideIn 0.5s ease-out' }}>
         <div style={{ fontSize: "1.4rem", fontWeight: "950", color: "var(--primary-dark)", display: "flex", justifyContent: 'center', gap: '8px', marginBottom: '2.5rem' }}>
-          <Leaf size={28} fill="var(--primary)" fillOpacity={0.2} /> ALIMNET
+          ALIMNET
         </div>
         <h1 style={{ fontSize: '2rem', fontWeight: '950', color: 'var(--primary-dark)', marginBottom: '1rem', letterSpacing: '-0.02em' }}>¡Hola! Sumate a la red.</h1>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '3rem', fontWeight: '550', lineHeight: '1.6' }}>Para ver los puntos de contacto directo con los productores y realizar pedidos, necesitás ser parte de la comunidad.</p>
