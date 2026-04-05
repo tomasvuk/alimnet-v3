@@ -1432,7 +1432,7 @@ export default function ExplorarPage() {
             <Compass size={16} color="var(--primary)" />
             <h2 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center' }}>
               {filteredMerchants.length} {filteredMerchants.length === 1 ? 'proyecto encontrado' : 'proyectos encontrados'}
-              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.5.26 (Global)</span>
+              <span style={{ color: '#00cc00', marginLeft: '10px', fontSize: '10px', fontWeight: 'bold', background: '#e6ffef', padding: '2px 6px', borderRadius: '4px', border: '1px solid #00cc00' }}>V-9.5.27 (Global)</span>
             </h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
@@ -1558,14 +1558,14 @@ export default function ExplorarPage() {
           className="map-section" 
           style={{ 
             background: '#EAEDE8',
-            // NUEVO: En mobile, si el mapa está activo, es un overlay fijo total
+            display: (isMobile && mobileView !== 'map') ? 'none' : 'block',
             zIndex: (isMobile && mobileView === 'map') ? 9999 : (isMobile ? -10 : 2),
             opacity: (isMobile && mobileView !== 'map') ? 0 : 1,
             pointerEvents: (isMobile && mobileView !== 'map') ? 'none' : 'auto',
             position: (isMobile && mobileView === 'map') ? 'fixed' : 'relative',
             top: 0,
             left: 0,
-            width: '100vw',
+            width: isMobile ? '100%' : '65%',
             height: (isMobile && mobileView === 'map') ? '100dvh' : '100%',
             transition: 'opacity 0.3s ease-in-out',
             overflow: 'hidden'
