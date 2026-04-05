@@ -1137,12 +1137,10 @@ export default function ExplorarPage() {
 
   return (
     <div style={{ 
-      height: '100vh', 
+      height: '100dvh', 
       display: 'flex', 
       flexDirection: 'column', 
-      background: '#F0F4ED',
-      paddingTop: 0,
-      position: 'relative',
+      background: '#F8F9F5', 
       overflow: 'hidden' 
     }}>
       
@@ -1375,6 +1373,7 @@ export default function ExplorarPage() {
       {/* 3. CONTENIDO PRINCIPAL - FIXED LAYOUT (DASHBOARD STYLE) */}
       <div className="main-content" style={{ 
         flex: 1, 
+        height: '100%',
         display: 'flex', 
         flexDirection: isMobile ? 'column' : 'row',
         overflow: 'hidden', 
