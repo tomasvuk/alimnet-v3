@@ -1375,7 +1375,6 @@ export default function ExplorarPage() {
       {/* 3. CONTENIDO PRINCIPAL - FIXED LAYOUT (DASHBOARD STYLE) */}
       <div className="main-content" style={{ 
         flex: 1, 
-        height: '0', // Let flex:1 manage height (Dashboard style)
         display: 'flex', 
         flexDirection: isMobile ? 'column' : 'row',
         overflow: 'hidden', 
@@ -1405,10 +1404,11 @@ export default function ExplorarPage() {
           className="results-section" 
           onScroll={() => {}}
           style={{ 
+            flex: 1,
             width: isMobile ? '100%' : '35%', 
             minWidth: isMobile ? '0' : '420px', 
             display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
-            padding: isMobile ? '1rem' : '0 0 1.5rem 1.5rem', 
+            padding: isMobile ? '1.5rem 1rem' : '0 0 1.5rem 1.5rem', 
             background: '#F8F9F5',
             borderRight: isMobile ? 'none' : '1px solid #E4EBDD', 
             height: '100%', 
@@ -1630,7 +1630,7 @@ export default function ExplorarPage() {
             style={{ 
               position: 'fixed', 
               bottom: 0, left: 0, right: 0, 
-              zIndex: 10000, 
+              zIndex: 10100, 
               height: '65vh',
               background: 'white',
               boxShadow: '0 -10px 40px rgba(0,0,0,0.15)',
@@ -1945,7 +1945,7 @@ function DetailPanel({ merchant, isLoggedIn, user, userProfile, validators, hasV
   return (
     <div className="detail-panel" style={{ 
       position: 'absolute', top: 0, left: 0, width: isMobile ? '100%' : '420px', height: '100%', 
-      background: 'white', boxShadow: '0 0 40px rgba(0,0,0,0.1)', zIndex: 1500, 
+      background: 'white', boxShadow: '0 0 40px rgba(0,0,0,0.1)', zIndex: 10050, 
       display: 'flex', flexDirection: 'column', animation: 'slideIn 0.3s ease-out'
     }}>
       <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', background: 'white', zIndex: 10 }}>
