@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.5.X - HighPerf Image Sync
+          v3.6.X - Global Buckets Ready
         </div>
         <MiCuentaContent />
       </div>
@@ -480,17 +480,21 @@ function MiCuentaContent() {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button 
                   onClick={() => {
-                    // MOCK MODE: Bypass login barrier for staging testing
+                    // MOCK MODE: Bypass login barrier for staging testing with VALID UUID format
+                    const validTomId = 'fbe6e467-172a-4eb9-84ff-cbdd7c1edb60';
+                    const validMerId = '00ca4452-5427-45c1-b6f8-4cdf6db3d901';
+                    
                     setProfile({
-                      id: 'mock-id-st-tomas',
-                      first_name: 'Tomas',
-                      last_name: 'Vukojicic (Prueba)',
+                      id: validTomId,
+                      first_name: 'Tomas (Staging)',
+                      last_name: 'Vukojicic',
                       email: 'info@alimnet.com',
                       avatar_url: ''
                     });
-                    setMerchantData({ id: 'mock-merchant-id' });
-                    setUser({ id: 'mock-user-id' } as any);
-                    setMessage({ type: 'success', text: '¡Modo Pruebas activado! Ahora podés probar el subidor de imágenes. 🛠️' });
+                    setMerchantData({ id: validMerId, name: 'Buena Cosecha Staging' });
+                    setMerchantFormData({ name: 'Buena Cosecha Staging' });
+                    setUser({ id: validTomId } as any);
+                    setMessage({ type: 'success', text: '¡MODO PRUEBAS ACTIVO! Buckets y DB Listos. ⚡' });
                     setTimeout(() => setMessage(null), 5000);
                   }}
                   className="hover-scale"
