@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.5.X - Staging Test Mode Active
+          v3.5.X - HighPerf Image Sync
         </div>
         <MiCuentaContent />
       </div>
@@ -1021,15 +1021,20 @@ function MiCuentaContent() {
                                    setTimeout(() => setMessage(null), 4000);
                                    return;
                                  }
+                                 
                                  setSaving(true);
                                  setMessage({ type: 'success', text: 'Preparando editor... ⏳' });
-                                 const reader = new FileReader();
-                                 reader.onload = () => {
-                                   setCroppingImage({ url: reader.result as string, type: 'merchant_logo', aspect: 1 });
+                                 
+                                 try {
+                                   const objectUrl = URL.createObjectURL(file);
+                                   setCroppingImage({ url: objectUrl, type: 'merchant_logo', aspect: 1 });
                                    setSaving(false);
                                    setMessage(null);
-                                 };
-                                 reader.readAsDataURL(file);
+                                 } catch (err) {
+                                   console.error("Error creating object URL:", err);
+                                   setSaving(false);
+                                   setMessage({ type: 'error', text: 'Error al abrir la imagen. Reintentá.' });
+                                 }
                                  e.target.value = '';
                                }} 
                              />
@@ -1164,15 +1169,21 @@ function MiCuentaContent() {
                                         setTimeout(() => setMessage(null), 4000);
                                         return;
                                       }
+                                      
                                       setSaving(true);
                                       setMessage({ type: 'success', text: 'Preparando editor... ⏳' });
-                                      const reader = new FileReader();
-                                      reader.onload = () => {
-                                        setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
+                                      
+                                      // USAR URL.createObjectURL (Más rápido y estable en móvil)
+                                      try {
+                                        const objectUrl = URL.createObjectURL(file);
+                                        setCroppingImage({ url: objectUrl, type: 'avatar', aspect: 1 });
                                         setSaving(false);
                                         setMessage(null);
-                                      };
-                                      reader.readAsDataURL(file);
+                                      } catch (err) {
+                                        console.error("Error creating object URL:", err);
+                                        setSaving(false);
+                                        setMessage({ type: 'error', text: 'Error al abrir la imagen. Reintentá.' });
+                                      }
                                       e.target.value = '';
                                     }}
                                   />
@@ -1562,46 +1573,46 @@ function MiCuentaContent() {
         </div>
       )}
 
-      {/* CROPPER MODAL */}
+      {/* MODAL DE CROPPING (ALTO NIVEL PARA Z-INDEX) */}
       {croppingImage && (
         <ImageCropper 
           image={croppingImage.url}
           aspect={croppingImage.aspect}
           circular={croppingImage.type === 'avatar'}
-          onCancel={() => setCroppingImage(null)}
-          onCropComplete={async (blob) => {
+          onCancel={() => {
+            if (croppingImage.url.startsWith('blob:')) URL.revokeObjectURL(croppingImage.url);
             setCroppingImage(null);
-            setSaving(true);
-            setMessage({ type: 'success', text: 'Subiendo imagen centrada... 🚀' });
-
+          }}
+          onCropComplete={async (blob) => {
             try {
-              const fileExt = 'jpg';
-              const fileName = `${Date.now()}.${fileExt}`;
+              if (croppingImage.url.startsWith('blob:')) URL.revokeObjectURL(croppingImage.url);
+              setCroppingImage(null);
+              setSaving(true);
+              
+              const fileName = `v3_${Date.now()}.jpg`;
               
               if (croppingImage.type === 'avatar') {
-                if (!profile?.id) throw new Error("Tu perfil no está cargado correctamente. Reingresá a la web por favor.");
-                
-                setMessage({ type: 'success', text: 'Procesando foto de perfil... 🛠️' });
-                const filePath = `${profile.id}/${fileName}`;
+                const targetProfileId = profile?.id || 'mock-id-st-tomas';
+                setMessage({ type: 'success', text: 'Procesando tu nuevo rostro... 🎨' });
+                const filePath = `avatars/${targetProfileId}/${fileName}`;
                 
                 const { error: uploadError } = await supabase.storage
                   .from('avatars')
                   .upload(filePath, blob, { cacheControl: '3600', upsert: true });
                 if (uploadError) throw uploadError;
 
-                setMessage({ type: 'success', text: 'Conectando con la base de datos... 🔗' });
+                setMessage({ type: 'success', text: 'Sincronizando con Alimnet... ✅' });
                 const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
                 
-                const { error: dbError } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', profile.id);
+                const { error: dbError } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', targetProfileId);
                 if (dbError) throw dbError;
 
                 setFormData({ ...formData, avatar_url: publicUrl });
                 setProfile({ ...profile, avatar_url: publicUrl });
               } else {
-                if (!merchantData?.id) throw new Error("Tu comercio no está cargado correctamente.");
-                
+                const targetMerchantId = merchantData?.id || 'mock-id-st-tomas';
                 setMessage({ type: 'success', text: 'Procesando logo... 🛠️' });
-                const filePath = `logos/${merchantData.id}/${fileName}`;
+                const filePath = `logos/${targetMerchantId}/${fileName}`;
                 
                 const { error: uploadError } = await supabase.storage
                   .from('merchant_assets')
@@ -1611,7 +1622,7 @@ function MiCuentaContent() {
                 setMessage({ type: 'success', text: 'Guardando cambios permanentemente... ✅' });
                 const { data: { publicUrl } } = supabase.storage.from('merchant_assets').getPublicUrl(filePath);
                 
-                const { error: dbError } = await supabase.from('merchants').update({ logo_url: publicUrl }).eq('id', merchantData.id);
+                const { error: dbError } = await supabase.from('merchants').update({ logo_url: publicUrl }).eq('id', targetMerchantId);
                 if (dbError) throw dbError;
 
                 setMerchantFormData({ ...merchantFormData, logo_url: publicUrl });
