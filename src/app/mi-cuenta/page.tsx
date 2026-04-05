@@ -7,7 +7,8 @@ import {
   Bell, Award, TrendingUp, Check, X, Plus, Search,
   Map as MapIcon, Loader2, AlertCircle, MessageSquare, 
   ExternalLink, ShieldCheck, LayoutDashboard, History,
-  Activity, Users, Share2, Eye, Sparkles, ArrowLeft
+  Activity, Users, Share2, Eye, Sparkles, ArrowLeft,
+  Navigation, Wheat, Cake, Beef
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -1113,100 +1114,104 @@ function MiCuentaContent() {
           )}
 
           {activeTab === 'estilo' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-              <div style={{ marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.8rem', fontWeight: '1000', color: '#5F7D4A', margin: 0 }}>Mi Estilo Alimenticio</h2>
-                <p style={{ color: '#888', fontWeight: '600', fontSize: '0.9rem', marginTop: '4px' }}>Configurá tu radar para que Alimnet te muestre exactamente lo que buscás.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <div>
+                  <h2 style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: 0, letterSpacing: '-0.02em' }}>Mi Estilo Alimenticio</h2>
+                  <p style={{ color: '#888', fontWeight: '600', fontSize: '1rem', marginTop: '6px' }}>Configurá tu radar para que Alimnet sea tu espejo.</p>
+                </div>
+                <div style={{ background: '#F0F4ED', padding: '10px 20px', borderRadius: '15px', color: '#5F7D4A', fontWeight: '900', fontSize: '0.85rem' }}>
+                   {formData.preferences?.length || 0} preferencias activas
+                </div>
               </div>
 
-              <div style={{ background: 'white', padding: '3rem', borderRadius: '40px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+              <div style={{ background: 'white', padding: '3.5rem', borderRadius: '45px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '3.5rem', boxShadow: '0 30px 100px rgba(0,0,0,0.03)' }}>
                 
-                {/* SECCIÓN 1: ¿QUÉ BUSCÁS EN ALIMNET? */}
-                <div>
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Search size={18} /> ¿Qué proyectos buscás encontrar?
-                  </h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                    {['Productor', 'Abastecedor', 'Restaurante', 'Chef', 'Emprendedor', 'Comunidad'].map(cat => (
-                      <button 
-                        key={cat}
-                        onClick={() => {
-                          const current = formData.preferences || [];
-                          const next = current.includes(cat) ? current.filter(c => c !== cat) : [...current, cat];
-                          setFormData({...formData, preferences: next});
-                        }}
-                        style={{ 
-                          padding: '1.1rem 1.8rem', borderRadius: '22px', border: '2px solid',
-                          borderColor: (formData.preferences || []).includes(cat) ? '#5F7D4A' : '#F0F4ED',
-                          background: (formData.preferences || []).includes(cat) ? '#F0F4ED' : 'white',
-                          color: (formData.preferences || []).includes(cat) ? '#2D3A20' : '#888',
-                          fontWeight: '900', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s'
-                        }}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+                {[
+                  { 
+                    title: 'Cómo querés recibir', 
+                    icon: <Navigation size={20} />, 
+                    options: ['Retiro en local', 'Entrega a domicilio'] 
+                  },
+                  { 
+                    title: 'Tipo de alimentación', 
+                    icon: <Heart size={20} />, 
+                    options: ['Gluten Free', 'Sugar Free', 'Plant Based', 'Sin Lactosa', 'Keto', 'Vegetariano'] 
+                  },
+                  { 
+                    title: 'Calidad y Producción', 
+                    icon: <Leaf size={20} />, 
+                    options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable', 'Pastura'] 
+                  },
+                  { 
+                    title: 'Producción Animal', 
+                    icon: <Beef size={20} />, 
+                    options: ['Pastura', 'Grass-fed', 'Bienestar animal'] 
+                  },
+                  { 
+                    title: 'Certificaciones / asociaciones', 
+                    icon: <ShieldCheck size={20} />, 
+                    options: ['Demeter', 'AABDA', 'Orgánico Certificado'] 
+                  },
+                  { 
+                    title: 'Tipo de actor', 
+                    icon: <Users size={20} />, 
+                    options: ['Productor', 'Abastecedor', 'Restaurante', 'Chef'] 
+                  },
+                  { 
+                    title: '¿Qué estás buscando?', 
+                    icon: <Search size={20} />, 
+                    options: ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Masa Madre', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'] 
+                  }
+                ].map((section, idx) => (
+                  <div key={idx} style={{ 
+                    borderBottom: idx === 6 ? 'none' : '1px solid #F0F4ED', 
+                    paddingBottom: idx === 6 ? 0 : '3rem',
+                    animation: `fadeInUp 0.5s ease forwards ${idx * 0.1}s`,
+                    opacity: 0, transform: 'translateY(20px)'
+                  }}>
+                    <h4 style={{ 
+                      fontSize: '0.9rem', fontWeight: '1000', color: '#5F7D4A', 
+                      textTransform: 'uppercase', letterSpacing: '0.12em', 
+                      marginBottom: '1.8rem', display: 'flex', alignItems: 'center', gap: '12px' 
+                    }}>
+                      <div style={{ background: '#F0F4ED', width: '42px', height: '42px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2D3A20' }}>
+                        {section.icon}
+                      </div>
+                      {section.title}
+                    </h4>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+                      {section.options.map(opt => {
+                        const isSelected = (formData.preferences || []).includes(opt);
+                        return (
+                          <button 
+                            key={opt}
+                            onClick={() => {
+                              const current = formData.preferences || [];
+                              const next = current.includes(opt) ? current.filter(c => c !== opt) : [...current, opt];
+                              setFormData({...formData, preferences: next});
+                            }}
+                            style={{ 
+                              padding: '1.1rem 2rem', borderRadius: '24px', border: '2px solid',
+                              borderColor: isSelected ? '#5F7D4A' : '#F0F4ED',
+                              background: isSelected ? '#F0F4ED' : 'transparent',
+                              color: isSelected ? '#2D3A20' : '#888',
+                              fontWeight: '900', fontSize: '0.95rem', cursor: 'pointer', 
+                              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                              transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                              boxShadow: isSelected ? '0 10px 20px rgba(95,125,74,0.1)' : 'none'
+                            }}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-
-                {/* SECCIÓN 2: CALIDAD Y FILOSOFÍA */}
-                <div>
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Leaf size={18} /> Calidad y Filosofía de Vida
-                  </h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                    {['Orgánico', 'Sustentable', 'Agroecológico', 'Biodinámico', 'Comercio Justo', 'Triple Impacto'].map(adn => (
-                      <button 
-                        key={adn}
-                        onClick={() => {
-                          const current = formData.preferences || [];
-                          const next = current.includes(adn) ? current.filter(c => c !== adn) : [...current, adn];
-                          setFormData({...formData, preferences: next});
-                        }}
-                        style={{ 
-                          padding: '1.1rem 1.8rem', borderRadius: '22px', border: '2px solid',
-                          borderColor: (formData.preferences || []).includes(adn) ? '#2D3A20' : '#F0F4ED',
-                          background: (formData.preferences || []).includes(adn) ? '#F0F4ED' : 'white',
-                          color: (formData.preferences || []).includes(adn) ? '#2D3A20' : '#888',
-                          fontWeight: '900', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s'
-                        }}
-                      >
-                        {adn}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* SECCIÓN 3: RECOMENDACIONES DIETÉTICAS */}
-                <div>
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Heart size={18} /> Mi ADN Alimenticio (Dietas)
-                  </h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                    {['Sin gluten', 'Sin azúcar', 'Plant-based', 'Keto', 'Vegetariano', 'Vegano', 'Sin lactosa'].map(diet => (
-                      <button 
-                        key={diet}
-                        onClick={() => {
-                          const current = formData.preferences || [];
-                          const next = current.includes(diet) ? current.filter(c => c !== diet) : [...current, diet];
-                          setFormData({...formData, preferences: next});
-                        }}
-                        style={{ 
-                          padding: '1.1rem 1.8rem', borderRadius: '22px', border: '2px solid',
-                          borderColor: (formData.preferences || []).includes(diet) ? '#5F7D4A' : '#F0F4ED',
-                          background: (formData.preferences || []).includes(diet) ? '#F0F4ED' : 'white',
-                          color: (formData.preferences || []).includes(diet) ? '#2D3A20' : '#888',
-                          fontWeight: '900', fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.3s'
-                        }}
-                      >
-                        {diet}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                ))}
 
                 {/* BOTON GUARDAR ESTILO */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', borderTop: '1px solid #F0F4ED', paddingTop: '2.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', background: '#F8F9F5', padding: '3rem', borderRadius: '40px' }}>
                   <button 
                     onClick={async () => {
                       setSaving(true);
@@ -1218,24 +1223,29 @@ function MiCuentaContent() {
                           updated_at: new Date().toISOString()
                         }).eq('id', user.id);
                         if (error) throw error;
-                        setMessage({ type: 'success', text: '¡Tu Estilo Alimenticio ha sido actualizado! ✨🍱' });
+                        setMessage({ type: 'success', text: '¡Tu Estilo Alimenticio ha sido actualizado exponencialmente! ✨🍱' });
                         setTimeout(() => setMessage(null), 3000);
                       } catch (err) { console.error(err); } finally { setSaving(false); }
                     }}
                     disabled={saving}
                     style={{ 
-                      padding: '1.3rem 4rem', background: '#2D3A20', color: 'white', 
-                      border: 'none', borderRadius: '24px', fontWeight: '1000', fontSize: '1.1rem',
-                      cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 15px 40px rgba(45,58,32,0.25)',
-                      display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.3s'
+                      padding: '1.5rem 5rem', background: '#2D3A20', color: 'white', 
+                      border: 'none', borderRadius: '28px', fontWeight: '1000', fontSize: '1.2rem',
+                      cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 25px 60px rgba(45,58,32,0.35)',
+                      display: 'flex', alignItems: 'center', gap: '15px', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                   >
-                    {saving ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
-                    {saving ? 'GUARDANDO...' : 'GUARDAR MI ESTILO'}
+                    {saving ? <Loader2 className="animate-spin" size={24} /> : <Check size={24} />}
+                    {saving ? 'SINCRONIZANDO ADN...' : 'SAVE MY ALIMNET STYLE'}
                   </button>
                 </div>
 
               </div>
+              <style jsx>{`
+                @keyframes fadeInUp {
+                  to { opacity: 1; transform: translateY(0); }
+                }
+              `}</style>
             </div>
           )}
 
