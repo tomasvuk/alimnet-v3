@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.5.X - Dimens. & Size Sync
+          v3.5.X - Mobile Layout & Early Feedback
         </div>
         <MiCuentaContent />
       </div>
@@ -960,7 +960,7 @@ function MiCuentaContent() {
                            border: '1px solid #E4EBDD', flexShrink: 0
                          }} />
                         <div style={{ flex: 1 }}>
-                           <label 
+                           <div 
                              className="hover-scale"
                              style={{ 
                                display: 'block', width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1px dashed #5F7D4A', 
@@ -996,7 +996,7 @@ function MiCuentaContent() {
                                  e.target.value = '';
                                }} 
                              />
-                           </label>
+                           </div>
                            <p style={{ fontSize: '0.58rem', color: '#888', marginTop: '6px', fontWeight: '600', textAlign: 'center' }}>
                              JPG/PNG, 1024x1024px recom. Máx 5MB.
                            </p>
@@ -1093,42 +1093,53 @@ function MiCuentaContent() {
                             <button className="button-primary-small" onClick={() => setShowAvatarPicker(true)} style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
                             
                             <div style={{ flex: 1 }}>
-                               <label 
-                                 className="hover-scale"
-                                 style={{ 
-                                   display: 'block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
-                                   textAlign: 'center', border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '1000',
-                                   transition: 'all 0.2s'
-                                 }}
-                                 onClick={() => document.getElementById('avatar-v3-upload')?.click()}
-                               >
-                                 {saving ? 'Cargando...' : 'Subir Imagen'}
-                                 <input 
-                                   id="avatar-v3-upload"
-                                   type="file" 
-                                   style={{ display: 'none' }} 
-                                   accept="image/*"
-                                   onChange={(e) => {
-                                     const file = e.target.files?.[0];
-                                     if (!file) return;
-                                     if (file.size > 5 * 1024 * 1024) {
-                                       setMessage({ type: 'error', text: '¡Imagen muy pesada! Máximo 5MB.' });
-                                       setTimeout(() => setMessage(null), 4000);
-                                       return;
-                                     }
-                                     setSaving(true);
-                                     setMessage({ type: 'success', text: 'Preparando editor... ⏳' });
-                                     const reader = new FileReader();
-                                     reader.onload = () => {
-                                       setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
-                                       setSaving(false);
-                                       setMessage(null);
-                                     };
-                                     reader.readAsDataURL(file);
-                                     e.target.value = '';
-                                   }}
-                                 />
-                               </label>
+                                <div 
+                                  className="hover-scale"
+                                  style={{ 
+                                    display: 'block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
+                                    textAlign: 'center', border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '1000',
+                                    transition: 'all 0.2s'
+                                  }}
+                                  onClick={() => {
+                                    console.log("Click en Avatar (Manual)");
+                                    document.getElementById('avatar-v3-upload')?.click();
+                                  }}
+                                >
+                                  {saving ? 'Cargando...' : 'Subir Imagen'}
+                                  <input 
+                                    id="avatar-v3-upload"
+                                    type="file" 
+                                    style={{ display: 'none' }} 
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+
+                                      // Bloquear subida si no hay perfil (Invitado)
+                                      if (!profile?.id) {
+                                        setMessage({ type: 'error', text: '⚠️ Debés iniciar sesión para cargar tu foto de perfil.' });
+                                        setTimeout(() => setMessage(null), 5000);
+                                        return;
+                                      }
+
+                                      if (file.size > 5 * 1024 * 1024) {
+                                        setMessage({ type: 'error', text: '¡Imagen muy pesada! Máximo 5MB.' });
+                                        setTimeout(() => setMessage(null), 4000);
+                                        return;
+                                      }
+                                      setSaving(true);
+                                      setMessage({ type: 'success', text: 'Preparando editor... ⏳' });
+                                      const reader = new FileReader();
+                                      reader.onload = () => {
+                                        setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
+                                        setSaving(false);
+                                        setMessage(null);
+                                      };
+                                      reader.readAsDataURL(file);
+                                      e.target.value = '';
+                                    }}
+                                  />
+                                </div>
                                <p style={{ fontSize: '0.55rem', color: '#888', marginTop: '4px', fontWeight: '600', textAlign: 'center' }}>
                                  Recomendado: 512x512px. Máx 5MB.
                                </p>
@@ -1137,7 +1148,7 @@ function MiCuentaContent() {
                       </div>
                    </div>
 
-                   <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth <= 900 ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase' }}>Nombre</label>
                         <input 
@@ -1160,7 +1171,7 @@ function MiCuentaContent() {
                       </div>
                    </div>
 
-                   <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth <= 900 ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: '950', color: '#666', textTransform: 'uppercase' }}>Correo Electrónico (Solo Acceso)</label>
                         <input 
@@ -1387,7 +1398,7 @@ function MiCuentaContent() {
                  {!previewAvatar ? (
                    <div style={{ 
                      display: 'grid', 
-                     gridTemplateColumns: typeof window !== 'undefined' && window.innerWidth < 500 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', 
+                     gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', 
                      gap: '1rem' 
                    }}>
                     {ALIMNET_AVATARS.map(avatar => (
@@ -1484,10 +1495,19 @@ function MiCuentaContent() {
                    </div>
                  )}
               </div>
-              <style dangerouslySetInnerHTML={{ __html: `
-                @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-              `}} />
+               <style dangerouslySetInnerHTML={{ __html: `
+                 @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                 @media (max-width: 900px) {
+                   .desktop-only { display: none !important; }
+                   .mobile-only { display: flex !important; }
+                   .main-content { padding: 1.5rem 1rem !important; }
+                 }
+                 @media (min-width: 901px) {
+                   .desktop-only { display: flex !important; }
+                   .mobile-only { display: none !important; }
+                 }
+               `}} />
               
               {/* V-9.5.7: ELIMINAMOS EL BOTÓN INFERIOR CUANDO HAY PREVIEW PARA GANAR ESPACIO */}
               {!previewAvatar && (
