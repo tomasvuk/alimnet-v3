@@ -63,9 +63,7 @@ export default function Home() {
         </div>
 
         <div className="container" style={{ maxWidth: "1280px", position: "relative", zIndex: 10, margin: "0" }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', background: 'rgba(95, 125, 74, 0.08)', color: 'var(--primary)', borderRadius: '30px', fontSize: '0.65rem', fontWeight: '1000', marginBottom: '2rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            <Rocket size={14} /> Lanzamiento Friends & Family
-          </div>
+
           <h1 style={{ fontSize: "clamp(2.4rem, 8vw, 4.4rem)", fontWeight: "950", marginBottom: "1.5rem", color: "var(--primary-dark)", maxWidth: "950px", lineHeight: "1.05", letterSpacing: '-0.04em' }}>
             Conectamos personas con <br />
             <span style={{ color: "var(--primary)", fontStyle: "italic" }}>alimentos cuidados.</span>

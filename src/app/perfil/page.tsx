@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
+import ImageCropper from '@/components/ImageCropper';
 import { removeAuthCookie } from '@/lib/auth-utils';
 
 export default function MerchantProfilePage() {
@@ -46,10 +47,14 @@ export default function MerchantProfilePage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [versionTag] = useState('v3.7.X - Commercial HighPerf Sync');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
   const [showMapValidation, setShowMapValidation] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [croppingImage, setCroppingImage] = useState<{ url: string, type: 'logo' | 'gallery', aspect: number, index?: number } | null>(null);
 
   // Categorías Exactas (Alineación con el Mapa)
   const officialCategories = [
@@ -72,7 +77,9 @@ export default function MerchantProfilePage() {
     google_maps_url: '',
     locality: '',
     delivery_info: '',
-    working_hours: ''
+    working_hours: '',
+    logo_url: '',
+    gallery_images: []
   });
 
   const availableTypes = [
@@ -154,7 +161,9 @@ export default function MerchantProfilePage() {
           google_maps_url: mData[0].google_maps_url || '',
           locality: mData[0].locations?.[0]?.locality || '',
           delivery_info: mData[0].delivery_info || '',
-          working_hours: mData[0].working_hours || ''
+          working_hours: mData[0].working_hours || '',
+          logo_url: mData[0].logo_url || '',
+          gallery_images: mData[0].gallery_images || []
         });
       } else {
         // Fallback para visualización
@@ -292,6 +301,40 @@ export default function MerchantProfilePage() {
           <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
             <h1 style={{ fontSize: '2rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>Editar Perfil</h1>
             <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '2.5rem' }}>Asegúrate de que tus datos estén al día.</p>
+            
+            {!user && !loading && (
+              <div style={{ 
+                marginBottom: '2rem', padding: '1.5rem 2rem', background: 'white', borderRadius: '24px', 
+                border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '1.5rem',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.03)', borderLeft: '6px solid #F2994A',
+                animation: 'slideDown 0.5s ease-out', flexWrap: 'wrap'
+              }}>
+                <div style={{ width: '45px', height: '45px', background: '#FFF4E5', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F2994A', flexShrink: 0 }}>
+                  <AlertCircle size={24} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '950', color: '#2D3A20' }}>Panel Comercial (Vista Offline)</h4>
+                  <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#666', fontWeight: '600' }}>Para probar subidas y recortes en esta rama de staging:</p>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={() => {
+                        const validTomId = 'fbe6e467-172a-4eb9-84ff-cbdd7c1edb60';
+                        const validMerId = '00ca4452-5427-45c1-b6f8-4cdf6db3d901';
+                        setUser({ id: validTomId } as any);
+                        setMerchant({ id: validMerId, name: 'Staging Store' });
+                        setFormData((prev: any) => ({ ...prev, logo_url: '', gallery_images: [] }));
+                        setMessage({ type: 'success', text: '¡MODO PRUEBAS COMERCIAL ACTIVO! 🚀' });
+                        setTimeout(() => setMessage(null), 4000);
+                    }}
+                    className="hover-scale"
+                    style={{ background: '#2D3A20', color: 'white', padding: '0.8rem 1.2rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900', border: 'none', cursor: 'pointer' }}
+                  >
+                    ACTIVAR PRUEBAS
+                  </button>
+                </div>
+              </div>
+            )}
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                
@@ -451,6 +494,28 @@ export default function MerchantProfilePage() {
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column', paddingTop: '56px' }}>
       <Header />
+      
+      {/* Etiqueta de Versión para verificar Deploy */}
+      <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
+        {versionTag}
+      </div>
+
+      {message && (
+        <div style={{ 
+          position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+          zIndex: 10000, padding: '1rem 2rem', borderRadius: '16px', 
+          background: message.type === 'success' ? '#EEF8F1' : '#FFF2F2',
+          border: `1px solid ${message.type === 'success' ? '#27AE60' : '#D32F2F'}`,
+          color: message.type === 'success' ? '#27AE60' : '#D32F2F',
+          fontWeight: '1000', fontSize: '0.9rem', textAlign: 'center',
+          boxShadow: '0 15px 40px rgba(0,0,0,0.1)',
+          display: 'flex', alignItems: 'center', gap: '10px'
+        }}>
+          {message.type === 'success' ? '✨ ' : '⚠️ '}
+          {message.text}
+        </div>
+      )}
+
       {isMobileView && (
         <div style={{ background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.6rem 1rem', display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', position: 'sticky', top: '56px', zIndex: 4000 }}>
            {[

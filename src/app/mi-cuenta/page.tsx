@@ -30,10 +30,6 @@ export default function MiCuentaPage() {
   return (
     <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>}>
       <div style={{ position: 'relative' }}>
-        {/* Etiqueta de Versión para verificar Deploy */}
-        <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.6.X - Global Buckets Ready
-        </div>
         <MiCuentaContent />
       </div>
     </Suspense>
