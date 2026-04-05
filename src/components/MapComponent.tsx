@@ -8,11 +8,20 @@ import L from 'leaflet';
 // GPS Interno para mover el mapa suavemente sin reiniciarlo
 const ChangeView = ({ center, zoom }: { center: [number, number], zoom: number }) => {
   const map = useMap();
+  const lastCenterRef = React.useRef<[number, number] | null>(null);
+
   React.useEffect(() => {
-    // Solo mover si las coordenadas cambiaron significativamente (más de 500 metros)
-    const dist = map.distance(center, map.getCenter());
-    if (dist > 500) { 
+    if (!center) return;
+    
+    // Solo volar si el centro prop cambió respecto al último vuelo ejecutado por el sistema.
+    // Esto evita que re-renders de la lista (cambio de bounds) nos tiren para atrás.
+    const isNewCenter = !lastCenterRef.current || 
+                        lastCenterRef.current[0] !== center[0] || 
+                        lastCenterRef.current[1] !== center[1];
+    
+    if (isNewCenter) {
       map.flyTo(center, zoom, { duration: 1.5, easeLinearity: 0.25 });
+      lastCenterRef.current = center;
     }
   }, [center, zoom, map]);
   return null;

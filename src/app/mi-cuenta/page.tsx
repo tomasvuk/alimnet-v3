@@ -993,52 +993,56 @@ function MiCuentaContent() {
                               style={{ display: 'none' }} 
                               accept="image/*"
                               onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) {
-                                  console.log("No file selected");
-                                  return;
-                                }
+                                 const file = e.target.files?.[0];
+                                 if (!file) return;
 
-                                console.log("File detected:", file.name, file.size, file.type);
-                                setMessage({ type: 'success', text: 'Analizando imagen... 📸' });
+                                 if (!profile?.id) {
+                                   setMessage({ type: 'error', text: 'Error: Perfil no identificado. Reiniciá sesión.' });
+                                   return;
+                                 }
 
-                                if (file.size > 2 * 1024 * 1024) {
-                                  setMessage({ type: 'error', text: 'Imagen muy pesada. El máximo permitido es 2MB.' });
-                                  return;
-                                }
-                                
-                                if (!file.type.startsWith('image/')) {
-                                  setMessage({ type: 'error', text: 'Tipo de archivo no válido. Subí una imagen (JPG, PNG).' });
-                                  return;
-                                }
+                                 console.log("File detected:", file.name, file.size, file.type);
+                                 setMessage({ type: 'success', text: 'Analizando imagen... 📸' });
 
-                                try {
-                                  setMessage({ type: 'success', text: 'Subiendo imagen oficial... 🚀' });
-                                  const fileExt = file.name.split('.').pop();
-                                  const fileName = `${Math.random()}.${fileExt}`;
-                                  const filePath = `${profile?.id}/${fileName}`;
+                                 if (file.size > 2 * 1024 * 1024) {
+                                   setMessage({ type: 'error', text: 'Imagen muy pesada. El máximo permitido es 2MB.' });
+                                   return;
+                                 }
+                                 
+                                 if (!file.type.startsWith('image/')) {
+                                   setMessage({ type: 'error', text: 'Tipo de archivo no válido. Subí una imagen (JPG, PNG).' });
+                                   return;
+                                 }
 
-                                  console.log("Uploading to:", filePath);
+                                 try {
+                                   setMessage({ type: 'success', text: 'Subiendo imagen oficial... 🚀' });
+                                   const fileExt = file.name.split('.').pop();
+                                   const fileName = `${Math.random()}.${fileExt}`;
+                                   const filePath = `${profile.id}/${fileName}`;
 
-                                  const { error: uploadError } = await supabase.storage
-                                    .from('avatars')
-                                    .upload(filePath, file);
+                                   console.log("Uploading to:", filePath);
 
-                                  if (uploadError) throw uploadError;
+                                   const { error: uploadError } = await supabase.storage
+                                     .from('avatars')
+                                     .upload(filePath, file, { cacheControl: '3600', upsert: true });
 
-                                  console.log("Upload success, getting URL...");
-                                  const { data: { publicUrl } } = supabase.storage
-                                    .from('avatars')
-                                    .getPublicUrl(filePath);
+                                   if (uploadError) throw uploadError;
 
-                                  setFormData({ ...formData, avatar_url: publicUrl });
-                                  setMessage({ type: 'success', text: '¡Imagen actualizada con éxito! ✨' });
-                                  setTimeout(() => setMessage(null), 3000);
-                                } catch (err) {
-                                  console.error("Upload error details:", err);
-                                  setMessage({ type: 'error', text: 'Error en la subida: Verifica tu conexión o tamaño.' });
-                                }
-                              }}
+                                   console.log("Upload success, getting URL...");
+                                   const { data: { publicUrl } } = supabase.storage
+                                     .from('avatars')
+                                     .getPublicUrl(filePath);
+
+                                   setFormData({ ...formData, avatar_url: publicUrl });
+                                   setMessage({ type: 'success', text: '¡Imagen actualizada con éxito! ✨' });
+                                   setTimeout(() => setMessage(null), 3000);
+                                 } catch (err) {
+                                   console.error("Upload error details:", err);
+                                   setMessage({ type: 'error', text: 'Error en la subida: Verifica tu conexión o tamaño.' });
+                                 } finally {
+                                   if (fileInputRef.current) fileInputRef.current.value = '';
+                                 }
+                               }}
                             />
                             <button 
                               onClick={() => fileInputRef.current?.click()}
@@ -1328,7 +1332,11 @@ function MiCuentaContent() {
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
                  {!previewAvatar ? (
-                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+                   <div style={{ 
+                     display: 'grid', 
+                     gridTemplateColumns: typeof window !== 'undefined' && window.innerWidth < 500 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', 
+                     gap: '1.5rem' 
+                   }}>
                     {ALIMNET_AVATARS.map(avatar => (
                        <div 
                          key={avatar.id}
@@ -1339,32 +1347,76 @@ function MiCuentaContent() {
                          style={{ 
                            textAlign: 'center', cursor: 'pointer', outline: 'none',
                            background: formData.avatar_url === avatar.path ? '#F0F4ED' : 'transparent',
-                           padding: '1.2rem', borderRadius: '40px', border: '5px solid',
+                           padding: '0.8rem', borderRadius: '45px', border: '6px solid',
                            borderColor: formData.avatar_url === avatar.path ? '#5F7D4A' : 'transparent',
                            transition: 'all 0.3s'
                          }}
                        >
                           <div style={{ 
-                             width: '100%', aspectRatio: '1/1', borderRadius: '35px', 
+                             width: '100%', aspectRatio: '1/1', borderRadius: '40px', 
                              background: `url(${avatar.path}) center/cover`, 
-                             border: '3px solid white', boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
+                             border: '3px solid white', boxShadow: '0 10px 40px rgba(0,0,0,0.15)'
                           }} />
                        </div>
                     ))}
                    </div>
                  ) : (
-                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem', padding: '1rem', animation: 'fadeIn 0.4s ease' }}>
-                      <div style={{ 
-                        width: '280px', height: '280px', borderRadius: '80px', border: '15px solid white', 
-                        boxShadow: '0 30px 80px rgba(0,0,0,0.15)', background: `url(${previewAvatar}) center/cover`,
-                        animation: 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-                      }} />
-                      <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '400px' }}>
+                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '0.5rem', animation: 'fadeIn 0.4s ease', position: 'relative' }}>
+                      {/* BOTONES LATERALES NAVEGACION */}
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const idx = ALIMNET_AVATARS.findIndex(a => a.path === previewAvatar);
+                          const nextIdx = (idx - 1 + ALIMNET_AVATARS.length) % ALIMNET_AVATARS.length;
+                          setPreviewAvatar(ALIMNET_AVATARS[nextIdx].path);
+                        }}
+                        style={{ position: 'absolute', left: '-5px', top: '40%', background: 'white', border: '1px solid #E4EBDD', width: '44px', height: '44px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}
+                      >
+                         <ArrowLeft size={20} color="#5F7D4A" />
+                      </button>
+
+                      <div 
+                        onTouchStart={(e) => {
+                          const touch = e.touches[0];
+                          (window as any)._touchStartX = touch.clientX;
+                        }}
+                        onTouchEnd={(e) => {
+                          const touch = e.changedTouches[0];
+                          const deltaX = touch.clientX - (window as any)._touchStartX;
+                          if (Math.abs(deltaX) > 40) {
+                            const idx = ALIMNET_AVATARS.findIndex(a => a.path === previewAvatar);
+                            const nextIdx = deltaX > 0 
+                              ? (idx - 1 + ALIMNET_AVATARS.length) % ALIMNET_AVATARS.length 
+                              : (idx + 1) % ALIMNET_AVATARS.length;
+                            setPreviewAvatar(ALIMNET_AVATARS[nextIdx].path);
+                          }
+                        }}
+                        style={{ 
+                          width: 'min(320px, 80vw)', aspectRatio: '1/1', borderRadius: '70px', border: '12px solid white', 
+                          boxShadow: '0 30px 80px rgba(0,0,0,0.18)', background: `url(${previewAvatar}) center/cover`,
+                          animation: 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)', cursor: 'grab'
+                        }} 
+                      />
+
+                      <button 
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           const idx = ALIMNET_AVATARS.findIndex(a => a.path === previewAvatar);
+                           const nextIdx = (idx + 1) % ALIMNET_AVATARS.length;
+                           setPreviewAvatar(ALIMNET_AVATARS[nextIdx].path);
+                         }}
+                         className="desktop-only"
+                         style={{ position: 'absolute', right: '-5px', top: '40%', background: 'white', border: '1px solid #E4EBDD', width: '44px', height: '44px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}
+                      >
+                         <div style={{ transform: 'rotate(180deg)', display: 'flex' }}><ArrowLeft size={20} color="#5F7D4A" /></div>
+                      </button>
+
+                      <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '350px' }}>
                         <button 
                           onClick={() => setPreviewAvatar(null)}
-                          style={{ flex: 1, padding: '1.2rem', borderRadius: '22px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '900', cursor: 'pointer' }}
+                          style={{ flex: 1, padding: '1rem', borderRadius: '20px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '900', cursor: 'pointer', fontSize: '0.9rem' }}
                         >
-                          Volver atrás
+                          Volver
                         </button>
                         <button 
                           onClick={() => {
@@ -1372,9 +1424,9 @@ function MiCuentaContent() {
                             setShowAvatarPicker(false);
                             setPreviewAvatar(null);
                           }}
-                          style={{ flex: 2, padding: '1.2rem', borderRadius: '22px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '1000', cursor: 'pointer', boxShadow: '0 10px 20px rgba(95,125,74,0.3)' }}
+                          style={{ flex: 2, padding: '1rem', borderRadius: '20px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '1000', cursor: 'pointer', boxShadow: '0 10px 20px rgba(95,125,74,0.3)', fontSize: '0.9rem' }}
                         >
-                          Usar este rostro
+                          Listo, elegir este
                         </button>
                       </div>
                    </div>
