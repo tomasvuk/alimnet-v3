@@ -54,30 +54,32 @@ function MiCuentaContent() {
     preferences: [] as string[]
   });
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const ALIMNET_AVATARS = [
-    { id: 'agronomo', path: '/avatars/v2-front-agronomo.png' },
-    { id: 'apicultor', path: '/avatars/v2-front-apicultor.png' },
-    { id: 'jinete', path: '/avatars/v2-front-jinete.png' },
-    { id: 'pastor', path: '/avatars/v2-front-pastor.png' },
-    { id: 'puestero', path: '/avatars/v2-front-puestero.png' },
-    { id: 'vinatero', path: '/avatars/v2-front-vinatero.png' },
-    { id: 'alambrador', path: '/avatars/v2-front-alambrador.png' },
-    { id: 'transportista', path: '/avatars/v2-front-transportista.png' },
-    { id: 'campesina', path: '/avatars/v2-front-campesina.png' },
-    { id: 'floricultora', path: '/avatars/v2-front-floricultora.png' },
-    { id: 'hortelana', path: '/avatars/v2-front-hortelana.png' },
-    { id: 'polista', path: '/avatars/v2-front-polista.png' },
-    { id: 'quesera', path: '/avatars/v2-front-quesera.png' },
-    { id: 'recolectora', path: '/avatars/v2-front-recolectora.png' },
-    { id: 'tejedora', path: '/avatars/v2-front-tejedora.png' },
-    { id: 'ceramista', path: '/avatars/mujer-ceramista.png' },
-    { id: 'tractorista', path: '/avatars/v2-front-transportista.png' }, // Placeholder v2
-    { id: 'criador', path: '/avatars/hombre-pastor.png' }, // Placeholder v1
-    { id: 'agronoma', path: '/avatars/mujer-floricultora.png' }, // Placeholder v1
-    { id: 'vet-f', path: '/avatars/mujer-hortelana.png' }, // Placeholder v1
-    { id: 'artesana', path: '/avatars/mujer-tejedora.png' } // Placeholder v1
+    { id: '1', path: '/avatars/v2-front-agronomo.png' },
+    { id: '2', path: '/avatars/v2-front-apicultor.png' },
+    { id: '3', path: '/avatars/v2-front-jinete.png' },
+    { id: '4', path: '/avatars/v2-front-pastor.png' },
+    { id: '5', path: '/avatars/v2-front-puestero.png' },
+    { id: '6', path: '/avatars/v2-front-vinatero.png' },
+    { id: '7', path: '/avatars/v2-front-alambrador.png' },
+    { id: '8', path: '/avatars/v2-front-transportista.png' },
+    { id: '9', path: '/avatars/v2-front-campesina.png' },
+    { id: '10', path: '/avatars/v2-front-floricultora.png' },
+    { id: '11', path: '/avatars/v2-front-hortelana.png' },
+    { id: '12', path: '/avatars/v2-front-polista.png' },
+    { id: '13', path: '/avatars/v2-front-quesera.png' },
+    { id: '14', path: '/avatars/v2-front-recolectora.png' },
+    { id: '15', path: '/avatars/v2-front-tejedora.png' },
+    { id: '16', path: '/avatars/v2-front-agronomo.png' },
+    { id: '17', path: '/avatars/v2-front-apicultor.png' },
+    { id: '18', path: '/avatars/v2-front-jinete.png' },
+    { id: '19', path: '/avatars/v2-front-campesina.png' },
+    { id: '20', path: '/avatars/v2-front-floricultora.png' },
+    { id: '21', path: '/avatars/v2-front-tejedora.png' }
   ];
   const [merchantProducts, setMerchantProducts] = useState<any[]>([]); // NUEVO: Estado de Productos
   const [merchantFormData, setMerchantFormData] = useState<any>({
@@ -993,6 +995,11 @@ function MiCuentaContent() {
                               onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (!file) return;
+
+                                if (file.size > 2 * 1024 * 1024) {
+                                  setMessage({ type: 'error', text: 'Imagen muy pesada. El máximo permitido es 2MB.' });
+                                  return;
+                                }
                                 
                                 try {
                                   setMessage({ type: 'success', text: 'Subiendo imagen oficial... 📸' });
@@ -1296,18 +1303,19 @@ function MiCuentaContent() {
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
-                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+                 {!previewAvatar ? (
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
                     {ALIMNET_AVATARS.map(avatar => (
                        <div 
                          key={avatar.id}
-                         onClick={() => {
-                           setFormData({ ...formData, avatar_url: avatar.path });
-                           setShowAvatarPicker(false);
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           setPreviewAvatar(avatar.path);
                          }}
                          style={{ 
-                           textAlign: 'center', cursor: 'pointer', 
+                           textAlign: 'center', cursor: 'pointer', outline: 'none',
                            background: formData.avatar_url === avatar.path ? '#F0F4ED' : 'transparent',
-                           padding: '1.5rem', borderRadius: '40px', border: '5px solid',
+                           padding: '1.2rem', borderRadius: '40px', border: '5px solid',
                            borderColor: formData.avatar_url === avatar.path ? '#5F7D4A' : 'transparent',
                            transition: 'all 0.3s'
                          }}
@@ -1315,12 +1323,43 @@ function MiCuentaContent() {
                           <div style={{ 
                              width: '100%', aspectRatio: '1/1', borderRadius: '35px', 
                              background: `url(${avatar.path}) center/cover`, 
-                             border: '3px solid white', boxShadow: '0 8px 25px rgba(0,0,0,0.1)'
+                             border: '3px solid white', boxShadow: '0 8px 30px rgba(0,0,0,0.12)'
                           }} />
                        </div>
                     ))}
-                 </div>
+                   </div>
+                 ) : (
+                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem', padding: '1rem', animation: 'fadeIn 0.4s ease' }}>
+                      <div style={{ 
+                        width: '280px', height: '280px', borderRadius: '80px', border: '15px solid white', 
+                        boxShadow: '0 30px 80px rgba(0,0,0,0.15)', background: `url(${previewAvatar}) center/cover`,
+                        animation: 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+                      }} />
+                      <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '400px' }}>
+                        <button 
+                          onClick={() => setPreviewAvatar(null)}
+                          style={{ flex: 1, padding: '1.2rem', borderRadius: '22px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '900', cursor: 'pointer' }}
+                        >
+                          Volver atrás
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setFormData({ ...formData, avatar_url: previewAvatar });
+                            setShowAvatarPicker(false);
+                            setPreviewAvatar(null);
+                          }}
+                          style={{ flex: 2, padding: '1.2rem', borderRadius: '22px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '1000', cursor: 'pointer', boxShadow: '0 10px 20px rgba(95,125,74,0.3)' }}
+                        >
+                          Usar este rostro
+                        </button>
+                      </div>
+                   </div>
+                 )}
               </div>
+              <style jsx>{`
+                @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+              `}</style>
               
               <div style={{ marginTop: '2rem', textAlign: 'center' }}>
                  <button 
