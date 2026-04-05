@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.5.X - Final Upload Fix
+          v3.5.X - Dimens. & Size Sync
         </div>
         <MiCuentaContent />
       </div>
@@ -877,43 +877,46 @@ function MiCuentaContent() {
                         const product = merchantProducts[idx];
                         return (
                           <div key={idx} style={{ 
-                            padding: '1.5rem', background: '#F8F9F5', borderRadius: '24px', border: '1px dashed #D1DBC7',
-                            display: 'flex', flexDirection: 'column', gap: '12px'
+                            padding: '1.2rem', background: '#F8F9F5', borderRadius: '24px', border: '1px dashed #D1DBC7',
+                            display: 'flex', flexDirection: 'column', gap: '10px'
                           }}>
                             <div style={{ 
-                              width: '100%', height: '100px', borderRadius: '16px', 
-                              background: product?.image_url ? `url(${product.image_url}) center/cover` : '#E4EBDD', 
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-                              boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)'
+                               width: '100%', height: '80px', borderRadius: '16px', 
+                               background: product?.image_url ? `url(${product.image_url}) center/cover` : '#E4EBDD', 
+                               display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                               boxShadow: 'inset 0 0 40px rgba(0,0,0,0.05)', position: 'relative'
                             }}>
-                              {!product?.image_url && <Plus size={24} color="#AAA" />}
+                               {!product?.image_url && <Plus size={20} color="#AAA" />}
                             </div>
                             
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                              <input 
-                                type="text" 
-                                placeholder="Nombre del producto"
-                                value={product?.name || ''}
-                                onChange={(e) => {
-                                  const newProducts = [...merchantProducts];
-                                  if (!newProducts[idx]) newProducts[idx] = { name: '', merchant_id: merchantData.id };
-                                  newProducts[idx].name = e.target.value;
-                                  setMerchantProducts(newProducts);
-                                }}
-                                style={{ width: '100%', padding: '0.8rem', border: '1px solid #E4EBDD', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '800', outline: 'none' }}
-                              />
-                              <input 
-                                type="text" 
-                                placeholder="URL Imagen (Max 1MB)"
-                                value={product?.image_url || ''}
-                                onChange={(e) => {
-                                  const newProducts = [...merchantProducts];
-                                  if (!newProducts[idx]) newProducts[idx] = { name: '', merchant_id: merchantData.id };
-                                  newProducts[idx].image_url = e.target.value;
-                                  setMerchantProducts(newProducts);
-                                }}
-                                style={{ width: '100%', padding: '0.8rem', border: '1px solid #E4EBDD', borderRadius: '12px', fontSize: '0.7rem', color: '#888', outline: 'none' }}
-                              />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                               <input 
+                                 type="text" 
+                                 placeholder="Nombre (ej: Miel de Campo)"
+                                 value={product?.name || ''}
+                                 onChange={(e) => {
+                                   const newProducts = [...merchantProducts];
+                                   if (!newProducts[idx]) newProducts[idx] = { name: '', merchant_id: merchantData.id };
+                                   newProducts[idx].name = e.target.value;
+                                   setMerchantProducts(newProducts);
+                                 }}
+                                 style={{ width: '100%', padding: '0.7rem', border: '1px solid #E4EBDD', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '800', outline: 'none' }}
+                               />
+                               <input 
+                                 type="text" 
+                                 placeholder="URL de la imagen (JPG/PNG)"
+                                 value={product?.image_url || ''}
+                                 onChange={(e) => {
+                                   const newProducts = [...merchantProducts];
+                                   if (!newProducts[idx]) newProducts[idx] = { name: '', merchant_id: merchantData.id };
+                                   newProducts[idx].image_url = e.target.value;
+                                   setMerchantProducts(newProducts);
+                                 }}
+                                 style={{ width: '100%', padding: '0.7rem', border: '1px solid #E4EBDD', borderRadius: '10px', fontSize: '0.65rem', color: '#888', outline: 'none' }}
+                               />
+                               <p style={{ fontSize: '0.52rem', color: '#999', textAlign: 'center', fontWeight: '500', marginTop: '2px' }}>
+                                 Recomendado: 1024x1024px. Máx 5MB.
+                               </p>
                             </div>
 
                              <button 
@@ -954,7 +957,9 @@ function MiCuentaContent() {
                          <div style={{ 
                            width: '50px', height: '50px', borderRadius: '12px', 
                            background: merchantFormData.logo_url ? `url(${merchantFormData.logo_url}) center/cover` : '#F0F4ED',
-                           border: '1px so                        <div style={{ flex: 1 }}>
+                           border: '1px solid #E4EBDD', flexShrink: 0
+                         }} />
+                        <div style={{ flex: 1 }}>
                            <label 
                              className="hover-scale"
                              style={{ 
@@ -963,11 +968,11 @@ function MiCuentaContent() {
                                fontSize: '0.75rem', fontWeight: '800', color: '#5F7D4A',
                                transition: 'all 0.2s'
                              }}
-                             onClick={() => document.getElementById('logo-upload-v3')?.click()}
+                             onClick={() => document.getElementById('logo-v3-upload')?.click()}
                            >
                              {saving ? 'Cargando...' : 'SUBIR LOGO'}
                              <input 
-                               id="logo-upload-v3"
+                               id="logo-v3-upload"
                                type="file" 
                                style={{ display: 'none' }} 
                                accept="image/*" 
@@ -992,11 +997,9 @@ function MiCuentaContent() {
                                }} 
                              />
                            </label>
-                           <p style={{ fontSize: '0.6rem', color: '#888', marginTop: '6px', fontWeight: '600', textAlign: 'center' }}>
-                             JPG/PNG, 1024x1024px. Máx 5MB.
+                           <p style={{ fontSize: '0.58rem', color: '#888', marginTop: '6px', fontWeight: '600', textAlign: 'center' }}>
+                             JPG/PNG, 1024x1024px recom. Máx 5MB.
                            </p>
-                        </div>
-                     </label>
                         </div>
                       </div>
 
@@ -1089,37 +1092,47 @@ function MiCuentaContent() {
                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
                             <button className="button-primary-small" onClick={() => setShowAvatarPicker(true)} style={{ fontSize: '0.7rem', padding: '6px 12px', borderRadius: '10px' }}>Elegir Avatar</button>
                             
-                            <label 
-                                className="hover-scale"
-                                style={{ 
-                                  display: 'inline-block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
-                                  border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '1000',
-                                  transition: 'all 0.2s'
-                                }}
-                              >
-                                {saving ? 'Cargando...' : 'Subir Imagen'}
-                                <input 
-                                  type="file" 
-                                  style={{ display: 'none' }} 
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
-                                    setSaving(true);
-                                    setMessage({ type: 'success', text: 'Preparando editor de imagen... ⏳' });
-                                    const reader = new FileReader();
-                                    reader.onload = () => {
-                                      setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
-                                      setSaving(false);
-                                      setMessage(null);
-                                    };
-                                    reader.readAsDataURL(file);
-                                    e.target.value = '';
-                                  }}
-                                />
-                              </label>
-
-
+                            <div style={{ flex: 1 }}>
+                               <label 
+                                 className="hover-scale"
+                                 style={{ 
+                                   display: 'block', cursor: 'pointer', background: '#F0F4ED', color: '#5F7D4A', 
+                                   textAlign: 'center', border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: '1000',
+                                   transition: 'all 0.2s'
+                                 }}
+                                 onClick={() => document.getElementById('avatar-v3-upload')?.click()}
+                               >
+                                 {saving ? 'Cargando...' : 'Subir Imagen'}
+                                 <input 
+                                   id="avatar-v3-upload"
+                                   type="file" 
+                                   style={{ display: 'none' }} 
+                                   accept="image/*"
+                                   onChange={(e) => {
+                                     const file = e.target.files?.[0];
+                                     if (!file) return;
+                                     if (file.size > 5 * 1024 * 1024) {
+                                       setMessage({ type: 'error', text: '¡Imagen muy pesada! Máximo 5MB.' });
+                                       setTimeout(() => setMessage(null), 4000);
+                                       return;
+                                     }
+                                     setSaving(true);
+                                     setMessage({ type: 'success', text: 'Preparando editor... ⏳' });
+                                     const reader = new FileReader();
+                                     reader.onload = () => {
+                                       setCroppingImage({ url: reader.result as string, type: 'avatar', aspect: 1 });
+                                       setSaving(false);
+                                       setMessage(null);
+                                     };
+                                     reader.readAsDataURL(file);
+                                     e.target.value = '';
+                                   }}
+                                 />
+                               </label>
+                               <p style={{ fontSize: '0.55rem', color: '#888', marginTop: '4px', fontWeight: '600', textAlign: 'center' }}>
+                                 Recomendado: 512x512px. Máx 5MB.
+                               </p>
+                             </div>
                          </div>
                       </div>
                    </div>
