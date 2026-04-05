@@ -879,12 +879,14 @@ export default function ExplorarPage() {
     })).filter(m => (m.locations?.length || 0) > 0);
 
     // Filtrado por Ubicación (Potenciado con Coordenadas y Regiones)
-    let tempCoords = searchCoords;
-    let tempRadius = 30; // Radio base aumentado a 30km
+    let tempCoords = null; 
+    let tempRadius = 30; 
 
-    // Mapeo manual de regiones comunes si es búsqueda por texto (en ambos campos para mayor facilidad)
     const locText = searchLocation || searchQuery;
-    if (!tempCoords && locText.trim().length > 0) {
+    if (locText.trim().length > 0) {
+      if (searchCoords) {
+        tempCoords = searchCoords;
+      }
       const locNorm = normalizeString(locText);
       if (locNorm.includes('zona norte')) {
         tempCoords = { lat: -34.47, lng: -58.55 };
