@@ -30,6 +30,19 @@ export default function MerchantRegistrationPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+      }
+      setLoadingAuth(false);
+    };
+    checkUser();
+  }, []);
 
   // Estados para Imágenes
   const [logo, setLogo] = useState<any>(null);
@@ -228,6 +241,32 @@ export default function MerchantRegistrationPage() {
        {sub && <p style={{ fontSize: '0.7rem', color: '#888', marginTop: '0.1rem' }}>{sub}</p>}
     </div>
   );
+
+  if (loadingAuth) return <div style={{ minHeight: '100vh', background: '#F8F9F5' }}><Header /></div>;
+
+  if (!user) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F8F9F5', paddingTop: '120px', paddingBottom: '40px' }}>
+        <Header />
+        <div style={{ maxWidth: '480px', margin: '0 auto', padding: '3.5rem 2.5rem', background: 'white', borderRadius: '40px', textAlign: 'center', border: '1px solid #E4EBDD', boxShadow: '0 20px 50px rgba(0,0,0,0.04)' }}>
+          <div style={{ width: '80px', height: '80px', background: '#F0F4ED', borderRadius: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', margin: '0 auto 2rem' }}>
+            <ShieldCheck size={40} strokeWidth={2.5} />
+          </div>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.03em' }}>Unite a la Red</h2>
+          <p style={{ color: '#666', fontWeight: '600', lineHeight: '1.6', marginBottom: '2.5rem', fontSize: '1.05rem' }}>
+            Para registrar tu comercio oficial y gestionar tu perfil, primero necesitás ingresar a tu cuenta de Alimnet.
+          </p>
+          <button 
+            onClick={() => router.push('/login?redirect=/registro-comercio')}
+            style={{ width: '100%', padding: '1.3rem', background: '#2D3A20', color: 'white', borderRadius: '20px', fontWeight: '1000', border: 'none', cursor: 'pointer', fontSize: '1rem', boxShadow: '0 15px 30px rgba(45, 58, 32, 0.2)' }}
+          >
+            INGRESAR AHORA
+          </button>
+          <p onClick={() => router.push('/sumate')} style={{ marginTop: '2rem', color: '#AAA', fontWeight: '1000', fontSize: '0.8rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Volver atrás</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9F5', paddingTop: '70px', paddingBottom: '30px' }}>
