@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
       <div style={{ position: 'relative' }}>
         {/* Etiqueta de Versión para verificar Deploy */}
         <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-          v3.3 - Feedback de Error
+          v3.4 - Debug Redirección
         </div>
         <MiCuentaContent />
       </div>
@@ -159,6 +159,21 @@ function MiCuentaContent() {
     return () => clearTimeout(timer);
   }, [activeTab]);
 
+  // CSS dinámico para reacciones visuales
+  useEffect(() => {
+    const styleId = 'alimnet-dynamic-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.innerHTML = `
+        .hover-scale { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .hover-scale:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .hover-scale:active { transform: scale(0.95); }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     router.push(`/mi-cuenta?tab=${tabId}`, { scroll: false });
@@ -200,8 +215,12 @@ function MiCuentaContent() {
           return;
         }
         setLoading(false);
+        // Si después de los reintentos no hay usuario, mandamos al login
+        setMessage({ type: 'error', text: 'Sesión no encontrada. Redirigiendo...' });
+        setTimeout(() => router.push('/login'), 2000);
         return;
       }
+
 
       const currentUser = user;
 
@@ -1483,7 +1502,9 @@ function MiCuentaContent() {
               const fileName = `${Date.now()}.${fileExt}`;
               
               if (croppingImage.type === 'avatar') {
-                if (!profile?.id) throw new Error("ID de perfil no encontrado");
+                if (!profile?.id) throw new Error("Tu perfil no está cargado correctamente. Reingresá a la web por favor.");
+                
+                setMessage({ type: 'success', text: 'Procesando foto de perfil... 🛠️' });
                 const filePath = `${profile.id}/${fileName}`;
                 
                 const { error: uploadError } = await supabase.storage
@@ -1491,16 +1512,18 @@ function MiCuentaContent() {
                   .upload(filePath, blob, { cacheControl: '3600', upsert: true });
                 if (uploadError) throw uploadError;
 
+                setMessage({ type: 'success', text: 'Conectando con la base de datos... 🔗' });
                 const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
                 
-                // --- PERSISTENCIA INMEDIATA EN DB ---
                 const { error: dbError } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', profile.id);
                 if (dbError) throw dbError;
 
                 setFormData({ ...formData, avatar_url: publicUrl });
                 setProfile({ ...profile, avatar_url: publicUrl });
               } else {
-                if (!merchantData?.id) throw new Error("ID de comercio no encontrado");
+                if (!merchantData?.id) throw new Error("Tu comercio no está cargado correctamente.");
+                
+                setMessage({ type: 'success', text: 'Procesando logo... 🛠️' });
                 const filePath = `logos/${merchantData.id}/${fileName}`;
                 
                 const { error: uploadError } = await supabase.storage
@@ -1508,9 +1531,9 @@ function MiCuentaContent() {
                   .upload(filePath, blob, { cacheControl: '3600', upsert: true });
                 if (uploadError) throw uploadError;
 
+                setMessage({ type: 'success', text: 'Guardando cambios permanentemente... ✅' });
                 const { data: { publicUrl } } = supabase.storage.from('merchant_assets').getPublicUrl(filePath);
                 
-                // --- PERSISTENCIA INMEDIATA EN DB ---
                 const { error: dbError } = await supabase.from('merchants').update({ logo_url: publicUrl }).eq('id', merchantData.id);
                 if (dbError) throw dbError;
 
@@ -1518,17 +1541,18 @@ function MiCuentaContent() {
                 setMerchantData({ ...merchantData, logo_url: publicUrl });
               }
               
-              setMessage({ type: 'success', text: '¡Imagen actualizada con éxito! ✨' });
+              setMessage({ type: 'success', text: '¡LISTO! Imagen guardada ✨' });
               setTimeout(() => setMessage(null), 3000);
             } catch (err: any) { 
               console.error("DEBUG UPLOAD ERROR:", err);
-              setMessage({ type: 'error', text: `No se pudo guardar: ${err.message || 'Error desconocido'}` });
+              setMessage({ type: 'error', text: `ERROR: ${err.message || 'Error desconocido'}` });
             } finally { 
               setSaving(false); 
             }
           }}
         />
       )}
+
     </div>
   );
 }

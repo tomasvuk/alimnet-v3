@@ -604,9 +604,10 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{padding:20}}>
                         <div style={{fontWeight:1000, color:'#2D3A20'}}>
-                          {u.first_name || u.last_name 
+                          {/* Priorizamos la combinación de Nombre + Apellido */}
+                          {(u.first_name || u.last_name) 
                             ? `${u.first_name || ''} ${u.last_name || ''}`.trim() 
-                            : u.full_name || 'Sin Nombre'}
+                            : (u.full_name || 'Sin Nombre')}
                         </div>
                         <div style={{fontSize:'0.75rem', color:'#B2AC88', fontWeight:800}}>{u.email || 'No email synced'}</div>
                       </td>
