@@ -1373,11 +1373,11 @@ export default function ExplorarPage() {
       {/* 3. CONTENIDO PRINCIPAL - FIXED LAYOUT (DASHBOARD STYLE) */}
       <div className="main-content" style={{ 
         flex: 1, 
-        height: '100%',
         display: 'flex', 
         flexDirection: isMobile ? 'column' : 'row',
         overflow: 'hidden', 
-        position: 'relative' 
+        position: 'relative',
+        minHeight: 0
       }}>
         
         {/* Toggle Flotante Mobile SOLAMENTE */}
@@ -1407,12 +1407,12 @@ export default function ExplorarPage() {
             width: isMobile ? '100%' : '35%', 
             minWidth: isMobile ? '0' : '420px', 
             display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
-            padding: isMobile ? '1.5rem 1rem' : '0 0 1.5rem 1.5rem', 
+            padding: isMobile ? '1.5rem 1rem 120px' : '0 0 1.5rem 1.5rem', 
             background: '#F8F9F5',
             borderRight: isMobile ? 'none' : '1px solid #E4EBDD', 
-            height: '100%', 
             overflowY: 'auto',
-            position: 'relative'
+            position: 'relative',
+            minHeight: 0
           }}
         >
           {/* HEADER DE CONTEO - STICKY Y PEQUEÑO */}
