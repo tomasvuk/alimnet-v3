@@ -203,7 +203,7 @@ function IdentityWallModal({ isOpen, user, onComplete }: { isOpen: boolean, user
   );
 }
 
-function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount, userProfile, router, isStyleActive, setIsStyleActive }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number, userProfile: any, router: any, isStyleActive: boolean, setIsStyleActive: (v:boolean)=>void }) {
+function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount, userProfile, router, isStyleActive, setIsStyleActive, setShowStyleWarning }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number, userProfile: any, router: any, isStyleActive: boolean, setIsStyleActive: (v:boolean)=>void, setShowStyleWarning: (v:boolean)=>void }) {
   // --- Soporte para tecla ESC ---
   useEffect(() => {
     if (!isOpen) return;
@@ -304,6 +304,13 @@ function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, 
                     clearAll();
                     setIsStyleActive(false);
                   } else {
+                    // VALIDACIÓN: ¿Tiene preferencias?
+                    if (!userProfile?.preferences || userProfile.preferences.length === 0) {
+                      onClose(); // Cerrar filtros
+                      setShowStyleWarning(true); // Abrir aviso
+                      return;
+                    }
+
                     // SI NO ESTÁ: Limpiar primero y aplicar EL ESTILO DEL PERFIL PURO
                     clearAll(); 
                     userProfile.preferences.forEach((p: string) => {
@@ -430,6 +437,7 @@ export default function ExplorarPage() {
   const [finalCoords, setFinalCoords] = useState<{ lat: number, lng: number } | null>(null);
   const [showIdentityWall, setShowIdentityWall] = useState(false);
   const [isStyleActive, setIsStyleActive] = useState(false);
+  const [showStyleWarning, setShowStyleWarning] = useState(false);
   const [currentMapBounds, setCurrentMapBounds] = useState<L.LatLngBounds | null>(null);
   const merchantsRef = React.useRef<Merchant[]>([]);
 
@@ -1685,7 +1693,40 @@ export default function ExplorarPage() {
         router={router}
         isStyleActive={isStyleActive}
         setIsStyleActive={setIsStyleActive}
+        setShowStyleWarning={setShowStyleWarning}
       />
+
+      {/* MODAL DE AVISO: ARMA TU ESTILO (V-9.5.5) */}
+      {showStyleWarning && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)', animation: 'fadeIn 0.3s ease' }}>
+          <div style={{ background: 'white', borderRadius: '40px', maxWidth: '450px', width: '100%', padding: '2.5rem', textAlign: 'center', position: 'relative', boxShadow: '0 30px 100px rgba(0,0,0,0.3)', animation: 'scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+             <div style={{ width: '90px', height: '90px', background: '#F0F4ED', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                <Sparkles size={40} color="#5F7D4A" />
+             </div>
+             <h2 style={{ fontSize: '1.8rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '1rem', lineHeight: '1.2' }}>¡Armá tu estilo alimenticio! 🥗</h2>
+             <p style={{ color: '#666', fontSize: '1rem', fontWeight: '600', marginBottom: '2rem', lineHeight: '1.5' }}>
+               Todavía no guardaste tus preferencias en tu perfil. Hacelo ahora para que el mapa se adapte a vos y descubras proyectos a tu medida de forma mágica. ✨
+             </p>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <button 
+                  onClick={() => {
+                    setShowStyleWarning(false);
+                    router.push('/mi-cuenta');
+                  }}
+                  style={{ width: '100%', padding: '1.2rem', borderRadius: '22px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '1000', fontSize: '1rem', cursor: 'pointer', boxShadow: '0 10px 25px rgba(95,125,74,0.3)' }}
+                >
+                  Configurar mi estilo ahora
+                </button>
+                <button 
+                  onClick={() => setShowStyleWarning(false)}
+                  style={{ width: '100%', padding: '1rem', borderRadius: '22px', border: 'none', background: 'transparent', color: '#888', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer' }}
+                >
+                  Quizás más tarde
+                </button>
+             </div>
+          </div>
+        </div>
+      )}
       {/* ONBOARDING MODAL PREMIUM */}
       {showOnboarding && user && (
         <OnboardingPremium 
