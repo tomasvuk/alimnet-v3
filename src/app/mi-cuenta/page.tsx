@@ -1330,12 +1330,12 @@ function MiCuentaContent() {
                  </button>
               </div>
 
-              <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }} className="no-scrollbar">
                  {!previewAvatar ? (
                    <div style={{ 
                      display: 'grid', 
                      gridTemplateColumns: typeof window !== 'undefined' && window.innerWidth < 500 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', 
-                     gap: '1.5rem' 
+                     gap: '1rem' 
                    }}>
                     {ALIMNET_AVATARS.map(avatar => (
                        <div 
@@ -1361,8 +1361,8 @@ function MiCuentaContent() {
                     ))}
                    </div>
                  ) : (
-                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '0.5rem', animation: 'fadeIn 0.4s ease', position: 'relative' }}>
-                      {/* BOTONES LATERALES NAVEGACION */}
+                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem', padding: '0.2rem', animation: 'fadeIn 0.4s ease', position: 'relative', width: '100%' }}>
+                      {/* BOTONES LATERALES NAVEGACION (V-9.5.7: Más compactos para mobile) */}
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1370,9 +1370,9 @@ function MiCuentaContent() {
                           const nextIdx = (idx - 1 + ALIMNET_AVATARS.length) % ALIMNET_AVATARS.length;
                           setPreviewAvatar(ALIMNET_AVATARS[nextIdx].path);
                         }}
-                        style={{ position: 'absolute', left: '-5px', top: '40%', background: 'white', border: '1px solid #E4EBDD', width: '44px', height: '44px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}
+                        style={{ position: 'absolute', left: '0px', top: '35%', background: 'white', border: '1px solid #E4EBDD', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}
                       >
-                         <ArrowLeft size={20} color="#5F7D4A" />
+                         <ArrowLeft size={18} color="#5F7D4A" />
                       </button>
 
                       <div 
@@ -1392,7 +1392,7 @@ function MiCuentaContent() {
                           }
                         }}
                         style={{ 
-                          width: 'min(320px, 80vw)', aspectRatio: '1/1', borderRadius: '70px', border: '12px solid white', 
+                          width: 'min(280px, 75vw)', aspectRatio: '1/1', borderRadius: '60px', border: '10px solid white', 
                           boxShadow: '0 30px 80px rgba(0,0,0,0.18)', background: `url(${previewAvatar}) center/cover`,
                           animation: 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)', cursor: 'grab'
                         }} 
@@ -1405,16 +1405,15 @@ function MiCuentaContent() {
                            const nextIdx = (idx + 1) % ALIMNET_AVATARS.length;
                            setPreviewAvatar(ALIMNET_AVATARS[nextIdx].path);
                          }}
-                         className="desktop-only"
-                         style={{ position: 'absolute', right: '-5px', top: '40%', background: 'white', border: '1px solid #E4EBDD', width: '44px', height: '44px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}
+                         style={{ position: 'absolute', right: '0px', top: '35%', background: 'white', border: '1px solid #E4EBDD', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}
                       >
-                         <div style={{ transform: 'rotate(180deg)', display: 'flex' }}><ArrowLeft size={20} color="#5F7D4A" /></div>
+                         <div style={{ transform: 'rotate(180deg)', display: 'flex' }}><ArrowLeft size={18} color="#5F7D4A" /></div>
                       </button>
 
-                      <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '350px' }}>
+                      <div style={{ display: 'flex', gap: '0.8rem', width: '100%', maxWidth: '320px', marginTop: '10px' }}>
                         <button 
                           onClick={() => setPreviewAvatar(null)}
-                          style={{ flex: 1, padding: '1rem', borderRadius: '20px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '900', cursor: 'pointer', fontSize: '0.9rem' }}
+                          style={{ flex: 1, padding: '0.85rem', borderRadius: '18px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '900', cursor: 'pointer', fontSize: '0.85rem' }}
                         >
                           Volver
                         </button>
@@ -1424,9 +1423,9 @@ function MiCuentaContent() {
                             setShowAvatarPicker(false);
                             setPreviewAvatar(null);
                           }}
-                          style={{ flex: 2, padding: '1rem', borderRadius: '20px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '1000', cursor: 'pointer', boxShadow: '0 10px 20px rgba(95,125,74,0.3)', fontSize: '0.9rem' }}
+                          style={{ flex: 2, padding: '0.85rem', borderRadius: '18px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '1000', cursor: 'pointer', boxShadow: '0 10px 20px rgba(95,125,74,0.3)', fontSize: '0.85rem' }}
                         >
-                          Listo, elegir este
+                          Elegir este rostro
                         </button>
                       </div>
                    </div>
@@ -1437,15 +1436,18 @@ function MiCuentaContent() {
                 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
               `}} />
               
-              <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-                 <button 
-                    onClick={() => setShowAvatarPicker(false)}
-                    className="button-primary"
-                    style={{ width: '100%', padding: '1.2rem', borderRadius: '22px' }}
-                 >
-                    Listo, este soy yo
-                 </button>
-              </div>
+              {/* V-9.5.7: ELIMINAMOS EL BOTÓN INFERIOR CUANDO HAY PREVIEW PARA GANAR ESPACIO */}
+              {!previewAvatar && (
+                <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                   <button 
+                     className="button-primary" 
+                     onClick={() => setShowAvatarPicker(false)}
+                     style={{ width: '100%', borderRadius: '25px', padding: '1.2rem', fontSize: '1.1rem', fontWeight: '1000' }}
+                   >
+                      Listo, este soy yo
+                   </button>
+                </div>
+              )}
            </div>
         </div>
       )}
