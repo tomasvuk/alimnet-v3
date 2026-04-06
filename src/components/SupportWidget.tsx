@@ -139,6 +139,19 @@ export default function SupportWidget() {
         {isOpen ? <X size={isMobile ? 20 : 24} /> : <MessageSquare size={isMobile ? 20 : 24} />}
       </button>
 
+      {/* VERSION TAG */}
+      <div style={{ 
+        fontSize: '9px', 
+        fontWeight: '900', 
+        color: '#2D3A20', 
+        opacity: 0.4, 
+        paddingRight: '4px',
+        pointerEvents: 'none',
+        userSelect: 'none'
+      }}>
+        v4.1.1
+      </div>
+
       <style jsx>{`
         @keyframes floatIn { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .step-fade-in { animation: floatIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }

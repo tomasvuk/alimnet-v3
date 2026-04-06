@@ -110,7 +110,6 @@ export default function Header() {
         style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em", cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         ALIMNET
-        <span style={{ fontSize: '9px', background: '#5F7D4A', color: 'white', padding: '2px 6px', borderRadius: '8px', opacity: 0.8 }}>v4.1.1</span>
       </div>
 
       {/* Acciones */}
