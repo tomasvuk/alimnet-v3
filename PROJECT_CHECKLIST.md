@@ -33,7 +33,8 @@
 - [x] **[MERCHANT DASHBOARD]** Panel privado para que el comercio gestione su info.
 - [ ] **[VERIFICACIÓN]** Sistema de validación de "Proyectos Cuidados" (Gestión de pedidos de verificación).
 - [x] **[MAILING]** Sistema de notificaciones automáticas (Bienvenida bilingüe con Resend).
-- [x] **[CENTRAL DE MENSAJES]** Log de consultas y contacto directo funcional.
+- [x] **[CHATBOT]** Soporte interactivo funcional con alertas a info@alimnet.com (v4.1.2).
+- [x] **[CENTRAL DE MENSAJES]** Log de consultas y contacto directo funcional inyectado en AdminDashboard.
 - [x] **[ANALÍTICA]** Vista rápida de salud de la red (KPIs reales en AdminDashboard).
 
 ### 🛡️ AUDITORÍA DE CALIDAD (Fase Actual)
@@ -46,4 +47,4 @@
 ### 📊 Estado Actual: FINALIZANDO DETALLES (90%)
 La plataforma es robusta y soberana. Estamos atacando los últimos puntos de seguridad (RLS) y SEO antes del lanzamiento masivo. 
 
-**Última actualización:** 4 de abril de 2026.
+**Última actualización:** 5 de abril de 2026.
