@@ -690,7 +690,7 @@ export default function MerchantProfilePage() {
       )}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {!isMobileView && (
-          <div style={{ width: '240px', background: 'white', borderRight: '1px solid #E4EBDD', padding: '2rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', position: 'sticky', top: '56px', height: 'calc(100vh - 56px)' }}>
+          <div style={{ display: isMobileView ? 'none' : 'flex', width: '240px', background: 'white', borderRight: '1px solid #E4EBDD', padding: '2rem 1rem', flexDirection: 'column', gap: '0.6rem', position: 'sticky', top: '56px', height: 'calc(100vh - 56px)' }}>
              {[
                { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
                { id: 'favoritos', label: 'Mi Selección', icon: Bookmark },

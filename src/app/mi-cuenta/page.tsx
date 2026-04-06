@@ -485,7 +485,7 @@ function MiCuentaContent() {
             </div>
           )}
 
-          <>
+
               {activeTab === 'dashboard' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
               
@@ -1618,7 +1618,7 @@ function MiCuentaContent() {
           }}
         />
       )}
-    </>
+
         </div>
       </main>
     </div>
