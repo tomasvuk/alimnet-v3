@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, getAdminClient } from '@/lib/supabase';
 import { sendEmail } from '@/lib/mailing';
 import { WelcomeEmail } from '@/components/emails/WelcomeEmail';
 import { AdminAlertEmail } from '@/components/emails/AdminAlertEmail';
@@ -14,8 +14,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Notification ID is required' }, { status: 400 });
     }
 
-    // 1. Fetch the notification from the database
-    const { data: notification, error: fetchError } = await supabase
+    // 1. Fetch the notification from the database using admin privileges
+    const adminClient = getAdminClient();
+    const { data: notification, error: fetchError } = await adminClient
       .from('notifications')
       .select('*')
       .eq('id', notificationId)
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
     }
 
     // 3. Update notification status in database
-    const { error: updateError } = await supabase
+    const { error: updateError } = await adminClient
       .from('notifications')
       .update({ 
         status: 'sent', 

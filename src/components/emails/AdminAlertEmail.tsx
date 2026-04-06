@@ -37,13 +37,19 @@ export const AdminAlertEmail = ({
 
           <Text style={text}>{content}</Text>
 
-          {/* If there's specific metadata (like Merchant info) */}
-          {metadata.merchant_name && (
+          {/* Information from metadata */}
+          {(metadata.email || metadata.merchant_name) && (
             <Section style={infoBox}>
-              <Text style={infoLabel}>DETALLES DEL COMERCIO:</Text>
-              <Text style={infoValue}><strong>Nombre:</strong> {metadata.merchant_name}</Text>
-              <Text style={infoValue}><strong>Ubicación:</strong> {metadata.locality || 'No especificada'}</Text>
-              <Text style={infoValue}><strong>Categoría:</strong> {metadata.category || 'Varias'}</Text>
+              <Text style={infoLabel}>DETALLES DEL REMITENTE:</Text>
+              {metadata.email && (
+                <Text style={infoValue}><strong>Email:</strong> {metadata.email}</Text>
+              )}
+              {metadata.merchant_name && (
+                <Text style={infoValue}><strong>Comercio:</strong> {metadata.merchant_name}</Text>
+              )}
+              {metadata.locality && (
+                <Text style={infoValue}><strong>Ubicación:</strong> {metadata.locality}</Text>
+              )}
             </Section>
           )}
 

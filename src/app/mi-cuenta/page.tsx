@@ -40,6 +40,15 @@ function MiCuentaContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [validationCount, setValidationCount] = useState(0);
@@ -378,10 +387,12 @@ function MiCuentaContent() {
       <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
         
         {/* SIDEBAR IZQUIERDA (SOLO ESCRITORIO) */}
-        <aside 
+        {!isMobile && (
+          <aside 
           style={{ 
+            display: isMobile ? 'none' : 'flex',
             width: '280px', background: 'white', borderRight: '1px solid #E4EBDD', 
-            display: 'flex', flexDirection: 'column', padding: '1.2rem 1.2rem',
+            flexDirection: 'column', padding: '1.2rem 1.2rem',
             zIndex: 90,
             height: 'calc(100vh - 56px)',
             transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
@@ -434,8 +445,9 @@ function MiCuentaContent() {
               {item.label}
             </button>
           ))}
-        </nav>
-      </aside>
+          </nav>
+        </aside>
+        )}
 
       {/* CONTENIDO CENTRAL */}
       <main className="main-content" style={{ 
@@ -1621,8 +1633,13 @@ function MiCuentaContent() {
 
         </div>
       </main>
+
+      {/* VERIFICADOR DE DEPLOY v4.1.2 */}
+      <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
+        v4.1.2
+      </div>
+
     </div>
   </div>
   );
 }
-

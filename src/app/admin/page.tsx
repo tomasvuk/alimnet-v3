@@ -351,7 +351,7 @@ export default function AdminDashboard() {
         ...(contactMsgs || []).map(m => ({ ...m, type: 'CONTACT_FORM' })),
         ...(chatNotifs || []).map(n => ({ 
           id: n.id, 
-          sender_name: n.metadata?.email || 'Visita Anónima', 
+          sender_name: n.metadata?.name || n.metadata?.email || 'Visita Anónima', 
           sender_email: n.metadata?.email || '-', 
           subject: n.title, 
           message: n.content, 

@@ -27,31 +27,29 @@ export default function SupportWidget() {
     setSending(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      let metadata: any = {
+        email: user?.email || 'Visita Anónima',
+        lang: lang,
+      };
+
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+        if (profile?.full_name) metadata.name = profile.full_name;
+      }
       
-      // 1. Create a notification record (Admin Alert)
-      const { data: notif, error } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: user?.id || null, // Optional if guest
-          title: lang === 'es' ? 'Nueva Consulta en Chatbot' : 'New Chatbot Query',
-          content: message,
-          type: 'ADMIN_ALERT',
-          metadata: {
-            email: user?.email || 'Visita Anónima',
-            lang: lang,
-          }
+      const response = await fetch('/api/support/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          lang,
+          metadata
         })
-        .select()
-        .single();
+      });
 
-      if (error) throw error;
-
-      // 2. Trigger processing for immediate email
-      if (notif) {
-        fetch('/api/notifications/process', {
-          method: 'POST',
-          body: JSON.stringify({ notificationId: notif.id })
-        }).catch(err => console.error('Silent alert trigger failed:', err));
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'API Error');
       }
 
       setSent(true);
@@ -149,7 +147,7 @@ export default function SupportWidget() {
         pointerEvents: 'none',
         userSelect: 'none'
       }}>
-        v4.1.1
+        v4.1.2
       </div>
 
       <style jsx>{`
