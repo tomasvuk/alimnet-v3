@@ -49,6 +49,7 @@ import {
   Share2
 } from 'lucide-react';
 import Header from '@/components/Header';
+import AlimnetLoader from '@/components/AlimnetLoader';
 
 import OnboardingPremium from '@/components/OnboardingPremium';
 import { 
@@ -1180,7 +1181,7 @@ export default function ExplorarPage() {
   };
   // --- PERSISTENCE LOGIC END ---
 
-  // No bloqueamos toda la página, solo el acceso a info sensible
+  if (loading) return <AlimnetLoader fullScreen />;
 
   return (
     <div style={{ 

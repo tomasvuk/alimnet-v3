@@ -33,6 +33,7 @@ import {
   Star
 } from 'lucide-react';
 import Header from '@/components/Header';
+import AlimnetLoader from '@/components/AlimnetLoader';
 
 // --- Tipos ---
 interface Location {
@@ -486,6 +487,8 @@ export default function AdminDashboard() {
     return matchSearch && matchProv && matchType && matchVer;
   });
 
+  if (loading) return <AlimnetLoader fullScreen />;
+
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9F5', paddingTop: '70px', fontFamily: 'Manrope, sans-serif' }}>
       <Header />
@@ -591,7 +594,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {usersLoading ? <tr><td colSpan={5} style={{padding:40, textAlign:'center'}}>Cargando...</td></tr> : users.map(u => (
+                  {usersLoading ? <tr><td colSpan={5} style={{padding:40, textAlign:'center'}}><AlimnetLoader size={60} /></td></tr> : users.map(u => (
                     <tr key={u.id} style={{borderBottom:'1px solid #F0F4ED'}}>
                       <td style={{padding:20}}>
                         <div style={{
@@ -938,7 +941,7 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
 }
 
 function DonationsList({ donations, loading }: any) {
-    if (loading) return <div>Cargando donaciones...</div>;
+    if (loading) return <div style={{ padding: '4rem', display: 'flex', justifyContent: 'center' }}><AlimnetLoader size={60} /></div>;
     return (
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>

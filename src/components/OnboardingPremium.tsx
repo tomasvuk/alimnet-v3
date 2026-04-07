@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, MapPin, Sparkles, Loader2, X, ChevronRight } from 'lucide-react';
+import { User, MapPin, Sparkles, X, ChevronRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import AlimnetLoader from './AlimnetLoader';
 
 interface OnboardingPremiumProps {
   user: any;
@@ -269,7 +270,7 @@ export default function OnboardingPremium({ user, onComplete }: OnboardingPremiu
                   boxShadow: '0 20px 25px -5px rgba(63, 82, 50, 0.2)'
                 }}
               >
-                {saving ? <Loader2 className="animate-spin" /> : 'Descubrir Mi Red'}
+                {saving ? <AlimnetLoader size={24} /> : 'Descubrir Mi Red'}
               </button>
               
               <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>

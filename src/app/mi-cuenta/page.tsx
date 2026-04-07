@@ -13,6 +13,7 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
+import AlimnetLoader from '@/components/AlimnetLoader';
 import { removeAuthCookie } from '@/lib/auth-utils';
 import { 
   OFFICIAL_CATEGORIES, 
@@ -28,7 +29,7 @@ import ImageCropper from '@/components/ImageCropper';
 // --- COMPONENTE PRINCIPAL CON SUSPENSE (REQUERIDO POR NEXT.JS) ---
 export default function MiCuentaPage() {
   return (
-    <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>}>
+    <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <MiCuentaContent />
       </div>
@@ -43,7 +44,7 @@ function MiCuentaContent() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 1024);
+    const checkMobile = () => setIsMobile(window.innerWidth <= 800);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -351,7 +352,7 @@ function MiCuentaContent() {
     { id: 'logout', label: 'Cerrar Sesión', icon: LogOut },
   ];
 
-  if (loading) return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9F5' }}><Loader2 className="animate-spin" color="#5F7D4A" /></div>;
+  if (loading) return <AlimnetLoader fullScreen />;
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F8F9F5', overflow: 'hidden', paddingTop: '56px' }}>
@@ -359,30 +360,33 @@ function MiCuentaContent() {
       <Header />
 
       {/* SUB-MENU HORIZONTAL (SOLO MÓVIL) */}
-      <div className="mobile-only" style={{ 
-        background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.8rem 1rem', 
-        overflowX: 'auto', whiteSpace: 'nowrap', gap: '10px', display: 'flex',
-        scrollbarWidth: 'none', msOverflowStyle: 'none'
-      }}>
-        {menuItems.filter(item => item.id !== 'logout').map(item => (
-          <button 
-            key={item.id}
-            onClick={() => {
-              if (item.id === 'sostener') { router.push('/sostener'); return; }
-              if (item.id === 'mi-emprendimiento') { router.push('/perfil'); return; }
-              handleTabChange(item.id);
-            }}
-            style={{ 
-              display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
-              borderRadius: '14px', border: 'none', background: activeTab === item.id ? '#5F7D4A' : '#F0F4ED',
-              color: activeTab === item.id ? 'white' : '#5F7D4A', fontWeight: '900', fontSize: '0.8rem',
-              transition: 'all 0.2s', flexShrink: 0
-            }}
-          >
-            <item.icon size={16} /> {item.label}
-          </button>
-        ))}
-      </div>
+      {isMobile && (
+        <div style={{ 
+          background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.8rem 1.5rem', 
+          overflowX: 'auto', whiteSpace: 'nowrap', gap: '12px', display: 'flex',
+          alignItems: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none'
+        }}>
+          {menuItems.filter(item => item.id !== 'logout').map(item => (
+            <button 
+              key={item.id}
+              onClick={() => {
+                if (item.id === 'sostener') { router.push('/sostener'); return; }
+                if (item.id === 'mi-emprendimiento') { router.push('/perfil'); return; }
+                handleTabChange(item.id);
+              }}
+              style={{ 
+                display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '0.7rem 1.4rem', 
+                borderRadius: '16px', border: 'none', background: activeTab === item.id ? '#5F7D4A' : '#F0F4ED',
+                color: activeTab === item.id ? 'white' : '#5F7D4A', fontWeight: '1000', fontSize: '0.85rem',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', flexShrink: 0,
+                boxShadow: activeTab === item.id ? '0 5px 15px rgba(95, 125, 74, 0.25)' : 'none'
+              }}
+            >
+              <item.icon size={18} /> {item.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div style={{ flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' }}>
         
@@ -451,8 +455,14 @@ function MiCuentaContent() {
 
       {/* CONTENIDO CENTRAL */}
       <main className="main-content" style={{ 
-        flex: 1, overflowY: 'auto', padding: '3rem 5rem', 
-        position: 'relative', width: '100%', minHeight: '100vh'
+        flex: 1, 
+        overflowY: 'auto', 
+        overflowX: 'hidden',
+        padding: isMobile ? '1.5rem 1.5rem' : '3rem 5rem', 
+        position: 'relative', 
+        width: '100%', 
+        minHeight: '100vh',
+        background: '#F8F9F5'
       }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', paddingBottom: '5rem' }}>
           
@@ -502,7 +512,7 @@ function MiCuentaContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
               
               <div style={{ marginBottom: '1rem' }}>
-                 <h1 style={{ fontSize: '2.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0, marginBottom: '4px' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
+                 <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.5rem', fontWeight: '1000', color: '#5F7D4A', margin: 0, marginBottom: '8px', letterSpacing: '-0.03em' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
                  <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
               </div>
 
@@ -536,7 +546,7 @@ function MiCuentaContent() {
               </div>
 
               {/* Quick Stats Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', width: '100%' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '1rem', width: '100%' }}>
                 <div onClick={() => handleTabChange('validaciones')} style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
                   <div style={{ color: '#5F7D4A' }}><ShieldCheck size={22} /></div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
@@ -579,7 +589,7 @@ function MiCuentaContent() {
               </div>
 
               {/* Activity Timeline Placeholder */}
-              <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', width: '100%', minHeight: '300px' }}>
+              <div style={{ background: 'white', padding: isMobile ? '1.5rem' : '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', width: '100%', minHeight: '300px', boxShadow: '0 10px 40px rgba(0,0,0,0.02)' }}>
                  <h3 style={{ fontSize: '1.1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Actividad Reciente</h3>
                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', color: '#888' }}>
                    <p style={{ fontWeight: '700', fontSize: '0.9rem' }}>Aquí aparecerán tus últimas validaciones y descubrimientos.</p>
@@ -1634,9 +1644,9 @@ function MiCuentaContent() {
         </div>
       </main>
 
-      {/* VERIFICADOR DE DEPLOY v4.1.2 */}
+      {/* VERIFICADOR DE DEPLOY v4.1.3 */}
       <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
-        v4.1.2
+        v4.1.3-ALIGN-FIX 📐
       </div>
 
     </div>

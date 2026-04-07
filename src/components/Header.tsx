@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogIn, User, Map as MapIcon, HelpCircle, Loader2, Menu, X, Home, Store, Plus, ShieldCheck, LogOut } from 'lucide-react';
+import { LogIn, User, Map as MapIcon, HelpCircle, Menu, X, Home, Store, Plus, ShieldCheck, LogOut } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import AlimnetLoader from '@/components/AlimnetLoader';
 import { setAuthCookie, removeAuthCookie } from '@/lib/auth-utils';
 
 export default function Header() {
@@ -139,7 +140,9 @@ export default function Header() {
         </button>
 
         {loading ? (
-          <Loader2 className="animate-spin" size={18} color="#5F7D4A" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <AlimnetLoader size={18} />
+      </div>
         ) : !user ? (
           <button 
             onClick={() => router.push('/login')}

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, X, Send, Loader2, Sparkles, Check } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import AlimnetLoader from './AlimnetLoader';
 
 export default function SupportWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -114,7 +115,7 @@ export default function SupportWidget() {
                       transform: sending || !message.trim() ? 'scale(1)' : 'scale(1.02)'
                     }}
                   >
-                    {sending ? <Loader2 className="animate-spin" size={20} /> : <><Send size={16} /> {lang === 'es' ? 'Enviar' : 'Send'}</>}
+                    {sending ? <AlimnetLoader size={20} /> : <><Send size={16} /> {lang === 'es' ? 'Enviar' : 'Send'}</>}
                   </button>
                 </form>
               </>
@@ -139,15 +140,16 @@ export default function SupportWidget() {
 
       {/* VERSION TAG */}
       <div style={{ 
-        fontSize: '9px', 
-        fontWeight: '900', 
+        fontSize: '10px', 
+        fontWeight: '1000', 
         color: '#2D3A20', 
-        opacity: 0.4, 
-        paddingRight: '4px',
+        opacity: 0.6, 
+        paddingRight: '6px',
         pointerEvents: 'none',
-        userSelect: 'none'
+        userSelect: 'none',
+        marginTop: '-5px'
       }}>
-        v4.1.2
+        v.4.1.1
       </div>
 
       <style jsx>{`

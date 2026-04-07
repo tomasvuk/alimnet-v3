@@ -20,10 +20,10 @@ import {
   ChefHat,
   UtensilsCrossed,
   X,
-  Mail, 
-  Loader2
+  Mail
 } from 'lucide-react';
 import ImageCropper from '@/components/ImageCropper';
+import AlimnetLoader from '@/components/AlimnetLoader';
 
 
 // Reusando el Granjero
@@ -640,7 +640,7 @@ export default function JoinPage() {
                 style={{ borderRadius: '16px', padding: '0.8rem 2.5rem' }}
                 disabled={loading || !formData.whatsapp}
               >
-                {loading ? 'Enviando...' : 'Finalizar Registro'}
+                {loading ? <AlimnetLoader size={20} /> : 'Finalizar Registro'}
               </button>
             )}
           </div>

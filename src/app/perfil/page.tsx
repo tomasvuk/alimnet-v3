@@ -42,6 +42,7 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import ImageCropper from '@/components/ImageCropper';
 import { removeAuthCookie } from '@/lib/auth-utils';
+import AlimnetLoader from '@/components/AlimnetLoader';
 
 export default function MerchantProfilePage() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export default function MerchantProfilePage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deployId] = useState('v4.1.0 🚀');
+  const [deployId] = useState('v.4.1.1 🚀');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
@@ -648,6 +649,8 @@ export default function MerchantProfilePage() {
         return null;
     }
   };
+
+  if (loading) return <AlimnetLoader fullScreen />;
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column', paddingTop: '56px' }}>

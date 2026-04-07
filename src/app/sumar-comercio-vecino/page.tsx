@@ -19,6 +19,7 @@ import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import AlimnetLoader from '@/components/AlimnetLoader';
 
 function NeighborRecommendationContent() {
   const router = useRouter();
@@ -317,7 +318,7 @@ function NeighborRecommendationContent() {
                 transition: 'all 0.2s'
               }}
             >
-              {loading ? <Loader2 size={24} className="animate-spin" /> : <><Send size={20} /> ENVIAR RECOMENDACIÓN</>}
+              {loading ? <AlimnetLoader size={24} /> : <><Send size={20} /> ENVIAR RECOMENDACIÓN</>}
             </button>
           </form>
         </div>
@@ -338,7 +339,7 @@ function NeighborRecommendationContent() {
 
 export default function NeighborRecommendationPage() {
   return (
-    <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Loader2 className="animate-spin" size={40} color="#5F7D4A" /></div>}>
+    <Suspense fallback={<AlimnetLoader fullScreen />}>
       <NeighborRecommendationContent />
     </Suspense>
   );

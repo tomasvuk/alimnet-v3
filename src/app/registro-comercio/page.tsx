@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
+import AlimnetLoader from '@/components/AlimnetLoader';
 import ImageCropper from '@/components/ImageCropper';
 
 export default function MerchantRegistrationPage() {
@@ -287,7 +288,7 @@ export default function MerchantRegistrationPage() {
                <div style={{ position: 'relative' }}>
                   <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.1rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.4rem', letterSpacing: '-0.04em', textAlign: 'center' }}>Contanos tu historia</h1>
                   <div style={{ position: 'absolute', top: '-20px', right: '0', background: '#FFD700', color: '#000', fontSize: '0.6rem', padding: '2px 8px', borderRadius: '10px', fontWeight: '1000', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                     v4.1.0 🚀
+                     v4.1.1 🚀
                   </div>
                </div>
                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2.5rem', textAlign: 'center' }}>Identidad visual y categorías de tu comercio.</p>
@@ -469,7 +470,7 @@ export default function MerchantRegistrationPage() {
       {/* OVERLAY DE CARGA */}
       {(saving || loading) && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(5px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-           <Loader2 size={40} className="animate-spin" color="#657D51" />
+           <AlimnetLoader size={80} />
            <p style={{ marginTop: '15px', fontWeight: '1000', color: '#2D3A20' }}>Procesando {saving ? 'Imagen' : 'Registro'}... ⏳</p>
         </div>
       )}
