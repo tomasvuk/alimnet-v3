@@ -516,13 +516,17 @@ function MiCuentaContent() {
               
               <div style={{ marginBottom: '1rem', marginTop: isMobile ? '0' : '1rem' }}>
                   <h1 style={{ 
-                    fontSize: isMobile ? '2.1rem' : '2.8rem', fontWeight: '1000', color: '#2D3A20', 
-                    margin: 0, marginBottom: '4px', letterSpacing: '-0.04em', lineHeight: 1
+                    fontSize: isMobile ? '2rem' : '3.2rem', 
+                    fontWeight: '1000', 
+                    letterSpacing: isMobile ? '-1px' : '-2.5px', 
+                    color: '#2D3A20', 
+                    lineHeight: 1.1,
+                    margin: 0
                   }}>
-                    ¡Hola, {profile?.first_name || 'Tomas'}!
+                    ¡Hola, {profile?.first_name || 'Alimneter'}! 👋
                   </h1>
-                  <div style={{ width: '40px', height: '4px', background: '#5F7D4A', borderRadius: '2px', margin: '15px 0' }}></div>
-                  <p style={{ color: '#888', fontWeight: '800', fontSize: '0.85rem', letterSpacing: '0.02em' }}>Tu radar de confianza alimentaria.</p>
+                  <div style={{ width: '40px', height: '4px', background: '#5F7D4A', borderRadius: '10px', marginTop: '12px' }}></div>
+                  <p style={{ color: '#888', fontWeight: '800', fontSize: '0.85rem', letterSpacing: '0.02em', marginTop: '15px' }}>Tu radar de confianza alimentaria.</p>
               </div>
 
                {/* ALIMNET TIPS - Fineza Layer */}
@@ -555,34 +559,46 @@ function MiCuentaContent() {
                </div>
 
               {/* Quick Stats Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '0.8rem', width: '100%' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(140px, 1fr))', 
+                gap: isMobile ? '0.8rem' : '1.5rem' 
+              }}>
                 {[
-                  { id: 'validaciones', label: 'Validaciones', count: counts.validations, icon: ShieldCheck, color: '#5F7D4A' },
-                  { id: 'referentes', label: 'Referentes', count: counts.referents, icon: Users, color: '#8EA87D' },
-                  { id: 'favoritos', label: 'Guardados', count: counts.saved, icon: Star, color: '#F2994A' },
-                  { id: 'contribuciones', label: 'Aportes', count: counts.contributions, icon: Sparkles, color: '#5F7D4A' }
+                  { id: 1, label: 'Contribución', val: counts.contributions, icon: Package, color: '#F0F4ED' },
+                  { id: 2, label: 'Validación', val: counts.validations, icon: ShieldCheck, color: '#F4F1E6' },
+                  { id: 3, label: 'Favorito', val: counts.saved, icon: Star, color: '#FFF5F5' },
+                  { id: 4, label: 'Referente', val: counts.referents, icon: Users, color: '#F0F7FF' }
                 ].map(stat => (
-                  <div 
-                    key={stat.id}
-                    onClick={() => handleTabChange(stat.id)} 
-                    style={{ 
-                      background: 'white', padding: '1.5rem', borderRadius: '24px', 
-                      border: '1px solid rgba(0,0,0,0.03)', cursor: 'pointer', 
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      boxShadow: '0 4px 15px rgba(0,0,0,0.02)',
-                      transition: 'transform 0.2s'
-                    }} 
-                    className="stat-card-fine"
-                  >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span style={{ fontSize: '1.5rem', fontWeight: '1000', color: '#2D3A20' }}>{stat.count}</span>
-                      <span style={{ color: '#aaa', fontWeight: '900', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</span>
+                  <div key={stat.id} style={{ 
+                    background: 'white', 
+                    padding: isMobile ? '1.2rem' : '1.8rem', 
+                    borderRadius: '28px', 
+                    border: '1px solid #F0F4ED',
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '0.8rem',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.02)',
+                    transition: 'transform 0.3s ease'
+                  }}>
+                    <div style={{ 
+                      width: '36px', 
+                      height: '36px', 
+                      background: stat.color, 
+                      borderRadius: '12px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      color: '#2D3A20' 
+                    }}>
+                      <stat.icon size={18} strokeWidth={2.5} />
                     </div>
-                    <div style={{ width: '40px', height: '40px', background: `${stat.color}10`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
-                      <stat.icon size={20} />
+                    <div>
+                      <div style={{ fontSize: isMobile ? '1.4rem' : '1.8rem', fontWeight: '1000', color: '#2D3A20', lineHeight: 1 }}>{stat.val}</div>
+                      <div style={{ fontSize: '0.65rem', fontWeight: '800', color: '#AAA', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>{stat.label}</div>
                     </div>
                   </div>
-                ))}
+                )) }
               </div>
 
                {/* Activity Timeline Placeholder */}
@@ -1098,7 +1114,7 @@ function MiCuentaContent() {
                   </button>
                 </div>
               </div>
-            )}
+
             </div>
           )}
 
@@ -1655,9 +1671,9 @@ function MiCuentaContent() {
         </div>
       </main>
 
-      {/* VERIFICADOR DE DEPLOY v4.1.3 */}
+      {/* VERIFICADOR DE DEPLOY v4.1.4 */}
       <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
-        v4.1.3-ALIGN-FIX 📐
+        v4.1.4-FINEZA-FIX ✨
       </div>
 
     </div>
