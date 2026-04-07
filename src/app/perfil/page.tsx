@@ -51,7 +51,7 @@ export default function MerchantProfilePage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deployId] = useState('v.4.1.1 🚀');
+  const [deployId] = useState('v.4.1.2 🚀');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
@@ -508,7 +508,7 @@ export default function MerchantProfilePage() {
                     disabled={saving}
                     style={{ padding: '1rem 3rem', background: '#5F7D4A', color: 'white', border: 'none', borderRadius: '14px', fontWeight: '1000', cursor: 'pointer', opacity: saving ? 0.7 : 1, width: 'fit-content' }}
                   >
-                    {saving ? <Loader2 className="animate-spin" size={18} /> : 'GUARDAR CAMBIOS'}
+                    {saving ? <AlimnetLoader size={18} /> : 'GUARDAR CAMBIOS'}
                   </button>
                </div>
             </div>

@@ -1,0 +1,10 @@
+src/app/mi-cuenta/page.tsx(12,8): error TS2792: Cannot find module 'lucide-react'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/app/mi-cuenta/page.tsx(13,44): error TS2792: Cannot find module 'next/navigation'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/app/mi-cuenta/page.tsx(14,26): error TS2792: Cannot find module '@/lib/supabase'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/app/mi-cuenta/page.tsx(15,20): error TS2792: Cannot find module '@/components/Header'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/app/mi-cuenta/page.tsx(16,27): error TS2792: Cannot find module '@/components/AlimnetLoader'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/app/mi-cuenta/page.tsx(17,34): error TS2792: Cannot find module '@/lib/auth-utils'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/app/mi-cuenta/page.tsx(23,8): error TS2792: Cannot find module '@/lib/constants'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/app/mi-cuenta/page.tsx(24,26): error TS2792: Cannot find module '@/components/ImageCropper'. Did you mean to set the 'moduleResolution' option to 'nodenext', or to add aliases to the 'paths' option?
+src/app/mi-cuenta/page.tsx(1411,22): error TS2322: Type '{ children: string; jsx: true; }' is not assignable to type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.
+  Property 'jsx' does not exist on type 'DetailedHTMLProps<StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>'.

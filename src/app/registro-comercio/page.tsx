@@ -288,7 +288,7 @@ export default function MerchantRegistrationPage() {
                <div style={{ position: 'relative' }}>
                   <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.1rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.4rem', letterSpacing: '-0.04em', textAlign: 'center' }}>Contanos tu historia</h1>
                   <div style={{ position: 'absolute', top: '-20px', right: '0', background: '#FFD700', color: '#000', fontSize: '0.6rem', padding: '2px 8px', borderRadius: '10px', fontWeight: '1000', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                     v4.1.1 🚀
+                     v.4.1.2 🚀
                   </div>
                </div>
                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2.5rem', textAlign: 'center' }}>Identidad visual y categorías de tu comercio.</p>
@@ -437,7 +437,7 @@ export default function MerchantRegistrationPage() {
                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem' }}>
                   <button onClick={handleBack} style={{ padding: '0.8rem', color: '#2D3A20', background: 'transparent', border: 'none', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem' }}><ChevronLeft size={16} /> Volver</button>
                   <button onClick={handleSubmit} disabled={loading} style={{ padding: '1rem 2.5rem', background: '#2D3A20', color: 'white', border: 'none', borderRadius: '20px', fontWeight: '1000', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
-                    {loading ? <Loader2 size={20} className="animate-spin" /> : 'FINALIZAR'}
+                    {loading ? <AlimnetLoader size={20} /> : 'FINALIZAR'}
                   </button>
                </div>
             </div>

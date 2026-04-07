@@ -362,9 +362,10 @@ function MiCuentaContent() {
       {/* SUB-MENU HORIZONTAL (SOLO MÓVIL) */}
       {isMobile && (
         <div style={{ 
-          background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.8rem 1.5rem', 
-          overflowX: 'auto', whiteSpace: 'nowrap', gap: '12px', display: 'flex',
-          alignItems: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none'
+          background: '#F8F9F5', padding: '0.6rem 1.5rem', 
+          overflowX: 'auto', whiteSpace: 'nowrap', gap: '10px', display: 'flex',
+          alignItems: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none',
+          borderBottom: '1px solid rgba(0,0,0,0.03)'
         }}>
           {menuItems.filter(item => item.id !== 'logout').map(item => (
             <button 
@@ -375,14 +376,17 @@ function MiCuentaContent() {
                 handleTabChange(item.id);
               }}
               style={{ 
-                display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '0.7rem 1.4rem', 
-                borderRadius: '16px', border: 'none', background: activeTab === item.id ? '#5F7D4A' : '#F0F4ED',
-                color: activeTab === item.id ? 'white' : '#5F7D4A', fontWeight: '1000', fontSize: '0.85rem',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', flexShrink: 0,
-                boxShadow: activeTab === item.id ? '0 5px 15px rgba(95, 125, 74, 0.25)' : 'none'
+                display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem', 
+                borderRadius: '24px', border: '1.5px solid', 
+                borderColor: activeTab === item.id ? '#5F7D4A' : 'transparent',
+                background: activeTab === item.id ? '#5F7D4A' : 'white',
+                color: activeTab === item.id ? 'white' : '#666', 
+                fontWeight: '1000', fontSize: '0.78rem',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', flexShrink: 0,
+                boxShadow: activeTab === item.id ? '0 10px 20px rgba(95, 125, 74, 0.15)' : '0 2px 8px rgba(0,0,0,0.02)'
               }}
             >
-              <item.icon size={18} /> {item.label}
+              <item.icon size={15} /> {item.label.toUpperCase()}
             </button>
           ))}
         </div>
@@ -507,94 +511,100 @@ function MiCuentaContent() {
             </div>
           )}
 
-
-              {activeTab === 'dashboard' && (
+          {activeTab === 'dashboard' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%' }}>
               
-              <div style={{ marginBottom: '1rem' }}>
-                 <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.5rem', fontWeight: '1000', color: '#5F7D4A', margin: 0, marginBottom: '8px', letterSpacing: '-0.03em' }}>¡Hola, {profile?.first_name || 'Tomas'}!</h1>
-                 <p style={{ color: '#888', fontWeight: '600' }}>Tu radar de confianza alimentaria.</p>
+              <div style={{ marginBottom: '1rem', marginTop: isMobile ? '0' : '1rem' }}>
+                  <h1 style={{ 
+                    fontSize: isMobile ? '2.1rem' : '2.8rem', fontWeight: '1000', color: '#2D3A20', 
+                    margin: 0, marginBottom: '4px', letterSpacing: '-0.04em', lineHeight: 1
+                  }}>
+                    ¡Hola, {profile?.first_name || 'Tomas'}!
+                  </h1>
+                  <div style={{ width: '40px', height: '4px', background: '#5F7D4A', borderRadius: '2px', margin: '15px 0' }}></div>
+                  <p style={{ color: '#888', fontWeight: '800', fontSize: '0.85rem', letterSpacing: '0.02em' }}>Tu radar de confianza alimentaria.</p>
               </div>
 
-              {/* ALIMNET TIPS - Micro-Educación */}
-              <div style={{ 
-                background: 'rgba(95, 125, 74, 0.05)', borderRadius: '24px', padding: '1.5rem', 
-                border: '1px solid rgba(95, 125, 74, 0.1)', display: 'flex', gap: '1.5rem', 
-                alignItems: 'center', position: 'relative', overflow: 'hidden',
-                marginBottom: '1rem'
-              }}>
-                 <div style={{ 
-                   background: '#5F7D4A', color: 'white', width: '48px', height: '48px', 
-                   borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                   flexShrink: 0
-                 }}>
-                   <Sparkles size={24} />
-                 </div>
-                 <div style={{ flex: 1 }}>
-                   <h4 style={{ fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Alimnet Tips</h4>
-                   <p style={{ fontSize: '0.95rem', color: '#666', fontWeight: '600', lineHeight: '1.4', margin: 0 }}>
-                     {!profile?.locality ? (
-                       "¡Tu mapa está esperando! Sumá tu localidad en el perfil para que podamos centrarte automáticamente en tu zona."
-                     ) : (
-                       "¿Sabías que podés viajar y llevar tu red Alimnet con vos? El mapa siempre te mostrará lo mejor de cada zona estés donde estés."
-                     )}
-                   </p>
-                 </div>
-                 <div style={{ position: 'absolute', right: '-10px', bottom: '-10px', opacity: 0.1 }}>
-                   <Leaf size={80} />
-                 </div>
-              </div>
+               {/* ALIMNET TIPS - Fineza Layer */}
+               <div style={{ 
+                 background: 'white', borderRadius: '28px', padding: '1.5rem', 
+                 border: '1px solid rgba(0,0,0,0.03)', display: 'flex', gap: '1.5rem', 
+                 alignItems: 'center', position: 'relative', overflow: 'hidden',
+                 boxShadow: '0 10px 30px rgba(0,0,0,0.02)'
+               }}>
+                  <div style={{ 
+                    background: '#F0F4ED', color: '#5F7D4A', width: '48px', height: '48px', 
+                    borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Sparkles size={22} />
+                  </div>
+                  <div style={{ flex: 1, zIndex: 1 }}>
+                    <h4 style={{ fontSize: '0.65rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>Alimnet Tips</h4>
+                    <p style={{ fontSize: '0.9rem', color: '#444', fontWeight: '700', lineHeight: '1.5', margin: 0 }}>
+                      {!profile?.locality ? (
+                        "Tu mapa está esperando. Sumá tu localidad para centrar tu zona automáticamente."
+                      ) : (
+                        "¿Viajás? Alimnet viaja con vos. El mapa siempre te mostrará lo mejor de cada zona."
+                      )}
+                    </p>
+                  </div>
+                  <div style={{ position: 'absolute', right: '-15px', top: '-15px', opacity: 0.03, color: '#5F7D4A' }}>
+                    <Leaf size={100} />
+                  </div>
+               </div>
 
               {/* Quick Stats Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '1rem', width: '100%' }}>
-                <div onClick={() => handleTabChange('validaciones')} style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
-                  <div style={{ color: '#5F7D4A' }}><ShieldCheck size={22} /></div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.validations}</span>
-                    <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase' }}>VALIDACIONES</span>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '0.8rem', width: '100%' }}>
+                {[
+                  { id: 'validaciones', label: 'Validaciones', count: counts.validations, icon: ShieldCheck, color: '#5F7D4A' },
+                  { id: 'referentes', label: 'Referentes', count: counts.referents, icon: Users, color: '#8EA87D' },
+                  { id: 'favoritos', label: 'Guardados', count: counts.saved, icon: Star, color: '#F2994A' },
+                  { id: 'contribuciones', label: 'Aportes', count: counts.contributions, icon: Sparkles, color: '#5F7D4A' }
+                ].map(stat => (
+                  <div 
+                    key={stat.id}
+                    onClick={() => handleTabChange(stat.id)} 
+                    style={{ 
+                      background: 'white', padding: '1.5rem', borderRadius: '24px', 
+                      border: '1px solid rgba(0,0,0,0.03)', cursor: 'pointer', 
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.02)',
+                      transition: 'transform 0.2s'
+                    }} 
+                    className="stat-card-fine"
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span style={{ fontSize: '1.5rem', fontWeight: '1000', color: '#2D3A20' }}>{stat.count}</span>
+                      <span style={{ color: '#aaa', fontWeight: '900', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</span>
+                    </div>
+                    <div style={{ width: '40px', height: '40px', background: `${stat.color}10`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
+                      <stat.icon size={20} />
+                    </div>
                   </div>
-                </div>
-                
-                <div onClick={() => handleTabChange('referentes')} style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
-                  <div style={{ color: '#8EA87D' }}><Users size={22} /></div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.referents}</span>
-                    <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase' }}>REFERENTES</span>
-                  </div>
-                </div>
-
-                <div onClick={() => handleTabChange('favoritos')} style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
-                  <div style={{ color: '#5F7D4A' }}><Star size={22} /></div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.saved}</span>
-                    <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase' }}>GUARDADOS</span>
-                  </div>
-                </div>
-
-                <div onClick={() => handleTabChange('recientes')} style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
-                  <div style={{ color: '#B8C6B1' }}><History size={22} /></div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.recent}</span>
-                    <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase' }}>RECIENTES</span>
-                  </div>
-                </div>
-
-                <div onClick={() => handleTabChange('contribuciones')} style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }} className="stat-bar">
-                  <div style={{ color: '#5F7D4A' }}><Sparkles size={22} /></div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    <span style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A' }}>{counts.contributions}</span>
-                    <span style={{ color: '#888', fontWeight: '800', fontSize: '0.6rem', textTransform: 'uppercase' }}>APORTES</span>
-                  </div>
-                </div>
+                ))}
               </div>
 
-              {/* Activity Timeline Placeholder */}
-              <div style={{ background: 'white', padding: isMobile ? '1.5rem' : '2.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', width: '100%', minHeight: '300px', boxShadow: '0 10px 40px rgba(0,0,0,0.02)' }}>
-                 <h3 style={{ fontSize: '1.1rem', fontWeight: '950', color: '#5F7D4A', marginBottom: '1.5rem' }}>Actividad Reciente</h3>
-                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', color: '#888' }}>
-                   <p style={{ fontWeight: '700', fontSize: '0.9rem' }}>Aquí aparecerán tus últimas validaciones y descubrimientos.</p>
-                 </div>
-              </div>
+               {/* Activity Timeline Placeholder */}
+               <div style={{ 
+                 background: 'white', padding: isMobile ? '2rem 1.5rem' : '2.5rem', 
+                 borderRadius: '32px', border: '1px solid rgba(0,0,0,0.03)', width: '100%', 
+                 minHeight: '250px', boxShadow: '0 10px 40px rgba(0,0,0,0.02)',
+                 display: 'flex', flexDirection: 'column'
+               }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>ACTIVIDAD RECIENTE</h3>
+                    <div style={{ height: '1px', flex: 1, background: 'rgba(0,0,0,0.03)', margin: '0 1.5rem' }}></div>
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#bbb' }}>
+                    <div style={{ width: '50px', height: '50px', background: '#F8F9F5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <History size={20} />
+                    </div>
+                    <p style={{ fontWeight: '800', fontSize: '0.8rem', textAlign: 'center', maxWidth: '200px', lineHeight: '1.5' }}>
+                      Tus últimos descubrimientos aparecerán aquí.
+                    </p>
+                  </div>
+               </div>
             </div>
           )}
 
@@ -1088,6 +1098,7 @@ function MiCuentaContent() {
                   </button>
                 </div>
               </div>
+            )}
             </div>
           )}
 

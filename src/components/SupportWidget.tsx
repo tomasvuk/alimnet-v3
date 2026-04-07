@@ -149,7 +149,7 @@ export default function SupportWidget() {
         userSelect: 'none',
         marginTop: '-5px'
       }}>
-        v.4.1.1
+        v.4.1.2
       </div>
 
       <style jsx>{`
