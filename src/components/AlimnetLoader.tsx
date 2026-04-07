@@ -47,7 +47,7 @@ export default function AlimnetLoader({ size = 120, fullScreen = false }: { size
             width: size, 
             height: size, 
             objectFit: 'contain',
-            filter: 'drop-shadow(0 10px 20px rgba(95, 125, 74, 0.15))' 
+            mixBlendMode: 'multiply'
           }} 
         />
       </motion.div>
