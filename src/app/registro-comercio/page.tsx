@@ -288,7 +288,7 @@ export default function MerchantRegistrationPage() {
                <div style={{ position: 'relative' }}>
                    <h1 style={{ fontSize: isMobile ? '1.8rem' : '2.1rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.4rem', letterSpacing: '-0.04em', textAlign: 'center' }}>Contanos tu historia</h1>
                    <div style={{ position: 'absolute', top: '-20px', right: '0', background: '#FFD700', color: '#000', fontSize: '0.6rem', padding: '2px 8px', borderRadius: '10px', fontWeight: '1000', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                      v4.1.6-ESFERA-FINAL ✨
+                      v4.1.7-ESFERA-SOLA ✨
                    </div>
                </div>
                <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '2.5rem', textAlign: 'center' }}>Identidad visual y categorías de tu comercio.</p>

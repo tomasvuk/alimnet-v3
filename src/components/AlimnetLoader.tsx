@@ -71,21 +71,6 @@ export default function AlimnetLoader({ size = 120, fullScreen = false }: { size
         zIndex: 9999
       }}>
         {loaderContent}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          style={{ 
-            marginTop: '2rem', 
-            fontSize: '0.8rem', 
-            fontWeight: '900', 
-            color: '#5F7D4A', 
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase'
-          }}
-        >
-          Pensando Alimnet...
-        </motion.p>
       </div>
     );
   }

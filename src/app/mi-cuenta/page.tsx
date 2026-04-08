@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
-          v4.1.6-ESFERA-FINAL ✨
+          v4.1.7-ESFERA-SOLA ✨
         </div>
         <MiCuentaContent />
       </div>
