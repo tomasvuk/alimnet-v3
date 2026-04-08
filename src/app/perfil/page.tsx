@@ -51,7 +51,7 @@ export default function MerchantProfilePage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deployId] = useState('v4.1.5-ESFERA-LIMPIA ✨');
+  const [deployId] = useState('v4.1.6-ESFERA-FINAL ✨');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
@@ -653,7 +653,10 @@ export default function MerchantProfilePage() {
   if (loading) return <AlimnetLoader fullScreen />;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column', paddingTop: '56px' }}>
+    <div style={{ position: 'relative', minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column', paddingTop: '56px' }}>
+      <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
+        v4.1.6-ESFERA-FINAL ✨
+      </div>
       <Header />
       
       {message && (

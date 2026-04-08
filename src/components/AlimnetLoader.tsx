@@ -27,30 +27,31 @@ export default function AlimnetLoader({ size = 120, fullScreen = false }: { size
         }}
       />
       
-      {/* EL LOGO ESFERA */}
+      {/* EL LOGO ESFERA - Usamos un div con fondo para transparencia robusta */}
       <motion.div
         animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.8, 1, 0.8]
+          scale: [1, 1.05, 1],
+          opacity: [0.9, 1, 0.9]
         }}
         transition={{
           duration: 2,
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        style={{ zIndex: 1 }}
-      >
-        <img 
-          src="/logo.png" 
-          alt="Alimnet Loading" 
-          style={{ 
-            width: size, 
-            height: size, 
-            objectFit: 'contain',
-            mixBlendMode: 'darken'
-          }} 
-        />
-      </motion.div>
+        style={{ 
+          zIndex: 1,
+          width: size, 
+          height: size,
+          backgroundImage: 'url(/logo.png)',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: '#F8F9F5', // Merge with parent background
+          backgroundBlendMode: 'multiply',
+          filter: 'contrast(1.05) brightness(1.05)', // Refuerzo de blancos
+          borderRadius: '50%' // Asegurar que nada se escape de la esfera
+        }}
+      />
     </div>
   );
 

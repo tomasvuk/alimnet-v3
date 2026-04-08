@@ -76,7 +76,7 @@ export default function SupportWidget() {
           <div style={chatHeader}>
              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Sparkles size={16} color="#657D51" fill="#657D51" />
-                <span style={{ fontWeight: '900', fontSize: '0.8rem', color: '#657D51', textTransform: 'uppercase' }}>Alimnet Support <span style={{ fontSize: '10px', fontWeight: '800', opacity: 0.5 }}>v4.1.5-ESFERA-LIMPIA ✨</span></span>
+                <span style={{ fontWeight: '900', fontSize: '0.8rem', color: '#657D51', textTransform: 'uppercase' }}>Alimnet Support <span style={{ fontSize: '10px', fontWeight: '800', opacity: 0.5 }}>v4.1.6-ESFERA-FINAL ✨</span></span>
              </div>
              <button onClick={() => setIsOpen(false)} style={closeBtn}><X size={18} /></button>
           </div>
@@ -138,19 +138,7 @@ export default function SupportWidget() {
         {isOpen ? <X size={isMobile ? 20 : 24} /> : <MessageSquare size={isMobile ? 20 : 24} />}
       </button>
 
-      {/* VERSION TAG */}
-      <div style={{ 
-        fontSize: '10px', 
-        fontWeight: '1000', 
-        color: '#2D3A20', 
-        opacity: 0.6, 
-        paddingRight: '6px',
-        pointerEvents: 'none',
-        userSelect: 'none',
-        marginTop: '-5px'
-      }}>
-        v4.1.5-ESFERA-LIMPIA ✨
-      </div>
+      {/* Versión eliminada de aquí para evitar duplicados con las etiquetas de página */}
 
       <style jsx>{`
         @keyframes floatIn { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
