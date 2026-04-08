@@ -76,7 +76,7 @@ export default function SupportWidget() {
           <div style={chatHeader}>
              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Sparkles size={16} color="#657D51" fill="#657D51" />
-                <span style={{ fontWeight: '900', fontSize: '0.8rem', color: '#657D51', textTransform: 'uppercase' }}>Alimnet Support</span>
+                <span style={{ fontWeight: '900', fontSize: '0.8rem', color: '#657D51', textTransform: 'uppercase' }}>Alimnet Support <span style={{ fontSize: '10px', fontWeight: '800', opacity: 0.5 }}>v4.1.4-FINEZA-FIX ✨</span></span>
              </div>
              <button onClick={() => setIsOpen(false)} style={closeBtn}><X size={18} /></button>
           </div>
@@ -149,7 +149,7 @@ export default function SupportWidget() {
         userSelect: 'none',
         marginTop: '-5px'
       }}>
-        v.4.1.2
+        v4.1.4-FINEZA-FIX ✨
       </div>
 
       <style jsx>{`

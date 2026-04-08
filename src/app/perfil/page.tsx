@@ -51,7 +51,7 @@ export default function MerchantProfilePage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deployId] = useState('v.4.1.2 🚀');
+  const [deployId] = useState('v4.1.4-FINEZA-FIX ✨');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
