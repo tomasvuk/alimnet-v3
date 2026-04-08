@@ -1301,73 +1301,58 @@ function MiCuentaContent() {
           )}
 
           {activeTab === 'estilo' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              <div style={{ marginBottom: isMobile ? '0.5rem' : '1rem', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'flex-end', gap: '1rem' }}>
                 <div>
-                  <h2 style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: 0, letterSpacing: '-0.02em' }}>Mi Estilo Alimenticio</h2>
-                  <p style={{ color: '#888', fontWeight: '600', fontSize: '1rem', marginTop: '6px' }}>Configurá tu radar para que Alimnet sea tu espejo.</p>
+                  <h2 style={{ fontSize: isMobile ? '1.8rem' : '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: 0, letterSpacing: '-0.02em' }}>Mi Estilo Alimenticio</h2>
+                  <p style={{ color: '#888', fontWeight: '600', fontSize: isMobile ? '0.85rem' : '1rem', marginTop: '6px' }}>Tu radar para que Alimnet sea tu espejo.</p>
                 </div>
-                <div style={{ background: '#F0F4ED', padding: '10px 20px', borderRadius: '15px', color: '#5F7D4A', fontWeight: '900', fontSize: '0.85rem' }}>
+                <div style={{ background: '#F0F4ED', padding: '8px 16px', borderRadius: '12px', color: '#5F7D4A', fontWeight: '900', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                    {formData.preferences?.length || 0} preferencias activas
                 </div>
               </div>
 
-              <div style={{ background: 'white', padding: '3.5rem', borderRadius: '45px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '3.5rem', boxShadow: '0 30px 100px rgba(0,0,0,0.03)' }}>
+              <div style={{ 
+                background: 'white', 
+                padding: isMobile ? '1.2rem' : '3.5rem', 
+                borderRadius: isMobile ? '32px' : '45px', 
+                border: '1px solid #E4EBDD', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: isMobile ? '2rem' : '3.5rem', 
+                boxShadow: '0 30px 100px rgba(0,0,0,0.03)' 
+              }}>
                 
                 {[
-                  { 
-                    title: 'Cómo querés recibir', 
-                    icon: <Navigation size={20} />, 
-                    options: ['Retiro en local', 'Entrega a domicilio'] 
-                  },
-                  { 
-                    title: 'Tipo de alimentación', 
-                    icon: <Heart size={20} />, 
-                    options: ['Gluten Free', 'Sugar Free', 'Plant Based', 'Sin Lactosa', 'Keto', 'Vegetariano'] 
-                  },
-                  { 
-                    title: 'Calidad y Producción', 
-                    icon: <Leaf size={20} />, 
-                    options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable', 'Pastura'] 
-                  },
-                  { 
-                    title: 'Producción Animal', 
-                    icon: <Beef size={20} />, 
-                    options: ['Pastura', 'Grass-fed', 'Bienestar animal'] 
-                  },
-                  { 
-                    title: 'Certificaciones / asociaciones', 
-                    icon: <ShieldCheck size={20} />, 
-                    options: ['Demeter', 'AABDA', 'Orgánico Certificado'] 
-                  },
-                  { 
-                    title: 'Tipo de actor', 
-                    icon: <Users size={20} />, 
-                    options: ['Productor', 'Abastecedor', 'Restaurante', 'Chef'] 
-                  },
-                  { 
-                    title: '¿Qué estás buscando?', 
-                    icon: <Search size={20} />, 
-                    options: ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Masa Madre', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'] 
-                  }
+                  { title: 'Recepción', icon: <Navigation size={18} />, options: ['Retiro en local', 'Entrega a domicilio'] },
+                  { title: 'Alimentación', icon: <Heart size={18} />, options: ['Gluten Free', 'Sugar Free', 'Plant Based', 'Sin Lactosa', 'Keto', 'Vegetariano'] },
+                  { title: 'Producción', icon: <Leaf size={18} />, options: ['Agroecológico', 'Orgánico', 'Regenerativo', 'Sin agroquímicos', 'Sin ultraprocesados', 'Sustentable', 'Pastura'] },
+                  { title: 'Animal', icon: <Beef size={18} />, options: ['Pastura', 'Grass-fed', 'Bienestar animal'] },
+                  { title: 'Certificaciones', icon: <ShieldCheck size={18} />, options: ['Demeter', 'AABDA', 'Orgánico Certificado'] },
+                  { title: 'Tipo de actor', icon: <Users size={18} />, options: ['Productor', 'Abastecedor', 'Restaurante', 'Chef'] },
+                  { title: 'Categorías', icon: <Search size={18} />, options: ['Verduras', 'Frutas', 'Carne', 'Huevos', 'Lácteos', 'Panificados', 'Masa Madre', 'Cereales', 'Frutos secos', 'Aceites', 'Elaborados'] }
                 ].map((section, idx) => (
                   <div key={idx} style={{ 
                     borderBottom: idx === 6 ? 'none' : '1px solid #F0F4ED', 
-                    paddingBottom: idx === 6 ? 0 : '3rem',
+                    paddingBottom: idx === 6 ? 0 : isMobile ? '1.5rem' : '3rem',
                     animation: `fadeInUp 0.5s ease forwards ${idx * 0.1}s`,
                     opacity: 0, transform: 'translateY(20px)'
                   }}>
                     <h4 style={{ 
-                      fontSize: '0.9rem', fontWeight: '1000', color: '#5F7D4A', 
-                      textTransform: 'uppercase', letterSpacing: '0.12em', 
-                      marginBottom: '1.8rem', display: 'flex', alignItems: 'center', gap: '12px' 
+                      fontSize: '0.75rem', fontWeight: '950', color: '#5F7D4A', 
+                      textTransform: 'uppercase', letterSpacing: '0.1em', 
+                      marginBottom: isMobile ? '1.2rem' : '1.8rem', display: 'flex', alignItems: 'center', gap: '10px' 
                     }}>
-                      <div style={{ background: '#F0F4ED', width: '42px', height: '42px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2D3A20' }}>
+                      <div style={{ background: '#F0F4ED', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2D3A20' }}>
                         {section.icon}
                       </div>
                       {section.title}
                     </h4>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(140px, 1fr))', 
+                      gap: '10px' 
+                    }}>
                       {section.options.map(opt => {
                         const isSelected = (formData.preferences || []).includes(opt);
                         return (
@@ -1379,14 +1364,19 @@ function MiCuentaContent() {
                               setFormData({...formData, preferences: next});
                             }}
                             style={{ 
-                              padding: '1.1rem 2rem', borderRadius: '24px', border: '2px solid',
-                              borderColor: isSelected ? '#5F7D4A' : '#F0F4ED',
-                              background: isSelected ? '#F0F4ED' : 'transparent',
+                              padding: '0.8rem 1rem', 
+                              borderRadius: '16px', 
+                              border: '1.5px solid',
+                              borderColor: isSelected ? '#5F7D4A' : '#F4F1E6',
+                              background: isSelected ? '#F0F4ED' : 'white',
                               color: isSelected ? '#2D3A20' : '#888',
-                              fontWeight: '900', fontSize: '0.95rem', cursor: 'pointer', 
-                              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                              transform: isSelected ? 'scale(1.05)' : 'scale(1)',
-                              boxShadow: isSelected ? '0 10px 20px rgba(95,125,74,0.1)' : 'none'
+                              fontWeight: '800', 
+                              fontSize: isMobile ? '0.75rem' : '0.85rem', 
+                              cursor: 'pointer', 
+                              textAlign: 'center',
+                              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                              transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+                              boxShadow: isSelected ? '0 5px 15px rgba(95,125,74,0.08)' : 'none'
                             }}
                           >
                             {opt}
@@ -1416,10 +1406,11 @@ function MiCuentaContent() {
                     }}
                     disabled={saving}
                     style={{ 
-                      padding: '1.5rem 5rem', background: '#2D3A20', color: 'white', 
-                      border: 'none', borderRadius: '28px', fontWeight: '1000', fontSize: '1.2rem',
+                      padding: isMobile ? '1.2rem 2rem' : '1.5rem 5rem', background: '#2D3A20', color: 'white', 
+                      border: 'none', borderRadius: '28px', fontWeight: '1000', fontSize: isMobile ? '0.9rem' : '1.2rem',
+                      width: isMobile ? '100%' : 'auto',
                       cursor: saving ? 'not-allowed' : 'pointer', boxShadow: '0 25px 60px rgba(45,58,32,0.35)',
-                      display: 'flex', alignItems: 'center', gap: '15px', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                   >
                     {saving ? <Loader2 className="animate-spin" size={24} /> : <Check size={24} />}
