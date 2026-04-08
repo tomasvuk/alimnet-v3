@@ -31,6 +31,9 @@ export default function MiCuentaPage() {
   return (
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
+        <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
+          v4.1.5-ESFERA-LIMPIA ✨
+        </div>
         <MiCuentaContent />
       </div>
     </Suspense>
@@ -1671,10 +1674,7 @@ function MiCuentaContent() {
         </div>
       </main>
 
-      {/* VERIFICADOR DE DEPLOY v4.1.4 */}
-      <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
-        v4.1.4-FINEZA-FIX ✨
-      </div>
+
 
     </div>
   </div>

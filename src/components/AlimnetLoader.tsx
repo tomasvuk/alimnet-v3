@@ -47,7 +47,7 @@ export default function AlimnetLoader({ size = 120, fullScreen = false }: { size
             width: size, 
             height: size, 
             objectFit: 'contain',
-            mixBlendMode: 'multiply'
+            mixBlendMode: 'darken'
           }} 
         />
       </motion.div>

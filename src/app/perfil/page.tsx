@@ -656,11 +656,6 @@ export default function MerchantProfilePage() {
     <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column', paddingTop: '56px' }}>
       <Header />
       
-      {/* Etiqueta de Versión para verificar Deploy */}
-      <div style={{ position: 'fixed', top: '10px', right: '10px', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', zIndex: 9999, opacity: 0.8 }}>
-        {deployId}
-      </div>
-
       {message && (
         <div style={{ 
           position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
