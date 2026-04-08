@@ -1423,6 +1423,9 @@ function MiCuentaContent() {
                 @keyframes fadeInUp {
                   to { opacity: 1; transform: translateY(0); }
                 }
+                button, [role="button"], a {
+                  -webkit-tap-highlight-color: transparent !important;
+                }
               `}</style>
             </div>
           )}
