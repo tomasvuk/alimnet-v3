@@ -32,11 +32,30 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
-          v4.1.7-ESFERA-SOLA ✨
+          v4.1.8-MODO-INVITADO ✨
         </div>
         <MiCuentaContent />
       </div>
     </Suspense>
+  );
+}
+
+function GuestEmptyState({ title, subtitle, icon: Icon, router }: { title: string, subtitle: string, icon: any, router: any }) {
+  return (
+    <div style={{ padding: '4rem 2rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
+      <div style={{ marginBottom: '1.5rem', opacity: 0.8, background: '#F0F4ED', padding: '1.5rem', borderRadius: '24px', color: '#5F7D4A' }}>
+        <Icon size={40} />
+      </div>
+      <h3 style={{ fontWeight: '1000', color: '#2D3A20', fontSize: '1.5rem', marginBottom: '10px', letterSpacing: '-0.5px' }}>{title}</h3>
+      <p style={{ color: '#666', fontWeight: '600', maxWidth: '350px', lineHeight: '1.5', fontSize: '0.9rem' }}>{subtitle}</p>
+      <button 
+        onClick={() => router.push('/login')} 
+        style={{ marginTop: '2.5rem', padding: '1rem 2.5rem', borderRadius: '20px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '950', cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 10px 25px rgba(45, 58, 32, 0.15)', display: 'flex', alignItems: 'center', gap: '8px', transition: 'transform 0.2s' }}
+        className="hover-scale"
+      >
+        <User size={16} /> INICIAR SESIÓN
+      </button>
+    </div>
   );
 }
 
@@ -225,7 +244,7 @@ function MiCuentaContent() {
           setTimeout(() => fetchData(retryCount + 1), 800);
           return;
         }
-        router.replace('/login?redirect=/mi-cuenta');
+        setCounts({ validations: 0, referents: 0, saved: 0, recent: 0, contributions: 0 });
         return;
       }
 
@@ -487,7 +506,7 @@ function MiCuentaContent() {
               {message.text}
             </div>
           )}
-          {!user && !loading && (
+          {!user && !loading && activeTab === 'dashboard' && (
             <div style={{ 
               marginBottom: '2rem', padding: '1.5rem 2rem', background: 'white', borderRadius: '24px', 
               border: '1px solid #E4EBDD', display: 'flex', alignItems: 'center', gap: '1.5rem',
@@ -680,6 +699,14 @@ function MiCuentaContent() {
           )}
           
           {activeTab === 'validaciones' && (
+            !user ? (
+              <GuestEmptyState 
+                title="Mis Validaciones" 
+                subtitle="Iniciá sesión y verás los proyectos que apoyaste con tu validación social." 
+                icon={ShieldCheck} 
+                router={router} 
+              />
+            ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
               <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Validaciones</h2>
@@ -715,9 +742,18 @@ function MiCuentaContent() {
                 </div>
               )}
             </div>
+            )
           )}
 
           {activeTab === 'referentes' && (
+            !user ? (
+              <GuestEmptyState 
+                title="Mis Referentes" 
+                subtitle="Registrate y guardá los guías en los que confiás para descubrir comida de tu estilo." 
+                icon={Users} 
+                router={router} 
+              />
+            ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div style={{ marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Referentes</h2>
@@ -739,9 +775,18 @@ function MiCuentaContent() {
                 </div>
               </div>
             </div>
+            )
           )}
 
           {activeTab === 'favoritos' && (
+            !user ? (
+              <GuestEmptyState 
+                title="Mis Guardados" 
+                subtitle="Iniciá sesión y guardá lugares por conocidos o por conocer. Así no los perdés de vista." 
+                icon={Star} 
+                router={router} 
+              />
+            ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
               <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Guardados</h2>
@@ -752,9 +797,18 @@ function MiCuentaContent() {
                   <button onClick={() => router.push('/explorar')} style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '800' }}>Ir al Mapa</button>
               </div>
             </div>
+            )
           )}
 
           {activeTab === 'recientes' && (
+            !user ? (
+              <GuestEmptyState 
+                title="Vistos Recientemente" 
+                subtitle="Iniciá sesión y mantenete conectado con todo lo que fuiste viendo." 
+                icon={History} 
+                router={router} 
+              />
+            ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div style={{ marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Vistos Recientemente</h2>
@@ -771,6 +825,7 @@ function MiCuentaContent() {
                 ))}
               </div>
             </div>
+            )
           )}
 
           {activeTab === 'mi-emprendimiento' && merchantData && (
@@ -1121,6 +1176,14 @@ function MiCuentaContent() {
           )}
 
           {activeTab === 'perfil' && (
+            !user ? (
+              <GuestEmptyState 
+                title="Identidad y Acceso" 
+                subtitle="Iniciá sesión y sumá tus datos oficiales en la red Alimnet." 
+                icon={User} 
+                router={router} 
+              />
+            ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
               
               {/* BLOQUE 1: IDENTIDAD Y ACCESO */}
@@ -1300,6 +1363,14 @@ function MiCuentaContent() {
           )}
 
           {activeTab === 'estilo' && (
+            !user ? (
+              <GuestEmptyState 
+                title="Mi Estilo Alimenticio" 
+                subtitle="Registrate y configurá tu radar para que Alimnet sea tu espejo." 
+                icon={Sparkles} 
+                router={router} 
+              />
+            ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
               <div style={{ marginBottom: isMobile ? '0.5rem' : '1rem', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'flex-end', gap: '1rem' }}>
                 <div>
@@ -1427,6 +1498,7 @@ function MiCuentaContent() {
                 }
               `}</style>
             </div>
+            )
           )}
 
           {activeTab === 'configuracion' && (
