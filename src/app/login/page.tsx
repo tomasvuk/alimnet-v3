@@ -1,13 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, Suspense } from 'react';
+import AlimnetLoader from '@/components/AlimnetLoader';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { setAuthCookie } from '@/lib/auth-utils';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/mi-cuenta';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,13 +22,13 @@ export default function LoginPage() {
       if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
         console.log("Sesión confirmada por evento:", event);
         setAuthCookie(session);
-        
+
         // Espera mínima para que el navegador guarde todo bien
         setTimeout(() => {
           if (session.user.email === 'info@alimnet.com') {
             window.location.href = '/admin';
           } else {
-            window.location.href = '/mi-cuenta';
+            window.location.href = redirectTo;
           }
         }, 600);
       }
@@ -38,7 +41,7 @@ export default function LoginPage() {
         console.log("Sesión encontrada manualmente al cargar.");
         setAuthCookie(session);
         setTimeout(() => {
-          window.location.href = session.user.email === 'info@alimnet.com' ? '/admin' : '/mi-cuenta';
+          window.location.href = session.user.email === 'info@alimnet.com' ? '/admin' : redirectTo;
         }, 300);
       }
     };
@@ -47,7 +50,7 @@ export default function LoginPage() {
     return () => {
       if (authListener) authListener.subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, redirectTo]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -234,5 +237,13 @@ export default function LoginPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<AlimnetLoader fullScreen />}>
+      <LoginContent />
+    </Suspense>
   );
 }

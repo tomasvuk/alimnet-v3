@@ -225,8 +225,7 @@ function MiCuentaContent() {
           setTimeout(() => fetchData(retryCount + 1), 800);
           return;
         }
-        setUser(null);
-        setLoading(false);
+        router.replace('/login?redirect=/mi-cuenta');
         return;
       }
 

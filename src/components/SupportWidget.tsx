@@ -138,7 +138,10 @@ export default function SupportWidget() {
         {isOpen ? <X size={isMobile ? 20 : 24} /> : <MessageSquare size={isMobile ? 20 : 24} />}
       </button>
 
-      {/* Versión eliminada de aquí para evitar duplicados con las etiquetas de página */}
+      {/* Versión del build */}
+      <div style={{ fontSize: '9px', fontWeight: '800', color: '#AAA', textAlign: 'center', letterSpacing: '0.03em', pointerEvents: 'none', userSelect: 'none' }}>
+        v4.1.8
+      </div>
 
       <style jsx>{`
         @keyframes floatIn { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }

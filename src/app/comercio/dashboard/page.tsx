@@ -87,7 +87,7 @@ export default function MerchantDashboard() {
     const initDashboard = async () => {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) {
-        router.replace('/login?redirect=/comercio/dashboard');
+        router.replace('/registro-comercio?redirect=/comercio/dashboard');
         return;
       }
       setUser(authUser);
