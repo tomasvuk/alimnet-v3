@@ -853,33 +853,7 @@ function MiCuentaContent() {
           
 
 
-          {activeTab === 'recientes' && (
-            !user ? (
-              <GuestEmptyState 
-                title="Vistos Recientemente" 
-                subtitle="Iniciá sesión y mantenete conectado con todo lo que fuiste viendo." 
-                icon={History} 
-                router={router} 
-              />
-            ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div style={{ marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Vistos Recientemente</h2>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {['Sana Sana', 'Mercado Saludable', 'Cooperativa del Campo'].map((loc, idx) => (
-                  <div key={idx} style={{ background: 'white', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <Clock size={20} color="#888" />
-                      <h4 style={{ margin: 0, fontWeight: '900' }}>{loc}</h4>
-                    </div>
-                    <ChevronRight size={20} color="#E4EBDD" />
-                  </div>
-                ))}
-              </div>
-            </div>
-            )
-          )}
+
 
           {activeTab === 'mi-emprendimiento' && (merchantData || profile?.role === 'admin') && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
