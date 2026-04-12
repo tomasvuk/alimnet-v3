@@ -36,7 +36,8 @@ import {
   Upload,
   Heart,
   ChevronRight,
-  LogOut
+  LogOut,
+  Package
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
@@ -57,6 +58,7 @@ export default function MerchantProfilePage() {
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
   const [showMapValidation, setShowMapValidation] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [showGuestPopup, setShowGuestPopup] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [croppingImage, setCroppingImage] = useState<{ url: string, type: 'logo' | 'gallery', aspect: number, index?: number } | null>(null);
   const [savedMerchants, setSavedMerchants] = useState<any[]>([]);
@@ -139,7 +141,10 @@ export default function MerchantProfilePage() {
       }
 
       const currentUser = user || (await supabase.auth.getSession()).data.session?.user;
-      if (!currentUser) return;
+      if (!currentUser) {
+        setShowGuestPopup(true);
+        return;
+      }
 
       const { data: pData } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
       if (pData) setProfile(pData);
@@ -172,6 +177,10 @@ export default function MerchantProfilePage() {
       } else {
         // No hay comercio asociado aún
         setMerchant(null);
+        if (pData?.role !== 'admin') {
+          router.push('/sumate');
+          return;
+        }
       }
 
       // 4. [NUEVO] Traer Guardados y Me Gusta del Usuario
@@ -795,6 +804,43 @@ export default function MerchantProfilePage() {
           }}
         />
       )}
+
+      {showGuestPopup && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)', opacity: 0, animation: 'fadeIn 0.3s ease forwards' }}>
+          <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', transform: 'translateY(20px)', animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s', opacity: 0 }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F0F4ED', color: '#5F7D4A', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              <Package size={32} />
+            </div>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>
+              ¿Sos dueño de un comercio?
+            </h3>
+            <p style={{ fontSize: '0.9rem', color: '#666', fontWeight: '600', marginBottom: '2rem', lineHeight: '1.5' }}>
+              Iniciá sesión para acceder a tu panel de control, o registrate para empezar a formar parte de nuestra comunidad.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+              <button 
+                onClick={() => router.push('/login')}
+                style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                INICIAR SESIÓN
+              </button>
+              <button 
+                onClick={() => router.push('/sumate')}
+                style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1.5px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                REGISTRATE
+              </button>
+              <button 
+                onClick={() => router.push('/')}
+                style={{ width: '100%', padding: '0.8rem', borderRadius: '16px', border: 'none', background: 'transparent', color: '#999', fontWeight: '800', cursor: 'pointer', marginTop: '0.5rem' }}
+              >
+                VOLVER AL INICIO
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
