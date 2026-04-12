@@ -71,7 +71,7 @@ export default function Header() {
     // --- [SIMULATION MODE] ---
     const isSimulated = typeof window !== 'undefined' && localStorage.getItem('social_simulation_mode') === 'true';
     if (isSimulated) {
-      setUser({ id: 'sim-user-123', email: 'tomas@puliendo.com' });
+      setUser({ id: '00000000-0000-0000-0000-000000000000', email: 'tomas@puliendo.com' });
       setProfile({ 
         first_name: 'Tomás (SIM)', 
         last_name: 'Vukojicic', 

@@ -676,7 +676,7 @@ export default function ExplorarPage() {
       const isSimulated = typeof window !== 'undefined' && localStorage.getItem('social_simulation_mode') === 'true';
       if (isSimulated) {
         setIsLoggedIn(true);
-        setUser({ id: 'sim-user-123', email: 'tomas@puliendo.com' });
+        setUser({ id: '00000000-0000-0000-0000-000000000000', email: 'tomas@puliendo.com' });
         setUserProfile({ 
           first_name: 'Tomás (SIM)', 
           last_name: 'Vukojicic', 
