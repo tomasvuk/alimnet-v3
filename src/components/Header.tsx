@@ -52,14 +52,37 @@ export default function Header() {
       handleAuthChange(session);
     });
 
+    // --- ESCUCHA DE SIMULACIÓN (PULIENDO) ---
+    const handleSimChange = () => {
+      console.log("[HEADER]: Detectado cambio de simulación...");
+      handleAuthChange(null); // Re-evaluamos con el nuevo estado de localStorage
+    };
+    window.addEventListener('simulation-change', handleSimChange);
+
     initAuth();
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('simulation-change', handleSimChange);
     };
   }, []);
 
   const handleAuthChange = async (session: any) => {
+    // --- [SIMULATION MODE] ---
+    const isSimulated = typeof window !== 'undefined' && localStorage.getItem('social_simulation_mode') === 'true';
+    if (isSimulated) {
+      setUser({ id: 'sim-user-123', email: 'tomas@puliendo.com' });
+      setProfile({ 
+        first_name: 'Tomás (SIM)', 
+        last_name: 'Vukojicic', 
+        role: 'admin',
+        avatar_url: 'https://i.pravatar.cc/150?u=tomas'
+      });
+      setIsMerchant(true);
+      setLoading(false);
+      return;
+    }
+
     if (session?.user) {
       setUser(session.user);
       
@@ -83,9 +106,6 @@ export default function Header() {
       setUser(null);
       setProfile(null);
       setIsMerchant(false);
-      // NO borramos la cookie automáticamente aquí. 
-      // Solo debe ocurrir en el Logout explícito. 
-      // Esto evita que en móviles el Header borre la sesión antes de tiempo.
     }
     setLoading(false);
   };

@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
-          v0.0.12
+          v0.0.13
         </div>
         <MiCuentaContent />
       </div>
@@ -276,7 +276,34 @@ function MiCuentaContent() {
     router.push(`/mi-cuenta?tab=${tabId}`, { scroll: false });
   };
 
-  const fetchData = async (retryCount = 0) => {
+    const simulated = typeof window !== 'undefined' && localStorage.getItem('social_simulation_mode') === 'true';
+    if (simulated) {
+      console.log("[SIMULATION MODE]: Cargando ecosistema de prueba...");
+      setUser(FAKE_USER as any);
+      setProfile({
+        first_name: 'Tomás (SIM)',
+        last_name: 'Vukojicic',
+        locality: 'San Isidro',
+        role: 'admin',
+        avatar_url: '/avatars/v2-front-pastor.png'
+      });
+      setCounts({ 
+        validations: 12, 
+        referents: 45, 
+        saved: 8, 
+        recent: 3, 
+        contributions: 5 
+      });
+      // Mock referents
+      setReferents([
+        { id: 'ref1', first_name: 'Ana', avatar_url: '/avatars/v2-front-recolectora.png' },
+        { id: 'ref2', first_name: 'Luis', avatar_url: '/avatars/v2-front-pastor.png' },
+        { id: 'ref3', first_name: 'Marta', avatar_url: '/avatars/v2-front-tejedora.png' }
+      ]);
+      setLoading(false);
+      return;
+    }
+
     try {
       // 1. Intentamos obtener el usuario de forma estándar
       let { data: { user: supabaseUser }, error: userError } = await supabase.auth.getUser();

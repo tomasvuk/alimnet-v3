@@ -41,6 +41,8 @@ export const metadata: Metadata = {
   },
 };
 
+import SimulationToggle from "@/components/SimulationToggle";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -51,6 +53,7 @@ export default function RootLayout({
       <body className={inter.variable}>
         <PageTransition>{children}</PageTransition>
         <SupportWidget />
+        <SimulationToggle />
       </body>
     </html>
   );
