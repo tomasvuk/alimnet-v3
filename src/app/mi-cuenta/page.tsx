@@ -7,8 +7,8 @@ import {
   Bell, Award, TrendingUp, Check, X, Plus, Search,
   Map as MapIcon, Loader2, AlertCircle, MessageSquare, 
   ExternalLink, ShieldCheck, LayoutDashboard, History, ShoppingBasket,
-  Activity, Users, Share2, Eye, Sparkles, ArrowLeft, ShoppingBag, Compass,
-  Navigation, Wheat, Cake, Beef
+  Activity, Users, Share2, Eye, Sparkles, ArrowLeft, Compass,
+  Navigation, Wheat, Cake, Beef, Backpack
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -162,7 +162,7 @@ function MiCuentaContent() {
 
   const RADAR_FILTERS = [
     { id: 'todos', label: 'Todos', icon: LayoutDashboard },
-    { id: 'seleccion', label: 'Mi Selección', icon: ShoppingBasket, color: '#5F7D4A' },
+    { id: 'seleccion', label: 'Mi Selección', icon: Backpack, color: '#5F7D4A' },
     { id: 'conocer', label: 'Por Conocer', icon: MapPin, color: '#3182CE' },
     { id: 'validados', label: 'Validados', icon: ShieldCheck, color: '#5F7D4A' },
     { id: 'contribuciones', label: 'Contribuciones', icon: Sparkles, color: '#5F7D4A' }
@@ -448,7 +448,7 @@ function MiCuentaContent() {
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Mi Radar', icon: ShoppingBag },
+    { id: 'dashboard', label: 'Mi Radar', icon: Backpack },
     { id: 'perfil', label: 'Mi Perfil', icon: User },
     { id: 'estilo', label: 'Mi Estilo Alimenticio', icon: Compass },
     { id: 'mi-emprendimiento', label: 'Mi Panel Comercial', icon: Package },
