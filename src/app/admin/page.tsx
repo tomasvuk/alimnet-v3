@@ -412,6 +412,20 @@ export default function AdminDashboard() {
     setLoading(false);
   };
 
+  const markAsRead = async (id: string, type: 'CONTACT_FORM' | 'CHATBOT') => {
+    try {
+      if (type === 'CONTACT_FORM') {
+        await supabase.from('contact_messages').update({ status: 'read' }).eq('id', id);
+      } else {
+        // En notifications, el status 'sent' se interpreta como leído en nuestra lógica unificada
+        await supabase.from('notifications').update({ status: 'sent' }).eq('id', id);
+      }
+      setMessages(prev => prev.map(m => m.id === id ? { ...m, status: 'read' } : m));
+    } catch (e) {
+      console.error("Error marking as read:", e);
+    }
+  };
+
   const handleImport = async () => {
     if (!importText) return;
     setIsImporting(true);
@@ -728,7 +742,7 @@ export default function AdminDashboard() {
                  <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>TIPO</th><th style={THStyle}>REMITENTE</th><th style={THStyle}>ASUNTO / MENSAJE</th><th style={THStyle}>ACCIONES</th></tr></thead>
                  <tbody>
                    {(messages as any[]).map(m => (
-                     <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED' }}>
+                     <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED', opacity: m.status === 'read' ? 0.6 : 1, transition: 'opacity 0.3s' }}>
                        <td style={{ padding: 20, fontSize: '0.75rem', fontWeight: 800, color: '#B2AC88' }}>{new Date(m.created_at).toLocaleDateString()}</td>
                        <td style={{ padding: 20 }}>
                           <span style={{ ...BadgeStyle, background: m.type === 'CHATBOT' ? '#2D3A20' : '#F0F4ED', color: m.type === 'CHATBOT' ? 'white' : '#2D3A20' }}>
@@ -740,11 +754,20 @@ export default function AdminDashboard() {
                           <div style={{fontSize:'0.75rem', color:'#888', fontWeight: 700}}>{m.sender_email}</div>
                        </td>
                        <td style={{ padding: 20 }}>
-                          <div style={{fontWeight:800, color: '#5F7D4A', fontSize: '0.8rem', marginBottom: 4}}>{m.subject}</div>
+                          <div style={{fontWeight:800, color: m.status === 'read' ? '#888' : '#5F7D4A', fontSize: '0.8rem', marginBottom: 4}}>{m.subject}</div>
                           <div style={{fontSize: '0.85rem', color: '#666', fontWeight: 600, maxWidth: 400}}>{m.message}</div>
                        </td>
                        <td style={{ padding: 20 }}>
-                          <button style={{ background: 'none', border: 'none', color: '#5F7D4A', cursor: 'pointer', fontWeight: 900, fontSize: '0.75rem' }}>MARCAR LEÍDO</button>
+                          {m.status !== 'read' ? (
+                            <button 
+                              onClick={() => markAsRead(m.id, m.type)}
+                              style={{ background: '#5F7D4A', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 900, fontSize: '0.7rem', padding: '6px 12px', borderRadius: '8px' }}
+                            >
+                              MARCAR LEÍDO
+                            </button>
+                          ) : (
+                            <span style={{ color: '#5F7D4A', fontWeight: 1000, fontSize: '0.7rem' }}>✓ LEÍDO</span>
+                          )}
                        </td>
                      </tr>
                    ))}
@@ -851,9 +874,37 @@ function KPICard({ label, value, trend, icon }: any) {
 }
 
 function TabItem({ active, label, onClick, count }: any) {
+  const isMessages = label === 'Mensajes';
+  const hasUnread = isMessages && count > 0;
+
   return (
-    <div onClick={onClick} style={{ padding: '1rem 0', cursor: 'pointer', borderBottom: active ? '3px solid #5F7D4A' : '3px solid transparent', color: active ? '#2D3A20' : '#B2AC88', fontWeight: 950, display: 'flex', gap: 8 }}>
-      {label} {count !== undefined && <span style={{fontSize:10, background:'#F0F4ED', padding:'2px 6px', borderRadius:6}}>{count}</span>}
+    <div onClick={onClick} style={{ 
+      padding: '1rem 0', cursor: 'pointer', 
+      borderBottom: active ? '3px solid #5F7D4A' : '3px solid transparent', 
+      color: active ? '#2D3A20' : '#B2AC88', 
+      fontWeight: 950, display: 'flex', gap: 8, alignItems: 'center'
+    }}>
+      {label} 
+      {count !== undefined && (
+        <span style={{
+          fontSize: 10, 
+          background: hasUnread ? '#EF4444' : '#F0F4ED', 
+          color: hasUnread ? 'white' : '#5F7D4A',
+          padding: '2px 8px', 
+          borderRadius: 8,
+          boxShadow: hasUnread ? '0 0 10px rgba(239, 68, 68, 0.3)' : 'none',
+          animation: hasUnread ? 'pulse-unread 1.5s infinite' : 'none'
+        }}>
+          {count}
+        </span>
+      )}
+      <style>{`
+        @keyframes pulse-unread {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.15); }
+          100% { transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }
