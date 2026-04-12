@@ -144,12 +144,26 @@ export default function Header() {
         <AlimnetLoader size={18} />
       </div>
         ) : !user ? (
-          <button 
-            onClick={() => router.push('/login')}
-            style={{ padding: '0.4rem 0.8rem', borderRadius: '12px', border: '1.5px solid #5F7D4A', background: 'transparent', color: '#5F7D4A', fontWeight: '900', cursor: 'pointer', fontSize: '0.75rem' }}
-          >
-            INGRESAR
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+            <button 
+              onClick={() => router.push('/login')}
+              style={{ background: 'transparent', border: 'none', color: '#5F7D4A', fontWeight: '900', cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.02em' }}
+            >
+              INGRESAR
+            </button>
+            <button 
+              onClick={() => router.push('/login?mode=signup')}
+              style={{ 
+                padding: '0.6rem 1.2rem', borderRadius: '14px', background: '#5F7D4A', color: 'white', 
+                fontWeight: '950', fontSize: '0.75rem', border: 'none', cursor: 'pointer',
+                boxShadow: '0 8px 20px rgba(95, 125, 74, 0.15)', transition: 'all 0.2s',
+                letterSpacing: '0.02em'
+              }}
+              className="hover-scale"
+            >
+              SÚMATE
+            </button>
+          </div>
         ) : (
           <div 
             onClick={() => router.push('/mi-cuenta')}
