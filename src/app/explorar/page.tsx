@@ -2090,7 +2090,29 @@ function DetailPanel({
 
   const handleSendFeedback = async () => {
     if (!feedback.trim()) return;
-    await trackClick('SUGGEST_INFO_UPDATE', { merchant_id: merchant.id, merchant_name: merchant.name, message: feedback });
+    
+    // 1. Registro Analytics (Inteligencia)
+    await trackClick('SUGGEST_INFO_UPDATE', { 
+      merchant_id: merchant.id, 
+      merchant_name: merchant.name, 
+      message: feedback,
+      user_name: userProfile?.first_name ? `${userProfile.first_name} ${userProfile.last_name || ''}` : 'Anónimo'
+    });
+
+    // 2. Registro de Mensaje (Admin Panel -> Mensajes)
+    try {
+      await supabase.from('contact_messages').insert([{
+        sender_name: userProfile?.first_name ? `${userProfile.first_name} ${userProfile.last_name || ''}` : 'Sugerencia Mapa',
+        sender_email: user?.email || '-',
+        subject: `[MAPA] Sugerencia de Info: ${merchant.name}`,
+        message: feedback,
+        status: 'unread',
+        metadata: { merchant_id: merchant.id, source: 'EXPOLORAR_DETAILS_FEEDBACK' }
+      }]);
+    } catch (e) {
+      console.error("Error sending admin message:", e);
+    }
+
     setFeedbackSent(true);
     setFeedback('');
     setTimeout(() => setFeedbackSent(false), 3000);
