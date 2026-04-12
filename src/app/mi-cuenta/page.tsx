@@ -273,6 +273,7 @@ function MiCuentaContent() {
     router.push(`/mi-cuenta?tab=${tabId}`, { scroll: false });
   };
 
+  const fetchData = async (retryCount = 0) => {
     const simulated = typeof window !== 'undefined' && localStorage.getItem('social_simulation_mode') === 'true';
     if (simulated) {
       console.log("[SIMULATION MODE]: Cargando ecosistema de prueba...");
