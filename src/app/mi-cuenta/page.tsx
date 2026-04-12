@@ -31,7 +31,7 @@ export default function MiCuentaPage() {
   return (
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
-        <div style={{ position: 'fixed', bottom: '4px', right: '8px', fontSize: '9px', fontWeight: '800', color: '#CCC', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
+        <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
           v0.0.0
         </div>
         <MiCuentaContent />
@@ -141,9 +141,9 @@ function MiCuentaContent() {
 
   const [counts, setCounts] = useState({
     validations: 0,
-    referents: 1, // Carlos de base
-    saved: 1, // Raíz Vivo de base
-    recent: 3,
+    referents: 0,
+    saved: 0,
+    recent: 0,
     contributions: 0
   });
   const [contributions, setContributions] = useState<any[]>([]);
@@ -397,11 +397,8 @@ function MiCuentaContent() {
                 if (item.id === 'mi-emprendimiento') {
                   if (!user) {
                     setShowMerchantLoginPopup(true);
-                    return;
-                  }
-                  if (user && !merchantData && profile?.role !== 'admin') {
+                  } else if (!merchantData && profile?.role !== 'admin') {
                     router.push('/sumate');
-                    return;
                   }
                   handleTabChange(item.id);
                   return;
@@ -469,15 +466,14 @@ function MiCuentaContent() {
                 if (item.id === 'mi-emprendimiento') {
                   if (!user) {
                     setShowMerchantLoginPopup(true);
-                    return;
-                  }
-                  if (user && !merchantData && profile?.role !== 'admin') {
+                  } else if (!merchantData && profile?.role !== 'admin') {
                     router.push('/sumate');
-                    return;
                   }
-                  handleTabChange(item.id);
-                  setShowSidebar(false);
+                  setActiveTab(item.id);
+                  if (setIsMobileMenuOpen) setIsMobileMenuOpen(false);
                   return;
+                }
+
                 }
                 handleTabChange(item.id); 
                 setShowSidebar(false); 
