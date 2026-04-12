@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
-          v0.0.2
+          v0.0.3
         </div>
         <MiCuentaContent />
       </div>
@@ -362,7 +362,6 @@ function MiCuentaContent() {
 
   const menuItems = [
     { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
-    { id: 'mi-emprendimiento', label: 'Mi Panel Comercial', icon: Package },
     { id: 'perfil', label: 'Mi Perfil', icon: User },
     { id: 'estilo', label: 'Mi Estilo Alimenticio', icon: Sparkles },
     { id: 'contribuciones', label: 'Mis Contribuciones', icon: Share2 },
@@ -370,6 +369,7 @@ function MiCuentaContent() {
     { id: 'referentes', label: 'Referentes', icon: Users },
     { id: 'favoritos', label: 'Guardados', icon: Star },
     { id: 'recientes', label: 'Recientes', icon: History },
+    { id: 'mi-emprendimiento', label: 'Mi Panel Comercial', icon: Package },
     { id: 'sostener', label: 'Sostener Alimnet', icon: Heart, special: true },
     { id: 'logout', label: 'Cerrar Sesión', icon: LogOut },
   ];
@@ -397,8 +397,11 @@ function MiCuentaContent() {
                 if (item.id === 'mi-emprendimiento') {
                   if (!user) {
                     setShowMerchantLoginPopup(true);
-                  } else if (!merchantData && profile?.role !== 'admin') {
+                    return;
+                  } 
+                  if (!merchantData && profile?.role !== 'admin') {
                     router.push('/sumate');
+                    return;
                   }
                   handleTabChange(item.id);
                   return;
@@ -466,8 +469,13 @@ function MiCuentaContent() {
                 if (item.id === 'mi-emprendimiento') {
                   if (!user) {
                     setShowMerchantLoginPopup(true);
-                  } else if (!merchantData && profile?.role !== 'admin') {
+                    setShowSidebar(false);
+                    return;
+                  } 
+                  if (!merchantData && profile?.role !== 'admin') {
                     router.push('/sumate');
+                    setShowSidebar(false);
+                    return;
                   }
                   setActiveTab(item.id);
                   setShowSidebar(false);
