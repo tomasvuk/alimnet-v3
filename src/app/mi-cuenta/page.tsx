@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
-          v0.0.3
+          v0.0.5
         </div>
         <MiCuentaContent />
       </div>
@@ -147,6 +147,26 @@ function MiCuentaContent() {
     contributions: 0
   });
   const [contributions, setContributions] = useState<any[]>([]);
+  const [savedMerchants, setSavedMerchants] = useState<any[]>([]);
+  const [referents, setReferents] = useState<any[]>([]);
+  const [userReferentIds, setUserReferentIds] = useState<string[]>([]);
+  const [referentValidations, setReferentValidations] = useState<any[]>([]);
+  const [radarFilter, setRadarFilter] = useState('todos');
+  const [isSimulated, setIsSimulated] = useState(false);
+
+  const FAKE_USER = {
+    id: 'b1f6e4a2-8d3c-4e8a-9f5b-1c2d3e4f5a6b', // ID de prueba (Tomas)
+    email: 'tomas@alimnet.com',
+    user_metadata: { full_name: 'Tomas Vukojicic (Simulado)' }
+  };
+
+  const RADAR_FILTERS = [
+    { id: 'todos', label: 'Todos', icon: LayoutDashboard },
+    { id: 'seleccion', label: 'Mi Selección', icon: ShoppingBasket, color: '#5F7D4A' },
+    { id: 'conocer', label: 'Por Conocer', icon: MapPin, color: '#3182CE' },
+    { id: 'validados', label: 'Validados', icon: ShieldCheck, color: '#5F7D4A' },
+    { id: 'contribuciones', label: 'Contribuciones', icon: Share2, color: '#5F7D4A' }
+  ];
 
   useEffect(() => {
     // --- DETECTOR DE GOOGLE (RADAR DE CUENTA) ---
@@ -203,6 +223,38 @@ function MiCuentaContent() {
       document.head.appendChild(style);
     }
   }, []);
+
+  const radarItems = useMemo(() => {
+    let all: any[] = [];
+    
+    // 1. Validados
+    validatedMerchants.forEach(m => {
+      all.push({ ...m, radarType: 'validados' });
+    });
+
+    // 2. Selección
+    savedMerchants.forEach(m => {
+      if (!all.find(x => x.id === m.id)) {
+        all.push({ ...m, radarType: 'seleccion' });
+      }
+    });
+
+    // 3. Contribuciones
+    contributions.forEach(m => {
+      if (!all.find(x => x.id === m.id)) {
+        all.push({ ...m, radarType: 'contribuciones' });
+      }
+    });
+
+    // 4. Calcular stats sociales y filtrar
+    const itemsWithStats = all.map(item => {
+      const refCount = referentValidations.filter(rv => rv.merchant_id === item.id).length;
+      return { ...item, referent_count: refCount };
+    });
+
+    if (radarFilter === 'todos') return itemsWithStats;
+    return itemsWithStats.filter(item => item.radarType === radarFilter);
+  }, [validatedMerchants, savedMerchants, contributions, radarFilter, referentValidations]);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -330,6 +382,41 @@ function MiCuentaContent() {
           setCounts(prev => ({ ...prev, contributions: cCount || 0 }));
         }
 
+        // 5. TRAER "MI SELECCIÓN" (GUARDADOS)
+        const { data: sData, count: sCount } = await supabase
+          .from('user_saved_merchants')
+          .select('merchant_id, merchants(*, locations(*))', { count: 'exact' })
+          .eq('user_id', currentUser.id);
+        
+        if (sData) {
+          setSavedMerchants(sData.map((s: any) => s.merchants).filter(Boolean));
+          setCounts(prev => ({ ...prev, saved: sCount || 0 }));
+        }
+
+        // 6. TRAER REFERENTES (SOCIAL GRAPH)
+        const { data: fData, count: fCount } = await supabase
+          .from('follows')
+          .select('following_id, profiles!follows_following_id_fkey(*)', { count: 'exact' })
+          .eq('follower_id', currentUser.id);
+        
+        if (fData) {
+          const refs = fData.map((f: any) => f.profiles).filter(Boolean);
+          const refIds = fData.map((f: any) => f.following_id);
+          setReferents(refs);
+          setUserReferentIds(refIds);
+          setCounts(prev => ({ ...prev, referents: fCount || 0 }));
+
+          // 7. TRAER VALIDACIONES DE ESTOS REFERENTES (Confianza Social)
+          if (refIds.length > 0) {
+            const { data: rvData } = await supabase
+              .from('merchant_validations')
+              .select('merchant_id, user_id')
+              .in('user_id', refIds);
+            
+            if (rvData) setReferentValidations(rvData);
+          }
+        }
+
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
   const handleSaveMerchant = async () => {
@@ -367,7 +454,7 @@ function MiCuentaContent() {
     { id: 'contribuciones', label: 'Mis Contribuciones', icon: Share2 },
     { id: 'validaciones', label: 'Validaciones', icon: ShieldCheck },
     { id: 'referentes', label: 'Referentes', icon: Users },
-    { id: 'favoritos', label: 'Guardados', icon: Star },
+    { id: 'favoritos', label: 'Mi Selección', icon: ShoppingBasket },
     { id: 'recientes', label: 'Recientes', icon: History },
     { id: 'mi-emprendimiento', label: 'Mi Panel Comercial', icon: Package },
     { id: 'sostener', label: 'Sostener Alimnet', icon: Heart, special: true },
@@ -500,6 +587,26 @@ function MiCuentaContent() {
               {item.label}
             </button>
           ))}
+
+          {/* SIMULATION BYPASS (Solo en Desarrollo/Puliendo) */}
+          {typeof window !== 'undefined' && !window.location.hostname.includes('alimnet.com') && (
+            <button 
+              onClick={() => {
+                const newState = !isSimulated;
+                setIsSimulated(newState);
+                setUser(newState ? FAKE_USER : null);
+                if (newState) fetchData();
+                setShowSidebar(false);
+              }}
+              style={{ 
+                marginTop: 'auto', padding: '12px', borderRadius: '16px', border: '1px dashed #E4EBDD',
+                background: isSimulated ? '#F0F4ED' : 'transparent', color: isSimulated ? '#5F7D4A' : '#AAA',
+                fontSize: '0.65rem', fontWeight: '900', cursor: 'pointer', textAlign: 'center', letterSpacing: '0.05em'
+              }}
+            >
+              MODO SIMULACIÓN: {isSimulated ? 'ACTIVO 🟢' : 'DESACTIVADO ⚪'}
+            </button>
+          )}
           </nav>
         </aside>
         )}
@@ -775,30 +882,69 @@ function MiCuentaContent() {
             !user ? (
               <GuestEmptyState 
                 title="Mis Referentes" 
-                subtitle="Registrate y guardá los guías en los que confiás para descubrir comida de tu estilo." 
+                subtitle="Sumá guías a tu red para descubrir comida real con su aval." 
                 icon={Users} 
                 router={router} 
               />
             ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div style={{ marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Referentes</h2>
-                <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Los guías en los que confiás para descubrir comida real.</p>
+                <h2 style={{ fontSize: isMobile ? '1.8rem' : '2.5rem', fontWeight: '1000', color: '#2D3A20', margin: 0, letterSpacing: '-0.03em' }}>Mis Referentes</h2>
+                <p style={{ color: '#888', fontWeight: '600', marginTop: '4px' }}>Tus guías de confianza en la red Alimnet.</p>
               </div>
-              <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                  <div style={{ width: '64px', height: '64px', borderRadius: '22px', background: '#F4F1E6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', border: '2px solid #E4EBDD' }}>
-                    <User size={32} />
+
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                {referents.length > 0 ? (
+                  referents.map(ref => (
+                    <div key={ref.id} style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #F0F4ED', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '1.5rem' }}>
+                        <div style={{ 
+                          width: '64px', height: '64px', borderRadius: '22px', 
+                          background: ref.avatar_url ? `url(${ref.avatar_url}) center/cover` : '#F4F1E6', 
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                          color: '#5F7D4A', border: '2px solid #E4EBDD' 
+                        }}>
+                          {!ref.avatar_url && <User size={32} />}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <h3 style={{ fontSize: '1.1rem', fontWeight: '950', color: '#2D3A20', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {ref.first_name} {ref.last_name}
+                          </h3>
+                          <p style={{ color: '#5F7D4A', fontWeight: '800', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '2px' }}>
+                            {ref.role === 'admin' ? 'MIEMBRO FUNDADOR' : 'REFERENTE ALIMNET'}
+                          </p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button 
+                          onClick={() => router.push(`/perfil/${ref.id}`)}
+                          style={{ flex: 1, padding: '0.7rem', borderRadius: '14px', background: '#F0F4ED', color: '#2D3A20', fontWeight: '900', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                          Ver Perfil
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            if (window.confirm(`¿Quitar a ${ref.first_name} de tus referentes?`)) {
+                              const { error } = await supabase.from('follows').delete().eq('follower_id', user.id).eq('following_id', ref.id);
+                              if (!error) fetchData();
+                            }
+                          }}
+                          style={{ flex: 1, padding: '0.7rem', borderRadius: '14px', border: '1px solid #E4EBDD', background: 'white', color: '#888', fontWeight: '800', cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ gridColumn: '1 / -1', padding: '5rem 2rem', textAlign: 'center', background: 'white', borderRadius: '40px', border: '1px dashed #E4EBDD' }}>
+                      <div style={{ width: '64px', height: '64px', background: '#F8F9F5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                        <Users size={32} color="#E4EBDD" />
+                      </div>
+                      <h3 style={{ fontWeight: '950', color: '#2D3A20', marginBottom: '1rem' }}>No tenés referentes aún</h3>
+                      <p style={{ color: '#888', maxWidth: '300px', margin: '0 auto 2rem', fontWeight: '600', lineHeight: 1.5 }}>Identificá a otros miembros de la comunidad para ver sus recomendaciones.</p>
                   </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Tomas Vukojicic</h3>
-                    <p style={{ color: '#5F7D4A', fontWeight: '800', fontSize: '0.7rem' }}>MIEMBRO FUNDADOR</p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button style={{ flex: 1, padding: '0.6rem', borderRadius: '12px', background: '#F0F4ED', color: '#5F7D4A', fontWeight: '800', border: 'none' }}>Ver Perfil</button>
-                  <button style={{ flex: 1, padding: '0.6rem', borderRadius: '12px', border: '1px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '800' }}>Remover</button>
-                </div>
+                )}
               </div>
             </div>
             )
@@ -807,20 +953,135 @@ function MiCuentaContent() {
           {activeTab === 'favoritos' && (
             !user ? (
               <GuestEmptyState 
-                title="Mis Guardados" 
-                subtitle="Iniciá sesión y guardá lugares por conocidos o por conocer. Así no los perdés de vista." 
-                icon={Star} 
+                title="Mi Selección" 
+                subtitle="Iniciá sesión y armá tu canasta de locales de confianza." 
+                icon={ShoppingBasket} 
                 router={router} 
               />
             ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-              <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Mis Guardados</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
+              <div style={{ marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: isMobile ? '1.8rem' : '2.5rem', fontWeight: '1000', color: '#2D3A20', margin: 0, letterSpacing: '-0.03em' }}>Mi Radar</h2>
+                <p style={{ color: '#888', fontWeight: '600', fontSize: '0.9rem', marginTop: '5px' }}>Tu mapa personal de confianza alimentaria.</p>
               </div>
-              <div style={{ gridColumn: '1 / -1', padding: '5rem', textAlign: 'center', border: '1px dashed #E4EBDD', borderRadius: '32px' }}>
-                  <Star size={48} color="#E4EBDD" style={{ marginBottom: '1rem' }} />
-                  <h3 style={{ fontWeight: '950', color: '#5F7D4A' }}>¿Todavía no encontraste tu próximo destino?</h3>
-                  <button onClick={() => router.push('/explorar')} style={{ marginTop: '2rem', padding: '0.8rem 2rem', borderRadius: '16px', border: 'none', background: '#5F7D4A', color: 'white', fontWeight: '800' }}>Ir al Mapa</button>
+
+              {/* SMART PILLS (Filtros redondeados) */}
+              <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '15px', marginLeft: '-5px', paddingLeft: '5px' }} className="no-scrollbar">
+                {RADAR_FILTERS.map(f => (
+                  <button 
+                    key={f.id}
+                    onClick={() => setRadarFilter(f.id)}
+                    style={{ 
+                      background: radarFilter === f.id ? '#2D3A20' : 'white',
+                      color: radarFilter === f.id ? 'white' : '#5F7D4A',
+                      padding: '10px 22px', 
+                      borderRadius: '999px', 
+                      border: '1.5px solid',
+                      borderColor: radarFilter === f.id ? '#2D3A20' : '#E4EBDD',
+                      fontWeight: '850', 
+                      fontSize: '0.8rem', 
+                      whiteSpace: 'nowrap', 
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                      boxShadow: radarFilter === f.id ? '0 10px 20px rgba(45, 58, 32, 0.15)' : 'none'
+                    }}
+                  >
+                    <f.icon size={16} />
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* LISTA DE CARDS MINIMALISTAS (Estilo Mapa) */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.2rem' }}>
+                {radarItems.length > 0 ? (
+                  radarItems.map(item => (
+                    <div 
+                      key={`${item.id}-${item.radarType}`}
+                      onClick={() => router.push(`/explorar?id=${item.id}`)}
+                      style={{ 
+                        background: 'white', 
+                        padding: '1.2rem', 
+                        borderRadius: '28px', 
+                        border: '1px solid #F0F4ED', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '1.2rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
+                      }}
+                      className="card-hover"
+                    >
+                      {/* Logo Cuadrado */}
+                      <div style={{ 
+                        width: '60px', 
+                        height: '60px', 
+                        borderRadius: '20px', 
+                        background: item.logo_url ? `url(${item.logo_url}) center/cover` : '#F8F9F5',
+                        border: '1px solid #E4EBDD',
+                        flexShrink: 0
+                      }} />
+                      
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                           <h4 style={{ 
+                             margin: 0, 
+                             color: '#2D3A20', 
+                             fontFamily: 'Outfit', 
+                             fontWeight: '950', 
+                             fontSize: '1rem', 
+                             letterSpacing: '-0.01em',
+                             whiteSpace: 'nowrap',
+                             overflow: 'hidden',
+                             textOverflow: 'ellipsis'
+                           }}>
+                             {item.name}
+                           </h4>
+                           <span style={{ 
+                             fontSize: '0.55rem', 
+                             fontWeight: '1000', 
+                             color: item.radarType === 'seleccion' ? '#2D3A20' : '#5F7D4A', 
+                             background: item.radarType === 'seleccion' ? '#F0F4ED' : '#F0F4ED', 
+                             padding: '4px 10px', 
+                             borderRadius: '8px', 
+                             letterSpacing: '0.05em', 
+                             textTransform: 'uppercase',
+                             flexShrink: 0
+                           }}>
+                             {item.radarType === 'seleccion' ? 'SELECCIÓN' : (item.radarType === 'validados' ? 'VALIDADO' : 'PROPUESTO')}
+                           </span>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#888', fontSize: '0.75rem', fontWeight: '700', marginTop: '3px' }}>
+                           <span>{item.locations?.[0]?.locality || 'Zona Norte'}</span>
+                        </div>
+
+                        {/* Stats Minimalistas (Validados + Referentes) */}
+                        <div style={{ display: 'flex', gap: '15px', marginTop: '10px', borderTop: '1.5px solid #F8F9F5', paddingTop: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#5F7D4A', fontFamily: 'Outfit', fontSize: '0.75rem', fontWeight: '900' }}>
+                             <ShieldCheck size={14} strokeWidth={2.5} /> {item.validation_count || 0}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2D3A20', fontFamily: 'Outfit', fontSize: '0.75rem', fontWeight: '900' }}>
+                             <Users size={14} strokeWidth={2.5} /> {item.referent_count || 0}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ gridColumn: '1 / -1', padding: '5rem 2rem', textAlign: 'center', background: 'white', borderRadius: '40px', border: '1px dashed #E4EBDD' }}>
+                    <div style={{ width: '64px', height: '64px', background: '#F8F9F5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                      <ShoppingBasket size={32} color="#E4EBDD" />
+                    </div>
+                    <h3 style={{ fontWeight: '950', color: '#2D3A20', marginBottom: '1rem' }}>Tu radar está vacío</h3>
+                    <p style={{ color: '#888', maxWidth: '300px', margin: '0 auto 2rem', fontWeight: '600', lineHeight: 1.5 }}>Explorá el mapa y empezá a construir tu ecosistema de confianza alimentaria.</p>
+                    <button onClick={() => router.push('/explorar')} style={{ padding: '1rem 2.5rem', borderRadius: '20px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '1000', cursor: 'pointer', boxShadow: '0 15px 35px rgba(45, 58, 32, 0.15)' }}>IR AL MAPA</button>
+                  </div>
+                )}
               </div>
             </div>
             )
