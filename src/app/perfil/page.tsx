@@ -290,9 +290,9 @@ export default function MerchantProfilePage() {
             <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
               {[
                 { label: 'Validaciones', value: merchant?.validation_count || '0', icon: ShieldCheck, color: '#5F7D4A' },
-                { label: 'Interés IG', value: '18', icon: Instagram, color: '#E1306C' },
-                { label: 'Interés Web', value: '24', icon: ExternalLink, color: '#2D3A20' },
-                { label: 'Interés Wzp', value: '9', icon: MessageSquare, color: '#25D366' }
+                { label: 'Interés IG', value: '0', icon: Instagram, color: '#E1306C' },
+                { label: 'Interés Web', value: '0', icon: ExternalLink, color: '#2D3A20' },
+                { label: 'Interés Wzp', value: '0', icon: MessageSquare, color: '#25D366' }
               ].map((stat, i) => (
                 <div key={i} style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.8rem' }}>
