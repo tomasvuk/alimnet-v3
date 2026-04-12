@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
-          v0.0.7
+          v0.0.8
         </div>
         <MiCuentaContent />
       </div>
@@ -165,7 +165,7 @@ function MiCuentaContent() {
     { id: 'seleccion', label: 'Mi Selección', icon: ShoppingBasket, color: '#5F7D4A' },
     { id: 'conocer', label: 'Por Conocer', icon: MapPin, color: '#3182CE' },
     { id: 'validados', label: 'Validados', icon: ShieldCheck, color: '#5F7D4A' },
-    { id: 'contribuciones', label: 'Contribuciones', icon: Share2, color: '#5F7D4A' }
+    { id: 'contribuciones', label: 'Contribuciones', icon: Sparkles, color: '#5F7D4A' }
   ];
 
   useEffect(() => {
@@ -451,10 +451,8 @@ function MiCuentaContent() {
     { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
     { id: 'perfil', label: 'Mi Perfil', icon: User },
     { id: 'estilo', label: 'Mi Estilo Alimenticio', icon: Sparkles },
-    { id: 'contribuciones', label: 'Mis Contribuciones', icon: Share2 },
-    { id: 'validaciones', label: 'Validaciones', icon: ShieldCheck },
     { id: 'referentes', label: 'Referentes', icon: Users },
-    { id: 'favoritos', label: 'Mi Selección', icon: ShoppingBasket },
+    { id: 'favoritos', label: 'Mi Radar', icon: ShoppingBasket },
     { id: 'recientes', label: 'Recientes', icon: History },
     { id: 'mi-emprendimiento', label: 'Mi Panel Comercial', icon: Package },
     { id: 'sostener', label: 'Sostener Alimnet', icon: Heart, special: true },
