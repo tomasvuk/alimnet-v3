@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
-          v0.0.1
+          v0.0.2
         </div>
         <MiCuentaContent />
       </div>
@@ -470,7 +470,6 @@ function MiCuentaContent() {
                     router.push('/sumate');
                   }
                   setActiveTab(item.id);
-                  if (setIsMobileMenuOpen) setIsMobileMenuOpen(false);
                   setShowSidebar(false);
                   return;
                 }
