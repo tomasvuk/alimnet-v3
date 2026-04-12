@@ -471,9 +471,8 @@ function MiCuentaContent() {
                   }
                   setActiveTab(item.id);
                   if (setIsMobileMenuOpen) setIsMobileMenuOpen(false);
+                  setShowSidebar(false);
                   return;
-                }
-
                 }
                 handleTabChange(item.id); 
                 setShowSidebar(false); 
