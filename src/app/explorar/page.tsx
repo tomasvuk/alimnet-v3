@@ -672,6 +672,23 @@ export default function ExplorarPage() {
     });
 
     const handleAuthEvent = async (session: any) => {
+      // --- [SIMULATION MODE] ---
+      const isSimulated = typeof window !== 'undefined' && localStorage.getItem('social_simulation_mode') === 'true';
+      if (isSimulated) {
+        setIsLoggedIn(true);
+        setUser({ id: 'sim-user-123', email: 'tomas@puliendo.com' });
+        setUserProfile({ 
+          first_name: 'Tomás (SIM)', 
+          last_name: 'Vukojicic', 
+          role: 'admin',
+          avatar_url: '/avatars/v2-front-pastor.png'
+        });
+        setValidatedMerchantIds(new Set([])); // Opcional: inyectar IDs de prueba si querés ver validaciones mock
+        setIsMerchant(true);
+        setLoading(false);
+        return;
+      }
+
       let activeSession = session;
 
       // --- [BRUTE FORCE GOOGLE] Si no hay sesión, buscamos la galletita secreta ---
