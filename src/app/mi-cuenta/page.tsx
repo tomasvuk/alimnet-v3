@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
-          v0.0.10
+          v0.0.11
         </div>
         <MiCuentaContent />
       </div>
@@ -730,7 +730,7 @@ function MiCuentaContent() {
                 gap: isMobile ? '0.8rem' : '1.5rem' 
               }}>
                 {[
-                  { id: 1, label: 'Contribución', val: counts.contributions, icon: Package, color: '#F0F4ED' },
+                  { id: 1, label: 'Contribución', val: counts.contributions, icon: HelpingHand, color: '#F0F4ED' },
                   { id: 2, label: 'Validación', val: counts.validations, icon: ShieldCheck, color: '#F4F1E6' },
                   { id: 3, label: 'Favorito', val: counts.saved, icon: Star, color: '#FFF5F5' },
                   { id: 4, label: 'Referente', val: counts.referents, icon: Users, color: '#F0F7FF' }
@@ -764,6 +764,38 @@ function MiCuentaContent() {
                     </div>
                   </div>
                 )) }
+              </div>
+
+              {/* MIS REFERENTES - v0.0.11 */}
+              <div style={{ marginTop: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+                  <h2 style={{ fontSize: '0.9rem', fontWeight: '1000', color: '#2D3A20', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>Mis Referentes</h2>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A', cursor: 'pointer', background: '#F0F4ED', padding: '6px 14px', borderRadius: '12px' }}>Ver todos</span>
+                </div>
+                <div style={{ display: 'flex', gap: '1.25rem', overflowX: 'auto', paddingBottom: '0.8rem', scrollbarWidth: 'none' }} className="hide-scrollbar">
+                  {referents.length > 0 ? referents.map((ref, idx) => (
+                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', minWidth: '75px', cursor: 'pointer' }}>
+                      <div style={{ 
+                        width: '64px', height: '64px', borderRadius: '24px', 
+                        background: ref.avatar_url ? `url(${ref.avatar_url}) center/cover` : '#F0F4ED',
+                        border: '2.5px solid white', boxShadow: '0 8px 25px rgba(0,0,0,0.06)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
+                        transition: 'all 0.3s ease'
+                      }} className="hover-scale">
+                        {!ref.avatar_url && <User size={28} />}
+                      </div>
+                      <span style={{ fontSize: '0.7rem', fontWeight: '900', color: '#666', textAlign: 'center', maxWidth: '70px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {ref.first_name || 'Referente'}
+                      </span>
+                    </div>
+                  )) : (
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                      {[1,2,3,4].map(i => (
+                        <div key={i} style={{ width: '64px', height: '64px', borderRadius: '24px', background: '#F8F9F5', border: '2px dashed #E4EBDD', opacity: 0.5 }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
                {/* SMART RADAR (Integrado en Mi Actividad) */}
