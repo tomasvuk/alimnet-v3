@@ -134,6 +134,7 @@ function MiCuentaContent() {
   const [validatedMerchants, setValidatedMerchants] = useState<any[]>([]);
   const [merchantData, setMerchantData] = useState<any>(null); // Datos del emprendimiento si es dueño
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showMerchantLoginPopup, setShowMerchantLoginPopup] = useState(false);
   const [croppingImage, setCroppingImage] = useState<{ url: string, type: 'avatar' | 'merchant_logo', aspect: number } | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const merchantLogoInputRef = useRef<HTMLInputElement>(null);
@@ -361,7 +362,7 @@ function MiCuentaContent() {
 
   const menuItems = [
     { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
-    ...(merchantData ? [{ id: 'mi-emprendimiento', label: 'Mi Emprendimiento', icon: Package }] : []),
+    { id: 'mi-emprendimiento', label: 'Mi Panel Comercial', icon: Package },
     { id: 'perfil', label: 'Mi Perfil', icon: User },
     { id: 'estilo', label: 'Mi Estilo Alimenticio', icon: Sparkles },
     { id: 'contribuciones', label: 'Mis Contribuciones', icon: Share2 },
@@ -393,7 +394,18 @@ function MiCuentaContent() {
               key={item.id}
               onClick={() => {
                 if (item.id === 'sostener') { router.push('/sostener'); return; }
-                if (item.id === 'mi-emprendimiento') { router.push('/perfil'); return; }
+                if (item.id === 'mi-emprendimiento') {
+                  if (!user) {
+                    setShowMerchantLoginPopup(true);
+                    return;
+                  }
+                  if (user && !merchantData && profile?.role !== 'admin') {
+                    router.push('/sumate');
+                    return;
+                  }
+                  handleTabChange(item.id);
+                  return;
+                }
                 handleTabChange(item.id);
               }}
               style={{ 
@@ -454,7 +466,19 @@ function MiCuentaContent() {
                   }); 
                   return; 
                 }
-                if (item.id === 'mi-emprendimiento') { router.push('/perfil'); return; }
+                if (item.id === 'mi-emprendimiento') {
+                  if (!user) {
+                    setShowMerchantLoginPopup(true);
+                    return;
+                  }
+                  if (user && !merchantData && profile?.role !== 'admin') {
+                    router.push('/sumate');
+                    return;
+                  }
+                  handleTabChange(item.id);
+                  setShowSidebar(false);
+                  return;
+                }
                 handleTabChange(item.id); 
                 setShowSidebar(false); 
               }}
@@ -828,7 +852,7 @@ function MiCuentaContent() {
             )
           )}
 
-          {activeTab === 'mi-emprendimiento' && merchantData && (
+          {activeTab === 'mi-emprendimiento' && (merchantData || profile?.role === 'admin') && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div style={{ marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>Gestión de Mi Proyecto</h2>
@@ -842,15 +866,15 @@ function MiCuentaContent() {
                       <Package size={32} />
                     </div>
                     <div>
-                      <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>{merchantData.name}</h3>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: '950', color: '#5F7D4A', margin: 0 }}>{merchantData?.name || 'Vista de Administrador'}</h3>
                       <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
-                        <span style={{ fontSize: '0.65rem', fontWeight: '850', background: '#2D3A20', color: 'white', padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>{merchantData.type?.split(',')[0]}</span>
-                        <span style={{ fontSize: '0.65rem', fontWeight: '850', background: '#F0F4ED', color: '#5F7D4A', padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>{merchantData.status}</span>
+                        <span style={{ fontSize: '0.65rem', fontWeight: '850', background: '#2D3A20', color: 'white', padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>{merchantData?.type?.split(',')[0] || 'PANEL DE CONTROL'}</span>
+                        <span style={{ fontSize: '0.65rem', fontWeight: '850', background: '#F0F4ED', color: '#5F7D4A', padding: '3px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>{merchantData?.status || 'MODO ADMIN'}</span>
                       </div>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A' }}>{merchantData.validation_count}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: '950', color: '#5F7D4A' }}>{merchantData?.validation_count || 0}</div>
                     <div style={{ fontSize: '0.65rem', fontWeight: '800', color: '#888', textTransform: 'uppercase' }}>Validaciones Reales</div>
                   </div>
                 </div>
@@ -864,7 +888,7 @@ function MiCuentaContent() {
                       <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Nombre del Proyecto</label>
                       <input 
                         type="text" 
-                        value={merchantFormData.name}
+                        value={merchantFormData.name || ''}
                         onChange={(e) => setMerchantFormData({...merchantFormData, name: e.target.value})}
                         style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
                       />
@@ -875,7 +899,7 @@ function MiCuentaContent() {
                         <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#888', fontWeight: '600' }}>@</span>
                         <input 
                           type="text" 
-                          value={merchantFormData.instagram_url}
+                          value={merchantFormData.instagram_url || ''}
                           onChange={(e) => setMerchantFormData({...merchantFormData, instagram_url: e.target.value})}
                           style={{ width: '100%', padding: '1rem 1rem 1rem 2rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
                         />
@@ -887,7 +911,7 @@ function MiCuentaContent() {
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Descripción Corta (Max 80 caracteres)</label>
                     <input 
                       type="text" 
-                      value={merchantFormData.bio_short}
+                      value={merchantFormData.bio_short || ""}
                       onChange={(e) => setMerchantFormData({...merchantFormData, bio_short: e.target.value})}
                       style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600' }}
                     />
@@ -897,7 +921,7 @@ function MiCuentaContent() {
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', marginBottom: '8px' }}>Historia Completa</label>
                     <textarea 
                       rows={4}
-                      value={merchantFormData.bio_long}
+                      value={merchantFormData.bio_long || ""}
                       onChange={(e) => setMerchantFormData({...merchantFormData, bio_long: e.target.value})}
                       style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD', background: '#F8F9F5', outline: 'none', fontWeight: '600', resize: 'none' }}
                     />
@@ -1735,6 +1759,41 @@ function MiCuentaContent() {
             }
           }}
         />
+      )}
+      {showMerchantLoginPopup && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)', opacity: 0, animation: 'fadeIn 0.3s ease forwards' }}>
+          <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', transform: 'translateY(20px)', animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s', opacity: 0 }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F0F4ED', color: '#5F7D4A', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              <Package size={32} />
+            </div>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: '950', color: '#2D3A20', marginBottom: '0.8rem', letterSpacing: '-0.02em' }}>
+              ¿Sos dueño de un comercio?
+            </h3>
+            <p style={{ fontSize: '0.9rem', color: '#666', fontWeight: '600', marginBottom: '2rem', lineHeight: '1.5' }}>
+              Iniciá sesión para acceder a tu panel de control, o registrate para empezar a formar parte de nuestra comunidad.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+              <button 
+                onClick={() => router.push('/login')}
+                style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: 'none', background: '#2D3A20', color: 'white', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                INICIAR SESIÓN
+              </button>
+              <button 
+                onClick={() => router.push('/sumate')}
+                style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1.5px solid #E4EBDD', background: 'white', color: '#666', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                REGISTRATE
+              </button>
+              <button 
+                onClick={() => setShowMerchantLoginPopup(false)}
+                style={{ width: '100%', padding: '0.8rem', borderRadius: '16px', border: 'none', background: 'transparent', color: '#999', fontWeight: '800', cursor: 'pointer', marginTop: '0.5rem' }}
+              >
+                VOLVER
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
         </div>
