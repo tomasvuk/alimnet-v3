@@ -161,6 +161,13 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const initAdmin = async () => {
+      // --- [SIMULATION MODE] ---
+      const isSimulated = typeof window !== 'undefined' && localStorage.getItem('social_simulation_mode') === 'true';
+      if (isSimulated) {
+        fetchData();
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.replace('/login'); return; }
 
@@ -514,7 +521,7 @@ export default function AdminDashboard() {
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <div style={{ background: '#F0F4ED', color: '#5F7D4A', padding: '10px 20px', borderRadius: '15px', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #E4EBDD' }}>
           <span style={{ fontWeight: 1000, fontSize: '0.8rem' }}>🛡️ CENTRAL DE OPERACIONES</span>
-          <span style={{ fontWeight: 1000, fontSize: '0.9rem', color: '#2D3A20' }}>ALIMNET v0.0.22-PULIENDO</span>
+          <span style={{ fontWeight: 1000, fontSize: '0.9rem', color: '#2D3A20' }}>ALIMNET v0.0.23-PULIENDO</span>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
