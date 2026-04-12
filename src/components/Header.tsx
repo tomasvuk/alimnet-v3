@@ -208,9 +208,14 @@ export default function Header() {
             <MenuItem href="/sostener" icon={<HelpCircle size={18} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
             <MenuItem href="/" icon={<Home size={18} />} label="Home" onClick={() => setShowMenu(false)} />
             
-            <div style={{ height: '1.5px', background: '#F8F9F5', margin: '0.8rem 0.5rem' }} />
+            <div style={{ height: '1px', background: '#F0F4ED', margin: '1rem 0.5rem' }} />
+
+            <MenuItem href="/perfil" icon={<MapIcon size={18} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} variant="text-only" />
+            <MenuItem href="/sumate" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="text-only" />
             
-            {/* ACCIONES DE SESIÓN (MODALIDAD FUERZA BRUTA) */}
+            <div style={{ flex: 1, minHeight: '2rem' }} />
+
+            {/* ACCIONES DE SESIÓN (ESTILO ALIMNET) */}
             <button 
               onClick={async () => {
                 await supabase.auth.signOut();
@@ -218,20 +223,18 @@ export default function Header() {
                 window.location.href = '/';
               }}
               style={{ 
-                marginTop: '1rem', padding: '12px 18px', borderRadius: '20px', border: '1.5px solid #fee2e2',
-                background: '#fef2f2', color: '#dc2626', fontWeight: '1000', fontSize: '0.85rem', 
+                marginTop: '1.5rem', padding: '12px 18px', borderRadius: '18px', border: '1.5px solid #E4EBDD',
+                background: '#F8F9F5', color: '#5F7D4A', fontWeight: '950', fontSize: '0.8rem', 
                 display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', textAlign: 'left',
-                boxShadow: '0 8px 20px rgba(220, 38, 38, 0.08)'
+                boxShadow: '0 4px 12px rgba(95, 125, 74, 0.05)',
+                transition: 'all 0.2s',
+                letterSpacing: '0.02em'
               }}
+              className="hover-fade"
             >
-              <LogOut size={20} strokeWidth={3} />
+              <LogOut size={18} strokeWidth={3} />
               CERRAR SESIÓN
             </button>
-
-            <div style={{ height: '1.5px', background: '#F8F9F5', margin: '1rem 0.5rem' }} />
-
-            <MenuItem href="/perfil" icon={<MapIcon size={18} />} label="MI PANEL COMERCIAL" onClick={() => setShowMenu(false)} variant="text-only" />
-            <MenuItem href="/sumate" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="text-only" />
             
           </div>
         </>
