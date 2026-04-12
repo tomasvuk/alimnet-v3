@@ -10,7 +10,7 @@ export default function SimulationToggle() {
   useEffect(() => {
     // Solo mostrar en puliendo o localhost
     const hostname = window.location.hostname;
-    if (hostname.includes('puliendo') || hostname.includes('localhost')) {
+    if (hostname.includes('puliendo') || hostname.includes('localhost') || hostname.includes('vercel.app')) {
       setIsVisible(true);
       const saved = localStorage.getItem('social_simulation_mode') === 'true';
       setIsSimulated(saved);
@@ -72,7 +72,7 @@ export default function SimulationToggle() {
         </div>
       </div>
       <div style={{ paddingLeft: '15px', fontSize: '10px', fontWeight: '900', color: '#888', letterSpacing: '0.05em' }}>
-        v0.0.20-PULIENDO
+        v0.0.21-PULIENDO
       </div>
     </div>
   );

@@ -413,16 +413,20 @@ export default function AdminDashboard() {
   };
 
   const markAsRead = async (id: string, type: 'CONTACT_FORM' | 'CHATBOT') => {
+    // Actualización optimista: cambiamos la UI al toque
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, status: 'read' } : m));
+    
     try {
       if (type === 'CONTACT_FORM') {
-        await supabase.from('contact_messages').update({ status: 'read' }).eq('id', id);
+        const { error } = await supabase.from('contact_messages').update({ status: 'read' }).eq('id', id);
+        if (error) throw error;
       } else {
-        // En notifications, el status 'sent' se interpreta como leído en nuestra lógica unificada
-        await supabase.from('notifications').update({ status: 'sent' }).eq('id', id);
+        const { error } = await supabase.from('notifications').update({ status: 'sent' }).eq('id', id);
+        if (error) throw error;
       }
-      setMessages(prev => prev.map(m => m.id === id ? { ...m, status: 'read' } : m));
     } catch (e) {
       console.error("Error marking as read:", e);
+      fetchData(); // Si falla, recargamos para mostrar el estado real
     }
   };
 
@@ -510,8 +514,10 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5F7D4A', fontWeight: '900', fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}><ShieldCheck size={18} /> Central de Operaciones</div>
-            <h1 style={{ fontSize: '2.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>Alimnet Control Center</h1>
-            <p style={{ color: '#B2AC88', fontWeight: 800, margin: '8px 0 0 0', fontSize: '1.1rem' }}>Gestionando la red soberana v3.</p>
+            <h1 style={{ fontSize: '2.85rem', fontWeight: '1000', color: '#2D3A20', margin: 0, display: 'flex', alignItems: 'center', gap: '15px' }}>
+              Alimnet Control Center
+              <span style={{ fontSize: '0.8rem', background: '#F0F4ED', padding: '4px 12px', borderRadius: '10px', color: '#5F7D4A', border: '1px solid #E4EBDD' }}>v0.0.21-PULIENDO</span>
+            </h1>            <p style={{ color: '#B2AC88', fontWeight: 800, margin: '8px 0 0 0', fontSize: '1.1rem' }}>Gestionando la red soberana v3.</p>
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.9rem 1.8rem', background: 'white', borderRadius: '16px', color: '#2D3A20', fontWeight: '1000', border: '1.5px solid #F0F4ED', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
