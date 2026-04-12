@@ -7,7 +7,7 @@ import {
   Bell, Award, TrendingUp, Check, X, Plus, Search,
   Map as MapIcon, Loader2, AlertCircle, MessageSquare, 
   ExternalLink, ShieldCheck, LayoutDashboard, History, ShoppingBasket,
-  Activity, Users, Share2, Eye, Sparkles, ArrowLeft,
+  Activity, Users, Share2, Eye, Sparkles, ArrowLeft, ShoppingBag, Compass,
   Navigation, Wheat, Cake, Beef
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
-          v0.0.8
+          v0.0.9
         </div>
         <MiCuentaContent />
       </div>
@@ -448,11 +448,10 @@ function MiCuentaContent() {
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Mi Actividad', icon: LayoutDashboard },
+    { id: 'dashboard', label: 'Mi Radar', icon: ShoppingBag },
     { id: 'perfil', label: 'Mi Perfil', icon: User },
-    { id: 'estilo', label: 'Mi Estilo Alimenticio', icon: Sparkles },
+    { id: 'estilo', label: 'Mi Estilo Alimenticio', icon: Compass },
     { id: 'referentes', label: 'Referentes', icon: Users },
-    { id: 'favoritos', label: 'Mi Radar', icon: ShoppingBasket },
     { id: 'recientes', label: 'Recientes', icon: History },
     { id: 'mi-emprendimiento', label: 'Mi Panel Comercial', icon: Package },
     { id: 'sostener', label: 'Sostener Alimnet', icon: Heart, special: true },
@@ -753,24 +752,82 @@ function MiCuentaContent() {
                 )) }
               </div>
 
-               {/* Activity Timeline Placeholder */}
-               <div style={{ 
-                 background: 'white', padding: isMobile ? '2rem 1.5rem' : '2.5rem', 
-                 borderRadius: '32px', border: '1px solid rgba(0,0,0,0.03)', width: '100%', 
-                 minHeight: '250px', boxShadow: '0 10px 40px rgba(0,0,0,0.02)',
-                 display: 'flex', flexDirection: 'column'
-               }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: '1000', color: '#2D3A20', margin: 0 }}>ACTIVIDAD RECIENTE</h3>
-                    <div style={{ height: '1px', flex: 1, background: 'rgba(0,0,0,0.03)', margin: '0 1.5rem' }}></div>
+               {/* SMART RADAR (Integrado en Mi Actividad) */}
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', marginTop: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '1000', color: '#2D3A20', margin: 0, letterSpacing: '-0.02em' }}>ACTIVIDAD EN TU RADAR</h3>
+                    <div style={{ height: '1.5px', flex: 1, background: '#F0F4ED', margin: '0 1.5rem' }}></div>
                   </div>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#bbb' }}>
-                    <div style={{ width: '50px', height: '50px', background: '#F8F9F5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-                      <History size={20} />
-                    </div>
-                    <p style={{ fontWeight: '800', fontSize: '0.8rem', textAlign: 'center', maxWidth: '200px', lineHeight: '1.5' }}>
-                      Tus últimos descubrimientos aparecerán aquí.
-                    </p>
+
+                  {/* SMART PILLS */}
+                  <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px', marginLeft: '-5px', paddingLeft: '5px' }} className="no-scrollbar">
+                    {RADAR_FILTERS.map(f => (
+                      <button 
+                        key={f.id}
+                        onClick={() => setRadarFilter(f.id)}
+                        style={{ 
+                          background: radarFilter === f.id ? '#2D3A20' : 'white',
+                          color: radarFilter === f.id ? 'white' : '#5F7D4A',
+                          padding: '10px 22px', borderRadius: '999px', border: '1.5px solid',
+                          borderColor: radarFilter === f.id ? '#2D3A20' : '#E4EBDD',
+                          fontWeight: '850', fontSize: '0.8rem', whiteSpace: 'nowrap', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                          boxShadow: radarFilter === f.id ? '0 10px 20px rgba(45, 58, 32, 0.15)' : 'none'
+                        }}
+                      >
+                        <f.icon size={16} />
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* CARDS LIST */}
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.2rem' }}>
+                    {radarItems.length > 0 ? (
+                      radarItems.map(item => (
+                        <div 
+                          key={`${item.id}-${item.radarType}`}
+                          onClick={() => router.push(`/explorar?id=${item.id}`)}
+                          style={{ 
+                            background: 'white', padding: '1.2rem', borderRadius: '28px', border: '1px solid #F0F4ED', 
+                            display: 'flex', alignItems: 'center', gap: '1.2rem', cursor: 'pointer',
+                            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
+                          }}
+                          className="card-hover"
+                        >
+                          <div style={{ 
+                            width: '60px', height: '60px', borderRadius: '20px', 
+                            background: item.logo_url ? `url(${item.logo_url}) center/cover` : '#F8F9F5',
+                            border: '1px solid #E4EBDD', flexShrink: 0
+                          }} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                               <h4 style={{ margin: 0, color: '#2D3A20', fontFamily: 'Outfit', fontWeight: '950', fontSize: '1rem', letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                 {item.name}
+                               </h4>
+                               <span style={{ fontSize: '0.55rem', fontWeight: '1000', color: '#5F7D4A', background: '#F0F4ED', padding: '4px 10px', borderRadius: '8px', letterSpacing: '0.05em', textTransform: 'uppercase', flexShrink: 0 }}>
+                                 {item.radarType === 'seleccion' ? 'SELECCIÓN' : (item.radarType === 'validados' ? 'VALIDADO' : 'APORTE')}
+                               </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#888', fontSize: '0.75rem', fontWeight: '700', marginTop: '3px' }}>
+                               <span>{item.locations?.[0]?.locality || 'Zona Norte'}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '15px', marginTop: '10px', borderTop: '1.5px solid #F8F9F5', paddingTop: '10px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#5F7D4A', fontFamily: 'Outfit', fontSize: '0.75rem', fontWeight: '900' }}>
+                                 <ShieldCheck size={14} strokeWidth={2.5} /> {item.validation_count || 0}
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2D3A20', fontFamily: 'Outfit', fontSize: '0.75rem', fontWeight: '900' }}>
+                                 <Users size={14} strokeWidth={2.5} /> {item.referent_count || 0}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ gridColumn: '1 / -1', padding: '4rem 1rem', textAlign: 'center', background: 'white', borderRadius: '32px', border: '1.5px dashed #F0F4ED' }}>
+                         <p style={{ color: '#bbb', fontWeight: '850', fontSize: '0.8rem' }}>No hay actividad para este filtro en tu zona.</p>
+                      </div>
+                    )}
                   </div>
                </div>
             </div>
