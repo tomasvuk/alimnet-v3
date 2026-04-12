@@ -144,20 +144,23 @@ export default function Header() {
         <AlimnetLoader size={18} />
       </div>
         ) : !user ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
+          <div style={{ 
+            display: 'flex', alignItems: 'center', background: 'white', 
+            padding: '3px 3px 3px 18px', borderRadius: '18px', border: '1px solid #E4EBDD',
+            gap: '1.2rem', boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+          }}>
             <button 
               onClick={() => router.push('/login')}
-              style={{ background: 'transparent', border: 'none', color: '#5F7D4A', fontWeight: '900', cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.02em' }}
+              style={{ background: 'transparent', border: 'none', color: '#5F7D4A', fontWeight: '950', cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.02em', padding: 0 }}
             >
               INGRESAR
             </button>
             <button 
               onClick={() => router.push('/login?mode=signup')}
               style={{ 
-                padding: '0.6rem 1.2rem', borderRadius: '14px', background: '#5F7D4A', color: 'white', 
+                padding: '0.5rem 1.2rem', borderRadius: '15px', background: '#5F7D4A', color: 'white', 
                 fontWeight: '950', fontSize: '0.75rem', border: 'none', cursor: 'pointer',
-                boxShadow: '0 8px 20px rgba(95, 125, 74, 0.15)', transition: 'all 0.2s',
-                letterSpacing: '0.02em'
+                transition: 'all 0.2s', letterSpacing: '0.02em'
               }}
               className="hover-scale"
             >
