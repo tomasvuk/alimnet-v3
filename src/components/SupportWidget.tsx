@@ -140,7 +140,7 @@ export default function SupportWidget() {
 
       {/* Versión del build */}
       <div style={{ fontSize: '9px', fontWeight: '800', color: '#AAA', textAlign: 'center', letterSpacing: '0.03em', pointerEvents: 'none', userSelect: 'none' }}>
-        v4.1.8
+        
       </div>
 
       <style jsx>{`

@@ -1515,6 +1515,9 @@ function MiCuentaContent() {
 
               </div>
               <style jsx>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
                 @keyframes fadeInUp {
                   to { opacity: 1; transform: translateY(0); }
                 }
@@ -1761,8 +1764,8 @@ function MiCuentaContent() {
         />
       )}
       {showMerchantLoginPopup && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)', opacity: 0, animation: 'fadeIn 0.3s ease forwards' }}>
-          <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', transform: 'translateY(20px)', animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s', opacity: 0 }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)', animation: 'fadeIn 0.3s ease forwards' }}>
+          <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s' }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F0F4ED', color: '#5F7D4A', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
               <Package size={32} />
             </div>

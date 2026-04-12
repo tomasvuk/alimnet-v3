@@ -52,7 +52,7 @@ export default function MerchantProfilePage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deployId] = useState('v4.1.7-ESFERA-SOLA ✨');
+  const [deployId] = useState('');
   const [isMobileView, setIsMobileView] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [emailStatsEnabled, setEmailStatsEnabled] = useState(true);
@@ -383,7 +383,7 @@ export default function MerchantProfilePage() {
                              </span>
                            )}
                            {formData.logo_url && (
-                             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', opacity: 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }} className="hover-overlay-v3">
+                             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)',  transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }} className="hover-overlay-v3">
                                <Upload size={20} />
                              </div>
                            )}
@@ -404,7 +404,7 @@ export default function MerchantProfilePage() {
                                e.target.value = '';
                              }}
                              style={{
-                               position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 10
+                               position: 'absolute', inset: 0,  cursor: 'pointer', width: '100%', height: '100%', zIndex: 10
                              }}
                            />
                         </div>
@@ -443,7 +443,7 @@ export default function MerchantProfilePage() {
                                       e.target.value = '';
                                     }}
                                     style={{
-                                      position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', zIndex: 10
+                                      position: 'absolute', inset: 0,  cursor: 'pointer', width: '100%', height: '100%', zIndex: 10
                                     }}
                                   />
                                </div>
@@ -664,7 +664,7 @@ export default function MerchantProfilePage() {
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#F8F9F5', display: 'flex', flexDirection: 'column', paddingTop: '56px' }}>
       <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
-        v4.1.7-ESFERA-SOLA ✨
+        
       </div>
       <Header />
       
@@ -684,7 +684,7 @@ export default function MerchantProfilePage() {
         </div>
       )}
 
-      {isMobileView && (
+      {!showGuestPopup && isMobileView && (
         <div style={{ background: 'white', borderBottom: '1px solid #E4EBDD', padding: '0.6rem 1rem', display: 'flex', gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', position: 'sticky', top: '56px', zIndex: 4000 }}>
            {[
             { id: 'inicio', label: 'Panel', icon: BarChart3 },
@@ -699,7 +699,7 @@ export default function MerchantProfilePage() {
         </div>
       )}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {!isMobileView && (
+        {!showGuestPopup && !isMobileView && (
           <div style={{ display: isMobileView ? 'none' : 'flex', width: '240px', background: 'white', borderRight: '1px solid #E4EBDD', padding: '2rem 1rem', flexDirection: 'column', gap: '0.6rem', position: 'sticky', top: '56px', height: 'calc(100vh - 56px)' }}>
              {[
                { id: 'inicio', label: 'Mi Panel', icon: BarChart3 },
@@ -719,7 +719,7 @@ export default function MerchantProfilePage() {
           </div>
         )}
         <div style={{ flex: 1, padding: isMobileView ? '1rem' : '2.5rem', maxWidth: '1200px', margin: '0 auto', width: '100%', overflowY: 'auto' }}>
-           {renderContent()}
+           {showGuestPopup ? null : renderContent()}
         </div>
       </div>
       {showChat && (
@@ -806,7 +806,7 @@ export default function MerchantProfilePage() {
       )}
 
       {showGuestPopup && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)', opacity: 0, animation: 'fadeIn 0.3s ease forwards' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(5px)',  animation: 'fadeIn 0.3s ease forwards' }}>
           <div style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', transform: 'translateY(20px)', animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s', opacity: 0 }}>
             <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#F0F4ED', color: '#5F7D4A', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
               <Package size={32} />
@@ -843,6 +843,8 @@ export default function MerchantProfilePage() {
 
       <style jsx>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
       `}</style>
     </div>
   );
