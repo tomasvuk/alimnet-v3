@@ -8,7 +8,7 @@ import {
   Map as MapIcon, Loader2, AlertCircle, MessageSquare, 
   ExternalLink, ShieldCheck, LayoutDashboard, History, ShoppingBasket,
   Activity, Users, Share2, Eye, Sparkles, ArrowLeft, Compass,
-  Navigation, Wheat, Cake, Beef, Backpack
+  Navigation, Wheat, Cake, Beef, Backpack, Radar, Bookmark, HelpingHand
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -32,7 +32,7 @@ export default function MiCuentaPage() {
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'fixed', bottom: '8px', right: '35px', fontSize: '10px', fontWeight: '800', color: '#888', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
-          v0.0.9
+          v0.1.0
         </div>
         <MiCuentaContent />
       </div>
@@ -162,11 +162,12 @@ function MiCuentaContent() {
 
   const RADAR_FILTERS = [
     { id: 'todos', label: 'Todos', icon: LayoutDashboard },
-    { id: 'seleccion', label: 'Mi Selección', icon: Backpack, color: '#5F7D4A' },
+    { id: 'seleccion', label: 'Guardados', icon: Bookmark, color: '#5F7D4A' },
+    { id: 'favoritos', label: 'Favoritos', icon: Star, color: '#E4B613' },
     { id: 'conocer', label: 'Por Conocer', icon: MapPin, color: '#3182CE' },
     { id: 'validados', label: 'Validados', icon: ShieldCheck, color: '#5F7D4A' },
-    { id: 'contribuciones', label: 'Contribuciones', icon: Sparkles, color: '#5F7D4A' }
-  ];
+    { id: 'contribuciones', label: 'Contribuciones', icon: HelpingHand, color: '#5F7D4A' }
+  ] as const;
 
   useEffect(() => {
     // --- DETECTOR DE GOOGLE (RADAR DE CUENTA) ---
@@ -232,27 +233,41 @@ function MiCuentaContent() {
       all.push({ ...m, radarType: 'validados' });
     });
 
-    // 2. Selección
+    // 2. Selección / Guardados
     savedMerchants.forEach(m => {
       if (!all.find(x => x.id === m.id)) {
-        all.push({ ...m, radarType: 'seleccion' });
+        all.push({ ...m, radarType: 'seleccion' }); // 'seleccion' maps to 'Guardados' pill
       }
     });
 
-    // 3. Contribuciones
+    // 3. Favoritos (Placeholder logic: for now, we'll use a subset of savedMerchants)
+    // In a future update, we will add an 'is_favorite' column to the DB
+    savedMerchants.slice(0, 2).forEach(m => {
+       all.push({ ...m, radarType: 'favoritos' });
+    });
+
+    // 4. Contribuciones
     contributions.forEach(m => {
       if (!all.find(x => x.id === m.id)) {
         all.push({ ...m, radarType: 'contribuciones' });
       }
     });
 
-    // 4. Calcular stats sociales y filtrar
+    // 5. Calcular stats sociales y filtrar
     const itemsWithStats = all.map(item => {
       const refCount = referentValidations.filter(rv => rv.merchant_id === item.id).length;
       return { ...item, referent_count: refCount };
     });
 
-    if (radarFilter === 'todos') return itemsWithStats;
+    if (radarFilter === 'todos') {
+      // Don't show duplicates in 'Todos'
+      const seen = new Set();
+      return itemsWithStats.filter(item => {
+        if (seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+      });
+    }
     return itemsWithStats.filter(item => item.radarType === radarFilter);
   }, [validatedMerchants, savedMerchants, contributions, radarFilter, referentValidations]);
 
@@ -448,7 +463,7 @@ function MiCuentaContent() {
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Mi Radar', icon: Backpack },
+    { id: 'dashboard', label: 'Mi Actividad', icon: Radar },
     { id: 'perfil', label: 'Mi Perfil', icon: User },
     { id: 'estilo', label: 'Mi Estilo Alimenticio', icon: Compass },
     { id: 'mi-emprendimiento', label: 'Mi Panel Comercial', icon: Package },
@@ -676,7 +691,7 @@ function MiCuentaContent() {
                     ¡Hola, {profile?.first_name || 'Alimneter'}! 👋
                   </h1>
                   <div style={{ width: '40px', height: '4px', background: '#5F7D4A', borderRadius: '10px', marginTop: '12px' }}></div>
-                  <p style={{ color: '#888', fontWeight: '800', fontSize: '0.85rem', letterSpacing: '0.02em', marginTop: '15px' }}>Tu radar de confianza alimentaria.</p>
+                  <p style={{ color: '#888', fontWeight: '800', fontSize: '0.85rem', letterSpacing: '0.02em', marginTop: '15px' }}>Tu actividad y red de confianza alimentaria.</p>
               </div>
 
                {/* ALIMNET TIPS - Fineza Layer */}
@@ -805,7 +820,7 @@ function MiCuentaContent() {
                                  {item.name}
                                </h4>
                                <span style={{ fontSize: '0.55rem', fontWeight: '1000', color: '#5F7D4A', background: '#F0F4ED', padding: '4px 10px', borderRadius: '8px', letterSpacing: '0.05em', textTransform: 'uppercase', flexShrink: 0 }}>
-                                 {item.radarType === 'seleccion' ? 'SELECCIÓN' : (item.radarType === 'validados' ? 'VALIDADO' : 'APORTE')}
+                                 {item.radarType === 'seleccion' ? 'GUARDADO' : (item.radarType === 'favoritos' ? 'FAVORITO' : (item.radarType === 'validados' ? 'VALIDADO' : 'CONTRIBUCIÓN'))}
                                </span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#888', fontSize: '0.75rem', fontWeight: '700', marginTop: '3px' }}>
