@@ -31,8 +31,8 @@ export default function MiCuentaPage() {
   return (
     <Suspense fallback={<AlimnetLoader fullScreen />}>
       <div style={{ position: 'relative' }}>
-        <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '10px', fontWeight: '1000', color: '#AAA', zIndex: 10000, pointerEvents: 'none' }}>
-          v4.1.8-MODO-INVITADO ✨
+        <div style={{ position: 'fixed', bottom: '4px', right: '8px', fontSize: '9px', fontWeight: '800', color: '#CCC', zIndex: 10000, pointerEvents: 'none', letterSpacing: '0.5px' }}>
+          v0.0.0
         </div>
         <MiCuentaContent />
       </div>
@@ -1360,6 +1360,7 @@ function MiCuentaContent() {
                 </div>
               </div>
             </div>
+            )
           )}
 
           {activeTab === 'estilo' && (
