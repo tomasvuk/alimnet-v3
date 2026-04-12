@@ -838,6 +838,14 @@ function MiCuentaContent() {
                         </div>
                       ))
                     ) : (
+                      <div style={{ textAlign: 'center', padding: '4rem 2rem', background: '#F8F9F5', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
+                        <div style={{ width: '64px', height: '64px', background: 'white', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#5F7D4A', boxShadow: '0 10px 20px rgba(0,0,0,0.02)' }}>
+                          <Radar size={32} />
+                        </div>
+                        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '950', color: '#2D3A20' }}>No hay actividad aún</h3>
+                        <p style={{ margin: '8px 0 0', fontSize: '0.85rem', color: '#888', fontWeight: '700' }}>Explorá el mapa para sumar validaciones, favoritos y aportes a tu red.</p>
+                      </div>
+                    )}
                   </div>
                </div>
             </div>
