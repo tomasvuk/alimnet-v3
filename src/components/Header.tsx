@@ -91,7 +91,20 @@ export default function Header() {
         .select('*')
         .eq('id', session.user.id)
         .single();
-      if (profile) setProfile(profile);
+      if (profile) {
+        setProfile(profile);
+        
+        // --- [ONBOARDING GUARD] ---
+        // Si el usuario está logueado pero no tiene nombre/apellido, lo mandamos a bienvenida
+        // (Evitamos el redirect si ya está en la página de bienvenida)
+        if (!profile.first_name || !profile.last_name) {
+          const currentPath = window.location.pathname;
+          if (currentPath !== '/bienvenida' && !currentPath.includes('/api/')) {
+            console.log("[HEADER]: Onboarding incompleto, redirigiendo...");
+            router.push('/bienvenida');
+          }
+        }
+      }
       
       // Sincronizar cookie proactivamente
       setAuthCookie(session);
