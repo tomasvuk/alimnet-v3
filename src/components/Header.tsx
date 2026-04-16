@@ -174,7 +174,7 @@ export default function Header() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         <AlimnetLoader size={18} />
       </div>
-        } : !user ? (
+        ) : !user ? (
           <div style={{ 
             display: 'flex', alignItems: 'center', background: 'white', 
             padding: isMobileView ? '2px 2px 2px 12px' : '3px 3px 3px 18px', borderRadius: '18px', border: '1px solid #E4EBDD',
