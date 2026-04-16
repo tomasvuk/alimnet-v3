@@ -90,7 +90,7 @@ export default function BienvenidaPage() {
              <img src="/logo.png" alt="Alimnet Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <h1 style={{ fontSize: '2.2rem', fontWeight: '950', textAlign: 'center', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.02em', lineHeight: '1.1' }}>
-             ¡Nos alegra que seas parte de esta red!
+             ¡Nos alegra que seas<br />parte de esta red!
           </h1>
           <p style={{ textAlign: 'center', color: '#666', fontWeight: '600', marginBottom: '2.5rem' }}>Para conocer a los productores y participar, necesitamos saber quién sos.</p>
           
