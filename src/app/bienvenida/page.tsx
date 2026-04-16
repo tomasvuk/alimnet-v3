@@ -15,11 +15,16 @@ export default function BienvenidaPage() {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      /* 
       if (!session) {
         router.push('/login');
         return;
       }
-      const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', session.user.id).single();
+      */
+      const { data: profile } = session 
+        ? await supabase.from('profiles').select('first_name, last_name').eq('id', session.user.id).single() 
+        : { data: null };
+        
       if (profile?.first_name && profile?.last_name) {
         router.push('/explorar');
       } else {
