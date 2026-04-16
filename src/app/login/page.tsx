@@ -138,7 +138,7 @@ function LoginContent() {
                 const { error } = await supabase.auth.signInWithOAuth({
                   provider: 'google',
                   options: { 
-                    redirectTo: `${origin}/api/auth/callback?next=/explorar` 
+                    redirectTo: `${origin}/explorar` 
                   }
                 });
                 if (error) {

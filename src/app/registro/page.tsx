@@ -118,7 +118,7 @@ export default function RegistroPage() {
                 await supabase.auth.signInWithOAuth({
                   provider: 'google',
                   options: { 
-                    redirectTo: `${window.location.origin}/api/auth/callback?next=/explorar` 
+                    redirectTo: `${window.location.origin}/explorar` 
                   }
                 });
               }}

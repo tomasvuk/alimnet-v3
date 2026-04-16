@@ -90,36 +90,20 @@ export default function Header() {
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
-        .single();
-      // --- [ONBOARDING GUARD AGRESIVO] ---
-      let currentProfile = profile;
-      
-      // Si el fetch falló o es muy rápido, intentamos re-chequear
-      if (!currentProfile) {
-        const { data: retryProfile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        currentProfile = retryProfile;
-      }
+        .maybeSingle(); // Usamos maybeSingle para evitar errores si el perfil no existe aún
 
-      if (currentProfile) {
-        setProfile(currentProfile);
-        if (!currentProfile.first_name || !currentProfile.last_name) {
-          const currentPath = window.location.pathname;
-          if (currentPath !== '/bienvenida' && !currentPath.includes('/api/')) {
-            console.log("[HEADER]: Onboarding incompleto, redirigiendo...");
-            router.push('/bienvenida');
-          }
-        }
-      } else {
-        // Si no hay perfil en absoluto (usuario nuevo total), también lo mandamos a bienvenida
+      // --- [ONBOARDING GUARD ULTIMATE] ---
+      let p = profile;
+      
+      if (!p || !p.first_name || !p.last_name) {
         const currentPath = window.location.pathname;
         if (currentPath !== '/bienvenida' && !currentPath.includes('/api/')) {
+          console.log("[HEADER]: Onboarding incompleto (ULTIMATE), redirigiendo...");
           router.push('/bienvenida');
         }
       }
+      
+      if (p) setProfile(p);
       
       // Sincronizar cookie proactivamente
       setAuthCookie(session);
