@@ -141,74 +141,6 @@ const ADVANCED_CATEGORIES = {
 };
 const PRODUCT_OPTIONS = OFFICIAL_CATEGORIES;
 
-function IdentityWallModal({ isOpen, user, onComplete }: { isOpen: boolean, user: any, onComplete: () => void }) {
-  const [formData, setFormData] = useState({ first_name: '', last_name: '' });
-  const [loading, setLoading] = useState(false);
-
-  if (!isOpen) return null;
-
-  const handleSave = async () => {
-    if (!formData.first_name || !formData.last_name) return;
-    setLoading(true);
-    try {
-      const { error } = await supabase.from('profiles').update({
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        full_name: `${formData.first_name} ${formData.last_name}`
-      }).eq('id', user.id);
-      if (error) throw error;
-      onComplete();
-    } catch (e) { console.error(e); }
-    setLoading(false);
-  };
-
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(255,255,255,0.92)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(10px)' }}>
-       <div style={{ width: '92%', maxWidth: '500px', background: 'white', borderRadius: '40px', padding: '3rem', boxShadow: '0 40px 100px rgba(0,0,0,0.15)', border: '1px solid #E4EBDD', textAlign: 'center' }}>
-          <div style={{ width: '80px', height: '80px', background: '#F0F4ED', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
-             <Leaf size={40} color="#5F7D4A" />
-          </div>
-          <h2 style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.02em' }}>¡Sumate a Alimnet!</h2>
-          <p style={{ color: '#666', fontWeight: '750', fontSize: '1.05rem', lineHeight: '1.5', marginBottom: '2.5rem' }}>
-             Para interactuar con la comunidad y conocer a los productores, necesitamos saber quién eres.
-          </p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2.5rem' }}>
-             <div style={{ textAlign: 'left' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Nombre</label>
-                <input 
-                   placeholder="Tu nombre real"
-                   value={formData.first_name}
-                   onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                   style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '800', fontSize: '1rem', color: '#2D3A20' }}
-                />
-             </div>
-             <div style={{ textAlign: 'left' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: '900', color: '#5F7D4A', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Apellido Oficial</label>
-                <input 
-                   placeholder="Tu apellido real"
-                   value={formData.last_name}
-                   onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                   style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '800', fontSize: '1rem', color: '#2D3A20' }}
-                />
-             </div>
-          </div>
-
-          <button 
-             onClick={handleSave}
-             disabled={!formData.first_name || !formData.last_name || loading}
-             style={{ width: '100%', padding: '1.4rem', borderRadius: '22px', background: '#5F7D4A', color: 'white', border: 'none', fontWeight: '1000', fontSize: '1.1rem', cursor: (formData.first_name && formData.last_name) ? 'pointer' : 'not-allowed', opacity: (formData.first_name && formData.last_name) ? 1 : 0.5, boxShadow: '0 10px 25px rgba(95, 125, 74, 0.2)', transition: 'all 0.3s' }}
-          >
-             {loading ? 'Identificando...' : 'Comenzar a explorar'}
-          </button>
-          
-          <p style={{ marginTop: '2rem', fontSize: '0.75rem', color: '#ADB5BD', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-             Unite a la Soberanía Alimentaria
-          </p>
-       </div>
-    </div>
-  );
-}
 
 function AdvancedFiltersModal({ isOpen, onClose, selectedFilters, toggleFilter, clearAll, resultCount, userProfile, router, isStyleActive, setIsStyleActive, setShowStyleWarning }: { isOpen: boolean, onClose: () => void, selectedFilters: string[], toggleFilter: (f:string)=>void, clearAll: ()=>void, resultCount: number, userProfile: any, router: any, isStyleActive: boolean, setIsStyleActive: (v:boolean)=>void, setShowStyleWarning: (v:boolean)=>void }) {
   // --- Soporte para tecla ESC ---
@@ -461,7 +393,6 @@ export default function ExplorarPage() {
   const [searchCoords, setSearchCoords] = useState<{ lat: number, lng: number } | null>(null);
   const [radiusKm, setRadiusKm] = useState<number>(30);
   const [finalCoords, setFinalCoords] = useState<{ lat: number, lng: number } | null>(null);
-  const [showIdentityWall, setShowIdentityWall] = useState(false);
   const [isStyleActive, setIsStyleActive] = useState(false);
   const [showStyleWarning, setShowStyleWarning] = useState(false);
   const [currentMapBounds, setCurrentMapBounds] = useState<L.LatLngBounds | null>(null);
@@ -719,14 +650,14 @@ export default function ExplorarPage() {
         const { data: pData } = await supabase.from('profiles').select('*').eq('id', activeSession.user.id).single();
         if (pData) {
           setUserProfile(pData);
-          // DETECTOR DE IDENTIDAD: Si faltan nombre o apellido, activamos el muro (MANDATORIO)
+          // SI FALTAN DATOS, REDIRIGIR A BIENVENIDA
           if (!pData.first_name || !pData.last_name) {
-            setShowIdentityWall(true);
+            router.push('/bienvenida');
           }
           // Limpiamos la localidad del buscador inicial (Pedida por Tomas V-9.3.0)
           // setInitialLocationFromProfile(pData.locality); -> Obtenida de forma silenciosa por las coordenadas
         } else {
-          setShowIdentityWall(true);
+          router.push('/bienvenida');
         }
         
         // Validaciones
@@ -1134,7 +1065,7 @@ export default function ExplorarPage() {
   };
 
   const handleValidate = async (merchantId: string) => {
-    if (!user || !selectedMerchant) { setShowIdentityWall(true); return; }
+    if (!user || !selectedMerchant) { router.push('/login'); return; }
     if (userValidated) return;
     
     try {
@@ -1182,7 +1113,7 @@ export default function ExplorarPage() {
   }, [selectedMerchant?.id, user?.id]);
 
   const handleLikeToggle = async () => {
-    if (!user || !selectedMerchant) { setShowIdentityWall(true); return; }
+    if (!user || !selectedMerchant) { router.push('/login'); return; }
     const prev = userLiked;
     setUserLiked(!prev);
     if (prev) await supabase.from('favorites').delete().eq('merchant_id', selectedMerchant.id).eq('user_id', user.id);
@@ -1190,7 +1121,7 @@ export default function ExplorarPage() {
   };
 
   const handleSaveToggle = async () => {
-    if (!user || !selectedMerchant) { setShowIdentityWall(true); return; }
+    if (!user || !selectedMerchant) { router.push('/login'); return; }
     const prev = userSaved;
     setUserSaved(!prev);
     if (prev) await supabase.from('user_saved_merchants').delete().eq('merchant_id', selectedMerchant.id).eq('user_id', user.id);
@@ -1848,20 +1779,6 @@ export default function ExplorarPage() {
           onComplete={() => setShowOnboarding(false)} 
         />
       )}
-      {/* MURO DE IDENTIDAD (MANDATORY) */}
-      <IdentityWallModal 
-        isOpen={showIdentityWall} 
-        user={user} 
-        onComplete={() => {
-          setShowIdentityWall(false);
-          // Recargar el perfil después de completar
-          if (user) {
-            supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => {
-              if (data) setUserProfile(data);
-            });
-          }
-        }} 
-      />
 
       {/* SLIDE-UP DE VALIDADORES (V-10.0) */}
       <div 
