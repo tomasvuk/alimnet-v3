@@ -95,11 +95,25 @@ export default function Header() {
       // --- [ONBOARDING GUARD ULTIMATE] ---
       let p = profile;
       
+      // SOLO REDIRIGIR SI: Tenemos usuario Y el perfil NO existe o está incompleto
+      // Pero damos un pequeño margen para no romper el flujo de Google
       if (!p || !p.first_name || !p.last_name) {
         const currentPath = window.location.pathname;
         if (currentPath !== '/bienvenida' && !currentPath.includes('/api/')) {
-          console.log("[HEADER]: Onboarding incompleto (ULTIMATE), redirigiendo...");
-          router.push('/bienvenida');
+          // Si no hay perfil, intentamos una vez más antes de echar al usuario al onboarding
+          if (!p) {
+             const { data: secondProfile } = await supabase
+               .from('profiles')
+               .select('*')
+               .eq('id', session.user.id)
+               .maybeSingle();
+             p = secondProfile;
+          }
+
+          if (!p || !p.first_name || !p.last_name) {
+            console.log("[HEADER]: Onboarding incompleto (ULTIMATE), redirigiendo...");
+            router.push('/bienvenida');
+          }
         }
       }
       

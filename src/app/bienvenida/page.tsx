@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Leaf, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AlimnetLoader from '@/components/AlimnetLoader';
+import { setAuthCookie } from '@/lib/auth-utils';
 
 export default function BienvenidaPage() {
   const router = useRouter();
@@ -13,22 +14,56 @@ export default function BienvenidaPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    // 1. Escuchar cambios de sesión (Crucial para OAuth Google)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("[BIENVENIDA AUTH EVENT]:", event, !!session);
+      if (session) {
+        checkProfile(session);
+      } else if (event === 'SIGNED_OUT') {
         router.push('/login');
-        return;
       }
-      
-      const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', session.user.id).single();
-      
-      if (profile?.first_name && profile?.last_name) {
-        router.push('/explorar');
-      } else {
+    });
+
+    const checkProfile = async (session: any) => {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, first_name, last_name')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        
+        if (profile?.first_name && profile?.last_name) {
+          console.log("[BIENVENIDA]: Perfil completo, redirigiendo a explorar...");
+          window.location.href = '/explorar';
+        } else {
+          setChecking(false);
+        }
+      } catch (err) {
+        console.error("Error checking profile:", err);
         setChecking(false);
       }
     };
-    checkUser();
+
+    // 2. Chequeo inicial manual
+    const initCheck = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        checkProfile(session);
+      } else {
+        // Damos un pequeño margen para que Google OAuth se asiente
+        setTimeout(async () => {
+          const { data: { session: retrySession } } = await supabase.auth.getSession();
+          if (retrySession) {
+            checkProfile(retrySession);
+          } else {
+            router.push('/login');
+          }
+        }, 1500);
+      }
+    };
+
+    initCheck();
+    return () => subscription.unsubscribe();
   }, [router]);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -37,17 +72,24 @@ export default function BienvenidaPage() {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No session');
+      if (!session) throw new Error('No hay sesión activa.');
 
-      const { error } = await supabase.from('profiles').update({
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        full_name: `${formData.first_name} ${formData.last_name}`
-      }).eq('id', session.user.id);
+      // USAMOS UPSERT: Crea el registro si no existe (importante si falló el trigger)
+      const { error } = await supabase.from('profiles').upsert({
+        id: session.user.id,
+        email: session.user.email,
+        first_name: formData.first_name.trim(),
+        last_name: formData.last_name.trim(),
+        full_name: `${formData.first_name.trim()} ${formData.last_name.trim()}`,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
       
       if (error) throw error;
 
-      // Trigger Welcome Email via Notifications table
+      // Sincronizar cookie de sesión antes de avanzar
+      setAuthCookie(session);
+
+      // Gatillar Email de Bienvenida
       const userLang = navigator.language?.startsWith('es') ? 'es' : 'en';
       const { data: notification } = await supabase
         .from('notifications')
@@ -64,16 +106,18 @@ export default function BienvenidaPage() {
         }).select().single();
 
       if (notification) {
-        // We trigger the process route
         fetch('/api/notifications/process', {
           method: 'POST',
           body: JSON.stringify({ notificationId: notification.id })
-        }).catch(err => console.error('Email process failed:', err));
+        }).catch(err => console.error('Email trigger failed:', err));
       }
 
-      router.push('/explorar');
-    } catch (e) {
+      console.log("[BIENVENIDA]: Guardado exitoso, avanzando...");
+      // Forzamos un hard redirect para que el Header y Mapa vean los datos frescos
+      window.location.href = '/explorar';
+    } catch (e: any) {
       console.error('Error saving profile:', e);
+      alert('Hubo un problema al guardar tus datos: ' + (e.message || 'Error desconocido'));
       setLoading(false);
     }
   };

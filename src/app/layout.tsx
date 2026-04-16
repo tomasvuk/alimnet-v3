@@ -4,6 +4,8 @@ import "./globals.css";
 import 'leaflet/dist/leaflet.css';
 import PageTransition from "@/components/PageTransition";
 import SupportWidget from "@/components/SupportWidget";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -54,6 +56,8 @@ export default function RootLayout({
         <PageTransition>{children}</PageTransition>
         <SupportWidget />
         <SimulationToggle />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
