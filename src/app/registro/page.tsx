@@ -85,7 +85,7 @@ export default function RegistroPage() {
         console.error('Error creating welcome notification:', err);
       }
 
-      router.push('/explorar');
+      router.push('/bienvenida');
     }
   };
 
