@@ -176,7 +176,7 @@ export default function Header() {
               INGRESAR
             </button>
             <button 
-              onClick={() => router.push('/login?mode=signup')}
+              onClick={() => router.push('/registro')}
               style={{ 
                 padding: '0.5rem 1.2rem', borderRadius: '15px', background: '#5F7D4A', color: 'white', 
                 fontWeight: '950', fontSize: '0.75rem', border: 'none', cursor: 'pointer',
