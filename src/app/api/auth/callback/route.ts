@@ -14,7 +14,17 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (!error && data.session) {
-      const response = NextResponse.redirect(`${origin}${next}`);
+      // Check if profile is complete
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('id', data.session.user.id)
+        .single();
+
+      const isNewUser = !profile?.first_name || !profile?.last_name;
+      const redirectUrl = isNewUser ? `${origin}/bienvenida` : `${origin}${next}`;
+      
+      const response = NextResponse.redirect(redirectUrl);
       
       // Optimizamos la cookie para móviles (Máximo 4kb)
       const essentialSession = {
