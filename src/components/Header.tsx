@@ -91,18 +91,33 @@ export default function Header() {
         .select('*')
         .eq('id', session.user.id)
         .single();
-      if (profile) {
-        setProfile(profile);
-        
-        // --- [ONBOARDING GUARD] ---
-        // Si el usuario está logueado pero no tiene nombre/apellido, lo mandamos a bienvenida
-        // (Evitamos el redirect si ya está en la página de bienvenida)
-        if (!profile.first_name || !profile.last_name) {
+      // --- [ONBOARDING GUARD AGRESIVO] ---
+      let currentProfile = profile;
+      
+      // Si el fetch falló o es muy rápido, intentamos re-chequear
+      if (!currentProfile) {
+        const { data: retryProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        currentProfile = retryProfile;
+      }
+
+      if (currentProfile) {
+        setProfile(currentProfile);
+        if (!currentProfile.first_name || !currentProfile.last_name) {
           const currentPath = window.location.pathname;
           if (currentPath !== '/bienvenida' && !currentPath.includes('/api/')) {
             console.log("[HEADER]: Onboarding incompleto, redirigiendo...");
             router.push('/bienvenida');
           }
+        }
+      } else {
+        // Si no hay perfil en absoluto (usuario nuevo total), también lo mandamos a bienvenida
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/bienvenida' && !currentPath.includes('/api/')) {
+          router.push('/bienvenida');
         }
       }
       
