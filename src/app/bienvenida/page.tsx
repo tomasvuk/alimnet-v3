@@ -15,16 +15,13 @@ export default function BienvenidaPage() {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      /* 
       if (!session) {
         router.push('/login');
         return;
       }
-      */
-      const { data: profile } = session 
-        ? await supabase.from('profiles').select('first_name, last_name').eq('id', session.user.id).single() 
-        : { data: null };
-        
+      
+      const { data: profile } = await supabase.from('profiles').select('first_name, last_name').eq('id', session.user.id).single();
+      
       if (profile?.first_name && profile?.last_name) {
         router.push('/explorar');
       } else {
@@ -86,11 +83,13 @@ export default function BienvenidaPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9F5', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
        <div style={{ maxWidth: '450px', width: '100%', background: 'white', borderRadius: '40px', padding: '3.5rem', boxShadow: '0 20px 50px rgba(63, 82, 50, 0.1)' }}>
-          <div style={{ width: '70px', height: '70px', background: '#F0F4ED', borderRadius: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
-             <Leaf size={35} color="#5F7D4A" />
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 2rem', border: '5px solid #F0F4ED' }}>
+             <img src="/logo.png" alt="Alimnet Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
-          <h1 style={{ fontSize: '2rem', fontWeight: '950', textAlign: 'center', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.02em' }}>¡Hola! Sumate por primera vez.</h1>
-          <p style={{ textAlign: 'center', color: '#666', fontWeight: '600', marginBottom: '2.5rem' }}>Para conocer a los productores y participar, necesitamos saber quién eres.</p>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: '950', textAlign: 'center', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.02em', lineHeight: '1.1' }}>
+             ¡Nos alegra que seas parte de esta red!
+          </h1>
+          <p style={{ textAlign: 'center', color: '#666', fontWeight: '600', marginBottom: '2.5rem' }}>Para conocer a los productores y participar, necesitamos saber quién sos.</p>
           
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             <div>
