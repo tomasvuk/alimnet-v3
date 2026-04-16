@@ -29,49 +29,49 @@ export default function SimulationToggle() {
     window.location.reload();
   };
 
-  if (!isVisible) return null;
-
   return (
     <div style={{ 
       position: 'fixed', bottom: '20px', left: '20px', zIndex: 99999,
       display: 'flex', flexDirection: 'column', gap: '8px',
       pointerEvents: 'none'
     }}>
-      <div 
-        style={{ 
-          display: 'flex', alignItems: 'center', gap: '10px',
-          background: isSimulated ? '#5F7D4A' : '#2D3A20',
-          padding: '8px 15px', borderRadius: '999px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-          border: '2px solid rgba(255,255,255,0.1)',
-          cursor: 'pointer',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          color: 'white',
-          fontFamily: 'Inter, sans-serif',
-          pointerEvents: 'auto'
-        }}
-        onClick={toggleSimulation}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {isSimulated ? <UserCheck size={16} /> : <Ghost size={16} />}
-          <span style={{ fontSize: '11px', fontWeight: '900', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-            {isSimulated ? 'Modo: Usuario (SIM)' : 'Modo: Invitado'}
-          </span>
-        </div>
-        <div style={{ 
-          width: '32px', height: '18px', background: 'rgba(255,255,255,0.2)', 
-          borderRadius: '10px', position: 'relative', transition: 'all 0.3s'
-        }}>
-          <div style={{ 
-            width: '14px', height: '14px', background: 'white', borderRadius: '50%',
-            position: 'absolute', top: '2px', 
-            left: isSimulated ? '16px' : '2px',
+      {isVisible && (
+        <div 
+          style={{ 
+            display: 'flex', alignItems: 'center', gap: '10px',
+            background: isSimulated ? '#5F7D4A' : '#2D3A20',
+            padding: '8px 15px', borderRadius: '999px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            border: '2px solid rgba(255,255,255,0.1)',
+            cursor: 'pointer',
             transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-          }} />
+            color: 'white',
+            fontFamily: 'Inter, sans-serif',
+            pointerEvents: 'auto'
+          }}
+          onClick={toggleSimulation}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {isSimulated ? <UserCheck size={16} /> : <Ghost size={16} />}
+            <span style={{ fontSize: '11px', fontWeight: '900', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              {isSimulated ? 'Modo: Usuario (SIM)' : 'Modo: Invitado'}
+            </span>
+          </div>
+          <div style={{ 
+            width: '32px', height: '18px', background: 'rgba(255,255,255,0.2)', 
+            borderRadius: '10px', position: 'relative', transition: 'all 0.3s'
+          }}>
+            <div style={{ 
+              width: '14px', height: '14px', background: 'white', borderRadius: '50%',
+              position: 'absolute', top: '2px', 
+              left: isSimulated ? '16px' : '2px',
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+            }} />
+          </div>
         </div>
-      </div>
-      <div style={{ paddingLeft: '15px', fontSize: '10px', fontWeight: '900', color: '#888', letterSpacing: '0.05em' }}>
+      )}
+      <div style={{ paddingLeft: '15px', fontSize: '10px', fontWeight: '900', color: '#888', letterSpacing: '0.05em', opacity: 0.6 }}>
         v0.0.28-AIR
       </div>
     </div>
