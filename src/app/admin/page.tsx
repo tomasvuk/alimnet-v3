@@ -521,7 +521,7 @@ export default function AdminDashboard() {
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <div style={{ background: '#F0F4ED', color: '#5F7D4A', padding: '10px 20px', borderRadius: '15px', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #E4EBDD' }}>
           <span style={{ fontWeight: 1000, fontSize: '0.8rem' }}>🛡️ CENTRAL DE OPERACIONES</span>
-          <span style={{ fontWeight: 1000, fontSize: '0.9rem', color: '#2D3A20' }}>ALIMNET v0.0.27-PROD</span>
+          <span style={{ fontWeight: 1000, fontSize: '0.9rem', color: '#2D3A20' }}>ALIMNET v0.0.28-AIR</span>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>

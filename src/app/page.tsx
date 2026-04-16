@@ -49,7 +49,7 @@ export default function Home() {
 
       {/* 2. HERO PRINCIPAL */}
       <section className="hero-section" style={{ 
-        padding: "clamp(6rem, 15vw, 10rem) clamp(1.5rem, 5vw, 3rem)", 
+        padding: "clamp(8rem, 20vw, 12rem) clamp(1.5rem, 5vw, 3rem) clamp(6rem, 15vw, 10rem)", 
         position: "relative", 
         overflow: "hidden", 
         textAlign: "left",

@@ -1145,7 +1145,7 @@ export default function ExplorarPage() {
       </div>
 
       <div className={`filter-bar ${stickyFilters ? 'is-sticky' : ''}`} style={{ 
-        padding: isMobile ? '70px 1rem 0.8rem' : '72px 1.5rem 0.8rem', 
+        padding: isMobile ? '80px 1rem 1rem' : '90px 1.5rem 1rem', 
         background: 'white', 
         borderBottom: '1px solid #E4EBDD',
         zIndex: (isMobile && mobileView === 'map') ? 10090 : 1400, // Por encima del mapa en modo mapa
@@ -1463,7 +1463,7 @@ export default function ExplorarPage() {
             {(filteredMerchants.length === 0 || potentialDuplicateCandidates.length > 0) && searchQuery.trim().length > 3 && (
               <div 
                 style={{ 
-                  padding: '1.5rem', background: '#F8F9F5', borderRadius: '24px', 
+                  padding: '2.5rem 1.5rem 1.5rem', background: '#F8F9F5', borderRadius: '24px', 
                   border: '1.5px dashed #5F7D4A', textAlign: 'center',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
                   display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center'

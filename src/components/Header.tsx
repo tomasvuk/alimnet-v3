@@ -112,7 +112,7 @@ export default function Header() {
 
   return (
     <header style={{ 
-      padding: "0.6rem 1.5rem", 
+      padding: isMobileView ? "0.6rem 0.8rem" : "0.6rem 1.5rem", 
       display: "flex", 
       justifyContent: "space-between", 
       alignItems: "center",
@@ -128,58 +128,69 @@ export default function Header() {
       {/* Brand Logo */}
       <div 
         onClick={() => router.push('/')}
-        style={{ fontSize: "1.2rem", fontWeight: "950", color: "#2D3A20", letterSpacing: "-0.05em", cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+        style={{ 
+          fontSize: isMobileView ? "1.05rem" : "1.2rem", 
+          fontWeight: "950", color: "#2D3A20", 
+          letterSpacing: "-0.05em", cursor: 'pointer', 
+          display: "flex", alignItems: "center", gap: "8px",
+          padding: "10px 0", // Área de click más grande
+          height: "100%"
+        }}
       >
         ALIMNET
       </div>
 
       {/* Acciones */}
-      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: isMobileView ? "0.5rem" : "1rem", alignItems: "center" }}>
         
-        <button 
-          onClick={() => router.push('/explorar')}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: '8px', background: 'transparent', 
-            border: 'none', cursor: 'pointer', color: '#5F7D4A', fontWeight: '850', fontSize: '0.8rem'
-          }}
-        >
-          <MapIcon size={18} />
-          {!isMobileView && <span>EXPLORAR</span>}
-        </button>
+        {!isMobileView && (
+          <>
+            <button 
+              onClick={() => router.push('/explorar')}
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: '8px', background: 'transparent', 
+                border: 'none', cursor: 'pointer', color: '#5F7D4A', fontWeight: '850', fontSize: '0.8rem'
+              }}
+            >
+              <MapIcon size={18} />
+              <span>EXPLORAR</span>
+            </button>
 
-        <button 
-          onClick={() => router.push('/sumate')}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: '8px', background: '#F0F4ED', 
-            padding: '8px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', 
-            color: '#5F7D4A', fontWeight: '950', fontSize: '0.8rem'
-          }}
-        >
-          <Plus size={18} strokeWidth={3} />
-          {!isMobileView && <span>SUMAR</span>}
-        </button>
+            <button 
+              onClick={() => router.push('/sumate')}
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: '8px', background: '#F0F4ED', 
+                padding: '8px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', 
+                color: '#5F7D4A', fontWeight: '950', fontSize: '0.8rem'
+              }}
+            >
+              <Plus size={18} strokeWidth={3} />
+              <span>SUMAR</span>
+            </button>
+          </>
+        )}
 
         {loading ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         <AlimnetLoader size={18} />
       </div>
-        ) : !user ? (
+        } : !user ? (
           <div style={{ 
             display: 'flex', alignItems: 'center', background: 'white', 
-            padding: '3px 3px 3px 18px', borderRadius: '18px', border: '1px solid #E4EBDD',
-            gap: '1.2rem', boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+            padding: isMobileView ? '2px 2px 2px 12px' : '3px 3px 3px 18px', borderRadius: '18px', border: '1px solid #E4EBDD',
+            gap: isMobileView ? '0.4rem' : '1.2rem', boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
           }}>
             <button 
               onClick={() => router.push('/login')}
-              style={{ background: 'transparent', border: 'none', color: '#5F7D4A', fontWeight: '950', cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.02em', padding: 0 }}
+              style={{ background: 'transparent', border: 'none', color: '#5F7D4A', fontWeight: '950', cursor: 'pointer', fontSize: isMobileView ? '0.65rem' : '0.75rem', letterSpacing: '0.02em', padding: "8px 0" }}
             >
               INGRESAR
             </button>
             <button 
               onClick={() => router.push('/registro')}
               style={{ 
-                padding: '0.5rem 1.2rem', borderRadius: '15px', background: '#5F7D4A', color: 'white', 
-                fontWeight: '950', fontSize: '0.75rem', border: 'none', cursor: 'pointer',
+                padding: isMobileView ? '0.45rem 0.8rem' : '0.5rem 1.2rem', borderRadius: '15px', background: '#5F7D4A', color: 'white', 
+                fontWeight: '950', fontSize: isMobileView ? '0.65rem' : '0.75rem', border: 'none', cursor: 'pointer',
                 transition: 'all 0.2s', letterSpacing: '0.02em'
               }}
               className="hover-scale"
@@ -241,7 +252,15 @@ export default function Header() {
                />
              )}
             
-            <MenuItem href="/explorar" icon={<MapIcon size={18} />} label="Mapa de Alimentos" onClick={() => setShowMenu(false)} />
+            {/* OPCIONES DE NAVEGACIÓN (MÓVIL) */}
+            {isMobileView && (
+              <>
+                <MenuItem href="/explorar" icon={<MapIcon size={18} />} label="MAPA DE ALIMENTOS" onClick={() => setShowMenu(false)} variant="button" />
+                <MenuItem href="/sumate" icon={<Plus size={18} />} label="REGISTRAR MI COMERCIO" onClick={() => setShowMenu(false)} variant="button" />
+                <div style={{ height: '1px', background: '#F0F4ED', margin: '0.5rem 0.5rem' }} />
+              </>
+            )}
+
             <MenuItem href="/sostener" icon={<HelpCircle size={18} />} label="Sostener Alimnet" onClick={() => setShowMenu(false)} />
             <MenuItem href="/" icon={<Home size={18} />} label="Home" onClick={() => setShowMenu(false)} />
             
