@@ -34,6 +34,10 @@ import {
 } from 'lucide-react';
 import Header from '@/components/Header';
 import AlimnetLoader from '@/components/AlimnetLoader';
+import AdminTabs from './components/AdminTabs';
+import IntelligenceTab from './components/IntelligenceTab';
+import DataTable from './components/DataTable';
+import MessagesTab from './components/MessagesTab';
 
 // --- Tipos ---
 interface Location {
@@ -79,12 +83,13 @@ interface Donation {
 
 interface Message {
   id: string;
+  created_at: string;
   sender_name: string;
   sender_email: string;
   subject: string;
   message: string;
-  status: 'unread' | 'read' | 'archived';
-  created_at: string;
+  status: 'read' | 'unread';
+  type: 'CHATBOT' | 'CONTACT_FORM';
 }
 
 // --- Iconos Consistentes con el Mapa ---
@@ -104,7 +109,6 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'usuarios' | 'pagos' | 'analytics'>('comercios');
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [donationsLoading, setDonationsLoading] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -154,10 +158,11 @@ export default function AdminDashboard() {
   
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
+  const [topCities, setTopCities] = useState<{ locality: string, count: number }[]>([]);
 
   useEffect(() => {
     fetchData();
-  }, [analyticsTimeRange]); // Recargar analytics cuando cambie el rango temporal
+  }, [analyticsTimeRange]);
 
   useEffect(() => {
     const initAdmin = async () => {
@@ -237,6 +242,17 @@ export default function AdminDashboard() {
       }));
       
       setUsers(processedUsers);
+      
+      // Calculate Top Cities
+      const cityMap: Record<string, number> = {};
+      processedUsers.forEach(u => {
+        const city = u.locality || 'Sin definir';
+        cityMap[city] = (cityMap[city] || 0) + 1;
+      });
+      const cityList = Object.entries(cityMap)
+        .map(([locality, count]) => ({ locality, count }))
+        .sort((a, b) => b.count - a.count);
+      setTopCities(cityList);
     } catch (e) {
       console.error("Error fetching users:", e);
     }
@@ -502,16 +518,7 @@ export default function AdminDashboard() {
     setIsSaving(false);
   };
 
-  const filteredMerchants = merchants.filter(m => {
-    const s = searchTerm.toLowerCase();
-    const matchSearch = (m.name || '').toLowerCase().includes(s) || (m.type || '').toLowerCase().includes(s);
-    const matchProv = filterProvince === 'all' || m.province === filterProvince;
-    const matchType = filterType === 'all' || m.type === filterType;
-    const matchVer = filterVerification === 'all' || 
-                    (filterVerification === 'verified' && (m.verified || m.owner_id)) ||
-                    (filterVerification === 'unverified' && !m.verified && !m.owner_id);
-    return matchSearch && matchProv && matchType && matchVer;
-  });
+  if (loading) return <AlimnetLoader fullScreen />;
 
   if (loading) return <AlimnetLoader fullScreen />;
 
@@ -601,16 +608,32 @@ export default function AdminDashboard() {
         </div>
 
         <div style={{ background: 'white', borderRadius: '40px', padding: '2.5rem', boxShadow: '0 30px 60px rgba(0,0,0,0.04)', border: '1px solid #E4EBDD' }}>
-          <div style={{ display: 'flex', gap: '2rem', borderBottom: '1px solid #F0F4ED', marginBottom: '2.5rem', overflowX: 'auto' }}>
-            <TabItem active={activeTab === 'comercios'} label="Comercios" onClick={() => setActiveTab('comercios')} count={merchants.length} />
-            <TabItem active={activeTab === 'pendientes'} label="Por Aprobar" onClick={() => setActiveTab('pendientes')} count={stats.pendingApprovals} />
-            <TabItem active={activeTab === 'usuarios'} label="Usuarios" onClick={() => { setActiveTab('usuarios'); fetchUsers(); }} count={stats.totalUsers} />
-            <TabItem active={activeTab === 'mensajes'} label="Mensajes" onClick={() => setActiveTab('mensajes')} count={messages.filter(m => m.status === 'unread').length} />
-            <TabItem active={activeTab === 'analytics'} label="Inteligencia" onClick={() => setActiveTab('analytics')} />
-            <TabItem active={activeTab === 'pagos'} label="Pagos" onClick={() => { setActiveTab('pagos'); fetchDonations(); }} />
-          </div>
+          <AdminTabs 
+          activeTab={activeTab} 
+          setActiveTab={(tab) => {
+            setActiveTab(tab);
+            if (tab === 'usuarios' && users.length === 0) fetchUsers();
+            if (tab === 'pagos' && donations.length === 0) fetchDonations();
+          }} 
+          counts={{
+            merchants: merchants.length,
+            pending: stats.pendingApprovals,
+            users: stats.totalUsers,
+            messages: messages.filter(m => m.status === 'unread').length
+          }}
+        />
 
-          {activeTab === 'usuarios' ? (
+          {activeTab === 'comercios' || activeTab === 'pendientes' ? (
+             <DataTable 
+               merchants={activeTab === 'pendientes' ? merchants.filter(m => m.status === 'pending') : merchants}
+               searchTerm={searchTerm}
+               setSearchTerm={setSearchTerm}
+               onUpdateStatus={updateMerchantStatus}
+               onUpdateContactStatus={updateContactStatus}
+               onToggleVerified={toggleVerified}
+               onOpenEdit={openEditModal}
+             />
+          ) : activeTab === 'usuarios' ? (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -684,161 +707,23 @@ export default function AdminDashboard() {
                 <DonationsList donations={donations} loading={donationsLoading} />
              </div>
           ) : activeTab === 'analytics' ? (
-             <div style={{ padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', background: '#F0F4ED', padding: '1rem 2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
-                   <div>
-                      <h3 style={{ margin: 0, fontWeight: 1000, color: '#2D3A20', fontSize: '1.3rem' }}>Análisis de Demanda y Tracción</h3>
-                      <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#5F7D4A', fontWeight: 800 }}>Filtrando datos por {analyticsTimeRange === 'day' ? 'Hoy' : analyticsTimeRange === 'week' ? 'Semana' : analyticsTimeRange === 'month' ? 'Mes' : analyticsTimeRange === 'quarter' ? 'Trimestre' : 'Año'}</p>
-                   </div>
-                   <div style={{ display: 'flex', gap: '8px', background: 'white', padding: '6px', borderRadius: '15px', border: '1px solid #E4EBDD' }}>
-                      {[
-                        { id: 'day', label: 'Hoy' },
-                        { id: 'week', label: 'Semana' },
-                        { id: 'month', label: 'Mes' },
-                        { id: 'quarter', label: 'Trimestre' },
-                        { id: 'year', label: 'Año' }
-                      ].map(range => (
-                        <button 
-                          key={range.id}
-                          onClick={() => setAnalyticsTimeRange(range.id as any)}
-                          style={{
-                            padding: '8px 16px', borderRadius: '10px', border: 'none',
-                            background: analyticsTimeRange === range.id ? '#5F7D4A' : 'transparent',
-                            color: analyticsTimeRange === range.id ? 'white' : '#5F7D4A',
-                            fontWeight: '1000', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s'
-                          }}
-                        >
-                          {range.label.toUpperCase()}
-                        </button>
-                      ))}
-                   </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
-                   {/* Searches */}
-                   <div>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-                         <Search size={20} color="#5F7D4A" /> Top Búsquedas (Demanda)
-                      </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                     {topSearches.map(([query, count], index) => (
-                        <div key={query} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#F8F9F5', padding: '12px 20px', borderRadius: '16px', border: '1px solid #F0F4ED' }}>
-                           <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.8rem', width: '20px' }}>{index + 1}</span>
-                           <span style={{ fontWeight: 900, color: '#2D3A20', flex: 1, textTransform: 'capitalize' }}>{query}</span>
-                           <span style={{ fontWeight: 1000, color: '#5F7D4A', background: '#E4EBDD', padding: '4px 10px', borderRadius: '8px', fontSize: '0.8rem' }}>{count}</span>
-                        </div>
-                     ))}
-                     {topSearches.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay datos suficientes aún.</div>}
-                  </div>
-               </div>
-
-               {/* Merchants */}
-               <div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-                     <ArrowUpRight size={20} color="#A67C00" /> Comercios con más Tracción
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                     {topMerchants.map((m, index) => (
-                        <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'white', padding: '12px 20px', borderRadius: '16px', border: '1px solid #F0F4ED', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                           <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.8rem', width: '20px' }}>{index + 1}</span>
-                           <span style={{ fontWeight: 1000, color: '#2D3A20', flex: 1 }}>{m.name}</span>
-                           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#A67C00', fontWeight: 900, fontSize: '0.85rem' }}>
-                              <Heart size={14} fill="#A67C00" /> {m.clicks}
-                           </div>
-                        </div>
-                     ))}
-                     {topMerchants.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay datos suficientes aún.</div>}
-                  </div>
-               </div>
-            </div>
-          </div>
+             <IntelligenceTab 
+               stats={stats}
+               topSearches={topSearches}
+               topMerchants={topMerchants}
+               analyticsTimeRange={analyticsTimeRange}
+               setAnalyticsTimeRange={setAnalyticsTimeRange}
+               topCities={topCities}
+             />
           ) : activeTab === 'mensajes' ? (
-            <div style={{ overflowX: 'auto' }}>
-               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                 <thead><tr><th style={THStyle}>FECHA</th><th style={THStyle}>TIPO</th><th style={THStyle}>REMITENTE</th><th style={THStyle}>ASUNTO / MENSAJE</th><th style={THStyle}>ACCIONES</th></tr></thead>
-                 <tbody>
-                   {(messages as any[]).map(m => (
-                     <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED', opacity: m.status === 'read' ? 0.6 : 1, transition: 'opacity 0.3s' }}>
-                       <td style={{ padding: 20, fontSize: '0.75rem', fontWeight: 800, color: '#B2AC88' }}>{new Date(m.created_at).toLocaleDateString()}</td>
-                       <td style={{ padding: 20 }}>
-                          <span style={{ ...BadgeStyle, background: m.type === 'CHATBOT' ? '#2D3A20' : '#F0F4ED', color: m.type === 'CHATBOT' ? 'white' : '#2D3A20' }}>
-                            {m.type === 'CHATBOT' ? 'WIDGET' : 'WEB FORM'}
-                          </span>
-                       </td>
-                       <td style={{ padding: 20 }}>
-                          <div style={{fontWeight:900, fontSize: '0.9rem'}}>{m.sender_name}</div>
-                          <div style={{fontSize:'0.75rem', color:'#888', fontWeight: 700}}>{m.sender_email}</div>
-                       </td>
-                       <td style={{ padding: 20 }}>
-                          <div style={{fontWeight:800, color: m.status === 'read' ? '#888' : '#5F7D4A', fontSize: '0.8rem', marginBottom: 4}}>{m.subject}</div>
-                          <div style={{fontSize: '0.85rem', color: '#666', fontWeight: 600, maxWidth: 400}}>{m.message}</div>
-                       </td>
-                       <td style={{ padding: 20 }}>
-                          {m.status !== 'read' ? (
-                            <button 
-                              onClick={() => markAsRead(m.id, m.type)}
-                              style={{ background: '#5F7D4A', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 900, fontSize: '0.7rem', padding: '6px 12px', borderRadius: '8px' }}
-                            >
-                              MARCAR LEÍDO
-                            </button>
-                          ) : (
-                            <span style={{ color: '#5F7D4A', fontWeight: 1000, fontSize: '0.7rem' }}>✓ LEÍDO</span>
-                          )}
-                       </td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-             </div>
+             <MessagesTab 
+               messages={messages} 
+               onMarkAsRead={markAsRead} 
+             />
           ) : (
-            <>
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ position: 'relative', flex: '1 1 300px' }}>
-                  <Search style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#B2AC88' }} size={18} />
-                  <input type="text" placeholder="Buscar comercio o rubro..." value={searchTerm} onChange={(e)=>setSearchTerm(e.target.value)} style={{ width: '100%', padding: '1rem 3.5rem', borderRadius: 20, border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: 800 }} />
-                </div>
-                <select value={filterProvince} onChange={(e)=>setFilterProvince(e.target.value)} style={FilterSelectStyle}>
-                  <option value="all">Todas las Provincias</option>
-                  {provinces.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-                <select value={filterVerification} onChange={(e)=>setFilterVerification(e.target.value)} style={FilterSelectStyle}>
-                  <option value="all">Filtro Sello</option>
-                  <option value="verified">✅ Verificados Oficiales</option>
-                  <option value="unverified">🔸 Comunitarios</option>
-                </select>
-              </div>
-
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr>
-                      <th style={THStyle}>COMERCIO</th>
-                      <th style={THStyle}>PROVINCIA</th>
-                      <th style={THStyle}>ESTADO</th>
-                      <th style={THStyle}>CONTACTO</th>
-                      <th style={THStyle}>ACCIONES</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(activeTab === 'pendientes' ? merchants.filter(m => m.status === 'pending') : filteredMerchants).map(m => (
-                      <MerchantRow 
-                        key={m.id} 
-                        merchant={m} 
-                        expanded={expandedId === m.id} 
-                        toggle={() => setExpandedId(expandedId === m.id ? null : m.id)}
-                        onUpdateStatus={updateMerchantStatus}
-                        onUpdateContactStatus={updateContactStatus}
-                        onToggleVerified={toggleVerified}
-                        onOpenEdit={openEditModal}
-                      />
-                    ))}
-                    {merchants.length === 0 && !loading && (
-                       <tr><td colSpan={5} style={{padding:80, textAlign:'center', color:'#B2AC88'}}>No se encontraron comercios.</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </>
+             <div style={{ padding: '40px', textAlign: 'center', color: '#B2AC88', fontWeight: 800 }}>
+               Selecciona una pestaña para comenzar.
+             </div>
           )}
         </div>
       </main>
@@ -876,134 +761,6 @@ export default function AdminDashboard() {
         </div>
       )}
     </div>
-  );
-}
-
-function KPICard({ label, value, trend, icon }: any) {
-  return (
-    <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B2AC88' }}>{icon} <span style={{fontSize:'0.7rem'}}>{trend}</span></div>
-      <div style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: '10px 0' }}>{value}</div>
-      <div style={{ fontSize: '0.75rem', fontWeight: '900', color: '#B2AC88', textTransform: 'uppercase' }}>{label}</div>
-    </div>
-  );
-}
-
-function TabItem({ active, label, onClick, count }: any) {
-  const isMessages = label === 'Mensajes';
-  const hasUnread = isMessages && count > 0;
-
-  return (
-    <div onClick={onClick} style={{ 
-      padding: '1rem 0', cursor: 'pointer', 
-      borderBottom: active ? '3px solid #5F7D4A' : '3px solid transparent', 
-      color: active ? '#2D3A20' : '#B2AC88', 
-      fontWeight: 950, display: 'flex', gap: 8, alignItems: 'center'
-    }}>
-      {label} 
-      {count !== undefined && (
-        <span style={{
-          fontSize: 10, 
-          background: hasUnread ? '#EF4444' : '#F0F4ED', 
-          color: hasUnread ? 'white' : '#5F7D4A',
-          padding: '2px 8px', 
-          borderRadius: 8,
-          boxShadow: hasUnread ? '0 0 10px rgba(239, 68, 68, 0.3)' : 'none',
-          animation: hasUnread ? 'pulse-unread 1.5s infinite' : 'none'
-        }}>
-          {count}
-        </span>
-      )}
-      <style>{`
-        @keyframes pulse-unread {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.15); }
-          100% { transform: scale(1); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function ActivityBadge({ icon, count, color, title }: any) {
-  return (
-    <div title={title} style={{display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:1000, color: color, background: `${color}10`, padding:'4px 8px', borderRadius:8}}>
-      {icon} {count}
-    </div>
-  );
-}
-
-function CategoryStat({ label, value, icon, color = '#2D3A20' }: any) {
-  return (
-    <div style={{ textAlign: 'center', flex: 1 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#B2AC88', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px' }}>
-        {icon} {label}
-      </div>
-      <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: color }}>{value}</div>
-    </div>
-  );
-}
-
-function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateContactStatus, onToggleVerified, onOpenEdit }: any) {
-  const missing = [];
-  if (!merchant.instagram_url) missing.push('Insta');
-  if (!merchant.type) missing.push('Tipo');
-
-  return (
-    <>
-      <tr onClick={toggle} style={{ borderBottom: '1px solid #F0F4ED', cursor: 'pointer', background: merchant.verified ? '#FDFAF0' : 'white' }}>
-        <td style={{ padding: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontWeight: 1000 }}>{merchant.name}</span>
-            {(merchant.verified || merchant.owner_id) ? (
-              <ShieldCheck size={16} color="#A67C00" style={{transform:'rotate(-5deg)'}} />
-            ) : (
-              <span style={{fontSize:10, color:'#B45309', background:'#FEF3C7', padding:'2px 6px', borderRadius:4}}>COMUNITARIO</span>
-            )}
-          </div>
-          {missing.length > 0 && <div style={{fontSize:10, color:'#EF4444', fontWeight:900, marginTop:4}}>FALTA: {missing.join(', ')}</div>}
-        </td>
-        <td style={{ padding: 20, color:'#888', fontWeight:800 }}>{merchant.province || 'No def.'}</td>
-        <td style={{ padding: 20 }}>
-          <span style={{ ...BadgeStyle, background: merchant.status === 'active' ? '#DCFCE7' : '#FEE2E2', color: merchant.status === 'active' ? '#166534' : '#991B1B' }}>{merchant.status.toUpperCase()}</span>
-        </td>
-        <td style={{ padding: 20 }}>
-          <select value={merchant.contact_status || 'sin_contacto'} onChange={(e)=>{ e.stopPropagation(); onUpdateContactStatus(merchant.id, e.target.value); }} style={{padding:6, borderRadius:8, border:'1px solid #E4EBDD', fontSize:11, fontWeight:900}}>
-            <option value="sin_contacto">SIN CONTACTO</option>
-            <option value="contactado">CONTACTADO</option>
-            <option value="verificado">VERIFICADO</option>
-          </select>
-        </td>
-        <td style={{ padding: 20 }}>
-          <div style={{display:'flex', gap:10}}>
-            <button onClick={(e)=>{ e.stopPropagation(); onOpenEdit(merchant); }} style={{background:'none', border:'none', color:'#5F7D4A'}}><Edit size={18}/></button>
-            {expanded ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}
-          </div>
-        </td>
-      </tr>
-      {expanded && (
-        <tr>
-          <td colSpan={5} style={{ padding: 40, background: '#F8F9F5' }}>
-            <div style={{ display: 'flex', gap: 40 }}>
-               <div style={{flex: 1}}>
-                 <h4 style={{fontWeight:1000, marginBottom:15}}>Análisis de Comercio</h4>
-                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
-                    <div>
-                        <div style={StatLabel}>Aval de la Comunidad</div>
-                        <div style={{fontSize:'1.8rem', fontWeight:1000, color:'#A67C00'}}>{merchant.validation_count || 0}</div>
-                    </div>
-                 </div>
-               </div>
-               <div style={{width:200, display:'flex', flexDirection:'column', gap:10}}>
-                  <button onClick={()=>onUpdateStatus(merchant.id, 'active')} style={{padding:12, background:'#5F7D4A', color:'white', border:'none', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>APROBAR</button>
-                  <button onClick={()=>onUpdateStatus(merchant.id, 'rejected')} style={{padding:12, background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>RECHAZAR</button>
-                  <button onClick={()=>onToggleVerified(merchant.id, merchant.verified)} style={{padding:12, background:'#A67C00', color:'white', border:'none', borderRadius:10, fontWeight:1000, cursor:'pointer'}}>{merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}</button>
-               </div>
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
   );
 }
 
@@ -1056,9 +813,37 @@ function DonationsList({ donations, loading }: any) {
     );
 }
 
+function KPICard({ label, value, trend, icon }: any) {
+  return (
+    <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B2AC88' }}>{icon} <span style={{fontSize:'0.7rem'}}>{trend}</span></div>
+      <div style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: '10px 0' }}>{value}</div>
+      <div style={{ fontSize: '0.75rem', fontWeight: '900', color: '#B2AC88', textTransform: 'uppercase' }}>{label}</div>
+    </div>
+  );
+}
+
+function ActivityBadge({ icon, count, color, title }: any) {
+  return (
+    <div title={title} style={{display:'flex', alignItems:'center', gap:4, fontSize:11, fontWeight:1000, color: color, background: `${color}10`, padding:'4px 8px', borderRadius:8}}>
+      {icon} {count}
+    </div>
+  );
+}
+
+function CategoryStat({ label, value, icon, color = '#2D3A20' }: any) {
+  return (
+    <div style={{ textAlign: 'center', flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#B2AC88', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '4px' }}>
+        {icon} {label}
+      </div>
+      <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: color }}>{value}</div>
+    </div>
+  );
+}
+
 const THStyle = { padding: '1.2rem 1rem', fontSize: '0.75rem', fontWeight: '950', color: '#B2AC88', textTransform: 'uppercase' as const, textAlign: 'left' as const };
 const BadgeStyle = { padding: '6px 12px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: '1000' };
 const LabelStyle = { display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#5F7D4A', textTransform: 'uppercase' as const, marginBottom: '6px' };
 const InputStyle = { width: '100%', padding: '0.8rem 1rem', borderRadius: '12px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', outline: 'none', fontWeight: '700' };
-const FilterSelectStyle = { padding: '0.9rem 1.2rem', borderRadius: '20px', border: '1.5px solid #F0F4ED', background: 'white', fontWeight: '1000', outline: 'none', cursor: 'pointer', color:'#2D3A20' };
 const StatLabel = { fontSize: '0.7rem', fontWeight: 1000, color: '#B2AC88', textTransform: 'uppercase' as const };
