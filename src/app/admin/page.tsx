@@ -30,7 +30,8 @@ import {
   Trash,
   Heart,
   Bookmark,
-  Star
+  Star,
+  Download
 } from 'lucide-react';
 import Header from '@/components/Header';
 import AlimnetLoader from '@/components/AlimnetLoader';
@@ -38,6 +39,8 @@ import AdminTabs from './components/AdminTabs';
 import IntelligenceTab from './components/IntelligenceTab';
 import DataTable from './components/DataTable';
 import MessagesTab from './components/MessagesTab';
+import ExportModal from './components/ExportModal';
+import ImportModal from './components/ImportModal';
 
 // --- Tipos ---
 interface Location {
@@ -112,7 +115,7 @@ export default function AdminDashboard() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [donationsLoading, setDonationsLoading] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
-  const [importText, setImportText] = useState('');
+  const [showExportModal, setShowExportModal] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   
   // Analytics State
@@ -454,27 +457,58 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleImport = async () => {
+  const handleImport = async (importText: string) => {
     if (!importText) return;
     setIsImporting(true);
     const rows = importText.split('\n').filter(r => r.trim());
-    if (rows.length < 2) { alert('Mínimo 2 filas.'); setIsImporting(false); return; }
+    if (rows.length < 2) { 
+      alert('Se necesita al menos una fila de datos además de la cabecera.'); 
+      setIsImporting(false); 
+      return; 
+    }
+
     const headers = rows[0].split('\t').map(h => h.trim().toLowerCase());
     const dataRows = rows.slice(1);
     let count = 0;
+
     for (const r of dataRows) {
       const v = r.split('\t');
       const row: any = {};
       headers.forEach((h, i) => row[h] = v[i]?.trim());
-      const name = row['nombre'] || row['nombre del emprendimiento'];
+
+      const name = row['nombre'] || row['nombre del emprendimiento'] || row['name'];
       if (!name) continue;
+
       try {
-        const { data: m } = await supabase.from('merchants').insert({ name, status: 'active' }).select().single();
-        if (m && row['provincia']) await supabase.from('locations').insert({ merchant_id: m.id, province: row['provincia'], location_type: 'fixed', lat: -34.6, lng: -58.4 });
+        const province = row['provincia'] || row['province'];
+        const rubro = row['rubro'] || row['tipo'] || row['type'];
+        const instagram = row['instagram'] || row['ig'] || row['instagram_url'];
+        const website = row['web'] || row['website'] || row['website_url'];
+
+        const { data: m, error: mErr } = await supabase.from('merchants').insert({ 
+          name, 
+          status: 'active',
+          type: rubro || 'Abastecedor',
+          instagram_url: instagram || '',
+          website_url: website || ''
+        }).select().single();
+
+        if (m && province) {
+          await supabase.from('locations').insert({ 
+            merchant_id: m.id, 
+            province, 
+            location_type: 'fixed', 
+            lat: -34.6, 
+            lng: -58.4 
+          });
+        }
         count++;
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error importando fila:", e);
+      }
     }
-    alert(`${count} cargados.`);
+
+    alert(`¡Éxito! Se importaron ${count} comerciantes correctamente.`);
     setIsImporting(false);
     setShowImportModal(false);
     fetchData();
@@ -528,7 +562,7 @@ export default function AdminDashboard() {
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <div style={{ background: '#F0F4ED', color: '#5F7D4A', padding: '10px 20px', borderRadius: '15px', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #E4EBDD' }}>
           <span style={{ fontWeight: 1000, fontSize: '0.8rem' }}>🛡️ CENTRAL DE OPERACIONES</span>
-          <span style={{ fontWeight: 1000, fontSize: '0.9rem', color: '#2D3A20' }}>ALIMNET v0.0.34-CALLBACK-FIX</span>
+          <span style={{ fontWeight: 1000, fontSize: '0.9rem', color: '#2D3A20' }}>ALIMNET v1.6.3-DATA-CORE</span>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
@@ -537,8 +571,8 @@ export default function AdminDashboard() {
             <p style={{ color: '#B2AC88', fontWeight: 800, margin: '8px 0 0 0', fontSize: '1.1rem' }}>Gestionando la red soberana v3.</p>
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.9rem 1.8rem', background: 'white', borderRadius: '16px', color: '#2D3A20', fontWeight: '1000', border: '1.5px solid #F0F4ED', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-              <BarChart3 size={20} /> Reporte
+            <button onClick={() => setShowExportModal(true)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.9rem 1.8rem', background: 'white', borderRadius: '16px', color: '#2D3A20', fontWeight: '1000', border: '1.5px solid #F0F4ED', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+              <Download size={20} /> Exportar
             </button>
             <button onClick={() => setShowImportModal(true)} style={{ padding: '0.9rem 1.8rem', background: '#5F7D4A', borderRadius: '16px', color: 'white', fontWeight: '900', border: 'none', cursor: 'pointer' }}>+ Importar Excel</button>
           </div>
@@ -749,16 +783,18 @@ export default function AdminDashboard() {
       )}
 
       {showImportModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '80%', maxWidth: 600 }}>
-            <h3>Importar Excel</h3>
-            <textarea value={importText} onChange={(e)=>setImportText(e.target.value)} style={{width:'100%', height:200, marginTop:20, borderRadius:15, padding:15}} placeholder="Pega columnas aquí..."/>
-            <div style={{display:'flex', gap:10, marginTop:20}}>
-              <button onClick={handleImport} disabled={isImporting} style={{flex:1, padding:15, background:'#5F7D4A', color:'white', border:'none', borderRadius:12, fontWeight:900}}>Importar</button>
-              <button onClick={()=>setShowImportModal(false)} style={{flex:1, padding:15, background:'#F0F4ED', border:'none', borderRadius:12, fontWeight:900}}>Cerrar</button>
-            </div>
-          </div>
-        </div>
+        <ImportModal 
+          onClose={() => setShowImportModal(false)} 
+          onImport={handleImport} 
+          isImporting={isImporting} 
+        />
+      )}
+
+      {showExportModal && (
+        <ExportModal 
+          onClose={() => setShowExportModal(false)} 
+          data={merchants} 
+        />
       )}
     </div>
   );
