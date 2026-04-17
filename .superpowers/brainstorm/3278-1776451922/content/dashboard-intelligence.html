@@ -1,0 +1,188 @@
+<style>
+  :root {
+    --alimnet-green: #5F7D4A;
+    --alimnet-dark: #2D3A20;
+    --alimnet-bg: #F8F9F5;
+    --alimnet-border: #E4EBDD;
+    --alimnet-accent: #B2AC88;
+  }
+  
+  .alimnet-theme {
+    font-family: 'Manrope', sans-serif;
+    background: white;
+    padding: 1rem;
+    color: var(--alimnet-dark);
+  }
+
+  .tabs {
+    display: flex;
+    gap: 2rem;
+    border-bottom: 2px solid var(--alimnet-bg);
+    margin-bottom: 2.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .tab {
+    font-weight: 1000;
+    font-size: 1.1rem;
+    color: var(--alimnet-accent);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tab.active {
+    color: var(--alimnet-dark);
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--alimnet-green);
+    border-radius: 10px;
+  }
+
+  .count-badge {
+    background: var(--alimnet-bg);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: var(--alimnet-green);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid var(--alimnet-border);
+    border-radius: 24px;
+    padding: 1.5rem;
+  }
+
+  .metric-box {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .metric-item {
+    background: var(--alimnet-bg);
+    padding: 1.2rem;
+    border-radius: 16px;
+    border: 1px solid var(--alimnet-border);
+  }
+
+  .metric-item h4 { margin: 0; font-size: 0.75rem; color: var(--alimnet-accent); text-transform: uppercase; }
+  .metric-item .value { font-size: 1.6rem; font-weight: 1000; color: var(--alimnet-dark); margin-top: 4px; }
+
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--alimnet-bg);
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+
+  .list-item:last-child { border-bottom: none; }
+  .list-item .rank { color: var(--alimnet-green); width: 20px; }
+</style>
+
+<div class="alimnet-theme">
+  <!-- Tabs Navigation -->
+  <div class="tabs">
+    <div class="tab">Comercios <span class="count-badge">246</span></div>
+    <div class="tab">Por Aprobar <span class="count-badge">0</span></div>
+    <div class="tab">Usuarios <span class="count-badge">4</span></div>
+    <div class="tab">Mensajes <span class="count-badge" style="background:#FEE2E2; color:#EF4444;">1</span></div>
+    <div class="tab active">Inteligencia</div>
+    <div class="tab">Pagos</div>
+  </div>
+
+  <h2>Panel de Inteligencia Mejorado</h2>
+  <p class="subtitle" style="margin-bottom: 2rem;">Visualizando el impacto real de la red soberana.</p>
+
+  <div class="grid">
+    <!-- Columna Izquierda: Métricas de Negocio -->
+    <div class="section">
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="margin-top:0;">Distribución de la Red</h3>
+        <div class="metric-box">
+          <div class="metric-item">
+            <h4>🌽 Productores</h4>
+            <div class="value">124</div>
+          </div>
+          <div class="metric-item">
+            <h4>🏪 Abastecedores</h4>
+            <div class="value">58</div>
+          </div>
+          <div class="metric-item">
+            <h4>🍽️ Restaurantes</h4>
+            <div class="value">42</div>
+          </div>
+          <div class="metric-item">
+            <h4>👨‍🍳 Chefs</h4>
+            <div class="value">22</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Actividad y Tracción (Vercel)</h3>
+        <p style="font-size:0.85rem; color:var(--alimnet-accent);">Tráfico real de las últimas 24hs</p>
+        <div style="height: 150px; background: #F0F4ED; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--alimnet-green); font-weight: 1000;">
+          [ GRÁFICO DE VISTAS Y MOVIMIENTOS ]
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Top Ciudades y Usuarios -->
+    <div class="section">
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="margin-top:0;">Top Ciudades (Users)</h3>
+        <div class="list-item"><span class="rank">1</span> Buenos Aires <span>1,204</span></div>
+        <div class="list-item"><span class="rank">2</span> Rosario <span>845</span></div>
+        <div class="list-item"><span class="rank">3</span> Córdoba <span>512</span></div>
+        <div class="list-item"><span class="rank">4</span> Mendoza <span>230</span></div>
+      </div>
+
+      <div class="card">
+        <h3>Demandas Populares</h3>
+        <p style="font-size:0.85rem; color:var(--alimnet-accent);">Lo más buscado esta semana</p>
+        <div class="list-item">"Harina Integral" <span style="color:var(--alimnet-green);">+45%</span></div>
+        <div class="list-item">"Aceite de Oliva" <span style="color:var(--alimnet-green);">+32%</span></div>
+        <div class="list-item">"Nueces" <span style="color:var(--alimnet-green);">+12%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section alimnet-card" style="margin-top: 2rem;">
+    <h3>¿Estructuramos el panel así?</h3>
+    <div class="options">
+      <div class="option" data-choice="structure-approved" onclick="toggleSelect(this)">
+        <div class="letter">A</div>
+        <div class="content">
+          <h3>¡Perfecto!</h3>
+          <p>Mantiene las pestañas actuales pero con toda esta info nueva.</p>
+        </div>
+      </div>
+      <div class="option" data-choice="add-more" onclick="toggleSelect(this)">
+        <div class="letter">B</div>
+        <div class="content">
+          <h3>Falta algo</h3>
+          <p>Dime qué otra métrica o sección echas de menos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

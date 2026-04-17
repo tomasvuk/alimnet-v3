@@ -1,0 +1,103 @@
+<style>
+  :root {
+    --alimnet-green: #5F7D4A;
+    --alimnet-dark: #2D3A20;
+    --alimnet-bg: #F8F9F5;
+    --alimnet-border: #E4EBDD;
+    --alimnet-accent: #B2AC88;
+  }
+  
+  .alimnet-theme {
+    font-family: 'Manrope', sans-serif;
+    color: var(--alimnet-dark);
+  }
+
+  h2 { color: var(--alimnet-dark); font-weight: 1000; }
+  .subtitle { color: var(--alimnet-accent); font-weight: 800; }
+  
+  .alimnet-card {
+    background: white;
+    border: 1px solid var(--alimnet-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+
+  .option {
+    border: 1.5px solid var(--alimnet-border) !important;
+    background: white !important;
+    border-radius: 16px !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .option:hover {
+    border-color: var(--alimnet-green) !important;
+    background: #F0F4ED !important;
+  }
+
+  .option.selected {
+    border-color: var(--alimnet-green) !important;
+    background: #F0F4ED !important;
+    box-shadow: 0 0 0 2px var(--alimnet-green) !important;
+  }
+
+  .letter {
+    background: var(--alimnet-green) !important;
+    color: white !important;
+  }
+</style>
+
+<div class="alimnet-theme">
+  <h2>Renovación del Panel Admin</h2>
+  <p class="subtitle">Enfoque en filtros estilo Excel e integración de analíticas.</p>
+
+  <div class="section alimnet-card">
+    <h3>Prioridad 1: Arquitectura de Filtros</h3>
+    <p>¿Cómo debería sentirse la experiencia "tipo Excel"?</p>
+    
+    <div class="options" data-multiselect>
+      <div class="option" data-choice="persistent-sidebar" onclick="toggleSelect(this)">
+        <div class="letter">A</div>
+        <div class="content">
+          <h3>Barra Lateral Persistente</h3>
+          <p>Una barra dedicada a la izquierda con todos los filtros (País, Provincia, etc.) que actúan instantáneamente.</p>
+        </div>
+      </div>
+      <div class="option" data-choice="column-headers" onclick="toggleSelect(this)">
+        <div class="letter">B</div>
+        <div class="content">
+          <h3>Filtros en Cabeceras</h3>
+          <p>Iconos en los encabezados de cada columna para filtrar ese dato específico (como Excel/Sheets).</p>
+        </div>
+      </div>
+      <div class="option" data-choice="smart-search" onclick="toggleSelect(this)">
+        <div class="letter">C</div>
+        <div class="content">
+          <h3>Buscador Inteligente / Comandos</h3>
+          <p>Una barra única que entiende etiquetas como "prov:CABA" o "verificado:si".</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section alimnet-card" style="margin-top: 2rem;">
+    <h3>Prioridad 2: Tipo de Analíticas</h3>
+    <p>Integración de Vercel Analytics vs. Actividad Personalizada</p>
+    <div class="options">
+      <div class="option" data-choice="vercel-embedded" onclick="toggleSelect(this)">
+        <div class="letter">1</div>
+        <div class="content">
+          <h3>Métricas de Vercel Analytics</h3>
+          <p>Integrar las vistas, hits y referentes directamente de la API de Vercel.</p>
+        </div>
+      </div>
+      <div class="option" data-choice="custom-insights" onclick="toggleSelect(this)">
+        <div class="letter">2</div>
+        <div class="content">
+          <h3>Métricas de Negocio Alimnet</h3>
+          <p>Analizar datos internos: Top productores, conversión de búsqueda a clic, etc.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

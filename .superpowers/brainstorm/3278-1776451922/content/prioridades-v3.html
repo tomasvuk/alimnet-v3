@@ -1,0 +1,140 @@
+<style>
+  :root {
+    --alimnet-green: #5F7D4A;
+    --alimnet-dark: #2D3A20;
+    --alimnet-bg: #F8F9F5;
+    --alimnet-border: #E4EBDD;
+    --alimnet-accent: #B2AC88;
+  }
+  
+  .alimnet-theme {
+    font-family: 'Manrope', sans-serif;
+    color: var(--alimnet-dark);
+  }
+
+  h2 { color: var(--alimnet-dark); font-weight: 1000; }
+  .subtitle { color: var(--alimnet-accent); font-weight: 800; }
+  
+  .alimnet-card {
+    background: white;
+    border: 1px solid var(--alimnet-border);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    margin-bottom: 2rem;
+  }
+
+  .option {
+    border: 1.5px solid var(--alimnet-border) !important;
+    background: white !important;
+    border-radius: 16px !important;
+    transition: all 0.2s ease !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .option:hover {
+    border-color: var(--alimnet-green) !important;
+    background: #F0F4ED !important;
+    transform: translateY(-2px);
+  }
+
+  .option.selected {
+    border-color: var(--alimnet-green) !important;
+    background: #F0F4ED !important;
+    box-shadow: 0 0 0 2px var(--alimnet-green) !important;
+  }
+
+  .letter {
+    background: var(--alimnet-green) !important;
+    color: white !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 1rem !important;
+    font-weight: 900 !important;
+  }
+
+  .content h3 {
+    margin: 0 0 0.5rem 0;
+    font-weight: 950;
+    font-size: 1.1rem;
+  }
+
+  .content p {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+  }
+</style>
+
+<div class="alimnet-theme">
+  <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+    <div style="background: var(--alimnet-green); width: 12px; height: 36px; border-radius: 6px;"></div>
+    <h2>Renovación del Panel Admin</h2>
+  </div>
+  <p class="subtitle" style="margin-left: 1.8rem; margin-bottom: 2rem;">Diseñando el futuro de la gestión en Alimnet.</p>
+
+  <div class="section alimnet-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; font-weight: 1000; font-size: 1.4rem;">1. Estilo de Filtrado "Excel"</h3>
+      <span style="background: var(--alimnet-bg); color: var(--alimnet-green); padding: 4px 12px; border-radius: 20px; font-weight: 900; font-size: 0.75rem; border: 1px solid var(--alimnet-border);">REQUISITO CLAVE</span>
+    </div>
+    <p style="margin-bottom: 2rem; color: #555;">¿Cómo prefieres interactuar con los datos?</p>
+    
+    <div class="options" data-multiselect>
+      <div class="option" data-choice="persistent-sidebar" onclick="toggleSelect(this)">
+        <div class="letter">A</div>
+        <div class="content">
+          <h3>Barra Lateral Superior / Lateral</h3>
+          <p>Filtros rápidos visibles siempre para buscar por País, Provincia, Rubro, etc. Muy visual y directo.</p>
+        </div>
+      </div>
+      <div class="option" data-choice="column-headers" onclick="toggleSelect(this)">
+        <div class="letter">B</div>
+        <div class="content">
+          <h3>Filtros en Cabeceras (Tipo Excel Puro)</h3>
+          <p>Hacer clic en el título de la columna para abrir un menú desplegable de filtrado. Ahorra espacio.</p>
+        </div>
+      </div>
+      <div class="option" data-choice="integrated-search" onclick="toggleSelect(this)">
+        <div class="letter">C</div>
+        <div class="content">
+          <h3>Buscador Avanzado Integrado</h3>
+          <p>Una barra de búsqueda "Super Power" que filtra todo al instante mientras escribes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section alimnet-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h3 style="margin: 0; font-weight: 1000; font-size: 1.4rem;">2. Panel de Analíticas</h3>
+      <span style="background: var(--alimnet-bg); color: var(--alimnet-accent); padding: 4px 12px; border-radius: 20px; font-weight: 900; font-size: 0.75rem; border: 1px solid var(--alimnet-border);">VERCEL ANALYTICS</span>
+    </div>
+    <p style="margin-bottom: 2rem; color: #555;">¿Qué métricas son las que más te importa ver primero?</p>
+    
+    <div class="options" data-multiselect>
+      <div class="option" data-choice="traffic-stats" onclick="toggleSelect(this)">
+        <div class="letter">1</div>
+        <div class="content">
+          <h3>Tráfico y Vistas Real-Time</h3>
+          <p>Usuarios activos, páginas más vistas hoy y de dónde vienen (Referrers).</p>
+        </div>
+      </div>
+      <div class="option" data-choice="business-metrics" onclick="toggleSelect(this)">
+        <div class="letter">2</div>
+        <div class="content">
+          <h3>Métricas de Negocio Propio</h3>
+          <p>Conversión de búsqueda -> Clic en el comercio. Productores más buscados.</p>
+        </div>
+      </div>
+      <div class="option" data-choice="performance" onclick="toggleSelect(this)">
+        <div class="letter">3</div>
+        <div class="content">
+          <h3>Velocidad y Web Vitals</h3>
+          <p>Qué tan rápido carga el mapa y la web para los usuarios (Vercel Speed Insights).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

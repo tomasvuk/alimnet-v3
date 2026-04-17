@@ -122,6 +122,7 @@ export default function IntelligenceTab({
                   <span style={{ fontWeight: 1000, color: '#A67C00', fontSize: '0.85rem' }}>{m.clicks} clicks</span>
                </div>
             ))}
+            {topMerchants.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic', gridColumn: '1/-1', textAlign: 'center', padding: '2rem' }}>Aún no se registran interacciones en este periodo.</div>}
          </div>
       </div>
     </div>

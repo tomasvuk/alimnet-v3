@@ -1,0 +1,52 @@
+<h2>Admin Panel Revamp</h2>
+<p class="subtitle">Focusing on "Excel-like" filtering and analytics integration.</p>
+
+<div class="section">
+  <h3>Priority 1: Filtering Architecture</h3>
+  <p>How should the "Excel-like" experience feel?</p>
+  
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="persistent-sidebar" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>Sidebar Filters</h3>
+        <p>A dedicated sidebar for all filters (Country, Province, etc.) that acts instantly on the table.</p>
+      </div>
+    </div>
+    <div class="option" data-choice="column-headers" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>On-Column Filters</h3>
+        <p>Click icons in table headers to filter that specific column (like actual Excel/Sheets).</p>
+      </div>
+    </div>
+    <div class="option" data-choice="smart-search" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>Unified Cmd+K / Smart Bar</h3>
+        <p>A single powerful search bar that understands tags like "prov:CABA" or "ver:yes".</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Priority 2: Analytics Type</h3>
+  <p>Integrating Vercel Analytics vs. Enhanced Database Activity</p>
+  <div class="options">
+    <div class="option" data-choice="vercel-embedded" onclick="toggleSelect(this)">
+      <div class="letter">1</div>
+      <div class="content">
+        <h3>Vercel Dashboard Embed</h3>
+        <p>Focus on showing the core Vercel Analytics metrics (Views, Hits, Referrers) alongside existing data.</p>
+      </div>
+    </div>
+    <div class="option" data-choice="custom-insights" onclick="toggleSelect(this)">
+      <div class="letter">2</div>
+      <div class="content">
+        <h3>Business Insights</h3>
+        <p>Deep dive into Alimnet-specific metadata (Top producers, conversion from search to merchant click).</p>
+      </div>
+    </div>
+  </div>
+</div>

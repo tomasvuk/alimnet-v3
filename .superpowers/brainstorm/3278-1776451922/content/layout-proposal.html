@@ -1,0 +1,191 @@
+<style>
+  :root {
+    --alimnet-green: #5F7D4A;
+    --alimnet-dark: #2D3A20;
+    --alimnet-bg: #F8F9F5;
+    --alimnet-border: #E4EBDD;
+    --alimnet-accent: #B2AC88;
+  }
+  
+  .alimnet-theme {
+    font-family: 'Manrope', sans-serif;
+    background: var(--alimnet-bg);
+    padding: 2rem;
+  }
+
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+  }
+
+  .search-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .smart-search {
+    width: 100%;
+    padding: 1.2rem 1.5rem 1.2rem 3.5rem;
+    border-radius: 20px;
+    border: 1.5px solid var(--alimnet-border);
+    background: white;
+    font-size: 1.1rem;
+    font-weight: 800;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    outline: none;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 24px;
+    border: 1px solid var(--alimnet-border);
+  }
+
+  .stat-value { font-size: 2rem; font-weight: 1000; color: var(--alimnet-dark); }
+  .stat-label { color: var(--alimnet-accent); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .data-table-container {
+    background: white;
+    border-radius: 32px;
+    border: 1px solid var(--alimnet-border);
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.04);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  
+  th {
+    background: #F0F4ED;
+    padding: 1.2rem 1rem;
+    text-align: left;
+    font-weight: 1000;
+    font-size: 0.75rem;
+    color: var(--alimnet-green);
+    text-transform: uppercase;
+    border-bottom: 1.5px solid var(--alimnet-border);
+  }
+
+  .filter-icon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    cursor: pointer;
+    background: white;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid var(--alimnet-border);
+  }
+
+  td {
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid #F0F4ED;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--alimnet-dark);
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 1000;
+  }
+
+  .verified { background: #F0F4ED; color: var(--alimnet-green); border: 1px solid var(--alimnet-green); }
+</style>
+
+<div class="alimnet-theme">
+  <div class="admin-header">
+    <div>
+      <h1 style="margin:0; font-weight:1000; font-size:2.5rem; color:var(--alimnet-dark);">Propuesta de Diseño: Panel Pro</h1>
+      <p style="margin:8px 0 0; color:var(--alimnet-accent); font-weight:800;">Filtros híbridos + Inteligencia de datos</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Vistas Hoy (Vercel)</div>
+      <div class="stat-value">1,280</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Búsquedas Totales</div>
+      <div class="stat-value">452</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Cliques en Productor</div>
+      <div class="stat-value">18%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Conversión</div>
+      <div class="stat-value">4.2%</div>
+    </div>
+  </div>
+
+  <div class="search-container">
+    <input type="text" class="smart-search" placeholder="Escribe para buscar... (ej: 'CABA', 'Productor', 'Verificado')">
+  </div>
+
+  <div class="data-table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Comercio <span class="filter-icon">▼</span></th>
+          <th>Tipo <span class="filter-icon">▼</span></th>
+          <th>País <span class="filter-icon">▼</span></th>
+          <th>Provincia <span class="filter-icon">▼</span></th>
+          <th>Estado <span class="filter-icon">▼</span></th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Eco Huerta La Reja</td>
+          <td>Productor</td>
+          <td>Argentina</td>
+          <td>Buenos Aires</td>
+          <td><span class="badge verified">VERIFICADO</span></td>
+          <td>[...]</td>
+        </tr>
+        <tr>
+          <td>Raíces del Sur</td>
+          <td>Restaurante</td>
+          <td>Argentina</td>
+          <td>Río Negro</td>
+          <td><span class="badge" style="background:#F8F9F5; border:1px solid #CCC; color:#666;">SIN VALIDAR</span></td>
+          <td>[...]</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="section" style="margin-top:2rem;">
+    <h3>¿Te gusta esta distribución del Panel?</h3>
+    <div class="options">
+      <div class="option" data-choice="design-approved" onclick="toggleSelect(this)">
+        <div class="letter">A</div>
+        <div class="content">
+          <h3>Sí, me encanta este layout</h3>
+          <p>Métricas arriba, buscador potente y tabla con filtros en cabecera.</p>
+        </div>
+      </div>
+      <div class="option" data-choice="design-needs-changes" onclick="toggleSelect(this)">
+        <div class="letter">B</div>
+        <div class="content">
+          <h3>Hacer cambios</h3>
+          <p>Coméntame qué preferirías mover o cambiar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
