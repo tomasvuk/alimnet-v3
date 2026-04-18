@@ -370,13 +370,16 @@ export default function AdminDashboard() {
         merchantsNonValidated: (mCount || 0) - validated,
       });
 
-      // 5. UNIFIED MESSAGING via API (to bypass RLS/Cache issues)
-      const msgResp = await fetch('/api/admin/messages/list');
-      const msgData = await msgResp.json();
+      // 5. UNIFIED MESSAGING (Restored direct fetch with better error handling)
+      const { data: contactMsgs, error: contactErr } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+      const { data: chatNotifs, error: chatErr } = await supabase.from('notifications').select('*').eq('type', 'ADMIN_ALERT').order('created_at', { ascending: false });
       
+      if (contactErr) console.error("[ADMIN]: Error fetching contact msgs:", contactErr);
+      if (chatErr) console.error("[ADMIN]: Error fetching notifications:", chatErr);
+
       const unifiedMessages = [
-        ...(msgData.contact_messages || []).map((m: any) => ({ ...m, type: 'CONTACT_FORM' })),
-        ...(msgData.notifications || []).map((n: any) => {
+        ...(contactMsgs || []).map(m => ({ ...m, type: 'CONTACT_FORM' })),
+        ...(chatNotifs || []).map(n => {
           const meta = (() => {
             let m = n.metadata || {};
             if (typeof m === 'string') {
