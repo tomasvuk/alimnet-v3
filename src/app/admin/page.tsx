@@ -440,30 +440,22 @@ export default function AdminDashboard() {
   };
 
   const markAsRead = async (id: string, type: 'CONTACT_FORM' | 'CHATBOT') => {
-    // Actualización optimista
+    // Actualización optimista inmediata
     setMessages(prev => prev.map(m => m.id === id ? { ...m, status: 'read' } : m));
     
     try {
-      if (type === 'CONTACT_FORM') {
-        const { error } = await supabase.from('contact_messages')
-          .update({ status: 'read' })
-          .eq('id', id);
-        if (error) throw error;
-      } else {
-        // Para notificaciones del chatbot, guardamos la lectura en el JSON de metadata 
-        // para no romper la lógica de envíos de email de Supabase
-        const { data: current } = await supabase.from('notifications').select('metadata').eq('id', id).single();
-        const newMetadata = { ...(current?.metadata || {}), admin_read: true };
-        
-        const { error } = await supabase.from('notifications')
-          .update({ metadata: newMetadata })
-          .eq('id', id);
-        if (error) throw error;
-      }
+      const resp = await fetch('/api/admin/messages/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, type })
+      });
+      
+      if (!resp.ok) throw new Error('Fallo en el servidor al persistir');
+      console.log(`[ADMIN]: Mensaje ${id} persistido como leído.`);
     } catch (e: any) {
-      console.error("Error persistiendo estado de lectura:", e);
-      // Solo en error crítico revertimos y avisamos
-      fetchData(); 
+      console.error("[ADMIN ERROR]: Reventando persistencia:", e);
+      // Solo en caso de error real revertimos el estado en la UI
+      setTimeout(() => fetchData(), 2000); 
     }
   };
 
@@ -572,7 +564,6 @@ export default function AdminDashboard() {
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
         <div style={{ background: '#F0F4ED', color: '#5F7D4A', padding: '10px 20px', borderRadius: '15px', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #E4EBDD' }}>
           <span style={{ fontWeight: 1000, fontSize: '0.8rem' }}>🛡️ CENTRAL DE OPERACIONES</span>
-          <span style={{ fontWeight: 1000, fontSize: '0.9rem', color: '#2D3A20' }}>ALIMNET v1.6.14-PREVIEW</span>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
