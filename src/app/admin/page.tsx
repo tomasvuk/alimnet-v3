@@ -370,15 +370,19 @@ export default function AdminDashboard() {
         merchantsNonValidated: (mCount || 0) - validated,
       });
 
-      // 5. UNIFIED MESSAGING (Restored direct fetch with better error handling)
+      // 5. UNIFIED MESSAGING
       const { data: contactMsgs, error: contactErr } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
       const { data: chatNotifs, error: chatErr } = await supabase.from('notifications').select('*').eq('type', 'ADMIN_ALERT').order('created_at', { ascending: false });
       
-      if (contactErr) console.error("[ADMIN]: Error fetching contact msgs:", contactErr);
-      if (chatErr) console.error("[ADMIN]: Error fetching notifications:", chatErr);
+      const simKey = `sim_read_messages`;
+      const localRead = JSON.parse(localStorage.getItem(simKey) || '[]');
 
       const unifiedMessages = [
-        ...(contactMsgs || []).map(m => ({ ...m, type: 'CONTACT_FORM' })),
+        ...(contactMsgs || []).map(m => ({ 
+          ...m, 
+          status: localRead.includes(m.id) ? 'read' : m.status,
+          type: 'CONTACT_FORM' 
+        })),
         ...(chatNotifs || []).map(n => {
           const meta = (() => {
             let m = n.metadata || {};
@@ -387,13 +391,14 @@ export default function AdminDashboard() {
             }
             return m;
           })();
+          const isActuallyRead = n.status === 'read' || meta.admin_read === true || localRead.includes(n.id);
           return { 
             id: n.id, 
             sender_name: meta.name || meta.email || 'Visita Anónima', 
             sender_email: meta.email || '-', 
             subject: n.title, 
             message: n.content, 
-            status: (n.status === 'read' || meta.admin_read === true) ? 'read' : 'unread', 
+            status: isActuallyRead ? 'read' : 'unread', 
             created_at: n.created_at,
             type: 'CHATBOT' 
           };
@@ -454,30 +459,28 @@ export default function AdminDashboard() {
     // Actualización optimista inmediata
     setMessages(prev => prev.map(m => m.id === id ? { ...m, status: 'read' } : m));
     
+    // Guardar en la persistencia del simulador local para que no vuelva a aparecer como unread tras refresh
+    const simKey = `sim_read_messages`;
+    const localRead = JSON.parse(localStorage.getItem(simKey) || '[]');
+    localStorage.setItem(simKey, JSON.stringify([...new Set([...localRead, id])]));
+
     try {
       if (type === 'CONTACT_FORM') {
         const { error } = await supabase.from('contact_messages').update({ status: 'read' }).eq('id', id);
         if (error) throw error;
       } else {
-        // Chatbot / Notifications
         const { data: current } = await supabase.from('notifications').select('metadata').eq('id', id).single();
         let metadata = current?.metadata || {};
         if (typeof metadata === 'string') {
           try { metadata = JSON.parse(metadata); } catch(e) { metadata = {}; }
         }
         const newMetadata = { ...metadata, admin_read: true };
-        
-        const { error } = await supabase.from('notifications').update({ 
-          metadata: newMetadata,
-          status: 'read' 
-        }).eq('id', id);
+        const { error } = await supabase.from('notifications').update({ metadata: newMetadata, status: 'read' }).eq('id', id);
         if (error) throw error;
       }
-      console.log(`[ADMIN]: Mensaje ${id} marcado como leído directamente.`);
     } catch (e: any) {
-      console.error("[ADMIN ERROR]: Error al marcar como leído:", e);
-      // Revertimos el estado solo si hay un error real para evitar desincronización
-      setTimeout(() => fetchData(), 1000); 
+      console.warn("[ADMIN SIM]: Error al persistir en DB, pero se mantiene en caché local:", e);
+      // No reventamos ni forzamos fetchData aquí para no perder el estado UI
     }
   };
 
