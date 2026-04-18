@@ -370,13 +370,13 @@ export default function AdminDashboard() {
         merchantsNonValidated: (mCount || 0) - validated,
       });
 
-      // 5. UNIFIED MESSAGING (Contact Form + Chatbot Notifications)
-      const { data: contactMsgs } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
-      const { data: chatNotifs } = await supabase.from('notifications').select('*').eq('type', 'ADMIN_ALERT').order('created_at', { ascending: false });
+      // 5. UNIFIED MESSAGING via API (to bypass RLS/Cache issues)
+      const msgResp = await fetch('/api/admin/messages/list');
+      const msgData = await msgResp.json();
       
       const unifiedMessages = [
-        ...(contactMsgs || []).map(m => ({ ...m, type: 'CONTACT_FORM' })),
-        ...(chatNotifs || []).map(n => {
+        ...(msgData.contact_messages || []).map((m: any) => ({ ...m, type: 'CONTACT_FORM' })),
+        ...(msgData.notifications || []).map((n: any) => {
           const meta = (() => {
             let m = n.metadata || {};
             if (typeof m === 'string') {
@@ -396,7 +396,7 @@ export default function AdminDashboard() {
           };
         })
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
+      
       setMessages(unifiedMessages as any);
 
       // 6. ANALYTICS ENGINE (Search Hotspots & Merchant Interactions)
