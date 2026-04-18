@@ -383,7 +383,7 @@ export default function AdminDashboard() {
           subject: n.title, 
           message: n.content, 
           // Ajuste: si es de admin, el estado 'read' lo manejamos nosotros por metadata o status de dashboard
-          status: n.metadata?.admin_read === true ? 'read' : 'unread', 
+          status: (n.status === 'read' || n.metadata?.admin_read === true) ? 'read' : 'unread', 
           created_at: n.created_at,
           type: 'CHATBOT' 
         }))

@@ -20,11 +20,19 @@ export async function POST(req: Request) {
         .eq('id', id)
         .single();
       
-      const newMetadata = { ...(current?.metadata || {}), admin_read: true };
+      let metadata = current?.metadata || {};
+      if (typeof metadata === 'string') {
+        try { metadata = JSON.parse(metadata); } catch(e) { metadata = {}; }
+      }
+
+      const newMetadata = { ...metadata, admin_read: true };
       
       const { error } = await adminClient
         .from('notifications')
-        .update({ metadata: newMetadata })
+        .update({ 
+          metadata: newMetadata,
+          status: 'read' 
+        })
         .eq('id', id);
       if (error) throw error;
     }
