@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Filter, Edit, ChevronDown, ChevronUp, ShieldCheck } from 'lucide-react';
+import { Search, Filter, Edit, ChevronDown, ChevronUp, ShieldCheck, Check, X, Shield, MessageSquare, ExternalLink } from 'lucide-react';
+import MerchantCard from '@/components/MerchantCard';
 
 interface DataTableProps {
   merchants: any[];
@@ -188,36 +189,103 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={6} style={{ padding: 40, background: '#F8F9F5', borderBottom: '1.5px solid #E4EBDD' }}>
-            <div style={{ display: 'flex', gap: 40, justifyContent: 'space-between' }}>
-               <div style={{flex: 1}}>
-                 <h4 style={{fontWeight:1000, marginBottom:15, color: '#2D3A20'}}>Análisis y Gestión</h4>
-                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20}}>
-                    <div style={{background: 'white', padding: '1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD'}}>
-                        <div style={StatLabel}>Aval de la Comunidad</div>
-                        <div style={{fontSize:'2rem', fontWeight:1000, color:'#A67C00', marginTop: 8}}>{merchant.validation_count || 0}</div>
-                        <p style={{margin: '4px 0 0', fontSize: '0.7rem', color: '#B2AC88', fontWeight: 800}}>Validaciones de perfiles reales</p>
+          <td colSpan={6} style={{ padding: '2rem', background: '#F8F9F5', borderBottom: '1.5px solid #E4EBDD' }}>
+            <div style={{ display: 'flex', gap: '3rem', alignItems: 'flex-start' }}>
+               
+               {/* --- GESTIÓN RÁPIDA (Izquierda) --- */}
+               <div style={{ minWidth: '280px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
+                        <div style={StatLabel}>Aval</div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#A67C00' }}>{merchant.validation_count || 0}</div>
                     </div>
-                    <div style={{background: 'white', padding: '1.5rem', borderRadius: '20px', border: '1px solid #E4EBDD'}}>
-                        <div style={StatLabel}>Estado de Contacto</div>
+                    <div style={{ flex: 2, background: 'white', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
+                        <div style={StatLabel}>Contacto</div>
                         <select 
                           value={merchant.contact_status || 'sin_contacto'} 
-                          onChange={(e)=>{ onUpdateContactStatus(merchant.id, e.target.value); }} 
-                          style={{width: '100%', marginTop: 12, padding:10, borderRadius:12, border:'1.5px solid #F0F4ED', fontSize:12, fontWeight:1000, background: '#F8F9F5'}}
+                          onChange={(e)=>onUpdateContactStatus(merchant.id, e.target.value)} 
+                          style={{ width: '100%', marginTop: '6px', padding: '4px', borderRadius: '8px', border: '1px solid #F0F4ED', fontSize: '11px', fontWeight: 1000, background: '#F8F9F5', outline: 'none' }}
                         >
                           <option value="sin_contacto">🔴 SIN CONTACTO</option>
                           <option value="contactado">🟡 CONTACTADO</option>
-                          <option value="verificado">🟢 VERIFICADO</option>
+                          <option value="verificado">🟢 LISTO</option>
                         </select>
                     </div>
-                 </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                     <div style={StatLabel}>Acciones de Control</div>
+                     <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          onClick={()=>onUpdateStatus(merchant.id, 'active')} 
+                          title="Aprobar"
+                          style={{ flex: 1, padding: '10px', background: '#5F7D4A', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.7rem' }}
+                        >
+                           <Check size={14} /> APROBAR
+                        </button>
+                        <button 
+                          onClick={()=>onUpdateStatus(merchant.id, 'rejected')} 
+                          title="Rechazar"
+                          style={{ flex: 1, padding: '10px', background: 'white', color: '#EF4444', border: '1px solid #EF4444', borderRadius: '10px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.7rem' }}
+                        >
+                           <X size={14} /> RECHAZAR
+                        </button>
+                     </div>
+                     <button 
+                       onClick={()=>onToggleVerified(merchant.id, merchant.verified)} 
+                       style={{ width: '100%', padding: '10px', background: merchant.verified ? '#F0F4ED' : '#A67C00', color: merchant.verified ? '#A67C00' : 'white', border: 'none', borderRadius: '10px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.75rem' }}
+                     >
+                        <Shield size={14} /> {merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}
+                     </button>
+                  </div>
+
+                  <div style={{ padding: '12px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '12px', border: '1px dashed #E4EBDD' }}>
+                     <div style={{ ...StatLabel, marginBottom: '8px' }}>Links Rápidos</div>
+                     <div style={{ display: 'flex', gap: '12px' }}>
+                        {merchant.instagram_url && <a href={merchant.instagram_url} target="_blank" style={{ color: '#5F7D4A' }}><MessageSquare size={16} /></a>}
+                        {merchant.website_url && <a href={merchant.website_url} target="_blank" style={{ color: '#5F7D4A' }}><ExternalLink size={16} /></a>}
+                        <button onClick={()=>onOpenEdit(merchant)} style={{ background: 'none', border: 'none', color: '#5F7D4A', padding: 0, cursor: 'pointer' }}><Edit size={16} /></button>
+                     </div>
+                  </div>
                </div>
-               <div style={{width:240, display:'flex', flexDirection:'column', gap:12}}>
-                  <div style={StatLabel}>Acciones de Control</div>
-                  <button onClick={()=>onUpdateStatus(merchant.id, 'active')} style={{padding:14, background:'#5F7D4A', color:'white', border:'none', borderRadius:12, fontWeight:1000, cursor:'pointer', fontSize: '0.8rem'}}>✓ APROBAR COMERCIO</button>
-                  <button onClick={()=>onUpdateStatus(merchant.id, 'rejected')} style={{padding:14, background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:12, fontWeight:1000, cursor:'pointer', fontSize: '0.8rem'}}>✕ RECHAZAR</button>
-                  <button onClick={()=>onToggleVerified(merchant.id, merchant.verified)} style={{padding:14, background:'#A67C00', color:'white', border:'none', borderRadius:12, fontWeight:1000, cursor:'pointer', fontSize: '0.8rem'}}>🛡️ {merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}</button>
+
+               {/* --- PREVISUALIZACIÓN VISUAL (Derecha) --- */}
+               <div style={{ flex: 1 }}>
+                  <div style={{ ...StatLabel, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    👀 Previsualización del Perfil <span style={{ fontSize: '0.6rem', background: '#E4EBDD', padding: '2px 6px', borderRadius: '4px' }}>LIVE PREVIEW</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+                    <MerchantCard merchant={merchant} />
+                    
+                    <div style={{ flex: 1, background: 'white', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD', minHeight: '150px' }}>
+                       <div style={StatLabel}>Bio / Información</div>
+                       <p style={{ fontSize: '0.85rem', color: '#2D3A20', marginTop: '10px', lineHeight: '1.5', opacity: 0.8 }}>
+                         {merchant.bio_long || merchant.bio_short || 'No hay biografía detallada cargada.'}
+                       </p>
+                       <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          <div style={StatLabel}>Logística / Entrega</div>
+                          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#5F7D4A', background: '#F0F4ED', padding: '10px', borderRadius: '12px' }}>
+                             {merchant.delivery_info || 'Información de reparto no especificada.'}
+                          </div>
+                       </div>
+
+                       {merchant.gallery_images && merchant.gallery_images.length > 0 && (
+                         <div style={{ marginTop: '1.5rem' }}>
+                            <div style={StatLabel}>Galería de Fotos</div>
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                               {merchant.gallery_images.slice(0, 3).map((img: string, i: number) => (
+                                 <div key={i} style={{ width: '60px', height: '60px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E4EBDD' }}>
+                                    <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                 </div>
+                               ))}
+                            </div>
+                         </div>
+                       )}
+                    </div>
+                  </div>
                </div>
+
             </div>
           </td>
         </tr>
