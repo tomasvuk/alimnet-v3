@@ -382,7 +382,8 @@ export default function AdminDashboard() {
           sender_email: n.metadata?.email || '-', 
           subject: n.title, 
           message: n.content, 
-          status: n.status === 'sent' ? 'read' : 'unread', 
+          // Ajuste: si es de admin, el estado 'read' lo manejamos nosotros por metadata o status de dashboard
+          status: n.metadata?.admin_read === true ? 'read' : 'unread', 
           created_at: n.created_at,
           type: 'CHATBOT' 
         }))
@@ -439,21 +440,30 @@ export default function AdminDashboard() {
   };
 
   const markAsRead = async (id: string, type: 'CONTACT_FORM' | 'CHATBOT') => {
-    alert(`¡Clic detectado! Marcando mensaje como leído...`);
-    // Actualización optimista: cambiamos la UI al toque
+    // Actualización optimista
     setMessages(prev => prev.map(m => m.id === id ? { ...m, status: 'read' } : m));
     
     try {
       if (type === 'CONTACT_FORM') {
-        const { error } = await supabase.from('contact_messages').update({ status: 'read' }).eq('id', id);
+        const { error } = await supabase.from('contact_messages')
+          .update({ status: 'read' })
+          .eq('id', id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('notifications').update({ status: 'sent' }).eq('id', id);
+        // Para notificaciones del chatbot, guardamos la lectura en el JSON de metadata 
+        // para no romper la lógica de envíos de email de Supabase
+        const { data: current } = await supabase.from('notifications').select('metadata').eq('id', id).single();
+        const newMetadata = { ...(current?.metadata || {}), admin_read: true };
+        
+        const { error } = await supabase.from('notifications')
+          .update({ metadata: newMetadata })
+          .eq('id', id);
         if (error) throw error;
       }
-    } catch (e) {
-      console.error("Error marking as read:", e);
-      fetchData(); // Si falla, recargamos para mostrar el estado real
+    } catch (e: any) {
+      console.error("Error persistiendo estado de lectura:", e);
+      // Solo en error crítico revertimos y avisamos
+      fetchData(); 
     }
   };
 
