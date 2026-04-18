@@ -376,17 +376,25 @@ export default function AdminDashboard() {
       
       const unifiedMessages = [
         ...(contactMsgs || []).map(m => ({ ...m, type: 'CONTACT_FORM' })),
-        ...(chatNotifs || []).map(n => ({ 
-          id: n.id, 
-          sender_name: n.metadata?.name || n.metadata?.email || 'Visita Anónima', 
-          sender_email: n.metadata?.email || '-', 
-          subject: n.title, 
-          message: n.content, 
-          // Ajuste: si es de admin, el estado 'read' lo manejamos nosotros por metadata o status de dashboard
-          status: (n.status === 'read' || n.metadata?.admin_read === true) ? 'read' : 'unread', 
-          created_at: n.created_at,
-          type: 'CHATBOT' 
-        }))
+        ...(chatNotifs || []).map(n => {
+          const meta = (() => {
+            let m = n.metadata || {};
+            if (typeof m === 'string') {
+              try { m = JSON.parse(m); } catch(e) { m = {}; }
+            }
+            return m;
+          })();
+          return { 
+            id: n.id, 
+            sender_name: meta.name || meta.email || 'Visita Anónima', 
+            sender_email: meta.email || '-', 
+            subject: n.title, 
+            message: n.content, 
+            status: (n.status === 'read' || meta.admin_read === true) ? 'read' : 'unread', 
+            created_at: n.created_at,
+            type: 'CHATBOT' 
+          };
+        })
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
       setMessages(unifiedMessages as any);
