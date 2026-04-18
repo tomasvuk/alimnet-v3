@@ -455,18 +455,29 @@ export default function AdminDashboard() {
     setMessages(prev => prev.map(m => m.id === id ? { ...m, status: 'read' } : m));
     
     try {
-      const resp = await fetch('/api/admin/messages/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, type })
-      });
-      
-      if (!resp.ok) throw new Error('Fallo en el servidor al persistir');
-      console.log(`[ADMIN]: Mensaje ${id} persistido como leído.`);
+      if (type === 'CONTACT_FORM') {
+        const { error } = await supabase.from('contact_messages').update({ status: 'read' }).eq('id', id);
+        if (error) throw error;
+      } else {
+        // Chatbot / Notifications
+        const { data: current } = await supabase.from('notifications').select('metadata').eq('id', id).single();
+        let metadata = current?.metadata || {};
+        if (typeof metadata === 'string') {
+          try { metadata = JSON.parse(metadata); } catch(e) { metadata = {}; }
+        }
+        const newMetadata = { ...metadata, admin_read: true };
+        
+        const { error } = await supabase.from('notifications').update({ 
+          metadata: newMetadata,
+          status: 'read' 
+        }).eq('id', id);
+        if (error) throw error;
+      }
+      console.log(`[ADMIN]: Mensaje ${id} marcado como leído directamente.`);
     } catch (e: any) {
-      console.error("[ADMIN ERROR]: Reventando persistencia:", e);
-      // Solo en caso de error real revertimos el estado en la UI
-      setTimeout(() => fetchData(), 2000); 
+      console.error("[ADMIN ERROR]: Error al marcar como leído:", e);
+      // Revertimos el estado solo si hay un error real para evitar desincronización
+      setTimeout(() => fetchData(), 1000); 
     }
   };
 
