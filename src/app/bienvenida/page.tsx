@@ -12,12 +12,14 @@ export default function BienvenidaPage() {
   const [formData, setFormData] = useState({ first_name: '', last_name: '' });
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
     // 1. Escuchar cambios de sesión (Crucial para OAuth Google)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("[BIENVENIDA AUTH EVENT]:", event, !!session);
       if (session) {
+        setUserEmail(session.user.email || '');
         checkProfile(session);
       } else if (event === 'SIGNED_OUT') {
         router.push('/login');
@@ -48,6 +50,7 @@ export default function BienvenidaPage() {
     const initCheck = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        setUserEmail(session.user.email || '');
         checkProfile(session);
       } else {
         // Damos un pequeño margen para que Google OAuth se asiente
@@ -133,8 +136,14 @@ export default function BienvenidaPage() {
           <h1 style={{ fontSize: '2.2rem', fontWeight: '950', textAlign: 'center', color: '#2D3A20', marginBottom: '1rem', letterSpacing: '-0.02em', lineHeight: '1.1' }}>
              ¡Nos alegra que seas<br />parte de esta red!
           </h1>
-          <p style={{ textAlign: 'center', color: '#666', fontWeight: '600', marginBottom: '2.5rem' }}>Para conocer a los productores y participar, necesitamos saber quién sos.</p>
+          <p style={{ textAlign: 'center', color: '#666', fontWeight: '600', marginBottom: '1rem' }}>Para conocer a los productores y participar, necesitamos saber quién sos.</p>
           
+          {userEmail && (
+            <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '0.6rem', background: '#F0F4ED', borderRadius: '12px', fontSize: '0.8rem', color: '#5F7D4A', fontWeight: '800' }}>
+               Sesión: <strong>{userEmail}</strong>
+            </div>
+          )}
+
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             <div>
               <label style={{ fontSize: '0.75rem', fontWeight: '900', color: '#5F7D4A', textTransform: 'uppercase', marginBottom: '8px', display: 'block', letterSpacing: '0.05em' }}>Nombre</label>
@@ -162,9 +171,20 @@ export default function BienvenidaPage() {
             >
               {loading ? 'Preparando todo...' : 'Empezar a explorar'} <ArrowRight size={20} />
             </button>
+
+            <button 
+              type="button"
+              onClick={() => {
+                localStorage.setItem('skip_onboarding', 'true');
+                window.location.href = '/explorar';
+              }}
+              style={{ background: 'none', border: 'none', color: '#AAA', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', marginTop: '0.5rem', textDecoration: 'underline' }}
+            >
+              Cerrar y explorar el mapa sin perfil
+            </button>
           </form>
 
-          <p style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.7rem', color: '#ADB5BD', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <p style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.7rem', color: '#ADB5BD', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
              Unite a la Soberanía Alimentaria ✨
           </p>
        </div>

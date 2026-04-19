@@ -650,14 +650,23 @@ export default function ExplorarPage() {
         const { data: pData } = await supabase.from('profiles').select('*').eq('id', activeSession.user.id).single();
         if (pData) {
           setUserProfile(pData);
-          // SI FALTAN DATOS, REDIRIGIR A BIENVENIDA
+          // SI FALTAN DATOS, REDIRIGIR A BIENVENIDA (A menos que haya skipeado)
           if (!pData.first_name || !pData.last_name) {
-            router.push('/bienvenida');
+            const hasSkipped = localStorage.getItem('skip_onboarding') === 'true';
+            if (!hasSkipped) {
+              router.push('/bienvenida');
+            } else {
+              // Si skipeó, le mostramos el popup suave de OnboardingPremium como recordatorio
+              setShowOnboarding(true);
+            }
           }
-          // Limpiamos la localidad del buscador inicial (Pedida por Tomas V-9.3.0)
-          // setInitialLocationFromProfile(pData.locality); -> Obtenida de forma silenciosa por las coordenadas
         } else {
-          router.push('/bienvenida');
+          const hasSkipped = localStorage.getItem('skip_onboarding') === 'true';
+          if (!hasSkipped) {
+            router.push('/bienvenida');
+          } else {
+            setShowOnboarding(true);
+          }
         }
         
         // Validaciones
@@ -1943,6 +1952,43 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
               + {secondaryType}
             </div>
           )}
+
+          {/* SHARE BUTTON - NUEVO (V-10.1) */}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              const shareUrl = `${window.location.origin}/explorar?id=${merchant.id}`;
+              if (navigator.share) {
+                navigator.share({
+                  title: `Alimnet | ${merchant.name}`,
+                  text: `Te comparto este proyecto de alimentos cuidados en Alimnet: ${merchant.name}`,
+                  url: shareUrl
+                }).catch(() => {
+                  navigator.clipboard.writeText(shareUrl);
+                });
+              } else {
+                navigator.clipboard.writeText(shareUrl);
+                alert('¡Enlace copiado al portapapeles! 🚀');
+              }
+            }}
+            style={{ 
+              marginTop: '4px',
+              padding: '6px', 
+              borderRadius: '50%', 
+              border: '1px solid #eee', 
+              background: isHovered ? '#F0F4ED' : 'white',
+              color: '#5F7D4A',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: isHovered ? '0 4px 10px rgba(0,0,0,0.05)' : 'none'
+            }}
+            title="Compartir"
+          >
+            <Share2 size={13} />
+          </button>
           
           {/* TOMAS'S BADGES: Same line hierarchy */}
           {(merchant.validation_count || 0) > 0 ? (
@@ -2043,7 +2089,30 @@ function DetailPanel({
     }}>
       <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', background: 'white', zIndex: 10 }}>
         <h2 style={{ fontSize: '1.2rem', fontWeight: '950', color: 'var(--primary-dark)' }}>{merchant.name}</h2>
-        <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '6px', cursor: 'pointer' }}><X size={18} /></button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            onClick={() => {
+              const shareUrl = `${window.location.origin}/explorar?id=${merchant.id}`;
+              if (navigator.share) {
+                navigator.share({
+                  title: `Alimnet | ${merchant.name}`,
+                  text: `Te comparto este proyecto de alimentos cuidados en Alimnet: ${merchant.name}`,
+                  url: shareUrl
+                }).catch(() => {
+                  navigator.clipboard.writeText(shareUrl);
+                });
+              } else {
+                navigator.clipboard.writeText(shareUrl);
+                alert('¡Enlace copiado! 🚀');
+              }
+            }}
+            style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer', display: 'flex', color: '#5F7D4A' }}
+            title="Compartir"
+          >
+            <Share2 size={16} />
+          </button>
+          <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer', display: 'flex' }}><X size={18} /></button>
+        </div>
       </div>
 
       <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

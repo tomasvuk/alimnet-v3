@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MapPin, ShieldCheck, Shield, Leaf, Store, UtensilsCrossed, ChefHat, Sprout, Sun, CloudSun, Wheat } from 'lucide-react';
+import { MapPin, ShieldCheck, Shield, Leaf, Store, UtensilsCrossed, ChefHat, Sprout, Sun, CloudSun, Wheat, Share2 } from 'lucide-react';
 
 interface MerchantCardProps {
   merchant: any;
@@ -118,6 +118,30 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
                  <ShieldCheck size={8} /> OFICIAL
               </div>
            )}
+           <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const shareUrl = `${window.location.host.includes('localhost') ? 'http://' : 'https://'}${window.location.host}/explorar?id=${merchant.id}`;
+                  if (navigator.share) {
+                    navigator.share({
+                      title: `Alimnet | ${merchant.name}`,
+                      text: `Te comparto este proyecto de alimentos cuidados en Alimnet: ${merchant.name}`,
+                      url: shareUrl
+                    }).catch(() => {
+                      navigator.clipboard.writeText(shareUrl);
+                    });
+                  } else {
+                    navigator.clipboard.writeText(shareUrl);
+                    alert('¡Enlace copiado! 🚀');
+                  }
+                }}
+                style={{ 
+                  marginTop: '4px', background: 'none', border: '1px solid #eee', borderRadius: '50%', padding: '4px', cursor: 'pointer', display: 'flex', color: '#5F7D4A' 
+                }}
+                title="Compartir"
+              >
+                <Share2 size={12} />
+              </button>
         </div>
       </div>
     </div>
