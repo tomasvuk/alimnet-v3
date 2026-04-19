@@ -585,7 +585,6 @@ export default function AdminDashboard() {
     setIsSaving(false);
   };
 
-
   // --- LÓGICA DE FILTRADO CENTRALIZADA ---
   const filteredMerchants = merchants.filter(m => {
     const s = searchTerm.toLowerCase();
