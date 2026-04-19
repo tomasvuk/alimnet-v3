@@ -34,6 +34,7 @@ export default function DataTable({
   const [filterType, setFilterType] = useState<string>('all');
   const [filterVer, setFilterVer] = useState<string>('all');
   const [filterCountry, setFilterCountry] = useState<string>('all');
+  const [filterOrigin, setFilterOrigin] = useState<string>('all');
 
   // Obtener opciones únicas para los filtros
   const uniqueProvinces = Array.from(new Set(merchants.map(m => m.province).filter(Boolean))).sort() as string[];
@@ -50,7 +51,8 @@ export default function DataTable({
                     (filterVer === 'verified' && (m.verified || m.owner_id)) ||
                     (filterVer === 'community' && !m.verified && !m.owner_id) ||
                     (filterVer === 'validated' && (m.validation_count || 0) > 0);
-    return matchSearch && matchProv && matchType && matchCountry && matchVer;
+    const matchOrigin = filterOrigin === 'all' || m.created_by_type === filterOrigin;
+    return matchSearch && matchProv && matchType && matchCountry && matchVer && matchOrigin;
   });
 
   return (
@@ -76,6 +78,22 @@ export default function DataTable({
             <tr style={{ background: '#F0F4ED' }}>
               <th style={THStyle}>
                 COMERCIO
+              </th>
+              <th style={THStyle}>
+                FECHA
+              </th>
+              <th style={THStyle}>
+                ORIGEN
+                <select 
+                  value={filterOrigin} 
+                  onChange={(e)=>setFilterOrigin(e.target.value)} 
+                  style={HeaderSelectStyle}
+                >
+                  <option value="all">TODOS</option>
+                  <option value="neighborhood_recommendation">VECINOS</option>
+                  <option value="admin">ADMIN</option>
+                  <option value="merchant">COMERCIOS</option>
+                </select>
               </th>
               <th style={THStyle}>
                 RUBRO
@@ -140,7 +158,7 @@ export default function DataTable({
               />
             ))}
             {filtered.length === 0 && (
-               <tr><td colSpan={6} style={{padding:80, textAlign:'center', color:'#B2AC88'}}>No se encontraron comercios con esos filtros.</td></tr>
+               <tr><td colSpan={8} style={{padding:80, textAlign:'center', color:'#B2AC88'}}>No se encontraron comercios con esos filtros.</td></tr>
             )}
           </tbody>
         </table>
@@ -168,6 +186,19 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
           </div>
           {missing.length > 0 && <div style={{fontSize:10, color:'#EF4444', fontWeight:900, marginTop:4}}>FALTA: {missing.join(', ')}</div>}
         </td>
+        <td style={{ padding: '1.2rem 1rem', color:'#888', fontWeight:800, fontSize: '0.8rem' }}>
+          {merchant.created_at ? new Date(merchant.created_at).toLocaleDateString() : '-'}
+        </td>
+        <td style={{ padding: '1.2rem 1rem' }}>
+          <span style={{ 
+            ...BadgeStyle, 
+            background: merchant.created_by_type === 'neighborhood_recommendation' ? '#F0F4ED' : (merchant.created_by_type === 'admin' ? '#E0E7FF' : '#F3F4F6'), 
+            color: merchant.created_by_type === 'neighborhood_recommendation' ? '#5F7D4A' : (merchant.created_by_type === 'admin' ? '#4338CA' : '#6B7280'),
+            fontSize: '0.6rem'
+          }}>
+            {merchant.created_by_type === 'neighborhood_recommendation' ? 'VECINO' : (merchant.created_by_type === 'admin' ? 'ADMIN' : 'SISTEMA')}
+          </span>
+        </td>
         <td style={{ padding: '1.2rem 1rem', color:'#5F7D4A', fontWeight:1000, fontSize: '0.75rem' }}>{merchant.type?.toUpperCase() || '-'}</td>
         <td style={{ padding: '1.2rem 1rem', color:'#888', fontWeight:800, fontSize: '0.8rem' }}>{merchant.locations?.[0]?.country || 'Argentina'}</td>
         <td style={{ padding: '1.2rem 1rem', color:'#888', fontWeight:800, fontSize: '0.8rem' }}>{merchant.province || 'No def.'}</td>
@@ -189,7 +220,7 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={6} style={{ padding: '2rem', background: '#F8F9F5', borderBottom: '1.5px solid #E4EBDD' }}>
+          <td colSpan={8} style={{ padding: '2rem', background: '#F8F9F5', borderBottom: '1.5px solid #E4EBDD' }}>
             <div style={{ display: 'flex', gap: '3rem', alignItems: 'flex-start' }}>
                
                {/* --- GESTIÓN RÁPIDA (Izquierda) --- */}
