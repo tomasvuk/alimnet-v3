@@ -13,7 +13,9 @@ import {
   MessageSquare,
   Sparkles,
   ShieldCheck,
-  UserCheck
+  UserCheck,
+  AlertCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
@@ -26,6 +28,8 @@ function NeighborRecommendationContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+
 
   useEffect(() => {
     // Si venimos de Explorar con un comercio sugerido
@@ -114,21 +118,21 @@ function NeighborRecommendationContent() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Intentamos insertar. Si no hay user, igual permitimos (o pedimos login)
-      // Pero por ahora, vamos a requerir login para evitar spam.
       if (!user) {
         router.push('/login?redirect=/sumar-comercio-vecino');
         return;
       }
 
       // El campo 'contact' lo mapeamos dinámicamente si parece un Instagram (lleva @ o es una palabra)
-      const isInstagram = formData.contact.includes('@') || !/^\d+$/.test(formData.contact.replace(/\s/g, ''));
+      const isInstagram = formData.contact.includes('@') || /[a-zA-Z]/.test(formData.contact);
       
+      console.log("Iniciando inserción de comercio recomendado por:", user.email);
+
       const { data: merchantData, error } = await supabase.from('merchants').insert([{
         name: formData.name,
         type: formData.type || 'comunidad',
         instagram_url: isInstagram ? formData.contact.replace('@', '') : null,
-        whatsapp: !isInstagram ? formData.contact : null,
+        whatsapp: !isInstagram ? formData.contact.replace(/\s/g, '') : null,
         status: 'pending',
         created_by: user.id,
         created_by_type: 'neighborhood_recommendation',
@@ -136,11 +140,16 @@ function NeighborRecommendationContent() {
         claimed: false
       }]).select().single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error inserting merchant:", error);
+        throw new Error(`Error en base de datos: ${error.message}`);
+      }
+
+      console.log("Comercio insertado con éxito:", merchantData.id);
 
       // 3. Crear Alerta para el Admin (Tomás)
       try {
-        const { data: adminNotif } = await supabase.from('notifications').insert([{
+        const { data: adminNotif, error: notifError } = await supabase.from('notifications').insert([{
           user_id: user.id,
           title: 'Nueva Recomendación de Vecino',
           content: `${user.email} ha recomendado un comercio: ${formData.name}.`,
@@ -154,6 +163,8 @@ function NeighborRecommendationContent() {
           }
         }]).select().single();
 
+        if (notifError) console.warn("Error creating notification:", notifError);
+
         if (adminNotif) {
           fetch('/api/notifications/process', {
             method: 'POST',
@@ -166,7 +177,7 @@ function NeighborRecommendationContent() {
 
       // Insertar locación si tenemos datos
       if (merchantData && (formData.lat !== 0 || formData.address)) {
-        await supabase.from('locations').insert([{
+        const { error: locError } = await supabase.from('locations').insert([{
           merchant_id: merchantData.id,
           address: formData.address,
           locality: formData.locality,
@@ -175,6 +186,7 @@ function NeighborRecommendationContent() {
           location_type: 'fixed',
           is_primary: true
         }]);
+        if (locError) console.warn("Error inserting location:", locError);
       }
 
       setSuccess(true);
@@ -182,12 +194,16 @@ function NeighborRecommendationContent() {
         router.push('/explorar');
       }, 3000);
 
-    } catch (err) {
-      console.error(err);
-      alert('Hubo un error al enviar tu recomendación.');
+    } catch (err: any) {
+      console.error("Error global en recomendación:", err);
+      setAlert({ 
+        type: 'error', 
+        message: err.message || 'Error al enviar la recomendación. Por favor, reintentá luego.' 
+      });
     } finally {
       setLoading(false);
     }
+
   };
 
   if (success) {
@@ -225,9 +241,22 @@ function NeighborRecommendationContent() {
              <div style={{ width: '60px', height: '60px', background: '#F0F4ED', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', margin: '0 auto 1.5rem' }}>
                <Sparkles size={28} />
              </div>
-             <h1 style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: 0, letterSpacing: '-0.03em' }}>Recomendar</h1>
-             <p style={{ color: '#888', fontWeight: '600', marginTop: '8px' }}>Ayudanos a mapear la comida real.</p>
+              <h1 style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: 0, letterSpacing: '-0.03em' }}>Recomendar</h1>
+              <p style={{ color: '#888', fontWeight: '600', marginTop: '8px' }}>Ayudanos a mapear la comida real.</p>
           </div>
+
+          {alert && (
+            <div style={{ 
+              padding: '1.2rem', borderRadius: '20px', marginBottom: '2rem',
+              background: alert.type === 'error' ? '#FFF2F2' : '#F0F4ED',
+              color: alert.type === 'error' ? '#D32F2F' : '#5F7D4A',
+              border: `1px solid ${alert.type === 'error' ? '#FFDADA' : '#E4EBDD'}`,
+              display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '800', fontSize: '0.9rem'
+            }}>
+              {alert.type === 'error' ? <AlertCircle size={20} /> : <Check size={20} />}
+              {alert.message}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
