@@ -58,7 +58,10 @@ function NeighborRecommendationContent() {
     lat: 0,
     lng: 0,
     reason: '', // ¿Por qué lo recomendas?
+    delivery_info: '', // Área de entrega / Logística
   });
+
+  const [confirmNoContact, setConfirmNoContact] = useState(false);
 
   // --- INTEGRACIÓN GOOGLE MAPS AUTOCOMPLETE ---
   useEffect(() => {
@@ -137,6 +140,7 @@ function NeighborRecommendationContent() {
         created_by: user.id,
         created_by_type: 'neighborhood_recommendation',
         bio_short: formData.reason,
+        delivery_info: formData.delivery_info,
         claimed: false
       }]).select().single();
 
@@ -159,6 +163,7 @@ function NeighborRecommendationContent() {
             locality: formData.locality,
             category: formData.type,
             reason: formData.reason,
+            delivery_info: formData.delivery_info,
             email: user.email
           }
         }]).select().single();
@@ -300,10 +305,9 @@ function NeighborRecommendationContent() {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Instagram o WhatsApp</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Instagram o WhatsApp (Opcional)</label>
               <div style={{ position: 'relative' }}>
                 <input 
-                  required
                   value={formData.contact}
                   onChange={(e) => setFormData({...formData, contact: e.target.value})}
                   placeholder="@usuario o 112233..."
@@ -311,6 +315,19 @@ function NeighborRecommendationContent() {
                 />
                 <Instagram size={18} style={{ position: 'absolute', right: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
               </div>
+              {!formData.contact && (
+                <p style={{ fontSize: '0.7rem', color: '#E5A500', marginTop: '6px', fontWeight: '800' }}>⚠️ Recomendado para que podamos contactarlo.</p>
+              )}
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Área de Entrega / Logística (Opcional)</label>
+              <input 
+                value={formData.delivery_info}
+                onChange={(e) => setFormData({...formData, delivery_info: e.target.value})}
+                placeholder="Ej: Entrega en CABA y GBA Norte los Martes"
+                style={{ width: '100%', padding: '1.1rem', borderRadius: '18px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', fontSize: '1rem', outline: 'none', fontWeight: '600', color: '#2D3A20' }}
+              />
             </div>
 
             <div>
@@ -336,19 +353,34 @@ function NeighborRecommendationContent() {
               />
             </div>
 
-            <button 
-              type="submit"
-              disabled={loading}
-              style={{ 
-                marginTop: '1rem', padding: '1.2rem', borderRadius: '20px', border: 'none', 
-                background: '#5F7D4A', color: 'white', fontWeight: '1000', fontSize: '1.1rem',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', 
-                cursor: 'pointer', boxShadow: '0 10px 20px rgba(95, 125, 74, 0.15)',
-                transition: 'all 0.2s'
-              }}
-            >
-              {loading ? <AlimnetLoader size={24} /> : <><Send size={20} /> ENVIAR RECOMENDACIÓN</>}
-            </button>
+            {!formData.contact && !confirmNoContact ? (
+              <button 
+                type="button"
+                onClick={() => setConfirmNoContact(true)}
+                style={{ 
+                  marginTop: '1rem', padding: '1.2rem', borderRadius: '20px', border: 'none', 
+                  background: '#B2AC88', color: 'white', fontWeight: '1000', fontSize: '1.1rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', 
+                  cursor: 'pointer', transition: 'all 0.2s'
+                }}
+              >
+                <AlertTriangle size={20} /> ENVIAR SIN CONTACTO
+              </button>
+            ) : (
+              <button 
+                type="submit"
+                disabled={loading}
+                style={{ 
+                  marginTop: '1rem', padding: '1.2rem', borderRadius: '20px', border: 'none', 
+                  background: '#5F7D4A', color: 'white', fontWeight: '1000', fontSize: '1.1rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', 
+                  cursor: 'pointer', boxShadow: '0 10px 20px rgba(95, 125, 74, 0.15)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {loading ? <AlimnetLoader size={24} /> : <><Send size={20} /> {confirmNoContact ? 'SÍ, ENVIAR IGUAL' : 'ENVIAR RECOMENDACIÓN'}</>}
+              </button>
+            )}
           </form>
         </div>
 

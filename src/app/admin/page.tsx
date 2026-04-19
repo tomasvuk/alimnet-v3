@@ -71,6 +71,8 @@ interface Merchant {
   owner_id?: string | null;
   province?: string;
   validationsCount?: number;
+  bio_short?: string | null;
+  delivery_info?: string | null;
 }
 
 interface Donation {
@@ -573,6 +575,8 @@ export default function AdminDashboard() {
       instagram_url: editingMerchant.instagram_url,
       website_url: editingMerchant.website_url,
       admin_notes: editingMerchant.admin_notes,
+      bio_short: editingMerchant.bio_short,
+      delivery_info: editingMerchant.delivery_info,
       status: editingMerchant.status
     }).eq('id', editingMerchant.id);
     if (!error) { setShowEditModal(false); fetchData(); }
@@ -798,6 +802,30 @@ export default function AdminDashboard() {
                 <select style={InputStyle} value={editingMerchant.status} onChange={(e)=>setEditingMerchant({...editingMerchant, status: e.target.value})}>
                   <option value="active">Active</option><option value="pending">Pending</option><option value="rejected">Rejected</option>
                 </select>
+              </div>
+              <div>
+                <label style={LabelStyle}>Productos / Bio Corta</label>
+                <textarea 
+                  style={{...InputStyle, minHeight: '80px', resize: 'vertical'}} 
+                  value={editingMerchant.bio_short || ''} 
+                  onChange={(e)=>setEditingMerchant({...editingMerchant, bio_short: e.target.value})} 
+                />
+              </div>
+              <div>
+                <label style={LabelStyle}>Logística / Entrega</label>
+                <input 
+                  style={InputStyle} 
+                  value={editingMerchant.delivery_info || ''} 
+                  onChange={(e)=>setEditingMerchant({...editingMerchant, delivery_info: e.target.value})} 
+                />
+              </div>
+              <div>
+                <label style={LabelStyle}>Notas Internas (Admin)</label>
+                <textarea 
+                  style={{...InputStyle, minHeight: '80px', resize: 'vertical'}} 
+                  value={editingMerchant.admin_notes || ''} 
+                  onChange={(e)=>setEditingMerchant({...editingMerchant, admin_notes: e.target.value})} 
+                />
               </div>
               <div style={{display:'flex', gap:10}}>
                 <button onClick={handleUpdateMerchant} style={{flex:1, padding:15, background:'#5F7D4A', color:'white', border:'none', borderRadius:12, fontWeight:900}}>Guardar</button>
