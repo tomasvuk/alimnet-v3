@@ -12,12 +12,22 @@ interface DataTableProps {
   onOpenEdit: (m: any) => void;
   searchTerm: string;
   setSearchTerm: (s: string) => void;
+  // Filtros centralizados
+  filterProvince: string;
+  setFilterProvince: (s: string) => void;
+  filterType: string;
+  setFilterType: (s: string) => void;
+  filterVerification: string;
+  setFilterVerification: (s: string) => void;
+  filterCountry: string;
+  setFilterCountry: (s: string) => void;
+  filterOrigin: string;
+  setFilterOrigin: (s: string) => void;
 }
 
 const THStyle = { padding: '1.2rem 1rem', fontSize: '0.75rem', fontWeight: '950', color: '#B2AC88', textTransform: 'uppercase' as const, textAlign: 'left' as const };
 const BadgeStyle = { padding: '6px 12px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: '1000' };
 const StatLabel = { fontSize: '0.7rem', fontWeight: 1000, color: '#B2AC88', textTransform: 'uppercase' as const };
-
 export default function DataTable({ 
   merchants, 
   onUpdateStatus, 
@@ -25,35 +35,25 @@ export default function DataTable({
   onToggleVerified, 
   onOpenEdit,
   searchTerm,
-  setSearchTerm
+  setSearchTerm,
+  filterProvince,
+  setFilterProvince,
+  filterType,
+  setFilterType,
+  filterVerification,
+  setFilterVerification,
+  filterCountry,
+  setFilterCountry,
+  filterOrigin,
+  setFilterOrigin
 }: DataTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  
-  // States para filtros de cabecera
-  const [filterProv, setFilterProv] = useState<string>('all');
-  const [filterType, setFilterType] = useState<string>('all');
-  const [filterVer, setFilterVer] = useState<string>('all');
-  const [filterCountry, setFilterCountry] = useState<string>('all');
-  const [filterOrigin, setFilterOrigin] = useState<string>('all');
-
-  // Obtener opciones únicas para los filtros
   const uniqueProvinces = Array.from(new Set(merchants.map(m => m.province).filter(Boolean))).sort() as string[];
   const uniqueTypes = Array.from(new Set(merchants.map(m => m.type).filter(Boolean))).sort() as string[];
   const uniqueCountries = Array.from(new Set(merchants.map(m => m.locations?.[0]?.country || 'Argentina').filter(Boolean))).sort() as string[];
 
-  const filtered = merchants.filter(m => {
-    const s = searchTerm.toLowerCase();
-    const matchSearch = (m.name || '').toLowerCase().includes(s) || (m.type || '').toLowerCase().includes(s);
-    const matchProv = filterProv === 'all' || m.province === filterProv;
-    const matchType = filterType === 'all' || m.type === filterType;
-    const matchCountry = filterCountry === 'all' || (m.locations?.[0]?.country || 'Argentina') === filterCountry;
-    const matchVer = filterVer === 'all' || 
-                    (filterVer === 'verified' && (m.verified || m.owner_id)) ||
-                    (filterVer === 'community' && !m.verified && !m.owner_id) ||
-                    (filterVer === 'validated' && (m.validation_count || 0) > 0);
-    const matchOrigin = filterOrigin === 'all' || m.created_by_type === filterOrigin;
-    return matchSearch && matchProv && matchType && matchCountry && matchVer && matchOrigin;
-  });
+  // El filtrado ahora se hace en el padre, así que 'merchants' ya viene filtrado
+  const filtered = merchants;
 
   return (
     <>
@@ -120,8 +120,8 @@ export default function DataTable({
               <th style={THStyle}>
                 PROVINCIA
                 <select 
-                  value={filterProv} 
-                  onChange={(e)=>setFilterProv(e.target.value)} 
+                  value={filterProvince} 
+                  onChange={(e)=>setFilterProvince(e.target.value)} 
                   style={HeaderSelectStyle}
                 >
                   <option value="all">TODAS</option>
@@ -131,8 +131,8 @@ export default function DataTable({
               <th style={THStyle}>
                 ESTADO
                 <select 
-                  value={filterVer} 
-                  onChange={(e)=>setFilterVer(e.target.value)} 
+                  value={filterVerification} 
+                  onChange={(e)=>setFilterVerification(e.target.value)} 
                   style={HeaderSelectStyle}
                 >
                   <option value="all">TODOS</option>

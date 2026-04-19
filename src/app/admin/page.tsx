@@ -134,6 +134,8 @@ export default function AdminDashboard() {
   const [filterProvince, setFilterProvince] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterVerification, setFilterVerification] = useState<string>('all');
+  const [filterCountry, setFilterCountry] = useState<string>('all');
+  const [filterOrigin, setFilterOrigin] = useState<string>('all');
   const [provinces, setProvinces] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
 
@@ -583,7 +585,24 @@ export default function AdminDashboard() {
     setIsSaving(false);
   };
 
-  if (loading) return <AlimnetLoader fullScreen />;
+    setIsSaving(false);
+  };
+
+  // --- LÓGICA DE FILTRADO CENTRALIZADA ---
+  const filteredMerchants = merchants.filter(m => {
+    const s = searchTerm.toLowerCase();
+    const matchSearch = (m.name || '').toLowerCase().includes(s) || (m.type || '').toLowerCase().includes(s);
+    const matchProv = filterProvince === 'all' || m.province === filterProvince;
+    const matchType = filterType === 'all' || m.type === filterType;
+    const matchCountry = filterCountry === 'all' || (m.locations?.[0]?.country || 'Argentina') === filterCountry;
+    const matchVer = filterVerification === 'all' || 
+                    (filterVerification === 'verified' && (m.verified || m.owner_id)) ||
+                    (filterVerification === 'community' && !m.verified && !m.owner_id) ||
+                    (filterVerification === 'validated' && (m.validation_count || 0) > 0);
+    const matchOrigin = filterOrigin === 'all' || m.created_by_type === filterOrigin;
+    
+    return matchSearch && matchProv && matchType && matchCountry && matchVer && matchOrigin;
+  });
 
   if (loading) return <AlimnetLoader fullScreen />;
 
@@ -602,7 +621,7 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button onClick={() => setShowExportModal(true)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0.9rem 1.8rem', background: 'white', borderRadius: '16px', color: '#2D3A20', fontWeight: '1000', border: '1.5px solid #F0F4ED', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-              <Download size={20} /> Exportar
+              <Download size={20} /> Exportar ({filteredMerchants.length})
             </button>
             <button onClick={() => setShowImportModal(true)} style={{ padding: '0.9rem 1.8rem', background: '#5F7D4A', borderRadius: '16px', color: 'white', fontWeight: '900', border: 'none', cursor: 'pointer' }}>+ Importar Excel</button>
           </div>
@@ -689,9 +708,20 @@ export default function AdminDashboard() {
 
           {activeTab === 'comercios' || activeTab === 'pendientes' ? (
              <DataTable 
-               merchants={activeTab === 'pendientes' ? merchants.filter(m => m.status === 'pending') : merchants}
+               merchants={activeTab === 'pendientes' ? filteredMerchants.filter(m => m.status === 'pending') : filteredMerchants}
                searchTerm={searchTerm}
                setSearchTerm={setSearchTerm}
+               // Pasamos los estados de filtros para que DataTable pueda mostrarlos/cambiarlos
+               filterProvince={filterProvince}
+               setFilterProvince={setFilterProvince}
+               filterType={filterType}
+               setFilterType={setFilterType}
+               filterVerification={filterVerification}
+               setFilterVerification={setFilterVerification}
+               filterCountry={filterCountry}
+               setFilterCountry={setFilterCountry}
+               filterOrigin={filterOrigin}
+               setFilterOrigin={setFilterOrigin}
                onUpdateStatus={updateMerchantStatus}
                onUpdateContactStatus={updateContactStatus}
                onToggleVerified={toggleVerified}
@@ -847,7 +877,7 @@ export default function AdminDashboard() {
       {showExportModal && (
         <ExportModal 
           onClose={() => setShowExportModal(false)} 
-          data={merchants} 
+          data={filteredMerchants} 
         />
       )}
     </div>

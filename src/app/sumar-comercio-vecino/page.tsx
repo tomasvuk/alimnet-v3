@@ -59,6 +59,8 @@ function NeighborRecommendationContent() {
     lng: 0,
     reason: '', // ¿Por qué lo recomendas?
     delivery_info: '', // Área de entrega / Logística
+    province: '', // Provincia detectada
+    website: '', // Web (opcional)
   });
 
   const [confirmNoContact, setConfirmNoContact] = useState(false);
@@ -97,14 +99,16 @@ function NeighborRecommendationContent() {
         const place = autocomplete.getPlace();
         if (!place.geometry) return;
 
-        // Extraer localidad de address_components
+        // Extraer localidad y provincia de address_components
         const locality = place.address_components?.find((c: any) => c.types.includes('locality'))?.long_name || '';
+        const province = place.address_components?.find((c: any) => c.types.includes('administrative_area_level_1'))?.long_name || '';
         
         setFormData(prev => ({
           ...prev,
           name: place.name || prev.name,
           address: place.formatted_address || '',
           locality: locality,
+          province: province,
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng()
         }));
@@ -133,9 +137,10 @@ function NeighborRecommendationContent() {
 
       const { data: merchantData, error } = await supabase.from('merchants').insert([{
         name: formData.name,
-        type: formData.type || 'comunidad',
-        instagram_url: isInstagram ? formData.contact.replace('@', '') : null,
+        type: formData.type ? formData.type.charAt(0).toUpperCase() + formData.type.slice(1) : 'Comunidad',
+        instagram_url: isInstagram ? `https://instagram.com/${formData.contact.replace('@', '').trim().split('/').pop()}` : null,
         whatsapp: !isInstagram ? formData.contact.replace(/\s/g, '') : null,
+        website_url: formData.website,
         status: 'pending',
         created_by: user.id,
         created_by_type: 'neighborhood_recommendation',
@@ -186,6 +191,7 @@ function NeighborRecommendationContent() {
           merchant_id: merchantData.id,
           address: formData.address,
           locality: formData.locality,
+          province: formData.province,
           lat: formData.lat || -34.6,
           lng: formData.lng || -58.4,
           location_type: 'fixed',
@@ -326,6 +332,16 @@ function NeighborRecommendationContent() {
                 value={formData.delivery_info}
                 onChange={(e) => setFormData({...formData, delivery_info: e.target.value})}
                 placeholder="Ej: Entrega en CABA y GBA Norte los Martes"
+                style={{ width: '100%', padding: '1.1rem', borderRadius: '18px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', fontSize: '1rem', outline: 'none', fontWeight: '600', color: '#2D3A20' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Sitio Web (Opcional)</label>
+              <input 
+                value={formData.website}
+                onChange={(e) => setFormData({...formData, website: e.target.value})}
+                placeholder="https://www.misitio.com"
                 style={{ width: '100%', padding: '1.1rem', borderRadius: '18px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', fontSize: '1rem', outline: 'none', fontWeight: '600', color: '#2D3A20' }}
               />
             </div>
