@@ -52,6 +52,7 @@ interface Location {
   lat: number;
   lng: number;
   is_primary: boolean;
+  country?: string;
 }
 
 interface Merchant {
@@ -73,6 +74,7 @@ interface Merchant {
   validationsCount?: number;
   bio_short?: string | null;
   delivery_info?: string | null;
+  created_by_type?: string;
 }
 
 interface Donation {
