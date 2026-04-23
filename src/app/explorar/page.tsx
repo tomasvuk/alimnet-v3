@@ -1898,7 +1898,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
         padding: '4px 12px', borderRadius: '20px', background: 'white', cursor: 'pointer',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
         display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', transition: 'all 0.2s',
-        width: '100%', height: '80px', position: 'relative'
+        width: '100%', height: '80px', position: 'relative', overflow: 'hidden'
       }}
       className="merchant-card-pro"
     >
@@ -1927,36 +1927,43 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       </div>
 
       {/* Info Section */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0px', minWidth: 0, paddingLeft: '4px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0px', minWidth: 0, paddingLeft: '2px', paddingRight: '75px' }}>
         <h3 style={{ 
-          fontSize: '14px', fontWeight: '900', color: '#2D3A20', margin: 0, 
+          fontSize: '13px', fontWeight: '900', color: '#2D3A20', margin: 0, 
           lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
         }}>
           {merchant.name}
         </h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '1px' }}>
-          <MapPin size={9} color="#5F7D4A" style={{ opacity: 0.6 }} />
-          <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <MapPin size={8} color="#5F7D4A" style={{ opacity: 0.5 }} />
+          <span style={{ 
+            fontSize: '10px', color: '#999', fontWeight: '700', 
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
+          }}>
             {displayLocation}
           </span>
         </div>
         
-        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '4px', marginTop: '6px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '3px', marginTop: '4px', overflow: 'hidden' }}>
           {isDirect && (
-            <span style={{ fontSize: '8px', fontWeight: '800', background: 'rgba(95, 125, 74, 0.05)', color: '#5F7D4A', padding: '1px 5px', borderRadius: '4px', flexShrink: 0 }}>
+            <span style={{ fontSize: '7px', fontWeight: '800', background: 'rgba(95, 125, 74, 0.05)', color: '#5F7D4A', padding: '1px 4px', borderRadius: '3px', flexShrink: 0 }}>
               Directo
             </span>
           )}
           {productTags.slice(0, 2).map((tag: string) => (
-            <span key={tag} style={{ fontSize: '8px', fontWeight: '700', background: '#F9F9F9', color: '#999', padding: '1px 5px', borderRadius: '4px', flexShrink: 0, border: '1px solid #eee' }}>
+            <span key={tag} style={{ fontSize: '7px', fontWeight: '700', background: '#F9F9F9', color: '#999', padding: '1px 4px', borderRadius: '3px', flexShrink: 0, border: '1px solid #eee' }}>
               {tag}
             </span>
           ))}
         </div>
       </div>
 
-      {/* Actions Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0, width: '70px' }}>
+      {/* Actions Section - Absolutely Positioned for Stability */}
+      <div style={{ 
+        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', 
+        flexShrink: 0, width: '70px', zIndex: 5
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
           {(merchant.validation_count || 0) > 0 && (
             <span style={{ fontSize: '9px', fontWeight: '900', color: '#5F7D4A', opacity: 0.7 }}>

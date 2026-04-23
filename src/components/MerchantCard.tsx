@@ -57,7 +57,7 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
         padding: '4px 12px', borderRadius: '20px', background: 'white', cursor: onClick ? 'pointer' : 'default',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
         display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', transition: 'all 0.2s',
-        maxWidth: '500px', width: '100%', height: '80px', position: 'relative'
+        maxWidth: '100%', width: '100%', height: '80px', position: 'relative', overflow: 'hidden'
       }}
     >
       {/* Identity Section (Logo + Badge) */}
@@ -85,7 +85,7 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
       </div>
 
       {/* Info Section */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0px', minWidth: 0, paddingLeft: '2px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0px', minWidth: 0, paddingLeft: '2px', paddingRight: '75px' }}>
         <h3 style={{ 
           fontSize: '13px', fontWeight: '900', color: '#2D3A20', margin: 0, 
           lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
@@ -113,8 +113,12 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
         </div>
       </div>
 
-      {/* Actions Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0, width: '70px' }}>
+      {/* Actions Section - Absolutely Positioned for Stability */}
+      <div style={{ 
+        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', 
+        flexShrink: 0, width: '70px', zIndex: 5
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
           {(merchant.validation_count || 0) > 0 && (
             <span style={{ fontSize: '9px', fontWeight: '900', color: '#5F7D4A', opacity: 0.7 }}>
