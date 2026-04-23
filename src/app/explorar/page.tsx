@@ -1895,28 +1895,28 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        padding: '8px 16px', borderRadius: '24px', background: 'white', cursor: 'pointer',
+        padding: '4px 12px', borderRadius: '20px', background: 'white', cursor: 'pointer',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-        display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', transition: 'all 0.2s',
-        width: '100%', height: '94px', position: 'relative', overflow: 'hidden'
+        display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', transition: 'all 0.2s',
+        width: '100%', height: '80px', position: 'relative'
       }}
       className="merchant-card-pro"
     >
       {/* Identity Section (Logo + Badge) */}
-      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: '42px' }}>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: '40px' }}>
         <div style={{ 
-          width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
+          width: '40px', height: '40px', borderRadius: '10px', background: '#F4F1E6', 
           display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
           overflow: 'hidden', border: '1px solid rgba(95, 125, 74, 0.1)'
         }}>
           {merchant.logo_url ? (
             <img src={merchant.logo_url} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
-            <IconComponent size={22} />
+            <IconComponent size={20} />
           )}
         </div>
         <div style={{ 
-          position: 'absolute', bottom: '-2px', left: '50%', transform: 'translateX(-50%)',
+          position: 'absolute', bottom: '-3px', left: '50%', transform: 'translateX(-50%)',
           fontSize: '7px', fontWeight: '900', background: 'white', color: '#5F7D4A', 
           padding: '1px 4px', borderRadius: '4px', textTransform: 'uppercase',
           whiteSpace: 'nowrap', letterSpacing: '0.02em', border: '1px solid rgba(95, 125, 74, 0.2)',
@@ -1956,17 +1956,17 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       </div>
 
       {/* Actions Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0, width: '75px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0, width: '70px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
           {(merchant.validation_count || 0) > 0 && (
-            <span style={{ fontSize: '10px', fontWeight: '900', color: '#5F7D4A', opacity: 0.8 }}>
+            <span style={{ fontSize: '9px', fontWeight: '900', color: '#5F7D4A', opacity: 0.7 }}>
               {merchant.validation_count}
             </span>
           )}
           <button 
             style={{
-              fontSize: '9px', fontWeight: '950', border: '1px solid rgba(95, 125, 74, 0.3)', color: '#5F7D4A',
-              padding: '3px 6px', borderRadius: '6px', background: 'transparent', cursor: 'pointer',
+              fontSize: '8px', fontWeight: '950', border: '1px solid rgba(95, 125, 74, 0.2)', color: '#5F7D4A',
+              padding: '2px 5px', borderRadius: '5px', background: 'transparent', cursor: 'pointer',
               whiteSpace: 'nowrap'
             }}
           >
@@ -1981,7 +1981,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
           }}
           style={{ 
             background: 'transparent', border: 'none', 
-            width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#CCC',
+            width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#DDD',
             transition: 'all 0.2s'
           }}
           title="Compartir"
