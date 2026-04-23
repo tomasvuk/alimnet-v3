@@ -92,6 +92,7 @@ interface Merchant {
   claimed: boolean;
   verified: boolean;
   google_maps_url?: string;
+  logo_url?: string;
 }
 
 interface Location {
