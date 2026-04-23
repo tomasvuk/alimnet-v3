@@ -1895,142 +1895,112 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        padding: '1.2rem', borderRadius: '24px', background: 'white', cursor: 'pointer',
+        padding: '8px 16px', borderRadius: '24px', background: 'white', cursor: 'pointer',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-        display: 'flex', flexDirection: 'column', gap: '8px', transition: 'all 0.2s',
+        display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', transition: 'all 0.2s',
+        width: '100%', height: '94px', position: 'relative', overflow: 'hidden'
       }}
       className="merchant-card-pro"
     >
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-          <div style={{ 
-            width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', flexShrink: 0, marginTop: '2px'
-          }}>
-            <IconComponent size={20} />
-          </div>
-          <div style={{ overflow: 'hidden' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20', margin: 0, lineHeight: '1.2', marginBottom: '4px' }}>{merchant.name}</h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <MapPin size={10} /> {displayLocation}
-            </p>
-          </div>
+      {/* Identity Section (Logo + Badge) */}
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+        <div style={{ 
+          width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
+          overflow: 'hidden'
+        }}>
+          {merchant.logo_url ? (
+            <img src={merchant.logo_url} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <IconComponent size={22} />
+          )}
         </div>
-
-        {/* --- VALIDATION BADGE --- */}
-        {merchant.validation_count > 0 && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '10px',
-            background: 'rgba(95, 125, 74, 0.08)', border: '1px solid rgba(95, 125, 74, 0.15)',
-            color: '#5F7D4A', flexShrink: 0
-          }} title="Aval de la Comunidad">
-            <ShieldCheck size={14} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '900' }}>{merchant.validation_count}</span>
-          </div>
-        )}
+        <div style={{ 
+          position: 'absolute', bottom: '-4px', left: '50%', transform: 'translateX(-50%)',
+          fontSize: '0.55rem', fontWeight: '900', background: '#2D3A20', color: 'white', 
+          padding: '1px 5px', borderRadius: '3px', textTransform: 'uppercase',
+          whiteSpace: 'nowrap', tracking: '-0.02em'
+        }}>
+          {mainType}
+        </div>
       </div>
 
-      <div style={{ marginTop: '4px' }}>
-        {productTags.length > 0 && (
-          <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '6px' }}>
-                {visibleProducts.map(pt => (
-                  <span key={pt} style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--primary-dark)', background: '#f5f5f5', padding: '2px 6px', borderRadius: '6px' }}>
-                    {pt}
-                  </span>
-                ))}
-                {!isHovered && hiddenProductsCount > 0 && (
-                    <span style={{ fontSize: '0.65rem', fontWeight: '900', color: 'var(--text-secondary)', padding: '2px 4px' }}>
-                      +{hiddenProductsCount}
-                    </span>
-                )}
-              </div>
-            )}
-          </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-          <div style={{ fontSize: '0.6rem', fontWeight: '900', background: '#2D3A20', color: 'white', padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase' }}>
-            {mainType}
-          </div>
-          {secondaryType && (
-            <div style={{ fontSize: '0.55rem', fontWeight: '800', background: '#5F7D4A15', color: '#5F7D4A', padding: '2px 8px', borderRadius: '20px', textTransform: 'uppercase' }}>
-              + {secondaryType}
-            </div>
-          )}
-
-          {/* SHARE BUTTON - NUEVO (V-10.1) */}
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsShareModalOpen(true);
-            }}
-            style={{ 
-              marginTop: '4px',
-              padding: '6px', 
-              borderRadius: '50%', 
-              border: '1px solid #eee', 
-              background: isHovered ? '#F0F4ED' : 'white',
-              color: '#5F7D4A',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: isHovered ? '0 4px 10px rgba(0,0,0,0.05)' : 'none'
-            }}
-            title="Compartir"
-          >
-            <Share2 size={13} />
-          </button>
-          
-          <ShareModal 
-            isOpen={isShareModalOpen}
-            onClose={() => setIsShareModalOpen(false)}
-            merchantName={merchant.name}
-            merchantId={merchant.id}
-            merchantLogo={merchant.logo_url}
-            merchantCategory={merchant.type?.split(',')[0]?.trim()}
-          />
-          
-          {/* TOMAS'S BADGES: Same line hierarchy */}
-          {(merchant.validation_count || 0) > 0 ? (
-            <div style={{ 
-              fontSize: '0.6rem', fontWeight: '950', background: '#5F7D4A', color: 'white', 
-              padding: '3px 10px', borderRadius: '20px', 
-              display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
-              boxShadow: '0 4px 10px rgba(95, 125, 74, 0.2)'
-            }}>
-              <ShieldCheck size={10} strokeWidth={3} /> AVAL DE LA COMUNIDAD
-            </div>
-          ) : (
-            <div style={{ 
-              fontSize: '0.6rem', fontWeight: '950', background: 'transparent', color: '#5F7D4A', 
-              padding: '2px 9px', borderRadius: '20px', border: '1.2px solid #5F7D4A', 
-              display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
-              opacity: 0.85
-            }}>
-              <Shield size={10} strokeWidth={3} /> VALIDAR
-            </div>
-          )}
+      {/* Info Section */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0, paddingLeft: '4px' }}>
+        <h3 style={{ 
+          fontSize: '14px', fontWeight: '900', color: '#2D3A20', margin: 0, 
+          lineHeight: '1.1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
+        }}>
+          {merchant.name}
+        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+          <MapPin size={10} color="#5F7D4A" />
+          <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {displayLocation}
+          </span>
         </div>
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, margin: '4px 0 8px 0', lineHeight: '1.4' }}>
-        {merchant.bio_short?.substring(0, 85)}...
-      </p>
-      
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', gap: '8px' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+        
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
           {isDirect && (
-            <span style={{ fontSize: '0.65rem', fontWeight: '800', background: '#e8f5e9', color: '#2e7d32', padding: '3px 8px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-              <Leaf size={10} strokeWidth={2.5} /> Del campo
+            <span style={{ fontSize: '9px', fontWeight: '800', background: '#F0F4ED', color: '#5F7D4A', padding: '2px 6px', borderRadius: '4px' }}>
+              Directo
             </span>
           )}
-          {visibleOtherTags.slice(0, 2).map(tag => (
-            <span key={tag} style={{ fontSize: '0.65rem', fontWeight: '700', background: 'transparent', color: 'var(--text-secondary)', padding: '3px 8px', borderRadius: '12px', border: '1px solid #eee' }}>
+          {productTags.slice(0, 2).map((tag: string) => (
+            <span key={tag} style={{ fontSize: '9px', fontWeight: '700', background: '#F0F4ED', color: '#5F7D4A', padding: '2px 6px', borderRadius: '4px' }}>
               {tag}
             </span>
           ))}
         </div>
-
-
       </div>
+
+      {/* Actions Section */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+        {/* Validation Button/Badge */}
+        {(merchant.validation_count || 0) > 0 ? (
+          <div style={{ 
+            fontSize: '9px', fontWeight: '950', background: '#5F7D4A', color: 'white', 
+            padding: '2px 6px', borderRadius: '4px', 
+            display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap'
+          }}>
+            <ShieldCheck size={9} strokeWidth={3} /> {merchant.validation_count}
+          </div>
+        ) : (
+          <div style={{ 
+            fontSize: '10px', fontWeight: '900', border: '1px solid #5F7D4A', color: '#5F7D4A',
+            padding: '4px 8px', borderRadius: '8px', background: 'transparent', cursor: 'pointer',
+            transition: 'all 0.2s', whiteSpace: 'nowrap'
+          }}>
+            VALIDAR
+          </div>
+        )}
+        
+        {/* Share Button */}
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsShareModalOpen(true);
+          }}
+          style={{ 
+            background: '#F9F9F9', border: 'none', borderRadius: '50%', 
+            width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888',
+            transition: 'all 0.2s',
+            boxShadow: isHovered ? '0 4px 10px rgba(0,0,0,0.05)' : 'none'
+          }}
+          title="Compartir"
+        >
+          <Share2 size={12} />
+        </button>
+      </div>
+
+      <ShareModal 
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        merchantName={merchant.name}
+        merchantId={merchant.id}
+        merchantLogo={merchant.logo_url}
+        merchantCategory={mainType}
+      />
     </div>
   );
 }

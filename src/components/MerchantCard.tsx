@@ -54,85 +54,91 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        padding: '1.2rem', borderRadius: '24px', background: 'white', cursor: onClick ? 'pointer' : 'default',
+        padding: '8px 16px', borderRadius: '24px', background: 'white', cursor: onClick ? 'pointer' : 'default',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-        display: 'flex', flexDirection: 'column', gap: '8px', transition: 'all 0.2s',
-        maxWidth: '400px', width: '100%'
+        display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', transition: 'all 0.2s',
+        maxWidth: '500px', width: '100%', height: '94px', position: 'relative', overflow: 'hidden'
       }}
     >
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-          <div style={{ 
-            width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', flexShrink: 0, marginTop: '2px',
-            overflow: 'hidden'
-          }}>
-            {merchant.logo_url ? (
-              <img src={merchant.logo_url} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <IconComponent size={24} />
-            )}
-          </div>
-          <div style={{ overflow: 'hidden' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '950', color: '#2D3A20', margin: 0, lineHeight: '1.2', marginBottom: '4px' }}>{merchant.name}</h3>
-            <p style={{ fontSize: '0.75rem', color: '#888', margin: 0, fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <MapPin size={10} /> {displayLocation}
-            </p>
-          </div>
+      {/* Identity Section (Logo + Badge) */}
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+        <div style={{ 
+          width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
+          overflow: 'hidden'
+        }}>
+          {merchant.logo_url ? (
+            <img src={merchant.logo_url} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <IconComponent size={22} />
+          )}
         </div>
-
-        {merchant.validation_count > 0 && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '10px',
-            background: 'rgba(95, 125, 74, 0.08)', border: '1px solid rgba(95, 125, 74, 0.15)',
-            color: '#5F7D4A', flexShrink: 0
-          }}>
-            <ShieldCheck size={14} />
-            <span style={{ fontSize: '0.7rem', fontWeight: '900' }}>{merchant.validation_count}</span>
-          </div>
-        )}
+        <div style={{ 
+          position: 'absolute', bottom: '-4px', left: '50%', transform: 'translateX(-50%)',
+          fontSize: '0.55rem', fontWeight: '900', background: '#2D3A20', color: 'white', 
+          padding: '1px 5px', borderRadius: '3px', textTransform: 'uppercase',
+          whiteSpace: 'nowrap', tracking: '-0.02em'
+        }}>
+          {mainType}
+        </div>
       </div>
 
-      <p style={{ fontSize: '0.85rem', color: '#2D3A20', opacity: 0.8, margin: '4px 0 8px 0', lineHeight: '1.4' }}>
-        {merchant.bio_short ? (merchant.bio_short.length > 85 ? merchant.bio_short.substring(0, 85) + '...' : merchant.bio_short) : 'Sin descripción cargada aún.'}
-      </p>
-
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', gap: '8px' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+      {/* Info Section */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0, paddingLeft: '4px' }}>
+        <h3 style={{ 
+          fontSize: '14px', fontWeight: '900', color: '#2D3A20', margin: 0, 
+          lineHeight: '1.1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
+        }}>
+          {merchant.name}
+        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+          <MapPin size={10} color="#5F7D4A" />
+          <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {displayLocation}
+          </span>
+        </div>
+        
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
           {isDirect && (
-            <span style={{ fontSize: '0.65rem', fontWeight: '800', background: '#e8f5e9', color: '#2e7d32', padding: '3px 8px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-              <Leaf size={10} strokeWidth={2.5} /> Del campo
+            <span style={{ fontSize: '9px', fontWeight: '800', background: '#F0F4ED', color: '#5F7D4A', padding: '2px 6px', borderRadius: '4px' }}>
+              Directo
             </span>
           )}
           {productTags.slice(0, 2).map((tag: string) => (
-            <span key={tag} style={{ fontSize: '0.65rem', fontWeight: '700', background: 'transparent', color: '#888', padding: '3px 8px', borderRadius: '12px', border: '1px solid #eee' }}>
+            <span key={tag} style={{ fontSize: '9px', fontWeight: '700', background: '#F0F4ED', color: '#5F7D4A', padding: '2px 6px', borderRadius: '4px' }}>
               {tag}
             </span>
           ))}
         </div>
+      </div>
+
+      {/* Actions Section */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        <button 
+          style={{
+            fontSize: '10px', fontWeight: '900', border: '1px solid #5F7D4A', color: '#5F7D4A',
+            padding: '4px 8px', borderRadius: '8px', background: 'transparent', cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          className="hover-scale"
+        >
+          VALIDAR
+        </button>
         
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-           <div style={{ fontSize: '0.55rem', fontWeight: '950', background: '#2D3A20', color: 'white', padding: '2px 8px', borderRadius: '20px', textTransform: 'uppercase' }}>
-              {mainType}
-           </div>
-           {(merchant.verified || merchant.owner_id) && (
-              <div style={{ fontSize: '0.5rem', fontWeight: '950', background: '#A67C00', color: 'white', padding: '2px 8px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                 <ShieldCheck size={8} /> OFICIAL
-              </div>
-           )}
-            <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsShareModalOpen(true);
-                }}
-                style={{ 
-                  marginTop: '4px', background: 'none', border: '1px solid #eee', borderRadius: '50%', padding: '4px', cursor: 'pointer', display: 'flex', color: '#5F7D4A' 
-                }}
-                title="Compartir"
-              >
-                <Share2 size={12} />
-              </button>
-        </div>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsShareModalOpen(true);
+          }}
+          style={{ 
+            background: '#F9F9F9', border: 'none', borderRadius: '50%', 
+            width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888',
+            transition: 'all 0.2s'
+          }}
+          title="Compartir"
+        >
+          <Share2 size={12} />
+        </button>
       </div>
 
       <ShareModal 
