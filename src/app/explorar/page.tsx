@@ -1896,7 +1896,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        padding: '0 12px', borderRadius: '20px', background: 'white', cursor: onClick ? 'pointer' : 'default',
+        padding: '0 12px', borderRadius: '20px', background: 'white', cursor: 'pointer',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
         display: 'flex', flexDirection: 'row', alignItems: 'center', transition: 'all 0.2s',
         maxWidth: '100%', width: '100%', height: '80px', minHeight: '80px', maxHeight: '80px', 
