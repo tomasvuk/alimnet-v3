@@ -72,7 +72,7 @@ export default function SimulationToggle() {
         </div>
       )}
       <div style={{ paddingLeft: '15px', fontSize: '10px', fontWeight: '900', color: '#888', letterSpacing: '0.05em', opacity: 0.6 }}>
-        v1.6.45
+        v1.6.46
       </div>
     </div>
   );
