@@ -1903,7 +1903,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       className="merchant-card-pro"
     >
       {/* Identity Section (Logo + Badge) */}
-      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: '42px' }}>
         <div style={{ 
           width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
           display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
@@ -1917,37 +1917,37 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
         </div>
         <div style={{ 
           position: 'absolute', bottom: '-4px', left: '50%', transform: 'translateX(-50%)',
-          fontSize: '0.55rem', fontWeight: '900', background: '#2D3A20', color: 'white', 
-          padding: '1px 5px', borderRadius: '3px', textTransform: 'uppercase',
-          whiteSpace: 'nowrap', letterSpacing: '-0.02em'
+          fontSize: '8px', fontWeight: '950', background: '#2D3A20', color: 'white', 
+          padding: '1px 4px', borderRadius: '3px', textTransform: 'uppercase',
+          whiteSpace: 'nowrap', letterSpacing: '-0.02em', zIndex: 2
         }}>
           {mainType}
         </div>
       </div>
 
       {/* Info Section */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1px', minWidth: 0, paddingLeft: '4px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0px', minWidth: 0, paddingLeft: '4px' }}>
         <h3 style={{ 
           fontSize: '14px', fontWeight: '900', color: '#2D3A20', margin: 0, 
-          lineHeight: '1.1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
+          lineHeight: '1.2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
         }}>
           {merchant.name}
         </h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-          <MapPin size={10} color="#5F7D4A" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '1px' }}>
+          <MapPin size={9} color="#5F7D4A" style={{ opacity: 0.7 }} />
           <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {displayLocation}
           </span>
         </div>
         
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
+        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '4px', marginTop: '4px', overflow: 'hidden' }}>
           {isDirect && (
-            <span style={{ fontSize: '9px', fontWeight: '800', background: '#F0F4ED', color: '#5F7D4A', padding: '2px 6px', borderRadius: '4px' }}>
+            <span style={{ fontSize: '9px', fontWeight: '800', background: '#F0F4ED', color: '#5F7D4A', padding: '1px 5px', borderRadius: '4px', flexShrink: 0 }}>
               Directo
             </span>
           )}
           {productTags.slice(0, 2).map((tag: string) => (
-            <span key={tag} style={{ fontSize: '9px', fontWeight: '700', background: '#F0F4ED', color: '#5F7D4A', padding: '2px 6px', borderRadius: '4px' }}>
+            <span key={tag} style={{ fontSize: '9px', fontWeight: '700', background: '#F0F4ED', color: '#5F7D4A', padding: '1px 5px', borderRadius: '4px', flexShrink: 0 }}>
               {tag}
             </span>
           ))}
@@ -1955,21 +1955,22 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       </div>
 
       {/* Actions Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0, width: '65px' }}>
         {/* Validation Button/Badge */}
         {(merchant.validation_count || 0) > 0 ? (
           <div style={{ 
             fontSize: '9px', fontWeight: '950', background: '#5F7D4A', color: 'white', 
             padding: '2px 6px', borderRadius: '4px', 
-            display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap'
+            display: 'flex', alignItems: 'center', gap: '3px', whiteSpace: 'nowrap',
+            width: '100%', justifyContent: 'center'
           }}>
             <ShieldCheck size={9} strokeWidth={3} /> {merchant.validation_count}
           </div>
         ) : (
           <div style={{ 
-            fontSize: '10px', fontWeight: '900', border: '1px solid #5F7D4A', color: '#5F7D4A',
-            padding: '4px 8px', borderRadius: '8px', background: 'transparent', cursor: 'pointer',
-            transition: 'all 0.2s', whiteSpace: 'nowrap'
+            fontSize: '9px', fontWeight: '950', border: '1px solid #5F7D4A', color: '#5F7D4A',
+            padding: '3px 6px', borderRadius: '6px', background: 'transparent', cursor: 'pointer',
+            transition: 'all 0.2s', width: '100%', textAlign: 'center', whiteSpace: 'nowrap'
           }}>
             VALIDAR
           </div>
