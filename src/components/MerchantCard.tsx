@@ -50,45 +50,49 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
 
   return (
     <div
+      id={`merchant-card-${merchant.id}`}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
         padding: '0 12px', borderRadius: '20px', background: 'white', cursor: onClick ? 'pointer' : 'default',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-        display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px', transition: 'all 0.2s',
+        display: 'flex', flexDirection: 'row', alignItems: 'center', transition: 'all 0.2s',
         maxWidth: '100%', width: '100%', height: '80px', minHeight: '80px', maxHeight: '80px', 
         position: 'relative', overflow: 'hidden'
       }}
+      className="merchant-card-pro"
     >
-      {/* Identity Section (Logo + Badge) */}
-      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: '40px' }}>
-        <div style={{ 
-          width: '40px', height: '40px', borderRadius: '10px', background: '#F4F1E6', 
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
-          overflow: 'hidden', border: '1px solid rgba(95, 125, 74, 0.1)'
-        }}>
-          {merchant.logo_url ? (
-            <img src={merchant.logo_url} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <IconComponent size={20} />
-          )}
-        </div>
-        <div style={{ 
-          position: 'absolute', bottom: '-3px', left: '50%', transform: 'translateX(-50%)',
-          fontSize: '7px', fontWeight: '900', background: 'white', color: '#5F7D4A', 
-          padding: '1px 4px', borderRadius: '4px', textTransform: 'uppercase',
-          whiteSpace: 'nowrap', letterSpacing: '0.02em', border: '1px solid rgba(95, 125, 74, 0.2)',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)', zIndex: 2
-        }}>
-          {mainType}
+      {/* Col 1: Logo (50px) */}
+      <div style={{ width: '50px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ 
+            width: '40px', height: '40px', borderRadius: '10px', background: '#F4F1E6', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
+            overflow: 'hidden', border: '1px solid rgba(95, 125, 74, 0.1)'
+          }}>
+            {merchant.logo_url ? (
+              <img src={merchant.logo_url} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <IconComponent size={20} />
+            )}
+          </div>
+          <div style={{ 
+            position: 'absolute', bottom: '-4px', left: '50%', transform: 'translateX(-50%)',
+            fontSize: '7px', fontWeight: '900', background: 'white', color: '#5F7D4A', 
+            padding: '1px 4px', borderRadius: '4px', textTransform: 'uppercase',
+            whiteSpace: 'nowrap', border: '1px solid rgba(95, 125, 74, 0.2)',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)', zIndex: 2
+          }}>
+            {mainType}
+          </div>
         </div>
       </div>
 
-      {/* Info Section */}
+      {/* Col 2: Info (Flexible) */}
       <div style={{ 
         flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2px', 
-        minWidth: 0, paddingRight: '80px' 
+        minWidth: 0, paddingLeft: '4px'
       }}>
         <h3 style={{ 
           fontSize: '13px', fontWeight: '950', color: '#2D3A20', margin: 0, 
@@ -120,11 +124,10 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
         </div>
       </div>
 
-      {/* Actions Section - Absolutely Positioned for Stability */}
+      {/* Col 3: Actions (80px) */}
       <div style={{ 
-        position: 'absolute', right: '12px', top: '0', bottom: '0',
-        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', gap: '6px', 
-        flexShrink: 0, width: '75px', zIndex: 10
+        width: '80px', flexShrink: 0, display: 'flex', flexDirection: 'column', 
+        alignItems: 'flex-end', justifyContent: 'center', gap: '6px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {(merchant.validation_count || 0) > 0 && (
