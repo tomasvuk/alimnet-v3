@@ -1919,7 +1919,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
           position: 'absolute', bottom: '-4px', left: '50%', transform: 'translateX(-50%)',
           fontSize: '0.55rem', fontWeight: '900', background: '#2D3A20', color: 'white', 
           padding: '1px 5px', borderRadius: '3px', textTransform: 'uppercase',
-          whiteSpace: 'nowrap', tracking: '-0.02em'
+          whiteSpace: 'nowrap', letterSpacing: '-0.02em'
         }}>
           {mainType}
         </div>
