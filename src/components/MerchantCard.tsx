@@ -116,20 +116,20 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
       {/* Actions Section - Absolutely Positioned for Stability */}
       <div style={{ 
         position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', 
-        flexShrink: 0, width: '70px', zIndex: 5
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', 
+        flexShrink: 0, width: '70px', zIndex: 10
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {(merchant.validation_count || 0) > 0 && (
-            <span style={{ fontSize: '9px', fontWeight: '900', color: '#5F7D4A', opacity: 0.7 }}>
+            <span style={{ fontSize: '10px', fontWeight: '950', color: '#2D3A20' }}>
               {merchant.validation_count}
             </span>
           )}
           <button 
             style={{
-              fontSize: '8px', fontWeight: '950', border: '1px solid rgba(95, 125, 74, 0.2)', color: '#5F7D4A',
-              padding: '2px 5px', borderRadius: '5px', background: 'transparent', cursor: 'pointer',
-              whiteSpace: 'nowrap'
+              fontSize: '8px', fontWeight: '950', border: '1.5px solid #5F7D4A', color: '#5F7D4A',
+              padding: '2px 6px', borderRadius: '6px', background: 'white', cursor: 'pointer',
+              whiteSpace: 'nowrap', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
             }}
           >
             VALIDAR
@@ -142,13 +142,13 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
             setIsShareModalOpen(true);
           }}
           style={{ 
-            background: 'transparent', border: 'none', 
-            width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#DDD',
-            transition: 'all 0.2s'
+            background: '#F9F9F9', border: '1px solid #EEE', 
+            width: '26px', height: '26px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666',
+            transition: 'all 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
           }}
           title="Compartir"
         >
-          <Share2 size={13} />
+          <Share2 size={13} strokeWidth={2.5} />
         </button>
       </div>
 
