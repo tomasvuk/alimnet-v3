@@ -50,6 +50,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/Header';
 import AlimnetLoader from '@/components/AlimnetLoader';
+import ShareModal from '@/components/ShareModal';
 
 import OnboardingPremium from '@/components/OnboardingPremium';
 import { 
@@ -1851,6 +1852,7 @@ export default function ExplorarPage() {
 
 function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () => void }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const types = (merchant.type || '').split(',').map(s => s.trim());
   const mainType = types[0] || 'Productor';
   const secondaryType = types.length > 1 ? types[1] : null;
@@ -1957,19 +1959,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              const shareUrl = `${window.location.origin}/explorar?id=${merchant.id}`;
-              if (navigator.share) {
-                navigator.share({
-                  title: `Alimnet | ${merchant.name}`,
-                  text: `Te comparto este proyecto de alimentos cuidados en Alimnet: ${merchant.name}`,
-                  url: shareUrl
-                }).catch(() => {
-                  navigator.clipboard.writeText(shareUrl);
-                });
-              } else {
-                navigator.clipboard.writeText(shareUrl);
-                alert('¡Enlace copiado al portapapeles! 🚀');
-              }
+              setIsShareModalOpen(true);
             }}
             style={{ 
               marginTop: '4px',
@@ -1989,6 +1979,15 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
           >
             <Share2 size={13} />
           </button>
+          
+          <ShareModal 
+            isOpen={isShareModalOpen}
+            onClose={() => setIsShareModalOpen(false)}
+            merchantName={merchant.name}
+            merchantId={merchant.id}
+            merchantLogo={merchant.logo_url}
+            merchantCategory={merchant.type?.split(',')[0]?.trim()}
+          />
           
           {/* TOMAS'S BADGES: Same line hierarchy */}
           {(merchant.validation_count || 0) > 0 ? (
@@ -2045,6 +2044,7 @@ function DetailPanel({
   interactionStatus?: { liked: boolean, saved: boolean, validated: boolean, validators: any[] },
   onLikeToggle?: () => void, onSaveToggle?: () => void, onShowValidators?: () => void
 }) {
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const router = useRouter();
   const displayValidators = interactionStatus?.validators || [];
   
@@ -2091,26 +2091,21 @@ function DetailPanel({
         <h2 style={{ fontSize: '1.2rem', fontWeight: '950', color: 'var(--primary-dark)' }}>{merchant.name}</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button 
-            onClick={() => {
-              const shareUrl = `${window.location.origin}/explorar?id=${merchant.id}`;
-              if (navigator.share) {
-                navigator.share({
-                  title: `Alimnet | ${merchant.name}`,
-                  text: `Te comparto este proyecto de alimentos cuidados en Alimnet: ${merchant.name}`,
-                  url: shareUrl
-                }).catch(() => {
-                  navigator.clipboard.writeText(shareUrl);
-                });
-              } else {
-                navigator.clipboard.writeText(shareUrl);
-                alert('¡Enlace copiado! 🚀');
-              }
-            }}
+            onClick={() => setIsShareModalOpen(true)}
             style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer', display: 'flex', color: '#5F7D4A' }}
             title="Compartir"
           >
             <Share2 size={16} />
           </button>
+
+          <ShareModal 
+            isOpen={isShareModalOpen}
+            onClose={() => setIsShareModalOpen(false)}
+            merchantName={merchant.name}
+            merchantId={merchant.id}
+            merchantLogo={merchant.logo_url}
+            merchantCategory={merchant.type?.split(',')[0]?.trim()}
+          />
           <button onClick={onClose} style={{ background: '#f5f5f5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer', display: 'flex' }}><X size={18} /></button>
         </div>
       </div>
@@ -2349,15 +2344,7 @@ function DetailPanel({
                 <p style={{ fontSize: '0.8rem', fontWeight: '900', color: '#495057', marginBottom: '0.3rem' }}>¿Conocés al dueño?</p>
                 <p style={{ fontSize: '0.75rem', color: '#888', marginBottom: '1.2rem' }}>¡Ayudanos a que se sume! Mandale la invitación para que valide su comercio.</p>
                 <button 
-                  onClick={() => {
-                    const shareUrl = `${window.location.origin}/registro-comercio?merchantId=${merchant.id}`;
-                    if (navigator.share) {
-                       navigator.share({ title: `Invitación Alimnet: ${merchant.name}`, text: `¡Hola! Te recomiendo sumar tu comercio a Alimnet.`, url: shareUrl });
-                    } else {
-                       navigator.clipboard.writeText(shareUrl);
-                       alert('¡Enlace de invitación copiado! 🚀');
-                    }
-                  }}
+                  onClick={() => setIsShareModalOpen(true)}
                   style={{ background: 'white', border: '1.5px solid #5F7D4A', color: '#5F7D4A', padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '950', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
                    <Share2 size={14} /> Compartir invitación

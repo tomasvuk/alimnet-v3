@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { MapPin, ShieldCheck, Shield, Leaf, Store, UtensilsCrossed, ChefHat, Sprout, Sun, CloudSun, Wheat, Share2 } from 'lucide-react';
+import ShareModal from './ShareModal';
 
 interface MerchantCardProps {
   merchant: any;
@@ -25,6 +26,7 @@ const PRODUCT_OPTIONS = [
 
 export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const types = (merchant.type || '').split(',').map((s: string) => s.trim());
   const mainType = types[0] || 'Productor';
   const secondaryType = types.length > 1 ? types[1] : null;
@@ -118,22 +120,10 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
                  <ShieldCheck size={8} /> OFICIAL
               </div>
            )}
-           <button 
+            <button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  const shareUrl = `${window.location.host.includes('localhost') ? 'http://' : 'https://'}${window.location.host}/explorar?id=${merchant.id}`;
-                  if (navigator.share) {
-                    navigator.share({
-                      title: `Alimnet | ${merchant.name}`,
-                      text: `Te comparto este proyecto de alimentos cuidados en Alimnet: ${merchant.name}`,
-                      url: shareUrl
-                    }).catch(() => {
-                      navigator.clipboard.writeText(shareUrl);
-                    });
-                  } else {
-                    navigator.clipboard.writeText(shareUrl);
-                    alert('¡Enlace copiado! 🚀');
-                  }
+                  setIsShareModalOpen(true);
                 }}
                 style={{ 
                   marginTop: '4px', background: 'none', border: '1px solid #eee', borderRadius: '50%', padding: '4px', cursor: 'pointer', display: 'flex', color: '#5F7D4A' 
@@ -144,6 +134,15 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
               </button>
         </div>
       </div>
+
+      <ShareModal 
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        merchantName={merchant.name}
+        merchantId={merchant.id}
+        merchantLogo={merchant.logo_url}
+        merchantCategory={mainType}
+      />
     </div>
   );
 }
