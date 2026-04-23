@@ -65,7 +65,7 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
         <div style={{ 
           width: '42px', height: '42px', borderRadius: '12px', background: '#F4F1E6', 
           display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A',
-          overflow: 'hidden'
+          overflow: 'hidden', border: '1px solid rgba(95, 125, 74, 0.1)'
         }}>
           {merchant.logo_url ? (
             <img src={merchant.logo_url} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -74,10 +74,11 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
           )}
         </div>
         <div style={{ 
-          position: 'absolute', bottom: '-4px', left: '50%', transform: 'translateX(-50%)',
-          fontSize: '8px', fontWeight: '950', background: '#2D3A20', color: 'white', 
-          padding: '1px 4px', borderRadius: '3px', textTransform: 'uppercase',
-          whiteSpace: 'nowrap', letterSpacing: '-0.02em', zIndex: 2
+          position: 'absolute', bottom: '-2px', left: '50%', transform: 'translateX(-50%)',
+          fontSize: '7px', fontWeight: '900', background: 'white', color: '#5F7D4A', 
+          padding: '1px 4px', borderRadius: '4px', textTransform: 'uppercase',
+          whiteSpace: 'nowrap', letterSpacing: '0.02em', border: '1px solid rgba(95, 125, 74, 0.2)',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)', zIndex: 2
         }}>
           {mainType}
         </div>
@@ -92,20 +93,20 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
           {merchant.name}
         </h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '1px' }}>
-          <MapPin size={9} color="#5F7D4A" style={{ opacity: 0.7 }} />
+          <MapPin size={9} color="#5F7D4A" style={{ opacity: 0.6 }} />
           <span style={{ fontSize: '11px', color: '#888', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {displayLocation}
           </span>
         </div>
         
-        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '4px', marginTop: '4px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '4px', marginTop: '6px', overflow: 'hidden' }}>
           {isDirect && (
-            <span style={{ fontSize: '9px', fontWeight: '800', background: '#F0F4ED', color: '#5F7D4A', padding: '1px 5px', borderRadius: '4px', flexShrink: 0 }}>
+            <span style={{ fontSize: '8px', fontWeight: '800', background: 'rgba(95, 125, 74, 0.05)', color: '#5F7D4A', padding: '1px 5px', borderRadius: '4px', flexShrink: 0 }}>
               Directo
             </span>
           )}
           {productTags.slice(0, 2).map((tag: string) => (
-            <span key={tag} style={{ fontSize: '9px', fontWeight: '700', background: '#F0F4ED', color: '#5F7D4A', padding: '1px 5px', borderRadius: '4px', flexShrink: 0 }}>
+            <span key={tag} style={{ fontSize: '8px', fontWeight: '700', background: '#F9F9F9', color: '#999', padding: '1px 5px', borderRadius: '4px', flexShrink: 0, border: '1px solid #eee' }}>
               {tag}
             </span>
           ))}
@@ -113,17 +114,23 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
       </div>
 
       {/* Actions Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0, width: '65px' }}>
-        <button 
-          style={{
-            fontSize: '9px', fontWeight: '950', border: '1px solid #5F7D4A', color: '#5F7D4A',
-            padding: '3px 6px', borderRadius: '6px', background: 'transparent', cursor: 'pointer',
-            transition: 'all 0.2s', width: '100%', textAlign: 'center'
-          }}
-          className="hover-scale"
-        >
-          VALIDAR
-        </button>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0, width: '75px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {(merchant.validation_count || 0) > 0 && (
+            <span style={{ fontSize: '10px', fontWeight: '900', color: '#5F7D4A', opacity: 0.8 }}>
+              {merchant.validation_count}
+            </span>
+          )}
+          <button 
+            style={{
+              fontSize: '9px', fontWeight: '950', border: '1px solid rgba(95, 125, 74, 0.3)', color: '#5F7D4A',
+              padding: '3px 6px', borderRadius: '6px', background: 'transparent', cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            VALIDAR
+          </button>
+        </div>
         
         <button 
           onClick={(e) => {
@@ -131,13 +138,13 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
             setIsShareModalOpen(true);
           }}
           style={{ 
-            background: '#F9F9F9', border: 'none', borderRadius: '50%', 
-            width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888',
+            background: 'transparent', border: 'none', 
+            width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#CCC',
             transition: 'all 0.2s'
           }}
           title="Compartir"
         >
-          <Share2 size={12} />
+          <Share2 size={13} />
         </button>
       </div>
 
