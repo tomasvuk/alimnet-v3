@@ -37,9 +37,9 @@ Al ver su propia tarjeta, el dueño verá el botón ya existente en la plataform
 ## 5. Copywriting: Mensajes de Contacto Oficial
 
 **Mensaje para WhatsApp / Instagram:**
-> "¡Hola! 👋 Les escribo desde Alimnet, el mapa de alimentos cuidados como agroecológicos u orgánicos, entre otros.
+> "¡Hola! 👋 Les escribo desde Alimnet, el mapa de alimentos cuidados (agroecológicos, orgánicos, etc).
 > Ya los tenemos sumados en nuestra plataforma porque nos encanta lo que hacen 🌿, pero queremos invitarlos a oficializar su perfil.
-> La idea es que miles de consumidores afines puedan encontrarlos fácil cuando busquen productos como los suyos. Es 100% gratuito. Pueden cargar sus datos completos y fotos acá: [LINK_PERSONALIZADO]
+> La idea es que miles de consumidores afines puedan encontrarlos fácil cuando busquen productos como los suyos. No tiene ningun costo. Pueden cargar sus datos completos y fotos acá: [LINK_PERSONALIZADO]
 > 
 > Mi nombre es Tomás Vukojicic, encantado de que sean parte y quedo a disposición para ayudarlos en el proceso. ¡Un abrazo!"
 
@@ -57,4 +57,6 @@ Al ver su propia tarjeta, el dueño verá el botón ya existente en la plataform
 > Mi nombre es Tomás Vukojicic. Encantado de que sean parte de esta red; estoy a su entera disposición para ayudarlos en el proceso.
 > 
 > Un saludo grande,
-> Tomás - Fundador de Alimnet
+> Tomás Vukojicic - Fundador de Alimnet
+> ALIMNET
+> www.alimnet.com
