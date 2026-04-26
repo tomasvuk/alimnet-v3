@@ -166,6 +166,9 @@ function NeighborRecommendationContent() {
           metadata: {
             merchant_name: formData.name,
             locality: formData.locality,
+            address: formData.address,
+            lat: formData.lat,
+            lng: formData.lng,
             category: formData.type,
             reason: formData.reason,
             delivery_info: formData.delivery_info,
