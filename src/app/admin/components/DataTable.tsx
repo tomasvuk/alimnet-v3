@@ -190,7 +190,7 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
   const creator = (users || []).find((u: any) => u.id === merchant.created_by);
   const owner = (users || []).find((u: any) => u.id === merchant.owner_id);
   
-  const mapLink = `/explorar?merchant=${merchant.id}`;
+  const mapLink = `/explorar?id=${merchant.id}`;
 
   return (
     <>
@@ -300,7 +300,7 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
                   </div>
                </div>
 
-               {/* --- PANEL CENTRAL: PREVIEW REAL --- */}
+               {/* --- PANEL CENTRAL: PREVIEW REAL Y CONTACTO --- */}
                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div style={{ ...StatLabel, opacity: 0.6, fontSize: '0.6rem' }}>👀 Preview Real</div>
                   <div style={{ width: '350px', height: '80px', transform: 'scale(1)', transformOrigin: 'top left' }}>
@@ -308,38 +308,49 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
                   </div>
                   
                   <div style={{ background: 'white', padding: '1rem', borderRadius: '20px', border: '1px solid #E4EBDD', marginTop: '1rem' }}>
-                     <div style={StatLabel}>Propiedad</div>
-                     {owner ? (
-                        <div style={{ marginTop: '8px' }}>
-                           <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#2D3A20' }}>{owner.full_name || owner.first_name}</div>
-                           <div style={{ fontSize: '0.75rem', color: '#888' }}>{owner.email}</div>
-                        </div>
-                     ) : (
-                        <div style={{ fontSize: '0.75rem', color: '#B2AC88', marginTop: '8px', fontWeight: 800 }}>No oficializado.</div>
-                     )}
+                     <div style={StatLabel}>Datos de Contacto</div>
+                     <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {merchant.phone && <div style={{ fontSize: '0.85rem', color: '#2D3A20', fontWeight: 900 }}>📞 Tel: {merchant.phone}</div>}
+                        {merchant.whatsapp && <div style={{ fontSize: '0.85rem', color: '#5F7D4A', fontWeight: 900 }}>💬 Wzp: {merchant.whatsapp}</div>}
+                        {owner ? (
+                           <div style={{ marginTop: '4px', borderTop: '1px solid #F0F4ED', paddingTop: '4px' }}>
+                              <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#A67C00' }}>👑 DUEÑO: {owner.full_name || owner.first_name}</div>
+                              <div style={{ fontSize: '0.7rem', color: '#888' }}>{owner.email}</div>
+                           </div>
+                        ) : (
+                           <div style={{ fontSize: '0.7rem', color: '#B2AC88', marginTop: '4px', fontStyle: 'italic' }}>Sin dueño vinculado.</div>
+                        )}
+                     </div>
                   </div>
                </div>
 
-               {/* --- PANEL DERECHO: INFO --- */}
-               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+               {/* --- PANEL DERECHO: BIO Y LOGÍSTICA (HORIZONTAL) --- */}
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD' }}>
-                     <div style={StatLabel}>Bio</div>
-                     <p style={{ fontSize: '0.85rem', color: '#2D3A20', marginTop: '8px', lineHeight: '1.4', fontWeight: 600 }}>
-                       {merchant.bio_short || 'Sin bio.'}
+                     <div style={StatLabel}>Bio / Información</div>
+                     <p style={{ fontSize: '0.9rem', color: '#2D3A20', marginTop: '8px', lineHeight: '1.5', fontWeight: 600 }}>
+                       {merchant.bio_short || merchant.bio_long || 'Sin descripción detallada.'}
                      </p>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                     <div style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                     <div style={{ background: 'white', padding: '1rem', borderRadius: '20px', border: '1px solid #E4EBDD' }}>
                         <div style={StatLabel}>Logística</div>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#5F7D4A', marginTop: '8px' }}>
-                           {merchant.delivery_info || 'No def.'}
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#5F7D4A', marginTop: '8px' }}>
+                           {merchant.delivery_info || 'No especificada.'}
                         </div>
                      </div>
-                     {creator && !owner && (
-                        <div style={{ padding: '0.8rem', background: '#F3F4F6', borderRadius: '12px' }}>
-                           <div style={{ ...StatLabel, color: '#6B7280', fontSize: '0.6rem' }}>Sugerido por</div>
-                           <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#374151' }}>{creator.first_name}</div>
+                     
+                     {creator && (
+                        <div style={{ background: '#F8F9FA', padding: '1rem', borderRadius: '20px', border: '1px solid #E9ECEF', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                           <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#E4EBDD', overflow: 'hidden', flexShrink: 0 }}>
+                              {creator.avatar_url ? <img src={creator.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5F7D4A', fontWeight: 900 }}>{creator.first_name?.[0]}</div>}
+                           </div>
+                           <div style={{ overflow: 'hidden' }}>
+                              <div style={{ ...StatLabel, color: '#6B7280', fontSize: '0.55rem' }}>SUGERIDO POR</div>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 1000, color: '#2D3A20', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{creator.full_name || `${creator.first_name} ${creator.last_name}`}</div>
+                              <div style={{ fontSize: '0.65rem', color: '#888', fontWeight: 700 }}>Socio N° {creator.membership_number || '-'} • {creator.email}</div>
+                           </div>
                         </div>
                      )}
                   </div>

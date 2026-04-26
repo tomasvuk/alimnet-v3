@@ -402,6 +402,16 @@ export default function ExplorarPage() {
 
   useEffect(() => {
     merchantsRef.current = merchants;
+    
+    // Deep linking: Si venimos con ?id= o ?merchant=, abrir la card automáticamente (V-10.1)
+    if (merchants.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const mId = params.get('id') || params.get('merchant');
+      if (mId) {
+        const found = merchants.find(m => m.id === mId);
+        if (found) setSelectedMerchant(found);
+      }
+    }
   }, [merchants]);
 
   // --- LOCALIZACIÓN AUTOMÁTICA (GPS/IP) AL INICIO ---
