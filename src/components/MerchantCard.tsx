@@ -46,6 +46,7 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
     const loc = locations[0];
     const localities = (loc.locality || '').split(',').map((s: string) => s.trim()).filter(Boolean);
     const district = loc.district || '';
+    const province = loc.province || '';
     
     let locText = '';
     if (localities.length > 0) {
@@ -55,8 +56,16 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
     
     if (district) {
       displayLocation = locText ? `${locText}, ${district}` : district;
+    } else if (locText) {
+      displayLocation = locText;
+    } else if (province === 'Ciudad Autónoma de Buenos Aires') {
+      displayLocation = 'CABA';
+    } else if (province === 'Buenos Aires') {
+      displayLocation = 'Prov. de Buenos Aires';
+    } else if (province) {
+      displayLocation = province;
     } else {
-      displayLocation = locText || 'Zona';
+      displayLocation = 'Zona';
     }
 
     if (locations.length > 1) {
@@ -71,6 +80,7 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
+        boxSizing: 'border-box',
         padding: '0 12px', borderRadius: '20px', background: 'white', cursor: onClick ? 'pointer' : 'default',
         border: '1px solid #eee', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
         display: 'flex', flexDirection: 'row', alignItems: 'center', transition: 'all 0.2s',
