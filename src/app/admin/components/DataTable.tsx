@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Filter, Edit, ChevronDown, ChevronUp, ShieldCheck, Check, X, Shield, MessageSquare, ExternalLink } from 'lucide-react';
+import { Search, Filter, Edit, ChevronDown, ChevronUp, ShieldCheck, Check, X, Shield, MessageSquare, ExternalLink, Map as MapIcon, Instagram } from 'lucide-react';
 import MerchantCard from '@/components/MerchantCard';
 
 interface DataTableProps {
