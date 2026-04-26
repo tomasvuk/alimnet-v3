@@ -1147,7 +1147,7 @@ export default function ExplorarPage() {
               transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', 
               padding: '1px', 
               alignItems: isMobile ? 'stretch' : 'center',
-              overflow: 'hidden',
+              overflow: 'visible',
               maxHeight: isMobile ? (isSearchFocused ? '500px' : '56px') : '1000px'
             }} className="search-capsule">
               
