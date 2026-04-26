@@ -869,9 +869,9 @@ export default function AdminDashboard() {
                     style={InputStyle} 
                     value={editingMerchant.locations?.[0]?.country || ''} 
                     onChange={(e)=>{
-                      const locs = [...(editingMerchant.locations || [{ id: '', country: '', province: '' }])];
+                      const locs = [...(editingMerchant.locations || [{ id: '', country: '', province: '' } as any])];
                       locs[0] = { ...locs[0], country: e.target.value };
-                      setEditingMerchant({...editingMerchant, locations: locs});
+                      setEditingMerchant({...editingMerchant, locations: locs as any});
                     }} 
                   />
                 </div>
@@ -881,9 +881,9 @@ export default function AdminDashboard() {
                     style={InputStyle} 
                     value={editingMerchant.locations?.[0]?.province || ''} 
                     onChange={(e)=>{
-                      const locs = [...(editingMerchant.locations || [{ id: '', country: '', province: '' }])];
+                      const locs = [...(editingMerchant.locations || [{ id: '', country: '', province: '' } as any])];
                       locs[0] = { ...locs[0], province: e.target.value };
-                      setEditingMerchant({...editingMerchant, locations: locs});
+                      setEditingMerchant({...editingMerchant, locations: locs as any});
                     }} 
                   />
                 </div>
