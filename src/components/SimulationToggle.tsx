@@ -6,6 +6,7 @@ import { Ghost, UserCheck, Settings } from 'lucide-react';
 export default function SimulationToggle() {
   const [isSimulated, setIsSimulated] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [versionLabel, setVersionLabel] = useState('');
 
   useEffect(() => {
     // Solo mostrar en puliendo o localhost
@@ -14,6 +15,7 @@ export default function SimulationToggle() {
       setIsVisible(true);
       const saved = localStorage.getItem('social_simulation_mode') === 'true';
       setIsSimulated(saved);
+      setVersionLabel(' (Fix Dropdown)');
       // Disparamos un evento inicial para sincronizar el Header
       window.dispatchEvent(new Event('simulation-change'));
     }
@@ -72,7 +74,7 @@ export default function SimulationToggle() {
         </div>
       )}
       <div style={{ paddingLeft: '15px', fontSize: '10px', fontWeight: '900', color: '#888', letterSpacing: '0.05em', opacity: 0.6 }}>
-        v1.7.0
+        v1.7.0{versionLabel}
       </div>
     </div>
   );
