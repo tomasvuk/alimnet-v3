@@ -31,7 +31,10 @@ import {
   Heart,
   Bookmark,
   Star,
-  Download
+  Download,
+  Megaphone,
+  MessageCircle,
+  Copy
 } from 'lucide-react';
 import Header from '@/components/Header';
 import AlimnetLoader from '@/components/AlimnetLoader';
@@ -121,7 +124,7 @@ export default function AdminDashboard() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'usuarios' | 'pagos' | 'analytics'>('comercios');
+  const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'usuarios' | 'pagos' | 'analytics' | 'oficializacion'>('comercios');
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [donations, setDonations] = useState<Donation[]>([]);
@@ -723,6 +726,7 @@ export default function AdminDashboard() {
             merchants: merchants.length,
             pending: stats.pendingApprovals,
             users: stats.totalUsers,
+            unclaimed: merchants.filter(m => !m.claimed).length,
             messages: messages.filter(m => m.status === 'unread').length
           }}
         />
@@ -831,6 +835,95 @@ export default function AdminDashboard() {
                setAnalyticsTimeRange={setAnalyticsTimeRange}
                topCities={topCities}
              />
+          ) : activeTab === 'oficializacion' ? (
+            <div style={{ padding: '2rem' }}>
+               <div style={{ marginBottom: '2rem' }}>
+                 <h2 style={{ fontSize: '1.8rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.5rem' }}>Campaña de Oficialización</h2>
+                 <p style={{ color: '#B2AC88', fontWeight: 800 }}>Contactá a los comercios para que reclamen su perfil y completen su info.</p>
+               </div>
+
+               <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', overflow: 'hidden' }}>
+                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                   <thead>
+                     <tr style={{ background: '#F8F9F5', borderBottom: '2px solid #E4EBDD' }}>
+                       <th style={{ padding: '1.2rem', textAlign: 'left', fontWeight: '1000', color: '#2D3A20' }}>COMERCIO</th>
+                       <th style={{ padding: '1.2rem', textAlign: 'left', fontWeight: '1000', color: '#2D3A20' }}>TIPO</th>
+                       <th style={{ padding: '1.2rem', textAlign: 'center', fontWeight: '1000', color: '#2D3A20' }}>CONTACTO RÁPIDO</th>
+                       <th style={{ padding: '1.2rem', textAlign: 'center', fontWeight: '1000', color: '#2D3A20' }}>ESTADO</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {merchants.filter(m => !m.claimed).map(m => {
+                       const baseUrl = 'https://alimnet.com';
+                       const claimLink = `${baseUrl}/explorar?id=${m.id}`;
+                       const message = `¡Hola! 👋 Les escribo desde Alimnet, el mapa de alimentos cuidados (agroecológicos, orgánicos, etc).%0A%0AYa los tenemos sumados en nuestra plataforma porque nos encanta lo que hacen 🌿, pero queremos invitarlos a oficializar su perfil.%0A%0ALa idea es que más consumidores afines puedan encontrarlos fácil en esta red. No tiene ningún costo. Pueden cargar su información oficial y fotos acá: ${claimLink}%0A%0AMi nombre es Tomás Vukojicic, fundador de Alimnet, y me encantaría que se sumen. ¡Un abrazo!`;
+
+                       return (
+                         <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED' }}>
+                           <td style={{ padding: '1.2rem' }}>
+                             <div style={{ fontWeight: 1000, color: '#2D3A20' }}>{m.name}</div>
+                             <div style={{ fontSize: '0.75rem', color: '#B2AC88' }}>{m.locations?.[0]?.locality || 'Sin localidad'}</div>
+                           </td>
+                           <td style={{ padding: '1.2rem' }}>
+                             <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#5F7D4A' }}>{m.type}</span>
+                           </td>
+                           <td style={{ padding: '1.2rem', textAlign: 'center' }}>
+                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                               <button 
+                                 onClick={() => {
+                                   window.open(`https://wa.me/${m.whatsapp || m.phone || ''}?text=${message}`, '_blank');
+                                   updateContactStatus(m.id, 'contactado');
+                                 }}
+                                 style={{ padding: '10px', background: '#25D366', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
+                                 title="WhatsApp"
+                               >
+                                 <MessageCircle size={16} /> <span style={{fontSize: 10, fontWeight: 900}}>WZP</span>
+                               </button>
+                               <button 
+                                 onClick={() => {
+                                   navigator.clipboard.writeText(decodeURIComponent(message));
+                                   alert("Mensaje copiado para IG. ¡Pegalo en su chat!");
+                                   updateContactStatus(m.id, 'contactado');
+                                 }}
+                                 style={{ padding: '10px', background: '#E1306C', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
+                                 title="Instagram"
+                               >
+                                 <Instagram size={16} /> <span style={{fontSize: 10, fontWeight: 900}}>IG</span>
+                               </button>
+                               <button 
+                                 onClick={() => {
+                                   window.open(`mailto:${m.email || ''}?subject=Invitación a Alimnet&body=${decodeURIComponent(message)}`, '_blank');
+                                   updateContactStatus(m.id, 'contactado');
+                                 }}
+                                 style={{ padding: '10px', background: '#2D3A20', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
+                                 title="Email"
+                                >
+                                 <Mail size={16} /> <span style={{fontSize: 10, fontWeight: 900}}>EMAIL</span>
+                               </button>
+                             </div>
+                           </td>
+                           <td style={{ padding: '1.2rem', textAlign: 'center' }}>
+                              <select 
+                                value={m.contact_status || 'sin_contacto'} 
+                                onChange={(e) => updateContactStatus(m.id, e.target.value)}
+                                style={{ padding: '8px', borderRadius: '10px', border: '1.5px solid #F0F4ED', fontSize: '0.75rem', fontWeight: 900, color: '#5F7D4A' }}
+                              >
+                                <option value="sin_contacto">SIN CONTACTO</option>
+                                <option value="contactado">CONTACTADO</option>
+                                <option value="en_proceso">EN PROCESO</option>
+                                <option value="oficializado">OFICIALIZADO</option>
+                              </select>
+                           </td>
+                         </tr>
+                       );
+                     })}
+                     {merchants.filter(m => !m.claimed).length === 0 && (
+                       <tr><td colSpan={4} style={{ padding: '4rem', textAlign: 'center', color: '#B2AC88', fontWeight: 800 }}>No hay comercios pendientes de oficialización.</td></tr>
+                     )}
+                   </tbody>
+                 </table>
+               </div>
+            </div>
           ) : activeTab === 'mensajes' ? (
              <MessagesTab 
                messages={messages} 
