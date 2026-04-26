@@ -229,7 +229,8 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
             <div style={{color: '#B2AC88'}}>{expanded ? <ChevronUp size={18}/> : <ChevronDown size={18}/>}</div>
           </div>
         </td>
-      <      {expanded && (
+      </tr>
+      {expanded && (
         <tr>
           <td colSpan={8} style={{ padding: '2rem', background: '#F8F9F5', borderBottom: '2px solid #E4EBDD' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 320px) 1fr minmax(280px, 320px)', gap: '2.5rem', alignItems: 'start' }}>
