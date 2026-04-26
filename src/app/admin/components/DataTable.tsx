@@ -348,8 +348,8 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
                            </div>
                            <div style={{ overflow: 'hidden' }}>
                               <div style={{ ...StatLabel, color: '#6B7280', fontSize: '0.55rem' }}>SUGERIDO POR</div>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 1000, color: '#2D3A20', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{creator.full_name || `${creator.first_name} ${creator.last_name}`}</div>
-                              <div style={{ fontSize: '0.65rem', color: '#888', fontWeight: 700 }}>Socio N° {creator.membership_number || '-'} • {creator.email}</div>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 1000, color: '#2D3A20', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{creator.first_name} {creator.last_name}</div>
+                              <div style={{ fontSize: '0.65rem', color: '#888', fontWeight: 700 }}>Socio N° {creator.user_number || '-'} • {creator.email}</div>
                            </div>
                         </div>
                      )}
