@@ -94,6 +94,8 @@ interface Merchant {
   google_maps_url?: string;
   logo_url?: string;
   search_keywords?: string[];
+  products?: string[];
+  quality?: string[];
 }
 
 interface Location {
@@ -780,7 +782,12 @@ export default function ExplorarPage() {
         const matchName = normalizeString(m.name).includes(q);
         const matchTags = (m.tags || []).some(t => normalizeString(t).includes(q));
         const matchKeywords = (m.search_keywords || []).some(k => normalizeString(k).includes(q));
-        return matchName || matchTags || matchKeywords;
+        const matchProducts = (m.products || []).some(p => normalizeString(p).includes(q));
+        const matchQuality = (m.quality || []).some(qual => normalizeString(qual).includes(q));
+        const matchType = normalizeString(m.type).includes(q);
+        const matchBio = normalizeString(m.bio_short || '').includes(q);
+        
+        return matchName || matchTags || matchKeywords || matchProducts || matchQuality || matchType || matchBio;
       });
     }
 
@@ -1077,7 +1084,13 @@ export default function ExplorarPage() {
       const q = normalizeString(value);
       const names = merchants.map(m => m.name);
       const keywords = Array.from(new Set(
-        merchants.flatMap(m => [...(m.tags || []), ...(m.search_keywords || []), m.type])
+        merchants.flatMap(m => [
+          ...(m.tags || []), 
+          ...(m.search_keywords || []), 
+          ...(m.products || []),
+          ...(m.quality || []),
+          m.type
+        ])
       )).filter(Boolean);
       
       const filtered = [...names, ...keywords]
