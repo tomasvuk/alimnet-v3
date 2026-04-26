@@ -619,6 +619,20 @@ export default function AdminDashboard() {
     setIsSaving(false);
   };
 
+  const handleDeleteMerchant = async (id: string) => {
+    if (!window.confirm('¿Estás seguro de que querés borrar este comercio? Esta acción no se puede deshacer.')) return;
+    
+    // Primero borrar locaciones para evitar error de FK (si no es cascada en Supabase)
+    await supabase.from('locations').delete().eq('merchant_id', id);
+    const { error } = await supabase.from('merchants').delete().eq('id', id);
+    
+    if (!error) {
+      setMerchants(prev => prev.filter(m => m.id !== id));
+    } else {
+      alert('Error al borrar: ' + error.message);
+    }
+  };
+
   // --- LÓGICA DE FILTRADO CENTRALIZADA ---
   const filteredMerchants = merchants.filter(m => {
     const s = searchTerm.toLowerCase();
@@ -758,6 +772,8 @@ export default function AdminDashboard() {
                onUpdateContactStatus={updateContactStatus}
                onToggleVerified={toggleVerified}
                onOpenEdit={openEditModal}
+               onDelete={handleDeleteMerchant}
+               users={users}
              />
           ) : activeTab === 'usuarios' ? (
             <div style={{ overflowX: 'auto' }}>

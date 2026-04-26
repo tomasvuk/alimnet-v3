@@ -10,6 +10,7 @@ interface DataTableProps {
   onUpdateContactStatus: (id: string, contactStatus: string) => void;
   onToggleVerified: (id: string, current: boolean) => void;
   onOpenEdit: (m: any) => void;
+  onDelete: (id: string) => void;
   users: any[];
   searchTerm: string;
   setSearchTerm: (s: string) => void;
@@ -35,6 +36,7 @@ export default function DataTable({
   onUpdateContactStatus, 
   onToggleVerified, 
   onOpenEdit,
+  onDelete,
   users,
   searchTerm,
   setSearchTerm,
@@ -158,6 +160,7 @@ export default function DataTable({
                 onUpdateContactStatus={onUpdateContactStatus}
                 onToggleVerified={onToggleVerified}
                 onOpenEdit={onOpenEdit}
+                onDelete={onDelete}
               />
             ))}
             {filtered.length === 0 && (
@@ -170,13 +173,15 @@ export default function DataTable({
   );
 }
 
-function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpdateContactStatus, onToggleVerified, onOpenEdit }: any) {
+function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpdateContactStatus, onToggleVerified, onOpenEdit, onDelete }: any) {
   const missing = [];
   if (!merchant.instagram_url) missing.push('Insta');
   if (!merchant.type) missing.push('Tipo');
 
   const creator = (users || []).find((u: any) => u.id === merchant.created_by);
   const owner = (users || []).find((u: any) => u.id === merchant.owner_id);
+  
+  const mapLink = `/explorar?merchant=${merchant.id}`;
 
   return (
     <>
@@ -220,132 +225,137 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
         <td style={{ padding: '1.2rem 1rem' }}>
           <div style={{display:'flex', gap:10, alignItems: 'center'}}>
             <button onClick={(e)=>{ e.stopPropagation(); onOpenEdit(merchant); }} style={{background:'white', border:'1px solid #E4EBDD', padding: 6, borderRadius: 8, color:'#5F7D4A'}}><Edit size={16}/></button>
+            <button onClick={(e)=>{ e.stopPropagation(); onDelete(merchant.id); }} style={{background:'white', border:'1px solid #FEE2E2', padding: 6, borderRadius: 8, color:'#EF4444'}}><X size={16}/></button>
             <div style={{color: '#B2AC88'}}>{expanded ? <ChevronUp size={18}/> : <ChevronDown size={18}/>}</div>
           </div>
         </td>
-      </tr>
-      {expanded && (
+      <      {expanded && (
         <tr>
-          <td colSpan={8} style={{ padding: '2rem', background: '#F8F9F5', borderBottom: '1.5px solid #E4EBDD' }}>
-            <div style={{ display: 'flex', gap: '3rem', alignItems: 'flex-start' }}>
+          <td colSpan={8} style={{ padding: '2rem', background: '#F8F9F5', borderBottom: '2px solid #E4EBDD' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 320px) 1fr minmax(280px, 320px)', gap: '2.5rem', alignItems: 'start' }}>
                
-               {/* --- GESTIÓN RÁPIDA (Izquierda) --- */}
-               <div style={{ minWidth: '280px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
+               {/* --- PANEL IZQUIERDO: ACCIONES --- */}
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ flex: 1, background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
                         <div style={StatLabel}>Aval</div>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#A67C00' }}>{merchant.validation_count || 0}</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 1000, color: '#A67C00', marginTop: '4px' }}>{merchant.validation_count || 0}</div>
                     </div>
-                    <div style={{ flex: 2, background: 'white', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
-                        <div style={StatLabel}>Contacto</div>
+                    <div style={{ flex: 1.5, background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                        <div style={StatLabel}>Estado Contacto</div>
                         <select 
                           value={merchant.contact_status || 'sin_contacto'} 
                           onChange={(e)=>onUpdateContactStatus(merchant.id, e.target.value)} 
-                          style={{ width: '100%', marginTop: '6px', padding: '4px', borderRadius: '8px', border: '1px solid #F0F4ED', fontSize: '11px', fontWeight: 1000, background: '#F8F9F5', outline: 'none' }}
+                          style={{ width: '100%', marginTop: '8px', padding: '8px', borderRadius: '10px', border: '1.5px solid #F0F4ED', fontSize: '11px', fontWeight: 1000, background: '#F8F9F5', cursor: 'pointer', outline: 'none' }}
                         >
                           <option value="sin_contacto">🔴 SIN CONTACTO</option>
                           <option value="contactado">🟡 CONTACTADO</option>
-                          <option value="verificado">🟢 LISTO</option>
+                          <option value="verificado">🟢 VERIFICADO</option>
                         </select>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                     <div style={StatLabel}>Acciones de Control</div>
-                     <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                     <div style={StatLabel}>Control Maestro</div>
+                     <div style={{ display: 'flex', gap: '10px' }}>
                         <button 
                           onClick={()=>onUpdateStatus(merchant.id, 'active')} 
-                          title="Aprobar"
-                          style={{ flex: 1, padding: '10px', background: '#5F7D4A', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.7rem' }}
+                          style={{ flex: 1, padding: '12px', background: '#5F7D4A', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.75rem' }}
                         >
-                           <Check size={14} /> APROBAR
+                           <Check size={16} /> APROBAR
                         </button>
                         <button 
                           onClick={()=>onUpdateStatus(merchant.id, 'rejected')} 
-                          title="Rechazar"
-                          style={{ flex: 1, padding: '10px', background: 'white', color: '#EF4444', border: '1px solid #EF4444', borderRadius: '10px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.7rem' }}
+                          style={{ flex: 1, padding: '12px', background: '#FFF2F2', color: '#EF4444', border: 'none', borderRadius: '12px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.75rem' }}
                         >
-                           <X size={14} /> RECHAZAR
+                           <X size={16} /> RECHAZAR
                         </button>
                      </div>
                      <button 
                        onClick={()=>onToggleVerified(merchant.id, merchant.verified)} 
-                       style={{ width: '100%', padding: '10px', background: merchant.verified ? '#F0F4ED' : '#A67C00', color: merchant.verified ? '#A67C00' : 'white', border: 'none', borderRadius: '10px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.75rem' }}
+                       style={{ width: '100%', padding: '12px', background: merchant.verified ? '#F0F4ED' : '#A67C00', color: merchant.verified ? '#A67C00' : 'white', border: 'none', borderRadius: '12px', fontWeight: 1000, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.8rem' }}
                      >
-                        <Shield size={14} /> {merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}
+                        <Shield size={16} /> {merchant.verified ? 'QUITAR SELLO' : 'DAR SELLO OFICIAL'}
                      </button>
                   </div>
 
-                  <div style={{ padding: '12px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '12px', border: '1px dashed #E4EBDD' }}>
-                     <div style={{ ...StatLabel, marginBottom: '8px' }}>Links Rápidos</div>
-                     <div style={{ display: 'flex', gap: '12px' }}>
-                        {merchant.instagram_url && <a href={merchant.instagram_url} target="_blank" style={{ color: '#5F7D4A' }}><MessageSquare size={16} /></a>}
-                        {merchant.website_url && <a href={merchant.website_url} target="_blank" style={{ color: '#5F7D4A' }}><ExternalLink size={16} /></a>}
-                        <button onClick={()=>onOpenEdit(merchant)} style={{ background: 'none', border: 'none', color: '#5F7D4A', padding: 0, cursor: 'pointer' }}><Edit size={16} /></button>
+                  <div style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                     <div style={{ ...StatLabel, marginBottom: '1rem' }}>Acceso Rápido</div>
+                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <a href={mapLink} target="_blank" title="Ver en el Mapa" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><MapIcon size={20} /></a>
+                        {merchant.instagram_url && <a href={merchant.instagram_url} target="_blank" title="Instagram" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><Instagram size={20} /></a>}
+                        {merchant.website_url && <a href={merchant.website_url} target="_blank" title="Web" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><ExternalLink size={20} /></a>}
+                        <button onClick={()=>onOpenEdit(merchant)} title="Editar Datos" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A', border: 'none', cursor: 'pointer' }}><Edit size={20} /></button>
+                     </div>
+                  </div>
+               </div>
+
+               {/* --- PANEL CENTRAL: PREVISUALIZACIÓN --- */}
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                  <div style={{ ...StatLabel, display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.6 }}>
+                    👀 Card Preview <span style={{ fontSize: '0.55rem', border: '1px solid #B2AC88', padding: '1px 5px', borderRadius: '4px' }}>MÓDULO VIVO</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem', background: 'rgba(255,255,255,0.4)', borderRadius: '32px', border: '1px dashed #E4EBDD' }}>
+                    <MerchantCard merchant={merchant} />
+                  </div>
+                  
+                  <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                     <div style={StatLabel}>Vinculación / Propiedad</div>
+                     {owner ? (
+                        <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                           <div>
+                              <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#A67C00', display: 'flex', alignItems: 'center', gap: '4px' }}><ShieldCheck size={14}/> OFICIALIZADO</div>
+                              <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#2D3A20', marginTop: '4px' }}>{owner.full_name || `${owner.first_name} ${owner.last_name}`}</div>
+                              <div style={{ fontSize: '0.8rem', color: '#888', fontWeight: 600 }}>{owner.email}</div>
+                           </div>
+                           <div>
+                              {merchant.phone && <div style={{ fontSize: '0.75rem', color: '#5F7D4A', fontWeight: 900 }}>📞 Tel: {merchant.phone}</div>}
+                              {merchant.whatsapp && <div style={{ fontSize: '0.75rem', color: '#5F7D4A', fontWeight: 900, marginTop: '4px' }}>💬 Wzp: {merchant.whatsapp}</div>}
+                           </div>
+                        </div>
+                     ) : (
+                        <div style={{ fontSize: '0.85rem', color: '#B2AC88', marginTop: '12px', fontWeight: 800, fontStyle: 'italic' }}>No hay propietario vinculado aún.</div>
+                     )}
+                  </div>
+               </div>
+
+               {/* --- PANEL DERECHO: INFO DETALLADA --- */}
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                     <div style={StatLabel}>Bio / Información</div>
+                     <p style={{ fontSize: '0.9rem', color: '#2D3A20', marginTop: '12px', lineHeight: '1.6', fontWeight: 600, opacity: 0.8 }}>
+                       {merchant.bio_long || merchant.bio_short || 'Sin biografía.'}
+                     </p>
+                  </div>
+
+                  <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                     <div style={StatLabel}>Logística y Entrega</div>
+                     <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#5F7D4A', background: '#F0F4ED', padding: '12px', borderRadius: '15px', marginTop: '12px' }}>
+                        {merchant.delivery_info || 'Logística no especificada.'}
                      </div>
                   </div>
 
-                  <div style={{ background: 'white', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
-                     <div style={StatLabel}>Vinculación / Propiedad</div>
-                     {owner ? (
-                        <div style={{ marginTop: '8px' }}>
-                           <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#A67C00', display: 'flex', alignItems: 'center', gap: '4px' }}><ShieldCheck size={14}/> OFICIALIZADO</div>
-                           <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#2D3A20', marginTop: '4px' }}>{owner.full_name || `${owner.first_name} ${owner.last_name}`}</div>
-                           <div style={{ fontSize: '0.75rem', color: '#888' }}>{owner.email}</div>
-                           {merchant.phone && <div style={{ fontSize: '0.75rem', color: '#5F7D4A', fontWeight: 800, marginTop: '2px' }}>Tel: {merchant.phone}</div>}
-                           {merchant.whatsapp && <div style={{ fontSize: '0.75rem', color: '#5F7D4A', fontWeight: 800, marginTop: '2px' }}>Wzp: {merchant.whatsapp}</div>}
-                        </div>
-                     ) : (
-                        <div style={{ fontSize: '0.8rem', color: '#B2AC88', marginTop: '8px', fontWeight: 800 }}>No oficializado por un usuario aún.</div>
-                     )}
-                     
-                     {creator && !owner && (
-                        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #E4EBDD' }}>
-                           <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase' }}>Sugerido por Vecino:</div>
-                           <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#2D3A20', marginTop: '4px' }}>{creator.full_name || `${creator.first_name} ${creator.last_name}`}</div>
-                           <div style={{ fontSize: '0.75rem', color: '#888' }}>{creator.email}</div>
-                        </div>
-                     )}
-                  </div>
-               </div>
-
-               {/* --- PREVISUALIZACIÓN VISUAL (Derecha) --- */}
-               <div style={{ flex: 1 }}>
-                  <div style={{ ...StatLabel, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    👀 Previsualización del Perfil <span style={{ fontSize: '0.6rem', background: '#E4EBDD', padding: '2px 6px', borderRadius: '4px' }}>LIVE PREVIEW</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                    <MerchantCard merchant={merchant} />
-                    
-                    <div style={{ flex: 1, background: 'white', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD', minHeight: '150px' }}>
-                       <div style={StatLabel}>Bio / Información</div>
-                       <p style={{ fontSize: '0.85rem', color: '#2D3A20', marginTop: '10px', lineHeight: '1.5', opacity: 0.8 }}>
-                         {merchant.bio_long || merchant.bio_short || 'No hay biografía detallada cargada.'}
-                       </p>
-                       <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          <div style={StatLabel}>Logística / Entrega</div>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#5F7D4A', background: '#F0F4ED', padding: '10px', borderRadius: '12px' }}>
-                             {merchant.delivery_info || 'Información de reparto no especificada.'}
-                          </div>
-                       </div>
-
-                       {merchant.gallery_images && merchant.gallery_images.length > 0 && (
-                         <div style={{ marginTop: '1.5rem' }}>
-                            <div style={StatLabel}>Galería de Fotos</div>
-                            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                               {merchant.gallery_images.slice(0, 3).map((img: string, i: number) => (
-                                 <div key={i} style={{ width: '60px', height: '60px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E4EBDD' }}>
-                                    <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                 </div>
-                               ))}
+                  {merchant.gallery_images && merchant.gallery_images.length > 0 && (
+                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', border: '1px solid #E4EBDD', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                       <div style={StatLabel}>Fotos del Comercio</div>
+                       <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                          {merchant.gallery_images.map((img: string, i: number) => (
+                            <div key={i} style={{ width: '70px', height: '70px', borderRadius: '12px', overflow: 'hidden', border: '2px solid #F0F4ED' }}>
+                               <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
-                         </div>
-                       )}
+                          ))}
+                       </div>
                     </div>
-                  </div>
-               </div>
+                  )}
 
+                  {creator && !owner && (
+                    <div style={{ padding: '1rem', background: '#F3F4F6', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
+                       <div style={{ ...StatLabel, color: '#6B7280' }}>Sugerido por Vecino</div>
+                       <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#374151', marginTop: '6px' }}>{creator.full_name || creator.first_name}</div>
+                       <div style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 600 }}>{creator.email}</div>
+                    </div>
+                  )}
+               </div>
             </div>
           </td>
         </tr>
