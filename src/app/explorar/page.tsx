@@ -855,10 +855,12 @@ export default function ExplorarPage() {
     const isRegionalQuery = ['zona norte', 'zona oeste', 'zona sur', 'gba', 'buenos aires'].some(r => normalizeString(searchQuery).includes(r));
     if (searchQuery.trim().length > 0 && !isRegionalQuery) {
       const q = normalizeString(searchQuery);
-      result = result.filter(m => 
-        normalizeString(m.name).includes(q) || 
-        (m.tags || []).some(t => normalizeString(t).includes(q))
-      );
+      result = result.filter(m => {
+        const matchName = normalizeString(m.name).includes(q);
+        const matchTags = (m.tags || []).some(t => normalizeString(t).includes(q));
+        const matchKeywords = (m.search_keywords || []).some(k => normalizeString(k).includes(q));
+        return matchName || matchTags || matchKeywords;
+      });
     }
 
     // --- LIMPIEZA DE DATOS: Ocultar puntos mal geolocalizados ---
