@@ -846,7 +846,7 @@ export default function AdminDashboard() {
 
       {showEditModal && editingMerchant && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter:'blur(5px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '90%', maxWidth: 800 }}>
+          <div style={{ background: 'white', padding: 40, borderRadius: 32, width: '90%', maxWidth: 800, maxHeight: '90vh', overflowY: 'auto' }}>
             <h2 style={{fontWeight:1000, color:'#2D3A20'}}>Editar {editingMerchant.name}</h2>
             <div style={{display:'grid', gap:20, marginTop:20}}>
               <div><label style={LabelStyle}>Nombre</label><input style={InputStyle} value={editingMerchant.name} onChange={(e)=>setEditingMerchant({...editingMerchant, name: e.target.value})} /></div>
