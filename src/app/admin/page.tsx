@@ -209,6 +209,16 @@ export default function AdminDashboard() {
     initAdmin();
   }, [router]);
 
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowEditModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
       const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
