@@ -15,7 +15,7 @@ export default function SimulationToggle() {
       setIsVisible(true);
       const saved = localStorage.getItem('social_simulation_mode') === 'true';
       setIsSimulated(saved);
-      setVersionLabel(' (Fix Dropdown)');
+      setVersionLabel(' (CRM + Smart Search)');
       // Disparamos un evento inicial para sincronizar el Header
       window.dispatchEvent(new Event('simulation-change'));
     }
@@ -74,7 +74,7 @@ export default function SimulationToggle() {
         </div>
       )}
       <div style={{ paddingLeft: '15px', fontSize: '10px', fontWeight: '900', color: '#888', letterSpacing: '0.05em', opacity: 0.6 }}>
-        v1.7.0{versionLabel}
+        v1.7.1{versionLabel}
       </div>
     </div>
   );
