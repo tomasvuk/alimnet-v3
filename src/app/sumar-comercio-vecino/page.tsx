@@ -86,11 +86,11 @@ function NeighborRecommendationContent() {
     };
 
     const initAutocomplete = () => {
-      const input = document.getElementById('merchant-name-input') as HTMLInputElement;
+      const input = document.getElementById('address-input') as HTMLInputElement;
       if (!input || !window.google) return;
 
       const autocomplete = new window.google.maps.places.Autocomplete(input, {
-        types: ['establishment'],
+        types: ['establishment', 'geocode'],
         componentRestrictions: { country: 'ar' },
         fields: ['formatted_address', 'geometry', 'name', 'address_components']
       });
@@ -100,12 +100,17 @@ function NeighborRecommendationContent() {
         if (!place.geometry) return;
 
         // Extraer localidad y provincia de address_components
-        const locality = place.address_components?.find((c: any) => c.types.includes('locality'))?.long_name || '';
+        const locality = 
+          place.address_components?.find((c: any) => c.types.includes('locality'))?.long_name || 
+          place.address_components?.find((c: any) => c.types.includes('sublocality'))?.long_name || 
+          place.address_components?.find((c: any) => c.types.includes('administrative_area_level_2'))?.long_name || 
+          '';
+
         const province = place.address_components?.find((c: any) => c.types.includes('administrative_area_level_1'))?.long_name || '';
         
         setFormData(prev => ({
           ...prev,
-          name: place.name || prev.name,
+          name: place.name && !place.name.includes(',') ? place.name : prev.name,
           address: place.formatted_address || '',
           locality: locality,
           province: province,
@@ -284,17 +289,19 @@ function NeighborRecommendationContent() {
                 placeholder="Ej: La huerta de Don Juan"
                 style={{ width: '100%', padding: '1.1rem', borderRadius: '18px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', fontSize: '1rem', outline: 'none', fontWeight: '600', color: '#2D3A20' }}
               />
-              <p style={{ fontSize: '0.7rem', color: '#888', marginTop: '6px', fontWeight: '600' }}>💡 Sugerencia: Empezá a escribir para buscarlo en Google Maps.</p>
             </div>
 
-            {formData.address && (
-              <div style={{ padding: '1rem', background: '#F0F4ED', borderRadius: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <MapPin size={16} color="#5F7D4A" />
-                <div style={{ fontSize: '0.8rem', color: '#5F7D4A', fontWeight: '800' }}>
-                   {formData.address}
-                </div>
-              </div>
-            )}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.6rem', textTransform: 'uppercase' }}>📍 Dirección o Localidad (Google Maps)</label>
+              <input 
+                id="address-input"
+                value={formData.address}
+                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                placeholder="Buscá la dirección exacta..."
+                style={{ width: '100%', padding: '1.1rem', borderRadius: '18px', border: '1.5px solid #F0F4ED', background: '#F8F9F5', fontSize: '1rem', outline: 'none', fontWeight: '600', color: '#2D3A20' }}
+              />
+              <p style={{ fontSize: '0.7rem', color: '#888', marginTop: '6px', fontWeight: '600' }}>💡 Sugerencia: Empezá a escribir para que se complete la ubicación en el mapa.</p>
+            </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Rubro / Categoría</label>

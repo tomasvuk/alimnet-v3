@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Filter, Edit, ChevronDown, ChevronUp, ShieldCheck, Check, X, Shield, MessageSquare, ExternalLink, Map as MapIcon, Instagram } from 'lucide-react';
+import { Search, Filter, Edit, ChevronDown, ChevronUp, ShieldCheck, Check, X, Shield, MessageSquare, ExternalLink, Map as MapIcon, Instagram, Globe, MapPin } from 'lucide-react';
 import MerchantCard from '@/components/MerchantCard';
 
 interface DataTableProps {
@@ -283,9 +283,10 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
                   <div style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
                      <div style={{ ...StatLabel, marginBottom: '1rem' }}>Acceso Rápido</div>
                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        <a href={mapLink} target="_blank" title="Ver en el Mapa" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><MapIcon size={20} /></a>
+                        <a href={mapLink} target="_blank" title="Ver en el Mapa de Alimnet" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><MapIcon size={20} /></a>
+                        {merchant.google_maps_url && <a href={merchant.google_maps_url} target="_blank" title="Google Maps" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><MapPin size={20} /></a>}
                         {merchant.instagram_url && <a href={merchant.instagram_url} target="_blank" title="Instagram" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><Instagram size={20} /></a>}
-                        {merchant.website_url && <a href={merchant.website_url} target="_blank" title="Web" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><ExternalLink size={20} /></a>}
+                        {merchant.website_url && <a href={merchant.website_url} target="_blank" title="Web" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A' }}><Globe size={20} /></a>}
                         <button onClick={()=>onOpenEdit(merchant)} title="Editar Datos" style={{ padding: '10px', background: '#F0F4ED', borderRadius: '12px', color: '#5F7D4A', border: 'none', cursor: 'pointer' }}><Edit size={20} /></button>
                      </div>
                   </div>
