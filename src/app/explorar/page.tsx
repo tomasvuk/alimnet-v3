@@ -363,6 +363,8 @@ export default function ExplorarPage() {
   const [stickyFilters, setStickyFilters] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [querySuggestions, setQuerySuggestions] = useState<string[]>([]);
+  const [showQuerySuggestions, setShowQuerySuggestions] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'Retiro en local' | 'Entrega a domicilio' | 'Ambas'>('Ambas');
   const [searchQuery, setSearchQuery] = useState('');
@@ -508,88 +510,7 @@ export default function ExplorarPage() {
         });
       }
 
-      // 2. Autocomplete para BUSCAR (Inteligente)
-      if (mainSearchInput) {
-        const mainAutocomplete = new window.google.maps.places.Autocomplete(mainSearchInput, {
-          types: ['geocode', 'establishment'],
-          componentRestrictions: { country: 'ar' },
-          fields: ['formatted_address', 'geometry', 'name']
-        });
-
-        mainAutocomplete.addListener('place_changed', () => {
-          const place = mainAutocomplete.getPlace();
-          if (!place.geometry) return;
-          const name = place.name || place.formatted_address || '';
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          
-          setSearchQuery(name);
-          setSearchCoords({ lat, lng });
-          
-          // --- AGENTE DE INTELIGENCIA: INSPECTOR DE DUPLICADOS (REFORZADO) ---
-          const currentMerchants = merchantsRef.current;
-          const matchingMerchants = currentMerchants.filter(m => {
-            const mName = normalizeString(m.name);
-            const gName = normalizeString(name);
-            
-            // Similitud 1: Uno contiene al otro (clásico)
-            const isSimilarName = mName.includes(gName) || gName.includes(mName);
-            
-            // Similitud 2: Comparten palabras clave (para casos "Ayni Cocina" vs "Ayni Almacen Organico")
-            const mWords = mName.split(' ').filter(w => w.length > 3);
-            const gWords = gName.split(' ').filter(w => w.length > 3);
-            const sharedWords = mWords.filter(w => gWords.includes(w));
-            const hasSharedWords = sharedWords.length >= 2;
-            
-            return isSimilarName || hasSharedWords;
-          });
-
-          if (matchingMerchants.length > 0) {
-            // El Agente tiene dudas o encontró un match perfecto
-            const exactMatch = matchingMerchants.find(m => {
-              const mLoc = m.locations?.[0];
-              if (!mLoc?.lat) return false;
-              const dist = Math.sqrt(Math.pow(mLoc.lat - lat, 2) + Math.pow(mLoc.lng - lng, 2));
-              return dist < 0.005; // 500m
-            });
-
-            if (exactMatch) {
-              console.log("Inspector: Match exacto (Cercanía) detectado ->", exactMatch.name);
-              handleMerchantSelect(exactMatch);
-              setExternalPlaceSelected(null);
-              setPotentialDuplicateCandidates([]);
-            } else {
-              // Duda inteligente: Se llaman parecido pero están LEJOS
-              console.log("Inspector: Duda Inteligente detectada (Similares pero lejos)");
-              setPotentialDuplicateCandidates(matchingMerchants.slice(0, 3));
-              setExternalPlaceSelected({
-                name,
-                address: place.formatted_address,
-                lat,
-                lng,
-                placeId: place.place_id,
-                has_potential_duplicates: true
-              });
-            }
-          } else if (place.types?.includes('establishment')) {
-            // No hay nada que se le parezca, ofrecer Cargarlo directamente
-            setExternalPlaceSelected({
-              name,
-              address: place.formatted_address,
-              lat,
-              lng,
-              placeId: place.place_id,
-              has_potential_duplicates: false
-            });
-            setPotentialDuplicateCandidates([]);
-          } else {
-            setExternalPlaceSelected(null);
-            setPotentialDuplicateCandidates([]);
-          }
-          
-          trackClick('SEARCH_MAIN_SELECTED', { name, was_duplicate: matchingMerchants.length > 0 });
-        });
-      }
+      // 2. Autocomplete para BUSCAR (Inteligente) - REMOVIDO DE GOOGLE PARA USAR NATIVO ALIMNET
     };
 
     loadGoogleMaps();
@@ -1142,6 +1063,35 @@ export default function ExplorarPage() {
     else await supabase.from('user_saved_merchants').insert({ merchant_id: selectedMerchant.id, user_id: user.id });
   };
   // --- PERSISTENCE LOGIC END ---
+  
+  const handleQueryChange = (value: string) => {
+    setSearchQuery(value);
+    if (value === '') {
+      setSearchCoords(null);
+      setExternalPlaceSelected(null);
+      setShowQuerySuggestions(false);
+      return;
+    }
+    
+    if (value.length > 1) {
+      const q = normalizeString(value);
+      const names = merchants.map(m => m.name);
+      const keywords = Array.from(new Set(
+        merchants.flatMap(m => [...(m.tags || []), ...(m.search_keywords || []), m.type])
+      )).filter(Boolean);
+      
+      const filtered = [...names, ...keywords]
+        .filter(s => normalizeString(s).includes(q))
+        .filter((val, index, self) => self.indexOf(val) === index) // Unique
+        .slice(0, 5);
+        
+      setQuerySuggestions(filtered);
+      setShowQuerySuggestions(true);
+    } else {
+      setShowQuerySuggestions(false);
+    }
+  };
+
 
   if (loading) return <AlimnetLoader fullScreen />;
 
@@ -1238,17 +1188,28 @@ export default function ExplorarPage() {
                     type="text" autoFocus={isMobile}
                     placeholder="Alimentos, lugares..." 
                     value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      if (e.target.value === '') {
-                        setSearchCoords(null);
-                        setExternalPlaceSelected(null);
-                      }
-                    }}
-                    onFocus={() => setIsSearchFocused(true)}
-                    onBlur={() => !isMobile && setTimeout(() => setIsSearchFocused(false), 200)}
+                    onChange={(e) => handleQueryChange(e.target.value)}
+                    onFocus={() => { setIsSearchFocused(true); if(searchQuery.length > 1) setShowQuerySuggestions(true); }}
+                    onBlur={() => !isMobile && setTimeout(() => { setIsSearchFocused(false); setShowQuerySuggestions(false); }, 200)}
                     style={{ width: '100%', border: 'none', outline: 'none', fontSize: isMobile ? '0.95rem' : '0.8rem', fontWeight: '400', background: 'transparent', boxShadow: 'none' }}
                   />
+                  {/* Dropdown de Sugerencias Alimnet */}
+                  {showQuerySuggestions && querySuggestions.length > 0 && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 2000, marginTop: '8px', overflow: 'hidden' }}>
+                      {querySuggestions.map((sug, i) => (
+                        <div 
+                          key={i} 
+                          onClick={() => { setSearchQuery(sug); setShowQuerySuggestions(false); }}
+                          style={{ padding: '12px 20px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', color: '#2D3A20', borderBottom: i < querySuggestions.length - 1 ? '1px solid #f0f0f0' : 'none' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#F8F9F5'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                        >
+                          <SearchIcon size={12} style={{ marginRight: '8px', opacity: 0.5 }} />
+                          {sug}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ width: isMobile ? '90%' : '1px', height: isMobile ? '1px' : '24px', background: '#ddd', alignSelf: 'center' }}></div>
