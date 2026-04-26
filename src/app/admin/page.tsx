@@ -66,6 +66,11 @@ interface Merchant {
   admin_notes: string | null;
   instagram_url: string;
   website_url: string;
+  phone?: string | null;
+  whatsapp?: string | null;
+  working_hours?: string | null;
+  google_maps_url?: string | null;
+  order_instructions?: string | null;
   validation_count: number;
   created_at: string;
   locations?: Location[];
@@ -73,8 +78,11 @@ interface Merchant {
   province?: string;
   validationsCount?: number;
   bio_short?: string | null;
+  bio_long?: string | null;
   delivery_info?: string | null;
   created_by_type?: string;
+  created_by?: string | null;
+  gallery_images?: string[];
 }
 
 interface Donation {
