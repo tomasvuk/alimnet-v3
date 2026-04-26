@@ -1880,13 +1880,27 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
   
   // Location formatting
   const locations = merchant.locations || [];
-  let displayLocation = 'Zona Norte';
-  if (locations.length === 1) {
+  let displayLocation = 'Zona';
+  if (locations.length > 0) {
     const loc = locations[0];
-    displayLocation = loc.locality || 'Zona Norte'; 
-  } else if (locations.length > 1) {
-    const firstLocality = locations[0]?.locality?.split(' | ')?.[1] || locations[0]?.locality || 'Zona';
-    displayLocation = `${locations.length} sucursales | ${firstLocality}`;
+    const localities = (loc.locality || '').split(',').map(s => s.trim()).filter(Boolean);
+    const district = loc.district || '';
+    
+    let locText = '';
+    if (localities.length > 0) {
+      locText = localities.slice(0, 2).join(', ');
+      if (localities.length > 2) locText += '...';
+    }
+    
+    if (district) {
+      displayLocation = locText ? `${locText}, ${district}` : district;
+    } else {
+      displayLocation = locText || 'Zona';
+    }
+
+    if (locations.length > 1) {
+      displayLocation = `${locations.length} suc. | ${displayLocation}`;
+    }
   }
 
   return (
@@ -1933,7 +1947,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       {/* Col 2: Info (Flexible) */}
       <div style={{ 
         flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2px', 
-        minWidth: 0, paddingLeft: '4px'
+        minWidth: 0, paddingLeft: '4px', overflow: 'hidden'
       }}>
         <h3 style={{ 
           fontSize: '13px', fontWeight: '950', color: '#2D3A20', margin: 0, 
@@ -1941,8 +1955,8 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
         }}>
           {merchant.name}
         </h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-          <MapPin size={8} color="#5F7D4A" style={{ opacity: 0.5 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3px', overflow: 'hidden' }}>
+          <MapPin size={8} color="#5F7D4A" style={{ opacity: 0.5, flexShrink: 0 }} />
           <span style={{ 
             fontSize: '10px', color: '#999', fontWeight: '700', 
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
@@ -1965,9 +1979,9 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
         </div>
       </div>
 
-      {/* Col 3: Actions (80px) */}
+      {/* Col 3: Actions (75px) */}
       <div style={{ 
-        width: '80px', flexShrink: 0, display: 'flex', flexDirection: 'column', 
+        width: '75px', flexShrink: 0, display: 'flex', flexDirection: 'column', 
         alignItems: 'flex-end', justifyContent: 'center', gap: '6px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -1979,7 +1993,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
           <button 
             style={{
               fontSize: '8px', fontWeight: '950', border: '1.5px solid #5F7D4A', color: '#5F7D4A',
-              padding: '2px 6px', borderRadius: '6px', background: 'white', cursor: 'pointer',
+              padding: '2px 5px', borderRadius: '6px', background: 'white', cursor: 'pointer',
               whiteSpace: 'nowrap', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
             }}
           >
