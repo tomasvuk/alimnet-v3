@@ -578,11 +578,25 @@ export default function AdminDashboard() {
       type: editingMerchant.type,
       instagram_url: editingMerchant.instagram_url,
       website_url: editingMerchant.website_url,
+      phone: editingMerchant.phone,
+      whatsapp: editingMerchant.whatsapp,
+      working_hours: editingMerchant.working_hours,
+      google_maps_url: editingMerchant.google_maps_url,
+      order_instructions: editingMerchant.order_instructions,
       admin_notes: editingMerchant.admin_notes,
       bio_short: editingMerchant.bio_short,
       delivery_info: editingMerchant.delivery_info,
       status: editingMerchant.status
     }).eq('id', editingMerchant.id);
+
+    // Si se editó la ubicación (provincia o país)
+    if (editingMerchant.locations && editingMerchant.locations[0]) {
+       const loc = editingMerchant.locations[0];
+       await supabase.from('locations').update({
+          province: loc.province,
+          country: loc.country
+       }).eq('id', loc.id);
+    }
     if (!error) { setShowEditModal(false); fetchData(); }
     setIsSaving(false);
   };
@@ -708,6 +722,7 @@ export default function AdminDashboard() {
           {activeTab === 'comercios' || activeTab === 'pendientes' ? (
              <DataTable 
                merchants={activeTab === 'pendientes' ? filteredMerchants.filter(m => m.status === 'pending') : filteredMerchants}
+               users={users}
                searchTerm={searchTerm}
                setSearchTerm={setSearchTerm}
                // Pasamos los estados de filtros para que DataTable pueda mostrarlos/cambiarlos
@@ -827,15 +842,72 @@ export default function AdminDashboard() {
             <h2 style={{fontWeight:1000, color:'#2D3A20'}}>Editar {editingMerchant.name}</h2>
             <div style={{display:'grid', gap:20, marginTop:20}}>
               <div><label style={LabelStyle}>Nombre</label><input style={InputStyle} value={editingMerchant.name} onChange={(e)=>setEditingMerchant({...editingMerchant, name: e.target.value})} /></div>
-              <div><label style={LabelStyle}>Status</label>
-                <select style={InputStyle} value={editingMerchant.status} onChange={(e)=>setEditingMerchant({...editingMerchant, status: e.target.value})}>
-                  <option value="active">Active</option><option value="pending">Pending</option><option value="rejected">Rejected</option>
-                </select>
+              <div style={{display: 'flex', gap: '15px'}}>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>Status</label>
+                  <select style={InputStyle} value={editingMerchant.status} onChange={(e)=>setEditingMerchant({...editingMerchant, status: e.target.value})}>
+                    <option value="active">Active</option><option value="pending">Pending</option><option value="rejected">Rejected</option>
+                  </select>
+                </div>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>Rubro</label>
+                  <input style={InputStyle} value={editingMerchant.type || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, type: e.target.value})} />
+                </div>
+              </div>
+              <div style={{display: 'flex', gap: '15px'}}>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>País</label>
+                  <input 
+                    style={InputStyle} 
+                    value={editingMerchant.locations?.[0]?.country || ''} 
+                    onChange={(e)=>{
+                      const locs = [...(editingMerchant.locations || [{ id: '', country: '', province: '' }])];
+                      locs[0] = { ...locs[0], country: e.target.value };
+                      setEditingMerchant({...editingMerchant, locations: locs});
+                    }} 
+                  />
+                </div>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>Provincia</label>
+                  <input 
+                    style={InputStyle} 
+                    value={editingMerchant.locations?.[0]?.province || ''} 
+                    onChange={(e)=>{
+                      const locs = [...(editingMerchant.locations || [{ id: '', country: '', province: '' }])];
+                      locs[0] = { ...locs[0], province: e.target.value };
+                      setEditingMerchant({...editingMerchant, locations: locs});
+                    }} 
+                  />
+                </div>
+              </div>
+              <div>
+                <label style={LabelStyle}>Ubicación Google Maps (URL)</label>
+                <input style={InputStyle} value={editingMerchant.google_maps_url || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, google_maps_url: e.target.value})} />
+              </div>
+              <div style={{display: 'flex', gap: '15px'}}>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>Teléfono (Llamadas)</label>
+                  <input style={InputStyle} value={editingMerchant.phone || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, phone: e.target.value})} />
+                </div>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>WhatsApp</label>
+                  <input style={InputStyle} value={editingMerchant.whatsapp || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, whatsapp: e.target.value})} />
+                </div>
+              </div>
+              <div style={{display: 'flex', gap: '15px'}}>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>Horarios de Atención</label>
+                  <input style={InputStyle} value={editingMerchant.working_hours || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, working_hours: e.target.value})} placeholder="Ej: Lun a Vie 9 a 18hs" />
+                </div>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>¿Cómo hacer el pedido?</label>
+                  <input style={InputStyle} value={editingMerchant.order_instructions || ''} onChange={(e)=>setEditingMerchant({...editingMerchant, order_instructions: e.target.value})} placeholder="Ej: Link a Forms o 'Escribir por IG'" />
+                </div>
               </div>
               <div>
                 <label style={LabelStyle}>Productos / Bio Corta</label>
                 <textarea 
-                  style={{...InputStyle, minHeight: '80px', resize: 'vertical'}} 
+                  style={{...InputStyle, minHeight: '60px', resize: 'vertical'}} 
                   value={editingMerchant.bio_short || ''} 
                   onChange={(e)=>setEditingMerchant({...editingMerchant, bio_short: e.target.value})} 
                 />

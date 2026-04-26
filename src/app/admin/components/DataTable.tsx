@@ -10,6 +10,7 @@ interface DataTableProps {
   onUpdateContactStatus: (id: string, contactStatus: string) => void;
   onToggleVerified: (id: string, current: boolean) => void;
   onOpenEdit: (m: any) => void;
+  users: any[];
   searchTerm: string;
   setSearchTerm: (s: string) => void;
   // Filtros centralizados
@@ -34,6 +35,7 @@ export default function DataTable({
   onUpdateContactStatus, 
   onToggleVerified, 
   onOpenEdit,
+  users,
   searchTerm,
   setSearchTerm,
   filterProvince,
@@ -149,6 +151,7 @@ export default function DataTable({
               <MerchantRow 
                 key={m.id} 
                 merchant={m} 
+                users={users}
                 expanded={expandedId === m.id} 
                 toggle={() => setExpandedId(expandedId === m.id ? null : m.id)}
                 onUpdateStatus={onUpdateStatus}
@@ -167,10 +170,13 @@ export default function DataTable({
   );
 }
 
-function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateContactStatus, onToggleVerified, onOpenEdit }: any) {
+function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpdateContactStatus, onToggleVerified, onOpenEdit }: any) {
   const missing = [];
   if (!merchant.instagram_url) missing.push('Insta');
   if (!merchant.type) missing.push('Tipo');
+
+  const creator = (users || []).find((u: any) => u.id === merchant.created_by);
+  const owner = (users || []).find((u: any) => u.id === merchant.owner_id);
 
   return (
     <>
@@ -196,7 +202,7 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
             color: merchant.created_by_type === 'neighborhood_recommendation' ? '#5F7D4A' : (merchant.created_by_type === 'admin' ? '#4338CA' : '#6B7280'),
             fontSize: '0.6rem'
           }}>
-            {merchant.created_by_type === 'neighborhood_recommendation' ? 'VECINO' : (merchant.created_by_type === 'admin' ? 'ADMIN' : 'SISTEMA')}
+            {merchant.created_by_type === 'neighborhood_recommendation' ? `VECINO: ${creator ? (creator.first_name || creator.full_name || 'Anónimo').split(' ')[0] : 'Anónimo'}` : (merchant.created_by_type === 'admin' ? 'ADMIN' : 'SISTEMA')}
           </span>
         </td>
         <td style={{ padding: '1.2rem 1rem', color:'#5F7D4A', fontWeight:1000, fontSize: '0.75rem' }}>{merchant.type?.toUpperCase() || '-'}</td>
@@ -278,6 +284,29 @@ function MerchantRow({ merchant, expanded, toggle, onUpdateStatus, onUpdateConta
                         {merchant.website_url && <a href={merchant.website_url} target="_blank" style={{ color: '#5F7D4A' }}><ExternalLink size={16} /></a>}
                         <button onClick={()=>onOpenEdit(merchant)} style={{ background: 'none', border: 'none', color: '#5F7D4A', padding: 0, cursor: 'pointer' }}><Edit size={16} /></button>
                      </div>
+                  </div>
+
+                  <div style={{ background: 'white', padding: '1rem', borderRadius: '16px', border: '1px solid #E4EBDD' }}>
+                     <div style={StatLabel}>Vinculación / Propiedad</div>
+                     {owner ? (
+                        <div style={{ marginTop: '8px' }}>
+                           <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#A67C00', display: 'flex', alignItems: 'center', gap: '4px' }}><ShieldCheck size={14}/> OFICIALIZADO</div>
+                           <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#2D3A20', marginTop: '4px' }}>{owner.full_name || `${owner.first_name} ${owner.last_name}`}</div>
+                           <div style={{ fontSize: '0.75rem', color: '#888' }}>{owner.email}</div>
+                           {merchant.phone && <div style={{ fontSize: '0.75rem', color: '#5F7D4A', fontWeight: 800, marginTop: '2px' }}>Tel: {merchant.phone}</div>}
+                           {merchant.whatsapp && <div style={{ fontSize: '0.75rem', color: '#5F7D4A', fontWeight: 800, marginTop: '2px' }}>Wzp: {merchant.whatsapp}</div>}
+                        </div>
+                     ) : (
+                        <div style={{ fontSize: '0.8rem', color: '#B2AC88', marginTop: '8px', fontWeight: 800 }}>No oficializado por un usuario aún.</div>
+                     )}
+                     
+                     {creator && !owner && (
+                        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #E4EBDD' }}>
+                           <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase' }}>Sugerido por Vecino:</div>
+                           <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#2D3A20', marginTop: '4px' }}>{creator.full_name || `${creator.first_name} ${creator.last_name}`}</div>
+                           <div style={{ fontSize: '0.75rem', color: '#888' }}>{creator.email}</div>
+                        </div>
+                     )}
                   </div>
                </div>
 
