@@ -93,6 +93,7 @@ interface Merchant {
   verified: boolean;
   google_maps_url?: string;
   logo_url?: string;
+  search_keywords?: string[];
 }
 
 interface Location {
