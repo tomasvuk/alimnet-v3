@@ -47,6 +47,7 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
     const localities = (loc.locality || '').split(',').map((s: string) => s.trim()).filter(Boolean);
     const district = loc.district || '';
     const province = loc.province || '';
+    const address = loc.address || '';
     
     let locText = '';
     if (localities.length > 0) {
@@ -58,6 +59,24 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
       displayLocation = locText ? `${locText}, ${district}` : district;
     } else if (locText) {
       displayLocation = locText;
+    } else if (address) {
+      // Heurística robusta para extraer la localidad de la dirección de GMaps
+      let parts = address.split(',').map((s: string) => s.trim());
+      if (parts[parts.length - 1] === 'Argentina') parts.pop();
+      
+      const last = parts[parts.length - 1] || '';
+      if (last.includes('Provincia de Buenos Aires') || last.includes('Buenos Aires Province') || last === 'Buenos Aires') {
+        parts.pop();
+      }
+      
+      let locPart = parts[parts.length - 1] || province || 'Zona';
+      locPart = locPart.replace(/^[A-Z]?\d{4}[A-Z]?\s+/, ''); // Quitar código postal
+      
+      if (locPart.includes('Cdad. Autónoma') || locPart.includes('Capital Federal') || locPart.includes('CABA')) {
+        displayLocation = 'CABA';
+      } else {
+        displayLocation = locPart;
+      }
     } else if (province === 'Ciudad Autónoma de Buenos Aires') {
       displayLocation = 'CABA';
     } else if (province === 'Buenos Aires') {
@@ -122,7 +141,8 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
       }}>
         <h3 style={{ 
           fontSize: '13px', fontWeight: '950', color: '#2D3A20', margin: 0, 
-          lineHeight: '1.1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
+          lineHeight: '1.2', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word'
         }}>
           {merchant.name}
         </h3>

@@ -1411,10 +1411,11 @@ export default function ExplorarPage() {
           onScroll={() => {}}
           style={{ 
             flex: 1,
+            boxSizing: 'border-box',
             width: isMobile ? '100%' : '35%', 
             minWidth: isMobile ? '0' : '420px', 
             display: (isMobile && mobileView !== 'list') ? 'none' : 'block',
-            padding: isMobile ? '0 0 120px' : '0 0 1.5rem 1.5rem', 
+            padding: isMobile ? '0 1rem 120px 1rem' : '0 1rem 1.5rem 1.5rem', 
             background: '#F8F9F5',
             borderRight: isMobile ? 'none' : '1px solid #E4EBDD', 
             overflowY: 'auto',
@@ -1444,7 +1445,7 @@ export default function ExplorarPage() {
               </span>
             </h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '1rem' }}>
             {/* OPCIÓN: SUMAR COMERCIO EXTERNO */}
             {externalPlaceSelected && (
               <div 
@@ -1886,6 +1887,7 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
     const localities = (loc.locality || '').split(',').map(s => s.trim()).filter(Boolean);
     const district = loc.district || '';
     const province = loc.province || '';
+    const address = loc.address || '';
     
     let locText = '';
     if (localities.length > 0) {
@@ -1897,6 +1899,24 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       displayLocation = locText ? `${locText}, ${district}` : district;
     } else if (locText) {
       displayLocation = locText;
+    } else if (address) {
+      // Heurística robusta para extraer la localidad de la dirección de GMaps
+      let parts = address.split(',').map(s => s.trim());
+      if (parts[parts.length - 1] === 'Argentina') parts.pop();
+      
+      const last = parts[parts.length - 1] || '';
+      if (last.includes('Provincia de Buenos Aires') || last.includes('Buenos Aires Province') || last === 'Buenos Aires') {
+        parts.pop();
+      }
+      
+      let locPart = parts[parts.length - 1] || province || 'Zona';
+      locPart = locPart.replace(/^[A-Z]?\d{4}[A-Z]?\s+/, ''); // Quitar código postal
+      
+      if (locPart.includes('Cdad. Autónoma') || locPart.includes('Capital Federal') || locPart.includes('CABA')) {
+        displayLocation = 'CABA';
+      } else {
+        displayLocation = locPart;
+      }
     } else if (province === 'Ciudad Autónoma de Buenos Aires') {
       displayLocation = 'CABA';
     } else if (province === 'Buenos Aires') {
@@ -1961,7 +1981,8 @@ function MerchantCard({ merchant, onClick }: { merchant: Merchant, onClick: () =
       }}>
         <h3 style={{ 
           fontSize: '13px', fontWeight: '950', color: '#2D3A20', margin: 0, 
-          lineHeight: '1.1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
+          lineHeight: '1.2', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word'
         }}>
           {merchant.name}
         </h3>
@@ -2253,7 +2274,27 @@ function DetailPanel({
                 </div>
               </div>
 
-              {/* WEB / TELÉFONO */}
+              {/* WEB (ALIMNET DATA) */}
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
+                  <Globe size={18} color="var(--primary)" />
+                </div>
+                <div>
+                   <a 
+                    href={merchant.website_url || undefined} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      if (merchant.website_url) trackClick('CTA_WEBSITE', { id: merchant.id, merchant: merchant.name });
+                    }}
+                    style={{ fontSize: '0.85rem', color: merchant.website_url ? 'var(--primary-dark)' : 'var(--text-secondary)', fontWeight: '600', textDecoration: 'none', cursor: merchant.website_url ? 'pointer' : 'default' }}
+                   >
+                     {merchant.website_url ? "Ver Página Web" : "Sin web cargada"}
+                   </a>
+                </div>
+              </div>
+
+              {/* TELÉFONO */}
               <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <div style={{ padding: '4px', background: 'rgba(95, 125, 74, 0.05)', borderRadius: '8px' }}>
                    <Phone size={18} color="var(--primary)" />
