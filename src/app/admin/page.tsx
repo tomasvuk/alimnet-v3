@@ -848,6 +848,24 @@ export default function AdminDashboard() {
                   onChange={(e)=>setEditingMerchant({...editingMerchant, delivery_info: e.target.value})} 
                 />
               </div>
+              <div style={{display: 'flex', gap: '15px'}}>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>Instagram URL</label>
+                  <input 
+                    style={InputStyle} 
+                    value={editingMerchant.instagram_url || ''} 
+                    onChange={(e)=>setEditingMerchant({...editingMerchant, instagram_url: e.target.value})} 
+                  />
+                </div>
+                <div style={{flex: 1}}>
+                  <label style={LabelStyle}>Página Web URL</label>
+                  <input 
+                    style={InputStyle} 
+                    value={editingMerchant.website_url || ''} 
+                    onChange={(e)=>setEditingMerchant({...editingMerchant, website_url: e.target.value})} 
+                  />
+                </div>
+              </div>
               <div>
                 <label style={LabelStyle}>Notas Internas (Admin)</label>
                 <textarea 
