@@ -773,7 +773,6 @@ export default function AdminDashboard() {
                onToggleVerified={toggleVerified}
                onOpenEdit={openEditModal}
                onDelete={handleDeleteMerchant}
-               users={users}
              />
           ) : activeTab === 'usuarios' ? (
             <div style={{ overflowX: 'auto' }}>
