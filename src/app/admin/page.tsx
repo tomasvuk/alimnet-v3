@@ -86,6 +86,7 @@ interface Merchant {
   created_by_type?: string;
   created_by?: string | null;
   gallery_images?: string[];
+  email?: string | null;
 }
 
 interface Donation {
