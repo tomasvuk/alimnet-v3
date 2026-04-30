@@ -28,7 +28,8 @@ export default function MerchantCard({ merchant, onClick }: MerchantCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const types = (merchant.type || '').split(',').map((s: string) => s.trim());
-  const mainType = types[0] || 'Productor';
+  let mainType = types[0] || 'Productor';
+  mainType = mainType.charAt(0).toUpperCase() + mainType.slice(1);
   const secondaryType = types.length > 1 ? types[1] : null;
 
   const IconComponent = CATEGORIES.find(c => c.id === mainType.toLowerCase())?.icon || Sprout;
