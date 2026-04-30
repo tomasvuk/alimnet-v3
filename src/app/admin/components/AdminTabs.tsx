@@ -53,6 +53,7 @@ interface AdminTabsProps {
     merchants: number;
     pending: number;
     users: number;
+    unclaimed: number;
     messages: number;
   };
   onTabChange?: (tab: string) => void;
@@ -63,6 +64,7 @@ export default function AdminTabs({ activeTab, setActiveTab, counts, onTabChange
     { id: 'comercios', label: 'Comercios', count: counts.merchants },
     { id: 'pendientes', label: 'Por Aprobar', count: counts.pending },
     { id: 'usuarios', label: 'Usuarios', count: counts.users },
+    { id: 'oficializacion', label: 'Oficialización', count: counts.unclaimed },
     { id: 'mensajes', label: 'Mensajes', count: counts.messages },
     { id: 'analytics', label: 'Inteligencia' },
     { id: 'pagos', label: 'Pagos' },
