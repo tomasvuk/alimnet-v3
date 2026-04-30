@@ -23,7 +23,6 @@ export default function ContactDropdown({ merchant, platform, messageTemplate, o
     }
     navigator.clipboard.writeText(text);
     alert(`${label} copiado al portapapeles.`);
-    onUpdateStatus();
     setOpen(false);
   };
 
@@ -56,7 +55,7 @@ export default function ContactDropdown({ merchant, platform, messageTemplate, o
             </button>
             {platform === 'wzp' && contactValue && (
               <button 
-                onClick={() => { window.open(`https://wa.me/${contactValue}?text=${messageTemplate}`, '_blank'); onUpdateStatus(); setOpen(false); }}
+                onClick={() => { window.open(`https://wa.me/${contactValue}?text=${messageTemplate}`, '_blank'); setOpen(false); }}
                 style={{ width: '100%', padding: '10px 15px', textAlign: 'left', background: '#F8F9F5', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 900, color: '#25D366', display: 'flex', alignItems: 'center', gap: 8 }}
               >
                 <ExternalLink size={14} /> Abrir WhatsApp
@@ -64,7 +63,7 @@ export default function ContactDropdown({ merchant, platform, messageTemplate, o
             )}
             {platform === 'email' && contactValue && (
               <button 
-                onClick={() => { window.open(`mailto:${contactValue}?subject=Invitación a Alimnet&body=${decodeURIComponent(messageTemplate)}`, '_blank'); onUpdateStatus(); setOpen(false); }}
+                onClick={() => { window.open(`mailto:${contactValue}?subject=Invitación a Alimnet&body=${decodeURIComponent(messageTemplate)}`, '_blank'); setOpen(false); }}
                 style={{ width: '100%', padding: '10px 15px', textAlign: 'left', background: '#F8F9F5', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 900, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 8 }}
               >
                 <ExternalLink size={14} /> Abrir Email
