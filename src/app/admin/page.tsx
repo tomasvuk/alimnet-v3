@@ -91,6 +91,7 @@ interface Merchant {
   created_by?: string | null;
   gallery_images?: string[];
   email?: string | null;
+  bio?: string | null;
 }
 
 interface Donation {
