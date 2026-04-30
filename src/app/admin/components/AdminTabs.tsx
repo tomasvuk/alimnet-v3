@@ -61,10 +61,10 @@ interface AdminTabsProps {
 
 export default function AdminTabs({ activeTab, setActiveTab, counts, onTabChange }: AdminTabsProps) {
   const tabs = [
+    { id: 'oficializacion', label: 'Oficialización', count: counts.unclaimed },
     { id: 'comercios', label: 'Comercios', count: counts.merchants },
     { id: 'pendientes', label: 'Por Aprobar', count: counts.pending },
     { id: 'usuarios', label: 'Usuarios', count: counts.users },
-    { id: 'oficializacion', label: 'Oficialización', count: counts.unclaimed },
     { id: 'mensajes', label: 'Mensajes', count: counts.messages },
     { id: 'analytics', label: 'Inteligencia' },
     { id: 'pagos', label: 'Pagos' },

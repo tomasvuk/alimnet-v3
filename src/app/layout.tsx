@@ -44,6 +44,7 @@ export const metadata: Metadata = {
 };
 
 import SimulationToggle from "@/components/SimulationToggle";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 export default function RootLayout({
   children,
@@ -52,8 +53,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={inter.variable}>
-        <PageTransition>{children}</PageTransition>
+      <body className={`${inter.variable} antialiased`}>
+        <AnalyticsTracker />
+        <PageTransition>
+          {children}
+        </PageTransition>
         <SupportWidget />
         <SimulationToggle />
         <Analytics />
