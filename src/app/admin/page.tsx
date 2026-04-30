@@ -1030,25 +1030,64 @@ export default function AdminDashboard() {
               )}
 
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '8px' }}>Contacto Disponible</h4>
+                <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '8px' }}>Contacto Disponible (Haz clic para editar)</h4>
                 <div style={{ display: 'grid', gap: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: previewMerchant.whatsapp || previewMerchant.phone ? '#E8F5E9' : '#F8F9F5', padding: '10px', borderRadius: '12px' }}>
                     <MessageCircle size={18} color={previewMerchant.whatsapp || previewMerchant.phone ? '#25D366' : '#CCC'} />
-                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.whatsapp || previewMerchant.phone ? '#2D3A20' : '#CCC' }}>
-                      {previewMerchant.whatsapp || previewMerchant.phone || 'Sin Teléfono/WhatsApp'}
-                    </span>
+                    <input 
+                      type="text"
+                      defaultValue={previewMerchant.whatsapp || previewMerchant.phone || ''}
+                      placeholder="Agregar Teléfono/WhatsApp"
+                      onBlur={async (e) => {
+                        const val = e.target.value;
+                        if (val !== (previewMerchant.whatsapp || previewMerchant.phone || '')) {
+                          const { error } = await supabase.from('merchants').update({ whatsapp: val, phone: val }).eq('id', previewMerchant.id);
+                          if (!error) {
+                            setPreviewMerchant({ ...previewMerchant, whatsapp: val, phone: val });
+                            setMerchants(prev => prev.map(m => m.id === previewMerchant.id ? { ...m, whatsapp: val, phone: val } : m));
+                          }
+                        }
+                      }}
+                      style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.whatsapp || previewMerchant.phone ? '#2D3A20' : '#888', background: 'transparent', border: 'none', outline: 'none', width: '100%' }}
+                    />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: previewMerchant.instagram_url ? '#FCE4EC' : '#F8F9F5', padding: '10px', borderRadius: '12px' }}>
                     <Instagram size={18} color={previewMerchant.instagram_url ? '#E1306C' : '#CCC'} />
-                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.instagram_url ? '#2D3A20' : '#CCC' }}>
-                      {previewMerchant.instagram_url ? previewMerchant.instagram_url.replace('https://www.instagram.com/', '@').replace('/', '') : 'Sin Instagram'}
-                    </span>
+                    <input 
+                      type="text"
+                      defaultValue={previewMerchant.instagram_url || ''}
+                      placeholder="Agregar Instagram URL"
+                      onBlur={async (e) => {
+                        const val = e.target.value;
+                        if (val !== (previewMerchant.instagram_url || '')) {
+                          const { error } = await supabase.from('merchants').update({ instagram_url: val }).eq('id', previewMerchant.id);
+                          if (!error) {
+                            setPreviewMerchant({ ...previewMerchant, instagram_url: val });
+                            setMerchants(prev => prev.map(m => m.id === previewMerchant.id ? { ...m, instagram_url: val } : m));
+                          }
+                        }
+                      }}
+                      style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.instagram_url ? '#2D3A20' : '#888', background: 'transparent', border: 'none', outline: 'none', width: '100%' }}
+                    />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: previewMerchant.email ? '#F0F4ED' : '#F8F9F5', padding: '10px', borderRadius: '12px' }}>
                     <Mail size={18} color={previewMerchant.email ? '#5F7D4A' : '#CCC'} />
-                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.email ? '#2D3A20' : '#CCC', wordBreak: 'break-all' }}>
-                      {previewMerchant.email || 'Sin Email'}
-                    </span>
+                    <input 
+                      type="email"
+                      defaultValue={previewMerchant.email || ''}
+                      placeholder="Agregar Email"
+                      onBlur={async (e) => {
+                        const val = e.target.value;
+                        if (val !== (previewMerchant.email || '')) {
+                          const { error } = await supabase.from('merchants').update({ email: val }).eq('id', previewMerchant.id);
+                          if (!error) {
+                            setPreviewMerchant({ ...previewMerchant, email: val });
+                            setMerchants(prev => prev.map(m => m.id === previewMerchant.id ? { ...m, email: val } : m));
+                          }
+                        }
+                      }}
+                      style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.email ? '#2D3A20' : '#888', background: 'transparent', border: 'none', outline: 'none', width: '100%' }}
+                    />
                   </div>
                 </div>
               </div>
