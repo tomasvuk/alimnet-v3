@@ -997,12 +997,60 @@ export default function AdminDashboard() {
       </main>
 
       {previewMerchant && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter:'blur(5px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>
-           <div style={{ position: 'relative', width: '100%', maxWidth: '400px', margin: '20px' }}>
-              <button onClick={() => setPreviewMerchant(null)} style={{ position: 'absolute', right: -10, top: -10, background: 'white', border: '1px solid #E4EBDD', borderRadius: '50%', padding: '8px', cursor: 'pointer', zIndex: 10 }}>
-                <X size={20} color="#666" />
-              </button>
-              <MerchantCard merchant={previewMerchant as any} />
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter:'blur(5px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000, padding: '20px' }}>
+           <div style={{ position: 'relative', width: '100%', maxWidth: '500px', background: 'white', borderRadius: '24px', padding: '2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', maxHeight: '90vh', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #F0F4ED', paddingBottom: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 1000, color: '#2D3A20', margin: 0 }}>{previewMerchant.name}</h2>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#5F7D4A', background: '#F0F4ED', padding: '2px 8px', borderRadius: '12px' }}>{previewMerchant.type}</span>
+                </div>
+                <button onClick={() => setPreviewMerchant(null)} style={{ background: '#F8F9F5', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer', color: '#666' }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              {previewMerchant.bio && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '4px' }}>Bio</h4>
+                  <p style={{ fontSize: '0.9rem', color: '#666', margin: 0, lineHeight: 1.5 }}>{previewMerchant.bio}</p>
+                </div>
+              )}
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '8px' }}>Contacto Disponible</h4>
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: previewMerchant.whatsapp || previewMerchant.phone ? '#E8F5E9' : '#F8F9F5', padding: '10px', borderRadius: '12px' }}>
+                    <MessageCircle size={18} color={previewMerchant.whatsapp || previewMerchant.phone ? '#25D366' : '#CCC'} />
+                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.whatsapp || previewMerchant.phone ? '#2D3A20' : '#CCC' }}>
+                      {previewMerchant.whatsapp || previewMerchant.phone || 'Sin Teléfono/WhatsApp'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: previewMerchant.instagram_url ? '#FCE4EC' : '#F8F9F5', padding: '10px', borderRadius: '12px' }}>
+                    <Instagram size={18} color={previewMerchant.instagram_url ? '#E1306C' : '#CCC'} />
+                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.instagram_url ? '#2D3A20' : '#CCC' }}>
+                      {previewMerchant.instagram_url ? previewMerchant.instagram_url.replace('https://www.instagram.com/', '@').replace('/', '') : 'Sin Instagram'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: previewMerchant.email ? '#F0F4ED' : '#F8F9F5', padding: '10px', borderRadius: '12px' }}>
+                    <Mail size={18} color={previewMerchant.email ? '#5F7D4A' : '#CCC'} />
+                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: previewMerchant.email ? '#2D3A20' : '#CCC', wordBreak: 'break-all' }}>
+                      {previewMerchant.email || 'Sin Email'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '8px' }}>Ubicación</h4>
+                {previewMerchant.locations && previewMerchant.locations.length > 0 ? (
+                  <div style={{ background: '#F8F9F5', padding: '10px', borderRadius: '12px' }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#666' }}>{previewMerchant.locations[0].address || previewMerchant.locations[0].locality}</p>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#999' }}>{previewMerchant.locations[0].province}, {previewMerchant.locations[0].country}</p>
+                  </div>
+                ) : (
+                  <p style={{ fontSize: '0.9rem', color: '#CCC', fontWeight: 800, margin: 0 }}>Sin ubicación registrada</p>
+                )}
+              </div>
            </div>
         </div>
       )}
