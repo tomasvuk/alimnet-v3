@@ -44,6 +44,8 @@ import DataTable from './components/DataTable';
 import MessagesTab from './components/MessagesTab';
 import ExportModal from './components/ExportModal';
 import ImportModal from './components/ImportModal';
+import ContactDropdown from './components/ContactDropdown';
+import CrmBoard from './components/CrmBoard';
 
 // --- Tipos ---
 interface Location {
@@ -134,6 +136,11 @@ export default function AdminDashboard() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   
+  // CRM Oficialización State
+  const [crmView, setCrmView] = useState<'list' | 'board'>('list');
+  const [crmTemplate, setCrmTemplate] = useState('');
+  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
+  
   // Analytics State
   const [analyticsTimeRange, setAnalyticsTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year'>('month');
   const [topSearches, setTopSearches] = useState<[string, number][]>([]);
@@ -212,6 +219,26 @@ export default function AdminDashboard() {
     };
     initAdmin();
   }, [router]);
+
+  // CRM Template Init
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTemplate = localStorage.getItem('crm_wzp_template');
+      if (savedTemplate) {
+        setCrmTemplate(savedTemplate);
+      } else {
+        setCrmTemplate(`¡Hola! 👋 Les escribo desde Alimnet, el mapa de alimentos cuidados (agroecológicos, orgánicos, etc).%0A%0AYa los tenemos sumados en nuestra plataforma porque nos encanta lo que hacen 🌿, pero queremos invitarlos a oficializar su perfil.%0A%0ALa idea es que miles de consumidores afines puedan encontrarlos fácil cuando busquen productos como los suyos. No tiene ningún costo. Pueden cargar sus datos completos y fotos acá: {{LINK}}%0A%0AMi nombre es Tomás Vukojicic, encantado de que sean parte y quedo a disposición para ayudarlos en el proceso. ¡Un abrazo!`);
+      }
+    }
+  }, []);
+
+  const handleSaveTemplate = (text: string) => {
+    setCrmTemplate(text);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('crm_wzp_template', text);
+    }
+    setShowTemplateEditor(false);
+  };
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
@@ -838,92 +865,115 @@ export default function AdminDashboard() {
              />
           ) : activeTab === 'oficializacion' ? (
             <div style={{ padding: '2rem' }}>
-               <div style={{ marginBottom: '2rem' }}>
-                 <h2 style={{ fontSize: '1.8rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.5rem' }}>Campaña de Oficialización</h2>
-                 <p style={{ color: '#B2AC88', fontWeight: 800 }}>Contactá a los comercios para que reclamen su perfil y completen su info.</p>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+                 <div>
+                   <h2 style={{ fontSize: '1.8rem', fontWeight: '1000', color: '#2D3A20', marginBottom: '0.5rem' }}>Campaña de Oficialización</h2>
+                   <p style={{ color: '#B2AC88', fontWeight: 800 }}>Gestioná el contacto con los comercios pendientes de reclamo.</p>
+                 </div>
+                 <div style={{ display: 'flex', gap: '10px' }}>
+                   <button onClick={() => setShowTemplateEditor(true)} style={{ padding: '10px 16px', background: '#F0F4ED', color: '#5F7D4A', border: 'none', borderRadius: '12px', fontWeight: 900, cursor: 'pointer', display: 'flex', gap: 6, alignItems: 'center' }}>
+                     <Edit size={16} /> Editar Mensaje
+                   </button>
+                   <div style={{ display: 'flex', background: '#F0F4ED', borderRadius: '12px', overflow: 'hidden' }}>
+                     <button onClick={() => setCrmView('list')} style={{ padding: '10px 16px', background: crmView === 'list' ? '#5F7D4A' : 'transparent', color: crmView === 'list' ? 'white' : '#5F7D4A', border: 'none', fontWeight: 900, cursor: 'pointer' }}>Lista</button>
+                     <button onClick={() => setCrmView('board')} style={{ padding: '10px 16px', background: crmView === 'board' ? '#5F7D4A' : 'transparent', color: crmView === 'board' ? 'white' : '#5F7D4A', border: 'none', fontWeight: 900, cursor: 'pointer' }}>Kanban</button>
+                   </div>
+                 </div>
                </div>
 
-               <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', overflow: 'hidden' }}>
-                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                   <thead>
-                     <tr style={{ background: '#F8F9F5', borderBottom: '2px solid #E4EBDD' }}>
-                       <th style={{ padding: '1.2rem', textAlign: 'left', fontWeight: '1000', color: '#2D3A20' }}>COMERCIO</th>
-                       <th style={{ padding: '1.2rem', textAlign: 'left', fontWeight: '1000', color: '#2D3A20' }}>TIPO</th>
-                       <th style={{ padding: '1.2rem', textAlign: 'center', fontWeight: '1000', color: '#2D3A20' }}>CONTACTO RÁPIDO</th>
-                       <th style={{ padding: '1.2rem', textAlign: 'center', fontWeight: '1000', color: '#2D3A20' }}>ESTADO</th>
-                     </tr>
-                   </thead>
-                   <tbody>
-                     {merchants.filter(m => !m.claimed).map(m => {
-                       const baseUrl = 'https://alimnet.com';
-                       const claimLink = `${baseUrl}/explorar?id=${m.id}`;
-                       const message = `¡Hola! 👋 Les escribo desde Alimnet, el mapa de alimentos cuidados (agroecológicos, orgánicos, etc).%0A%0AYa los tenemos sumados en nuestra plataforma porque nos encanta lo que hacen 🌿, pero queremos invitarlos a oficializar su perfil.%0A%0ALa idea es que más consumidores afines puedan encontrarlos fácil en esta red. No tiene ningún costo. Pueden cargar su información oficial y fotos acá: ${claimLink}%0A%0AMi nombre es Tomás Vukojicic, fundador de Alimnet, y me encantaría que se sumen. ¡Un abrazo!`;
+               {/* CRM Filters Bar */}
+               <div style={{ display: 'flex', gap: '15px', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                 <input type="text" placeholder="Buscar comercio..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E4EBDD', minWidth: '250px' }} />
+                 <select value={filterProvince} onChange={e => setFilterProvince(e.target.value)} style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E4EBDD' }}>
+                   <option value="all">Todas las provincias</option>
+                   {provinces.map(p => <option key={p} value={p}>{p}</option>)}
+                 </select>
+                 <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E4EBDD' }}>
+                   <option value="all">Todos los rubros</option>
+                   {types.map(t => <option key={t} value={t}>{t}</option>)}
+                 </select>
+               </div>
 
-                       return (
-                         <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED' }}>
-                           <td style={{ padding: '1.2rem' }}>
-                             <div style={{ fontWeight: 1000, color: '#2D3A20' }}>{m.name}</div>
-                             <div style={{ fontSize: '0.75rem', color: '#B2AC88' }}>{m.locations?.[0]?.locality || 'Sin localidad'}</div>
-                           </td>
-                           <td style={{ padding: '1.2rem' }}>
-                             <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#5F7D4A' }}>{m.type}</span>
-                           </td>
-                           <td style={{ padding: '1.2rem', textAlign: 'center' }}>
-                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                               <button 
-                                 onClick={() => {
-                                   window.open(`https://wa.me/${m.whatsapp || m.phone || ''}?text=${message}`, '_blank');
-                                   updateContactStatus(m.id, 'contactado');
-                                 }}
-                                 style={{ padding: '10px', background: '#25D366', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
-                                 title="WhatsApp"
-                               >
-                                 <MessageCircle size={16} /> <span style={{fontSize: 10, fontWeight: 900}}>WZP</span>
-                               </button>
-                               <button 
-                                 onClick={() => {
-                                   navigator.clipboard.writeText(decodeURIComponent(message));
-                                   alert("Mensaje copiado para IG. ¡Pegalo en su chat!");
-                                   updateContactStatus(m.id, 'contactado');
-                                 }}
-                                 style={{ padding: '10px', background: '#E1306C', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
-                                 title="Instagram"
-                               >
-                                 <Instagram size={16} /> <span style={{fontSize: 10, fontWeight: 900}}>IG</span>
-                               </button>
-                               <button 
-                                 onClick={() => {
-                                   window.open(`mailto:${m.email || ''}?subject=Invitación a Alimnet&body=${decodeURIComponent(message)}`, '_blank');
-                                   updateContactStatus(m.id, 'contactado');
-                                 }}
-                                 style={{ padding: '10px', background: '#2D3A20', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
-                                 title="Email"
+               {crmView === 'list' ? (
+                 <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', overflow: 'hidden' }}>
+                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                     <thead>
+                       <tr style={{ background: '#F8F9F5', borderBottom: '2px solid #E4EBDD' }}>
+                         <th style={{ padding: '1.2rem', textAlign: 'left', fontWeight: '1000', color: '#2D3A20' }}>COMERCIO</th>
+                         <th style={{ padding: '1.2rem', textAlign: 'left', fontWeight: '1000', color: '#2D3A20' }}>TIPO</th>
+                         <th style={{ padding: '1.2rem', textAlign: 'center', fontWeight: '1000', color: '#2D3A20' }}>CONTACTO RÁPIDO</th>
+                         <th style={{ padding: '1.2rem', textAlign: 'center', fontWeight: '1000', color: '#2D3A20' }}>ESTADO</th>
+                       </tr>
+                     </thead>
+                     <tbody>
+                       {filteredMerchants.filter(m => !m.claimed).map(m => {
+                         const baseUrl = 'https://alimnet.com';
+                         const claimLink = `${baseUrl}/explorar?id=${m.id}`;
+                         const message = crmTemplate.replace('{{LINK}}', claimLink);
+
+                         return (
+                           <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED' }}>
+                             <td style={{ padding: '1.2rem' }}>
+                               <div style={{ fontWeight: 1000, color: '#2D3A20' }}>{m.name}</div>
+                               <div style={{ fontSize: '0.75rem', color: '#B2AC88' }}>{m.locations?.[0]?.locality || 'Sin localidad'}</div>
+                             </td>
+                             <td style={{ padding: '1.2rem' }}>
+                               <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#5F7D4A' }}>{m.type}</span>
+                             </td>
+                             <td style={{ padding: '1.2rem', textAlign: 'center' }}>
+                               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                 <ContactDropdown merchant={m} platform="wzp" messageTemplate={message} onUpdateStatus={() => updateContactStatus(m.id, 'contactado')} />
+                                 <ContactDropdown merchant={m} platform="ig" messageTemplate={message} onUpdateStatus={() => updateContactStatus(m.id, 'contactado')} />
+                                 <ContactDropdown merchant={m} platform="email" messageTemplate={message} onUpdateStatus={() => updateContactStatus(m.id, 'contactado')} />
+                               </div>
+                             </td>
+                             <td style={{ padding: '1.2rem', textAlign: 'center' }}>
+                                <select 
+                                  value={m.contact_status || 'sin_contacto'} 
+                                  onChange={(e) => updateContactStatus(m.id, e.target.value)}
+                                  style={{ padding: '8px', borderRadius: '10px', border: '1.5px solid #F0F4ED', fontSize: '0.75rem', fontWeight: 900, color: '#5F7D4A' }}
                                 >
-                                 <Mail size={16} /> <span style={{fontSize: 10, fontWeight: 900}}>EMAIL</span>
-                               </button>
-                             </div>
-                           </td>
-                           <td style={{ padding: '1.2rem', textAlign: 'center' }}>
-                              <select 
-                                value={m.contact_status || 'sin_contacto'} 
-                                onChange={(e) => updateContactStatus(m.id, e.target.value)}
-                                style={{ padding: '8px', borderRadius: '10px', border: '1.5px solid #F0F4ED', fontSize: '0.75rem', fontWeight: 900, color: '#5F7D4A' }}
-                              >
-                                <option value="sin_contacto">SIN CONTACTO</option>
-                                <option value="contactado">CONTACTADO</option>
-                                <option value="en_proceso">EN PROCESO</option>
-                                <option value="oficializado">OFICIALIZADO</option>
-                              </select>
-                           </td>
-                         </tr>
-                       );
-                     })}
-                     {merchants.filter(m => !m.claimed).length === 0 && (
-                       <tr><td colSpan={4} style={{ padding: '4rem', textAlign: 'center', color: '#B2AC88', fontWeight: 800 }}>No hay comercios pendientes de oficialización.</td></tr>
-                     )}
-                   </tbody>
-                 </table>
-               </div>
+                                  <option value="sin_contacto">SIN CONTACTO</option>
+                                  <option value="contactado">CONTACTADO</option>
+                                  <option value="en_proceso">EN PROCESO</option>
+                                  <option value="oficializado">OFICIALIZADO</option>
+                                  <option value="negado">NEGADO</option>
+                                </select>
+                             </td>
+                           </tr>
+                         );
+                       })}
+                       {filteredMerchants.filter(m => !m.claimed).length === 0 && (
+                         <tr><td colSpan={4} style={{ padding: '4rem', textAlign: 'center', color: '#B2AC88', fontWeight: 800 }}>No hay comercios pendientes de oficialización.</td></tr>
+                       )}
+                     </tbody>
+                   </table>
+                 </div>
+               ) : (
+                  <CrmBoard 
+                    merchants={filteredMerchants.filter(m => !m.claimed)} 
+                    crmTemplate={crmTemplate} 
+                    updateContactStatus={updateContactStatus} 
+                  />
+               )}
+
+               {showTemplateEditor && (
+                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   <div style={{ background: 'white', padding: '2rem', borderRadius: '24px', width: '90%', maxWidth: '600px' }}>
+                     <h3 style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '1rem' }}>Editar Plantilla de Mensaje</h3>
+                     <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '1rem' }}>Usa <strong>{'{LINK}'}</strong> para insertar automáticamente el enlace personalizado del comercio. Usa <strong>%0A</strong> para saltos de línea en WhatsApp.</p>
+                     <textarea 
+                       value={crmTemplate} 
+                       onChange={(e) => setCrmTemplate(e.target.value)}
+                       style={{ width: '100%', height: '200px', padding: '1rem', borderRadius: '12px', border: '1px solid #E4EBDD', marginBottom: '1rem', fontFamily: 'inherit' }}
+                     />
+                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                       <button onClick={() => setShowTemplateEditor(false)} style={{ padding: '10px 20px', border: 'none', background: '#eee', borderRadius: '12px', cursor: 'pointer', fontWeight: 900 }}>Cancelar</button>
+                       <button onClick={() => handleSaveTemplate(crmTemplate)} style={{ padding: '10px 20px', border: 'none', background: '#5F7D4A', color: 'white', borderRadius: '12px', cursor: 'pointer', fontWeight: 900 }}>Guardar Cambios</button>
+                     </div>
+                   </div>
+                 </div>
+               )}
             </div>
           ) : activeTab === 'mensajes' ? (
              <MessagesTab 
