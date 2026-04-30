@@ -33,7 +33,7 @@ export default function ContactDropdown({ merchant, platform, messageTemplate, o
     <div style={{ position: 'relative', display: 'inline-block' }}>
       <button 
         onClick={() => setOpen(!open)}
-        style={{ padding: '8px 12px', background: getPlatformColor(), color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', fontWeight: 900 }}
+        style={{ padding: '8px 12px', background: getPlatformColor(), color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', fontWeight: 900, opacity: contactValue ? 1 : 0.4 }}
       >
         {getPlatformIcon()} {platform.toUpperCase()} <ChevronDown size={12} />
       </button>

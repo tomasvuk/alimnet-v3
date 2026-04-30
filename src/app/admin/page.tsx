@@ -46,6 +46,8 @@ import ExportModal from './components/ExportModal';
 import ImportModal from './components/ImportModal';
 import ContactDropdown from './components/ContactDropdown';
 import CrmBoard from './components/CrmBoard';
+import MerchantCard from '@/components/MerchantCard';
+import { Eye } from 'lucide-react';
 
 // --- Tipos ---
 interface Location {
@@ -136,10 +138,10 @@ export default function AdminDashboard() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   
-  // CRM Oficialización State
   const [crmView, setCrmView] = useState<'list' | 'board'>('list');
   const [crmTemplate, setCrmTemplate] = useState('');
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
+  const [previewMerchant, setPreviewMerchant] = useState<Merchant | null>(null);
   
   // Analytics State
   const [analyticsTimeRange, setAnalyticsTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year'>('month');
@@ -914,7 +916,12 @@ export default function AdminDashboard() {
                          return (
                            <tr key={m.id} style={{ borderBottom: '1px solid #F0F4ED' }}>
                              <td style={{ padding: '1.2rem' }}>
-                               <div style={{ fontWeight: 1000, color: '#2D3A20' }}>{m.name}</div>
+                               <div style={{ fontWeight: 1000, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                 {m.name}
+                                 <button onClick={() => setPreviewMerchant(m)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5F7D4A', padding: '0 4px' }} title="Ver Card">
+                                   <Eye size={16} />
+                                 </button>
+                               </div>
                                <div style={{ fontSize: '0.75rem', color: '#B2AC88' }}>{m.locations?.[0]?.locality || 'Sin localidad'}</div>
                              </td>
                              <td style={{ padding: '1.2rem' }}>
@@ -953,7 +960,8 @@ export default function AdminDashboard() {
                   <CrmBoard 
                     merchants={filteredMerchants.filter(m => !m.claimed)} 
                     crmTemplate={crmTemplate} 
-                    updateContactStatus={updateContactStatus} 
+                    updateContactStatus={updateContactStatus}
+                    onPreviewCard={setPreviewMerchant}
                   />
                )}
 
@@ -987,6 +995,17 @@ export default function AdminDashboard() {
           )}
         </div>
       </main>
+
+      {previewMerchant && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter:'blur(5px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>
+           <div style={{ position: 'relative', width: '100%', maxWidth: '400px', margin: '20px' }}>
+              <button onClick={() => setPreviewMerchant(null)} style={{ position: 'absolute', right: -10, top: -10, background: 'white', border: '1px solid #E4EBDD', borderRadius: '50%', padding: '8px', cursor: 'pointer', zIndex: 10 }}>
+                <X size={20} color="#666" />
+              </button>
+              <MerchantCard merchant={previewMerchant as any} onShare={() => {}} onSuggestEdit={() => {}} />
+           </div>
+        </div>
+      )}
 
       {showEditModal && editingMerchant && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter:'blur(5px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 1000 }}>

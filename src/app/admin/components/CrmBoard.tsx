@@ -8,8 +8,9 @@ const COLUMNS = [
   { id: 'oficializado', label: 'Oficializado', color: '#10B981' },
   { id: 'negado', label: 'Negado', color: '#EF4444' }
 ];
+import { ExternalLink, Eye } from 'lucide-react';
 
-export default function CrmBoard({ merchants, crmTemplate, updateContactStatus }: { merchants: any[], crmTemplate: string, updateContactStatus: (id: string, status: string) => void }) {
+export default function CrmBoard({ merchants, crmTemplate, updateContactStatus, onPreviewCard }: { merchants: any[], crmTemplate: string, updateContactStatus: (id: string, status: string) => void, onPreviewCard: (m: any) => void }) {
   return (
     <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '1rem', minHeight: '60vh' }} className="no-scrollbar">
       {COLUMNS.map(col => {
@@ -45,7 +46,12 @@ export default function CrmBoard({ merchants, crmTemplate, updateContactStatus }
                     onDragStart={(e) => e.dataTransfer.setData('merchantId', m.id)}
                     style={{ background: 'white', padding: '1rem', borderRadius: '12px', border: '1px solid #E4EBDD', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', cursor: 'grab' }}
                   >
-                    <div style={{ fontWeight: 900, color: '#2D3A20', marginBottom: '4px' }}>{m.name}</div>
+                    <div style={{ fontWeight: 900, color: '#2D3A20', marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <span>{m.name}</span>
+                      <button onClick={() => onPreviewCard(m)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5F7D4A', padding: '4px' }} title="Ver Card">
+                        <Eye size={16} />
+                      </button>
+                    </div>
                     <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '12px' }}>{m.type} • {m.locations?.[0]?.locality || 'Sin localidad'}</div>
                     
                     <div style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
