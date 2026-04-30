@@ -16,7 +16,18 @@ export default function CrmBoard({ merchants, crmTemplate, updateContactStatus }
         const columnMerchants = merchants.filter(m => (m.contact_status || 'sin_contacto') === col.id);
         
         return (
-          <div key={col.id} style={{ flex: '0 0 320px', background: '#F8F9F5', borderRadius: '16px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column' }}>
+          <div 
+            key={col.id} 
+            style={{ flex: '1 0 220px', minWidth: '220px', background: '#F8F9F5', borderRadius: '16px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column' }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const merchantId = e.dataTransfer.getData('merchantId');
+              if (merchantId && (merchants.find(m => m.id === merchantId)?.contact_status || 'sin_contacto') !== col.id) {
+                updateContactStatus(merchantId, col.id);
+              }
+            }}
+          >
             <div style={{ padding: '1rem', borderBottom: '2px solid #E4EBDD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ fontSize: '0.9rem', fontWeight: 900, color: '#2D3A20', margin: 0 }}>{col.label}</h3>
               <span style={{ background: col.color, color: 'white', fontSize: '0.75rem', fontWeight: 900, padding: '2px 8px', borderRadius: '12px' }}>{columnMerchants.length}</span>
@@ -28,7 +39,12 @@ export default function CrmBoard({ merchants, crmTemplate, updateContactStatus }
                 const message = crmTemplate.replace('{{LINK}}', claimLink);
 
                 return (
-                  <div key={m.id} style={{ background: 'white', padding: '1rem', borderRadius: '12px', border: '1px solid #E4EBDD', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                  <div 
+                    key={m.id} 
+                    draggable
+                    onDragStart={(e) => e.dataTransfer.setData('merchantId', m.id)}
+                    style={{ background: 'white', padding: '1rem', borderRadius: '12px', border: '1px solid #E4EBDD', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', cursor: 'grab' }}
+                  >
                     <div style={{ fontWeight: 900, color: '#2D3A20', marginBottom: '4px' }}>{m.name}</div>
                     <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '12px' }}>{m.type} • {m.locations?.[0]?.locality || 'Sin localidad'}</div>
                     

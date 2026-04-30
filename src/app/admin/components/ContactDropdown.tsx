@@ -17,6 +17,10 @@ export default function ContactDropdown({ merchant, platform, messageTemplate, o
   };
 
   const handleCopyText = (text: string, label: string) => {
+    if (!text) {
+      alert(`No hay ${label.toLowerCase()} registrado para este comercio.`);
+      return;
+    }
     navigator.clipboard.writeText(text);
     alert(`${label} copiado al portapapeles.`);
     onUpdateStatus();
