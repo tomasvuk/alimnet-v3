@@ -1002,7 +1002,7 @@ export default function AdminDashboard() {
               <button onClick={() => setPreviewMerchant(null)} style={{ position: 'absolute', right: -10, top: -10, background: 'white', border: '1px solid #E4EBDD', borderRadius: '50%', padding: '8px', cursor: 'pointer', zIndex: 10 }}>
                 <X size={20} color="#666" />
               </button>
-              <MerchantCard merchant={previewMerchant as any} onShare={() => {}} onSuggestEdit={() => {}} />
+              <MerchantCard merchant={previewMerchant as any} />
            </div>
         </div>
       )}
