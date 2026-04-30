@@ -69,7 +69,7 @@ interface Merchant {
   status: string;
   verified: boolean;
   claimed: boolean;
-  contact_status: 'sin_contacto' | 'contactado' | 'en_proceso' | 'verificado';
+  contact_status: 'sin_contacto' | 'contactado' | 'en_proceso' | 'oficializado' | 'negado' | 'verificado';
   admin_notes: string | null;
   instagram_url: string;
   website_url: string;
@@ -612,7 +612,13 @@ export default function AdminDashboard() {
 
   const updateContactStatus = async (id: string, contact_status: string) => {
     const { error } = await supabase.from('merchants').update({ contact_status }).eq('id', id);
-    if (!error) setMerchants(prev => prev.map(m => m.id === id ? { ...m, contact_status } as any : m));
+    if (!error) {
+      setMerchants(prev => prev.map(m => m.id === id ? { ...m, contact_status } as any : m));
+      // No llamamos a fetchData() aquí para no perder la posición del scroll, 
+      // pero el cambio ya impactó en la DB y en el estado local.
+    } else {
+      alert('Error al actualizar estado: ' + error.message);
+    }
   };
 
   const toggleVerified = async (id: string, current: boolean) => {
@@ -1061,6 +1067,8 @@ export default function AdminDashboard() {
                           if (!error) {
                             setPreviewMerchant({ ...previewMerchant, whatsapp: val, phone: val });
                             setMerchants(prev => prev.map(m => m.id === previewMerchant.id ? { ...m, whatsapp: val, phone: val } : m));
+                          } else {
+                            alert('Error al guardar Teléfono/WhatsApp: ' + error.message);
                           }
                         }
                       }}
@@ -1080,6 +1088,8 @@ export default function AdminDashboard() {
                           if (!error) {
                             setPreviewMerchant({ ...previewMerchant, instagram_url: val });
                             setMerchants(prev => prev.map(m => m.id === previewMerchant.id ? { ...m, instagram_url: val } : m));
+                          } else {
+                            alert('Error al guardar Instagram: ' + error.message);
                           }
                         }
                       }}
@@ -1099,6 +1109,8 @@ export default function AdminDashboard() {
                           if (!error) {
                             setPreviewMerchant({ ...previewMerchant, email: val });
                             setMerchants(prev => prev.map(m => m.id === previewMerchant.id ? { ...m, email: val } : m));
+                          } else {
+                            alert('Error al guardar Email: ' + error.message);
                           }
                         }
                       }}
