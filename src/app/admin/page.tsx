@@ -242,6 +242,18 @@ export default function AdminDashboard() {
     setShowTemplateEditor(false);
   };
 
+  // Escape key to close modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setPreviewMerchant(null);
+        setShowTemplateEditor(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
       const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
