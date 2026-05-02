@@ -91,7 +91,7 @@ const AlimnetMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLab
   const displayItems = items.slice(0, limit);
 
   return (
-    <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', overflow: 'hidden', color: '#2D3A20', marginBottom: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', maxWidth: '480px' }}>
+    <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', overflow: 'hidden', color: '#2D3A20', marginBottom: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', width: '100%' }}>
       <div style={{ padding: '0.8rem 1.2rem', borderBottom: '1px solid #F0F4ED', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8F9F5' }}>
         <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 1000, color: '#2D3A20' }}>{title}</h4>
         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.6rem', fontWeight: 900, color: '#B2AC88', letterSpacing: '0.05em' }}>
@@ -319,23 +319,23 @@ export default function IntelligenceTab({
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
         
         {/* COLUMNA IZQUIERDA: TRACCIÓN Y CONTENIDO */}
-        <div style={{ flex: '1 1 450px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <AlimnetMetricTable title="Países" items={countryItems} limit={15} onRowClick={(label) => setSelectedCountry(label)} />
           <AlimnetMetricTable title="Páginas Populares" items={pageItems} visitorsLabel="PAGE VIEWS" limit={20} />
         </div>
 
         {/* COLUMNA DERECHA: PERFIL TÉCNICO Y FUENTES */}
-        <div style={{ flex: '1 1 450px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <AlimnetMetricTable title="Sistemas Operativos" items={osItems} limit={8} />
           <AlimnetMetricTable title="Navegadores" items={browserItems} limit={8} />
           <AlimnetMetricTable title="Dispositivos" items={deviceItems} visitorsLabel="VISITORS" />
           <AlimnetMetricTable title="Fuentes (Referidos)" items={referrerItems} visitorsLabel="VISITORS" limit={10} />
           
           {/* Búsquedas en la columna derecha para balancear */}
-          <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', padding: '1.2rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', maxWidth: '480px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', padding: '1.2rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', width: '100%' }}>
              <h4 style={{ margin: '0 0 1rem', fontSize: '0.85rem', fontWeight: 1000, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Search size={14} color="#5F7D4A" /> Búsquedas
              </h4>
