@@ -1,7 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Search, ArrowUpRight, Store, UtensilsCrossed, ChefHat, MapPin, Clock, Users, Layout } from 'lucide-react';
+import { Search, ArrowUpRight, Store, MapPin, Layout, Globe, Monitor, Laptop, Smartphone } from 'lucide-react';
+
+interface MetricItem {
+  label: string;
+  visitors: number;
+  views?: number;
+  icon?: React.ReactNode;
+  flag?: string;
+}
 
 interface IntelligenceTabProps {
   stats: any;
@@ -13,26 +21,89 @@ interface IntelligenceTabProps {
   topCitiesReal?: { city: string, count: number }[];
   topPages?: { path: string, count: number }[];
   topReferrers?: { referrer: string, count: number }[];
-  trafficByCountry?: { country: string, count: number }[];
-  trafficByProvince?: { province: string, count: number }[];
+  trafficByCountry?: { country: string, visitors: number, views: number }[];
+  trafficByProvince?: { province: string, visitors: number, views: number }[];
+  trafficByDevice?: { device: string, visitors: number, views: number }[];
+  trafficByBrowser?: { browser: string, visitors: number, views: number }[];
+  trafficByOS?: { os: string, visitors: number, views: number }[];
   sessionStats?: { avgDuration: number, bounceRate: number, conversionRate: number };
   peakData?: { peakDay: string, peakHour: string };
   analyticsError?: string | null;
-  timeseriesData?: { label: string, value: number }[];
-  trafficByDevice?: { device: string, count: number }[];
-  trafficByBrowser?: { browser: string, count: number }[];
 }
 
-const ProductorIcon = ({ size = 20 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM15.89 8.11C15.5 7.72 14.83 7 13.53 7h-3.06c-1.3 0-1.97.72-2.36 1.11L4 12.25V15h2v-2h1v9h2v-5h2v5h2v-9h1v2h2v-2.75l-4.11-4.14z" fill="currentColor" />
-  </svg>
-);
+const getFlagEmoji = (countryName: string) => {
+  const map: Record<string, string> = {
+    'Argentina': '🇦🇷',
+    'Sweden': '🇸🇪',
+    'United States': '🇺🇸',
+    'United States of America': '🇺🇸',
+    'Germany': '🇩🇪',
+    'Spain': '🇪🇸',
+    'Australia': '🇦🇺',
+    'Chile': '🇨🇱',
+    'China': '🇨🇳',
+    'People\'s Republic of China': '🇨🇳',
+    'Cambodia': '🇰🇭',
+    'Netherlands': '🇳🇱',
+    'Tunisia': '🇹🇳',
+    'Uruguay': '🇺🇾',
+    'Brazil': '🇧🇷',
+    'Mexico': '🇲🇽',
+    'Italy': '🇮🇹',
+    'France': '🇫🇷'
+  };
+  return map[countryName] || '🌐';
+};
+
+const VercelMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLabel = 'PAGE VIEWS', limit = 10 }: { title: string, items: MetricItem[], visitorsLabel?: string, viewsLabel?: string, limit?: number }) => {
+  const maxVisitors = Math.max(...items.map(i => i.visitors), 1);
+  const displayItems = items.slice(0, limit);
+
+  return (
+    <div style={{ background: '#0A0A0A', borderRadius: '12px', border: '1px solid #333', overflow: 'hidden', color: 'white', marginBottom: '2rem' }}>
+      <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#EDEDED' }}>{title}</h4>
+        <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.65rem', fontWeight: 700, color: '#888', letterSpacing: '0.05em' }}>
+          <span>{visitorsLabel}</span>
+          {items[0]?.views !== undefined && <span>{viewsLabel}</span>}
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {displayItems.length === 0 ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#666', fontSize: '0.8rem' }}>No data available</div>
+        ) : displayItems.map((item, idx) => {
+          const percentage = (item.visitors / maxVisitors) * 100;
+          return (
+            <div key={idx} style={{ position: 'relative', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: idx < displayItems.length - 1 ? '1px solid #1A1A1A' : 'none' }}>
+              {/* Background Bar */}
+              <div style={{ position: 'absolute', left: 0, top: '4px', bottom: '4px', width: `${percentage}%`, background: '#1A1A1A', borderRadius: '0 4px 4px 0', zIndex: 0 }} />
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 1 }}>
+                {item.flag && <span style={{ fontSize: '1.1rem' }}>{item.flag}</span>}
+                {item.icon && <span style={{ color: '#888' }}>{item.icon}</span>}
+                <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#EDEDED' }}>{item.label}</span>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '1.5rem', zIndex: 1 }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '60px', justifyContent: 'flex-end' }}>
+                   <span style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>{Math.round((item.visitors / displayItems.reduce((acc, curr) => acc + curr.visitors, 0)) * 100)}%</span>
+                   <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{item.visitors}</span>
+                </div>
+                {item.views !== undefined && (
+                   <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#EDEDED', width: '60px', textAlign: 'right' }}>{item.views}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default function IntelligenceTab({ 
   stats, 
   topSearches, 
-  topMerchants, 
   analyticsTimeRange, 
   setAnalyticsTimeRange,
   topCities,
@@ -40,274 +111,117 @@ export default function IntelligenceTab({
   topPages,
   topReferrers,
   trafficByCountry,
-  trafficByProvince,
-  sessionStats,
-  peakData,
-  analyticsError,
-  timeseriesData,
   trafficByDevice,
-  trafficByBrowser
+  trafficByBrowser,
+  trafficByOS,
+  analyticsError
 }: IntelligenceTabProps) {
+  
+  const countryItems: MetricItem[] = (trafficByCountry || []).map(c => ({
+    label: c.country,
+    visitors: c.visitors,
+    views: c.views,
+    flag: getFlagEmoji(c.country)
+  }));
+
+  const osItems: MetricItem[] = (trafficByOS || []).map(o => ({
+    label: o.os,
+    visitors: o.visitors,
+    views: o.views
+  }));
+
+  const browserItems: MetricItem[] = (trafficByBrowser || []).map(b => ({
+    label: b.browser,
+    visitors: b.visitors,
+    views: b.views
+  }));
+
+  const deviceItems: MetricItem[] = (trafficByDevice || []).map(d => ({
+    label: d.device,
+    visitors: d.visitors,
+    icon: d.device === 'Mobile' ? <Smartphone size={14} /> : <Monitor size={14} />
+  }));
+
+  const pageItems: MetricItem[] = (topPages || []).map(p => ({
+    label: p.path,
+    visitors: p.count // Here visitors maps to views/count in the simple topPages state
+  }));
+
+  const referrerItems: MetricItem[] = (topReferrers || []).map(r => ({
+    label: r.referrer,
+    visitors: r.count,
+    icon: r.referrer.includes('google') ? <Globe size={14} /> : <ArrowUpRight size={14} />
+  }));
+
   return (
-    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-      {/* Header Selector */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F0F4ED', padding: '1.2rem 2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
-        <div>
-          <h3 style={{ margin: 0, fontWeight: 1000, color: '#2D3A20', fontSize: '1.4rem' }}>Análisis de Demanda y Tracción</h3>
-          <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#5F7D4A', fontWeight: 800 }}>Métricas estratégicas para el crecimiento de la red</p>
+    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#000', borderRadius: '32px' }}>
+      
+      {analyticsError && (
+        <div style={{ background: '#331111', border: '1px solid #662222', padding: '1rem', borderRadius: '12px', color: '#FF5555', fontWeight: 600, fontSize: '0.85rem' }}>
+          ⚠️ Sync Error: {analyticsError}
         </div>
-        <div style={{ display: 'flex', gap: '8px', background: 'white', padding: '6px', borderRadius: '15px', border: '1px solid #E4EBDD' }}>
+      )}
+
+      {/* Header Selector */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div>
+          <h3 style={{ margin: 0, fontWeight: 700, color: 'white', fontSize: '1.5rem' }}>Analytics</h3>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', background: '#111', padding: '4px', borderRadius: '8px', border: '1px solid #333' }}>
           {[
-            { id: 'day', label: 'Hoy' },
-            { id: 'week', label: 'Semana' },
-            { id: 'month', label: 'Mes' },
-            { id: 'quarter', label: 'Trimestre' },
-            { id: 'year', label: 'Año' }
+            { id: 'day', label: 'Today' },
+            { id: 'week', label: '7D' },
+            { id: 'month', label: '30D' },
+            { id: 'year', label: '12M' }
           ].map(range => (
             <button 
               key={range.id}
-              onClick={() => setAnalyticsTimeRange(range.id as any)}
-              style={{
-                padding: '8px 16px', borderRadius: '10px', border: 'none',
-                background: analyticsTimeRange === range.id ? '#5F7D4A' : 'transparent',
-                color: analyticsTimeRange === range.id ? 'white' : '#5F7D4A',
-                fontWeight: '1000', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s'
+              onClick={() => setAnalyticsTimeRange(range.id)}
+              style={{ 
+                padding: '6px 12px', 
+                borderRadius: '6px', 
+                border: 'none',
+                background: analyticsTimeRange === range.id ? '#333' : 'transparent',
+                color: analyticsTimeRange === range.id ? 'white' : '#888',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
               }}
             >
-              {range.label.toUpperCase()}
+              {range.label}
             </button>
           ))}
         </div>
       </div>
 
-      {analyticsError && (
-        <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '1rem 2rem', borderRadius: '24px', color: '#991B1B', fontWeight: 900, fontSize: '0.9rem', textAlign: 'center' }}>
-          ⚠️ ALERTA DE DATOS: {analyticsError}
-        </div>
-      )}
-
-      {/* Traffic Trend Chart (SVG) */}
-      <div style={{ background: 'white', border: '1px solid #E4EBDD', borderRadius: '24px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h4 style={{ margin: 0, fontWeight: 950, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Layout size={18} color="#5F7D4A" /> Tráfico en el tiempo
-          </h4>
-          <span style={{ fontSize: '0.75rem', color: '#B2AC88', fontWeight: 800 }}>Visitantes únicos / Sesiones</span>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2rem' }}>
         
-        <div style={{ height: '180px', width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-          {timeseriesData && timeseriesData.length > 0 ? (
-            timeseriesData.map((d, i) => {
-              const maxVal = Math.max(...timeseriesData.map(td => td.value)) || 1;
-              const height = (d.value / maxVal) * 100;
-              return (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, height: '100%' }}>
-                  <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end' }}>
-                    <div 
-                      style={{ 
-                        width: '100%', 
-                        height: `${height}%`, 
-                        background: 'linear-gradient(to top, #5F7D4A, #A67C00)', 
-                        borderRadius: '4px',
-                        opacity: 0.8,
-                        transition: 'height 0.5s ease-out'
-                      }} 
-                      title={`${d.label}: ${d.value}`}
-                    />
-                  </div>
-                  <span style={{ fontSize: '9px', fontWeight: 900, color: '#B2AC88', whiteSpace: 'nowrap' }}>{d.label}</span>
-                </div>
-              );
-            })
-          ) : (
-            <div style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#B2AC88', fontSize: '0.8rem', border: '1px dashed #F0F4ED', borderRadius: '15px' }}>
-              No hay datos históricos para este periodo.
-            </div>
-          )}
+        {/* Row 1 */}
+        <VercelMetricTable title="Countries" items={countryItems} />
+        <VercelMetricTable title="Operating Systems" items={osItems} />
+
+        {/* Row 2 */}
+        <VercelMetricTable title="Browsers" items={browserItems} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+           <VercelMetricTable title="Devices" items={deviceItems} viewsLabel="" />
+           <VercelMetricTable title="Top Referrers" items={referrerItems} visitorsLabel="VISITORS" />
         </div>
-      </div>
 
-      {/* Main Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
-        
-        {/* Col 1: Geografía */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-          {/* Top Ciudades Declaradas */}
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Store size={20} color="#5F7D4A" /> Ubicación Declarada (Perfil)
-             </h3>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {topCities.slice(0, 5).map((city, index) => (
-                  <div key={city.locality} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < 4 ? '1px solid #F0F4ED' : 'none' }}>
-                    <span style={{ fontWeight: 1000, color: '#5F7D4A' }}>{index + 1}. {city.locality || 'Sin definir'}</span>
-                    <span style={{ fontWeight: 1000 }}>{city.count}</span>
-                  </div>
-                ))}
-             </div>
-          </div>
-
-          {/* Top Ciudades Detectadas (Real) */}
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <MapPin size={20} color="#3B82F6" /> Ubicación Detectada (Ciudad Real)
-             </h3>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {(topCitiesReal || []).slice(0, 5).map((ct, index) => (
-                  <div key={ct.city} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < 4 ? '1px solid #F0F4ED' : 'none' }}>
-                    <span style={{ fontWeight: 1000, color: '#3B82F6' }}>{index + 1}. {ct.city || 'Desconocida'}</span>
-                    <span style={{ fontWeight: 1000 }}>{ct.count}</span>
-                  </div>
-                ))}
-                {(topCitiesReal || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>Sin datos de conexión aún.</div>}
-             </div>
-          </div>
-
-          {/* Top Países */}
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <MapPin size={20} color="#EF4444" /> Tráfico por País
-             </h3>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {(trafficByCountry || []).slice(0, 5).map((c, index) => (
-                  <div key={c.country} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < 4 ? '1px solid #F0F4ED' : 'none' }}>
-                    <span style={{ fontWeight: 1000, color: '#EF4444' }}>{index + 1}. {c.country || 'Desconocido'}</span>
-                    <span style={{ fontWeight: 1000 }}>{c.count}</span>
-                  </div>
-                ))}
-                {(trafficByCountry || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>Sin datos de países aún.</div>}
-             </div>
-          </div>
-
-          {/* Dispositivos y Navegadores */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1rem' }}>Dispositivos</h4>
-              {(trafficByDevice || []).map((d, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '4px 0' }}>
-                  <span style={{ fontWeight: 800, color: '#666' }}>{d.device}</span>
-                  <span style={{ fontWeight: 1000 }}>{d.count}</span>
+        {/* Row 3 */}
+        <VercelMetricTable title="Pages" items={pageItems} visitorsLabel="PAGE VIEWS" />
+        <div style={{ background: '#0A0A0A', borderRadius: '12px', border: '1px solid #333', padding: '1.5rem', color: 'white' }}>
+           <h4 style={{ margin: '0 0 1.5rem', fontSize: '0.9rem', fontWeight: 600, color: '#EDEDED' }}>Top Searches</h4>
+           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              {topSearches.slice(0, 15).map(([q, count]) => (
+                <div key={q} style={{ background: '#1A1A1A', padding: '6px 12px', borderRadius: '20px', border: '1px solid #333', fontSize: '0.8rem', color: '#EDEDED', display: 'flex', gap: '8px' }}>
+                  <span style={{ fontWeight: 400 }}>{q}</span>
+                  <span style={{ color: '#888', fontWeight: 700 }}>{count}</span>
                 </div>
               ))}
-            </div>
-            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1rem' }}>Navegadores</h4>
-              {(trafficByBrowser || []).map((b, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '4px 0' }}>
-                  <span style={{ fontWeight: 800, color: '#666' }}>{b.browser}</span>
-                  <span style={{ fontWeight: 1000 }}>{b.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Col 2: Contenido & Tráfico */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-          {/* Top Páginas */}
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Layout size={20} color="#5F7D4A" /> Top Páginas (Contenido)
-             </h3>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {(topPages || []).map((p, index) => (
-                  <div key={p.path} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < (topPages || []).length - 1 ? '1px solid #F0F4ED' : 'none' }}>
-                    <span style={{ fontWeight: 1000, color: '#5F7D4A', fontSize: '0.85rem', fontFamily: 'monospace' }}>{p.path}</span>
-                    <span style={{ fontWeight: 1000, fontSize: '0.85rem' }}>{p.count} <span style={{ color: '#B2AC88', fontWeight: 700, fontSize: '0.7rem' }}>vistas</span></span>
-                  </div>
-                ))}
-                {(topPages || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay registros de páginas aún.</div>}
-             </div>
-          </div>
-
-          {/* Top Referidos */}
-          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <ArrowUpRight size={20} color="#3B82F6" /> Origen del Tráfico (Referidos)
-             </h3>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {(topReferrers || []).map((ref, index) => (
-                  <div key={ref.referrer} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < (topReferrers || []).length - 1 ? '1px solid #F0F4ED' : 'none' }}>
-                    <span style={{ fontWeight: 1000, color: '#3B82F6', fontSize: '0.85rem' }}>{ref.referrer}</span>
-                    <span style={{ fontWeight: 1000, fontSize: '0.85rem' }}>{ref.count}</span>
-                  </div>
-                ))}
-                {(topReferrers || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay referidos registrados.</div>}
-             </div>
-          </div>
-        </div>
-
-        {/* Col 3: Buscador */}
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Search size={20} color="#5F7D4A" /> Palabras más buscadas
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {(topSearches || []).slice(0, 10).map(([query, count], index) => (
-                <div key={query} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#F8F9F5', padding: '10px 15px', borderRadius: '16px', border: '1px solid #F0F4ED' }}>
-                    <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.75rem', width: '15px' }}>{index + 1}</span>
-                    <span style={{ fontWeight: 900, color: '#2D3A20', flex: 1, textTransform: 'capitalize', fontSize: '0.9rem' }}>{query}</span>
-                    <span style={{ fontWeight: 1000, color: '#5F7D4A', background: '#E4EBDD', padding: '2px 8px', borderRadius: '6px', fontSize: '0.75rem' }}>{count}</span>
-                </div>
-              ))}
-              {topSearches.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay datos suficientes aún.</div>}
-          </div>
-        </div>
-      </div>
-
-      {/* Row Secundario: Retención y Tracción */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2.5rem' }}>
-        {/* Retención y Sesiones */}
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-           <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Clock size={20} color="#5F7D4A" /> Sesiones y Retención
-           </h3>
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
-                <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Duración</div>
-                  <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#5F7D4A' }}>{sessionStats?.avgDuration || '0'} <span style={{ fontSize: '0.7rem' }}>min</span></div>
-                </div>
-                <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Rebote</div>
-                  <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#A67C00' }}>{sessionStats?.bounceRate || '0'}%</div>
-                </div>
-                <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Conv.</div>
-                  <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#10B981' }}>{sessionStats?.conversionRate || '0'}%</div>
-                </div>
-              </div>
-              <div style={{ background: '#F0F4ED', padding: '15px', borderRadius: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-                   <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.65rem', color: '#5F7D4A', fontWeight: 800 }}>Mejor Día</div>
-                      <div style={{ fontWeight: 1000, color: '#2D3A20' }}>{peakData?.peakDay || '-'}</div>
-                   </div>
-                   <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.65rem', color: '#5F7D4A', fontWeight: 800 }}>Hora Pico</div>
-                      <div style={{ fontWeight: 1000, color: '#2D3A20' }}>{peakData?.peakHour || '-'}</div>
-                   </div>
-                </div>
-              </div>
            </div>
         </div>
 
-        {/* Comercios con más Tracción */}
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-           <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <ArrowUpRight size={20} color="#A67C00" /> Comercios con más Tracción
-           </h3>
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
-              {(topMerchants || []).slice(0, 5).map((m, index) => (
-                 <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#F8F9F5', padding: '10px 20px', borderRadius: '16px', border: '1px solid #F0F4ED' }}>
-                    <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.8rem', width: '20px' }}>{index + 1}</span>
-                    <span style={{ fontWeight: 1000, color: '#2D3A20', flex: 1, fontSize: '0.9rem' }}>{m.name}</span>
-                    <span style={{ fontWeight: 1000, color: '#A67C00', fontSize: '0.8rem' }}>{m.clicks} clicks</span>
-                 </div>
-              ))}
-              {topMerchants.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic', textAlign: 'center', padding: '1rem' }}>Aún no hay interacciones.</div>}
-           </div>
-        </div>
       </div>
     </div>
   );

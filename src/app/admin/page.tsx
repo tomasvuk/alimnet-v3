@@ -208,8 +208,6 @@ export default function AdminDashboard() {
   const [userRoles, setUserRoles] = useState<{ role: string, count: number }[]>([]);
   const [topPages, setTopPages] = useState<{ path: string, count: number }[]>([]);
   const [topReferrers, setTopReferrers] = useState<{ referrer: string, count: number }[]>([]);
-  const [trafficByDevice, setTrafficByDevice] = useState<{ device: string, count: number }[]>([]);
-  const [trafficByBrowser, setTrafficByBrowser] = useState<{ browser: string, count: number }[]>([]);
   const [timeseriesData, setTimeseriesData] = useState<{ label: string, value: number }[]>([]);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
@@ -522,17 +520,19 @@ export default function AdminDashboard() {
 
       const searchMap: Record<string, number> = {};
       const merchantMap: Record<string, { id: string, name: string, clicks: number }> = {};
+      const dayMap: Record<number, number> = {};
+      const hourMap: Record<number, number> = {};
       
-      const countryMap: Record<string, number> = {};
-      const provinceMap: Record<string, number> = {};
-      const cityRealMap: Record<string, number> = {};
+      // Dual metrics maps: Category -> { sessions: Set<sessionId>, views: number }
+      const countryMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      const deviceMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      const browserMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      const osMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      const provinceMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      const cityRealMap: Record<string, { sessions: Set<string>, views: number }> = {};
       const pageMap: Record<string, number> = {};
       const referrerMap: Record<string, number> = {};
       const sessionMap: Record<string, { start: number, end: number, count: number }> = {};
-      const dayMap: Record<number, number> = {};
-      const hourMap: Record<number, number> = {};
-      const deviceMap: Record<string, number> = {};
-      const browserMap: Record<string, number> = {};
 
       (events || []).forEach((e: any) => {
         let payload = e.payload || {};
@@ -571,34 +571,59 @@ export default function AdminDashboard() {
             }
           }
           
-          countryMap[c] = (countryMap[c] || 0) + 1;
-          provinceMap[p] = (provinceMap[p] || 0) + 1;
-          cityRealMap[ct] = (cityRealMap[ct] || 0) + 1;
+          const sid = payload.sessionId || 'anon';
+
+          if (!countryMap[c]) countryMap[c] = { sessions: new Set(), views: 0 };
+          countryMap[c].sessions.add(sid);
+          countryMap[c].views++;
+
+          if (!provinceMap[p]) provinceMap[p] = { sessions: new Set(), views: 0 };
+          provinceMap[p].sessions.add(sid);
+          provinceMap[p].views++;
+
+          if (!cityRealMap[ct]) cityRealMap[ct] = { sessions: new Set(), views: 0 };
+          cityRealMap[ct].sessions.add(sid);
+          cityRealMap[ct].views++;
+
           pageMap[path] = (pageMap[path] || 0) + 1;
           referrerMap[ref] = (referrerMap[ref] || 0) + 1;
 
           // Device & Browser parsing from userAgent
           if (payload.userAgent) {
             const ua = payload.userAgent;
+            
+            // Device Type
+            let deviceType = 'Desktop';
+            if (ua.includes('Mobi') || ua.includes('Android') || ua.includes('iPhone')) deviceType = 'Mobile';
+            if (!deviceMap[deviceType]) deviceMap[deviceType] = { sessions: new Set(), views: 0 };
+            deviceMap[deviceType].sessions.add(sid);
+            deviceMap[deviceType].views++;
+
+            // OS
             let os = 'Otros';
             if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
             else if (ua.includes('Android')) os = 'Android';
             else if (ua.includes('Windows')) os = 'Windows';
-            else if (ua.includes('Macintosh')) os = 'macOS';
+            else if (ua.includes('Macintosh')) os = 'Mac';
             else if (ua.includes('Linux')) os = 'Linux';
-            deviceMap[os] = (deviceMap[os] || 0) + 1;
+            if (!osMap[os]) osMap[os] = { sessions: new Set(), views: 0 };
+            osMap[os].sessions.add(sid);
+            osMap[os].views++;
 
+            // Browser
             let browser = 'Otros';
-            if (ua.includes('Chrome')) browser = 'Chrome';
+            if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
             else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
             else if (ua.includes('Firefox')) browser = 'Firefox';
-            else if (ua.includes('Edge')) browser = 'Edge';
-            browserMap[browser] = (browserMap[browser] || 0) + 1;
+            else if (ua.includes('Edg')) browser = 'Edge';
+            else if (ua.includes('SamsungBrowser')) browser = 'Samsung Browser';
+            if (!browserMap[browser]) browserMap[browser] = { sessions: new Set(), views: 0 };
+            browserMap[browser].sessions.add(sid);
+            browserMap[browser].views++;
           }
 
-          // Sessions
-          const sid = payload.sessionId;
-          if (sid) {
+          // Sessions meta tracking
+          if (sid !== 'anon') {
             const time = new Date(e.created_at).getTime();
             if (!sessionMap[sid]) {
               sessionMap[sid] = { start: time, end: time, count: 1 };
@@ -667,13 +692,16 @@ export default function AdminDashboard() {
         peakHour: peakHourIdx !== undefined ? `${peakHourIdx}:00 hs` : '-'
       });
 
-      setTrafficByCountry(Object.entries(countryMap).map(([country, count]) => ({ country, count })).sort((a,b) => b.count - a.count));
-      setTrafficByProvince(Object.entries(provinceMap).map(([province, count]) => ({ province, count })).sort((a,b) => b.count - a.count));
-      setTopCitiesReal(Object.entries(cityRealMap).map(([city, count]) => ({ city, count })).sort((a,b) => b.count - a.count));
+      // Final aggregation for dual-metric states
+      setTrafficByCountry(Object.entries(countryMap).map(([country, data]) => ({ country, visitors: data.sessions.size, views: data.views })).sort((a,b) => b.visitors - a.visitors));
+      setTrafficByProvince(Object.entries(provinceMap).map(([province, data]) => ({ province, visitors: data.sessions.size, views: data.views })).sort((a,b) => b.visitors - a.visitors) as any);
+      setTrafficByDevice(Object.entries(deviceMap).map(([device, data]) => ({ device, visitors: data.sessions.size, views: data.views })).sort((a,b) => b.visitors - a.visitors));
+      setTrafficByBrowser(Object.entries(browserMap).map(([browser, data]) => ({ browser, visitors: data.sessions.size, views: data.views })).sort((a,b) => b.visitors - a.visitors));
+      setTrafficByOS(Object.entries(osMap).map(([os, data]) => ({ os, visitors: data.sessions.size, views: data.views })).sort((a,b) => b.visitors - a.visitors));
+      setTopCitiesReal(Object.entries(cityRealMap).map(([city, data]) => ({ city, count: data.sessions.size })).sort((a,b) => b.count - a.count));
+      
       setTopPages(Object.entries(pageMap).map(([path, count]) => ({ path, count })).sort((a,b) => b.count - a.count).slice(0, 10));
       setTopReferrers(Object.entries(referrerMap).map(([referrer, count]) => ({ referrer, count })).sort((a,b) => b.count - a.count).slice(0, 10));
-      setTrafficByDevice(Object.entries(deviceMap).map(([device, count]) => ({ device, count })).sort((a,b) => b.count - a.count));
-      setTrafficByBrowser(Object.entries(browserMap).map(([browser, count]) => ({ browser, count })).sort((a,b) => b.count - a.count));
       setTopSearches(Object.entries(searchMap).sort((a, b) => b[1] - a[1]).slice(0, 20));
       setTopMerchants(Object.values(merchantMap).sort((a, b) => b.clicks - a.clicks).slice(0, 20));
 
@@ -1068,6 +1096,7 @@ export default function AdminDashboard() {
                timeseriesData={timeseriesData}
                trafficByDevice={trafficByDevice}
                trafficByBrowser={trafficByBrowser}
+               trafficByOS={trafficByOS}
              />
           ) : activeTab === 'oficializacion' ? (
             <div style={{ padding: '2rem' }}>
