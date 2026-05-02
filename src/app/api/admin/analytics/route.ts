@@ -12,11 +12,16 @@ export async function GET(req: NextRequest) {
   try {
     // Verify admin
     const authHeader = req.headers.get('authorization');
-    if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user } } = await supabaseAdmin.auth.getUser(token);
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!authHeader) return NextResponse.json({ error: 'Missing auth header' }, { status: 401 });
     
+    const token = authHeader.replace('Bearer ', '');
+    const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (authError || !authData?.user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    
+    const user = authData.user;
     const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).single();
     if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 

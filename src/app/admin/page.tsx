@@ -501,10 +501,17 @@ export default function AdminDashboard() {
           'Authorization': `Bearer ${session?.access_token}`
         }
       });
-      const events = await res.json();
       
-      if (events.error) {
-        console.error("Analytics fetch error:", events.error);
+      let events = [];
+      if (res.ok) {
+        events = await res.json();
+      } else {
+        const errText = await res.text();
+        console.error("Analytics fetch failed:", res.status, errText);
+      }
+      
+      if (events && (events as any).error) {
+        console.error("Analytics business error:", (events as any).error);
       }
 
       const searchMap: Record<string, number> = {};
