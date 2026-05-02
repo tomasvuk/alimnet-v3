@@ -163,8 +163,8 @@ export default function AdminDashboard() {
   const [isSaving, setIsSaving] = useState(false);
   
   // Advanced Analytics States
-  const [trafficByCountry, setTrafficByCountry] = useState<{ country: string, count: number }[]>([]);
-  const [trafficByProvince, setTrafficByProvince] = useState<{ province: string, count: number }[]>([]);
+  const [trafficByCountry, setTrafficByCountry] = useState<{ country: string, visitors: number, views: number }[]>([]);
+  const [trafficByProvince, setTrafficByProvince] = useState<{ province: string, visitors: number, views: number }[]>([]);
   const [sessionStats, setSessionStats] = useState({ avgDuration: 0, bounceRate: 0, conversionRate: 0 });
   const [peakData, setPeakData] = useState<{ peakDay: string, peakHour: string }>({ peakDay: '-', peakHour: '-' });
   
@@ -208,6 +208,9 @@ export default function AdminDashboard() {
   const [userRoles, setUserRoles] = useState<{ role: string, count: number }[]>([]);
   const [topPages, setTopPages] = useState<{ path: string, count: number }[]>([]);
   const [topReferrers, setTopReferrers] = useState<{ referrer: string, count: number }[]>([]);
+  const [trafficByDevice, setTrafficByDevice] = useState<{ device: string, visitors: number, views: number }[]>([]);
+  const [trafficByBrowser, setTrafficByBrowser] = useState<{ browser: string, visitors: number, views: number }[]>([]);
+  const [trafficByOS, setTrafficByOS] = useState<{ os: string, visitors: number, views: number }[]>([]);
   const [timeseriesData, setTimeseriesData] = useState<{ label: string, value: number }[]>([]);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
