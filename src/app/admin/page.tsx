@@ -212,6 +212,7 @@ export default function AdminDashboard() {
   const [trafficByBrowser, setTrafficByBrowser] = useState<{ browser: string, visitors: number, views: number }[]>([]);
   const [trafficByOS, setTrafficByOS] = useState<{ os: string, visitors: number, views: number }[]>([]);
   const [timeseriesData, setTimeseriesData] = useState<{ label: string, value: number }[]>([]);
+  const [rawEvents, setRawEvents] = useState<any[]>([]);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -510,6 +511,7 @@ export default function AdminDashboard() {
       let events = [];
       if (res.ok) {
         events = await res.json();
+        setRawEvents(events);
       } else {
         const errText = await res.text();
         console.error("Analytics fetch failed:", res.status, errText);
@@ -1159,6 +1161,7 @@ export default function AdminDashboard() {
                trafficByDevice={trafficByDevice}
                trafficByBrowser={trafficByBrowser}
                trafficByOS={trafficByOS}
+               rawEvents={rawEvents}
              />
           ) : activeTab === 'oficializacion' ? (
             <div style={{ padding: '2rem' }}>
