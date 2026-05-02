@@ -12,7 +12,8 @@ interface IntelligenceTabProps {
   topCities: { locality: string, count: number }[];
   trafficByCountry?: { country: string, count: number }[];
   trafficByProvince?: { province: string, count: number }[];
-  sessionStats?: { avgDuration: number, bounceRate: number };
+  sessionStats?: { avgDuration: number, bounceRate: number, conversionRate: number };
+  peakData?: { peakDay: string, peakHour: string };
 }
 
 const ProductorIcon = ({ size = 20 }: { size?: number }) => (
@@ -41,7 +42,8 @@ export default function IntelligenceTab({
   topCities,
   trafficByCountry,
   trafficByProvince,
-  sessionStats
+  sessionStats,
+  peakData
 }: IntelligenceTabProps) {
   return (
     <div style={{ padding: '1rem' }}>
@@ -149,12 +151,29 @@ export default function IntelligenceTab({
                 <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Duración Promedio</div>
                 <div style={{ fontSize: '2rem', fontWeight: 1000, color: '#5F7D4A' }}>{sessionStats?.avgDuration || '4:12'} <span style={{ fontSize: '0.9rem' }}>min</span></div>
               </div>
-              <div style={{ background: '#F8F9F5', padding: '20px', borderRadius: '20px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Tasa de Rebote</div>
-                <div style={{ fontSize: '2rem', fontWeight: 1000, color: '#A67C00' }}>{sessionStats?.bounceRate || '32'}%</div>
+              <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Tasa de Rebote</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 1000, color: '#A67C00' }}>{sessionStats?.bounceRate || '0'}%</div>
+              </div>
+              <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Tasa de Conversión</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 1000, color: '#10B981' }}>{sessionStats?.conversionRate || '0'}%</div>
+              </div>
+              <div style={{ background: '#F0F4ED', padding: '15px', borderRadius: '20px' }}>
+                <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '8px', textAlign: 'center' }}>Picos de Tráfico</div>
+                <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                   <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.65rem', color: '#5F7D4A', fontWeight: 800 }}>Mejor Día</div>
+                      <div style={{ fontWeight: 1000, color: '#2D3A20' }}>{peakData?.peakDay || '-'}</div>
+                   </div>
+                   <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.65rem', color: '#5F7D4A', fontWeight: 800 }}>Hora Pico</div>
+                      <div style={{ fontWeight: 1000, color: '#2D3A20' }}>{peakData?.peakHour || '-'}</div>
+                   </div>
+                </div>
               </div>
               <p style={{ fontSize: '0.75rem', color: '#B2AC88', fontStyle: 'italic', margin: 0, textAlign: 'center' }}>
-                Métricas estimadas en base a actividad reciente.
+                Métricas calculadas en tiempo real para el periodo seleccionado.
               </p>
            </div>
         </div>

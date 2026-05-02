@@ -149,10 +149,15 @@ export default function AdminDashboard() {
   const [topSearches, setTopSearches] = useState<[string, number][]>([]);
   const [topMerchants, setTopMerchants] = useState<{ id: string, name: string, clicks: number }[]>([]);
   
-  // Edit Merchant State
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingMerchant, setEditingMerchant] = useState<Merchant | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Advanced Analytics States
+  const [trafficByCountry, setTrafficByCountry] = useState<{ country: string, count: number }[]>([]);
+  const [trafficByProvince, setTrafficByProvince] = useState<{ province: string, count: number }[]>([]);
+  const [sessionStats, setSessionStats] = useState({ avgDuration: 0, bounceRate: 0, conversionRate: 0 });
+  const [peakData, setPeakData] = useState<{ peakDay: string, peakHour: string }>({ peakDay: '-', peakHour: '-' });
   
   // Filtros Avanzados
   const [filterProvince, setFilterProvince] = useState<string>('all');
@@ -485,24 +490,98 @@ export default function AdminDashboard() {
 
       const searchMap: Record<string, number> = {};
       const merchantMap: Record<string, { id: string, name: string, clicks: number }> = {};
+      
+      const countryMap: Record<string, number> = {};
+      const provinceMap: Record<string, number> = {};
+      const sessionMap: Record<string, { start: number, end: number, count: number }> = {};
+      const dayMap: Record<number, number> = {};
+      const hourMap: Record<number, number> = {};
 
       (events || []).forEach(e => {
-        // Aggregating Searches
+        const payload = e.payload || {};
+        
+        // 1. Searches
         if (e.event_type === 'SEARCH_QUERY_ENTER' || e.event_type === 'SEARCH_QUERY_SELECTED') {
-          const q = (e.payload?.query || '').toLowerCase().trim();
+          const q = (payload.query || '').toLowerCase().trim();
           if (q) searchMap[q] = (searchMap[q] || 0) + 1;
         }
-        // Aggregating Merchant interactions
+
+        // 2. Merchant interactions
         if (e.event_type.startsWith('CTA_') || e.event_type === 'SELECT_MERCHANT') {
-          const mId = e.payload?.id;
-          const mName = e.payload?.name || processedMerchants.find(m => m.id === mId)?.name || 'Unknown';
+          const mId = payload.id;
+          const mName = payload.name || processedMerchants.find(m => m.id === mId)?.name || 'Unknown';
           if (mId) {
             if (!merchantMap[mId]) merchantMap[mId] = { id: mId, name: mName, clicks: 0 };
             merchantMap[mId].clicks++;
           }
         }
+
+        // 3. Page Views & Geography
+        if (e.event_type === 'PAGE_VIEW') {
+          const country = payload.country || 'Desconocido';
+          const province = payload.province || 'Desconocido';
+          countryMap[country] = (countryMap[country] || 0) + 1;
+          provinceMap[province] = (provinceMap[province] || 0) + 1;
+
+          // Sessions
+          const sid = payload.sessionId;
+          if (sid) {
+            const time = new Date(e.created_at).getTime();
+            if (!sessionMap[sid]) {
+              sessionMap[sid] = { start: time, end: time, count: 1 };
+            } else {
+              sessionMap[sid].start = Math.min(sessionMap[sid].start, time);
+              sessionMap[sid].end = Math.max(sessionMap[sid].end, time);
+              sessionMap[sid].count++;
+            }
+          }
+
+          // Peak Hours/Days
+          const date = new Date(e.created_at);
+          const day = date.getDay();
+          const hour = date.getHours();
+          dayMap[day] = (dayMap[day] || 0) + 1;
+          hourMap[hour] = (hourMap[hour] || 0) + 1;
+        }
       });
 
+      // Calculate Session Stats
+      const sessions = Object.values(sessionMap);
+      const totalSessions = sessions.length;
+      const totalDuration = sessions.reduce((acc, s) => acc + (s.end - s.start), 0);
+      const avgDurationSec = totalSessions > 0 ? (totalDuration / totalSessions / 1000) : 0;
+      const bounceCount = sessions.filter(s => s.count === 1).length;
+      const bounceRate = totalSessions > 0 ? Math.round((bounceCount / totalSessions) * 100) : 0;
+      
+      // Conversion Rate (Signups / Sessions)
+      // Usamos el incremento de usuarios en el periodo (stats.usersToday/Month/etc)
+      let currentPeriodSignups = 0;
+      if (analyticsTimeRange === 'day') currentPeriodSignups = stats.usersToday;
+      else if (analyticsTimeRange === 'week') currentPeriodSignups = stats.usersThisWeek;
+      else if (analyticsTimeRange === 'month') currentPeriodSignups = stats.usersThisMonth;
+      else if (analyticsTimeRange === 'quarter') currentPeriodSignups = (stats as any).usersThisQuarter || 0;
+      else if (analyticsTimeRange === 'year') currentPeriodSignups = (stats as any).usersThisYear || 0;
+
+      const convRate = totalSessions > 0 ? parseFloat(((currentPeriodSignups / totalSessions) * 100).toFixed(1)) : 0;
+
+      // Peak Data
+      const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      const peakDayIdx = Object.entries(dayMap).sort((a,b) => b[1] - a[1])[0]?.[0];
+      const peakHourIdx = Object.entries(hourMap).sort((a,b) => b[1] - a[1])[0]?.[0];
+
+      setSessionStats({
+        avgDuration: Math.round(avgDurationSec / 60),
+        bounceRate,
+        conversionRate: convRate
+      });
+
+      setPeakData({
+        peakDay: peakDayIdx !== undefined ? days[parseInt(peakDayIdx)] : '-',
+        peakHour: peakHourIdx !== undefined ? `${peakHourIdx}:00 hs` : '-'
+      });
+
+      setTrafficByCountry(Object.entries(countryMap).map(([country, count]) => ({ country, count })).sort((a,b) => b.count - a.count));
+      setTrafficByProvince(Object.entries(provinceMap).map(([province, count]) => ({ province, count })).sort((a,b) => b.count - a.count));
       setTopSearches(Object.entries(searchMap).sort((a, b) => b[1] - a[1]).slice(0, 20));
       setTopMerchants(Object.values(merchantMap).sort((a, b) => b.clicks - a.clicks).slice(0, 20));
       
@@ -899,6 +978,10 @@ export default function AdminDashboard() {
                analyticsTimeRange={analyticsTimeRange}
                setAnalyticsTimeRange={setAnalyticsTimeRange}
                topCities={topCities}
+               trafficByCountry={trafficByCountry}
+               trafficByProvince={trafficByProvince}
+               sessionStats={sessionStats}
+               peakData={peakData}
              />
           ) : activeTab === 'oficializacion' ? (
             <div style={{ padding: '2rem' }}>
