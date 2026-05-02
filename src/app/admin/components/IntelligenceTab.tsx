@@ -123,19 +123,19 @@ const AlimnetMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLab
             >
               <div style={{ position: 'absolute', left: 0, top: '2px', bottom: '2px', width: `${percentage}%`, background: '#F0F4ED', borderRadius: '0 4px 4px 0', zIndex: 0, opacity: 0.7 }} />
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1, flex: 1, minWidth: 0 }}>
                 {item.flag && <span style={{ fontSize: '1rem' }}>{item.flag}</span>}
-                {item.icon && <span style={{ color: '#5F7D4A' }}>{item.icon}</span>}
-                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#2D3A20' }}>{item.label}</span>
+                {item.icon && <span style={{ color: '#5F7D4A', flexShrink: 0 }}>{item.icon}</span>}
+                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#2D3A20', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
               </div>
               
-              <div style={{ display: 'flex', gap: '1rem', zIndex: 1 }}>
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', width: '60px', justifyContent: 'flex-end' }}>
-                   <span style={{ fontSize: '0.65rem', color: '#B2AC88', fontWeight: 800 }}>{Math.round((item.visitors / displayItems.reduce((acc, curr) => acc + curr.visitors, 0)) * 100)}%</span>
+              <div style={{ display: 'flex', gap: '0.8rem', zIndex: 1, flexShrink: 0, paddingLeft: '1rem' }}>
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center', width: '50px', justifyContent: 'flex-end' }}>
+                   <span style={{ fontSize: '0.6rem', color: '#B2AC88', fontWeight: 800 }}>{Math.round((item.visitors / (displayItems.reduce((acc, curr) => acc + curr.visitors, 0) || 1)) * 100)}%</span>
                    <span style={{ fontSize: '0.8rem', fontWeight: 1000, color: '#5F7D4A' }}>{item.visitors}</span>
                 </div>
                 {item.views !== undefined && (
-                   <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#2D3A20', width: '60px', textAlign: 'right' }}>{item.views}</span>
+                   <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#2D3A20', width: '45px', textAlign: 'right' }}>{item.views}</span>
                 )}
               </div>
             </div>

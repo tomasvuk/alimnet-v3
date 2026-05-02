@@ -598,6 +598,13 @@ export default function AdminDashboard() {
           try { payload = JSON.parse(payload); } catch(err) { payload = {}; }
         }
         
+        // 0. EXCLUDE ADMIN TRAFFIC (Crucial for clean metrics)
+        const path = payload.path || '/';
+        const sid = payload.sessionId || 'anon';
+        const isAdminSession = typeof window !== 'undefined' && sessionStorage.getItem('alimnet_session_id') === sid;
+        const isAdminPath = path.startsWith('/admin') || path.startsWith('/api/admin');
+        if (isAdminPath || isAdminSession) return;
+
         // 1. Searches
         if (e.event_type === 'SEARCH_QUERY_ENTER' || e.event_type === 'SEARCH_QUERY_SELECTED' || e.event_type === 'SEARCH_QUERY_AUTO') {
           const q = (payload.query || '').toLowerCase().trim();
@@ -657,30 +664,30 @@ export default function AdminDashboard() {
             const ua = payload.userAgent;
             
             // Device Type
-            let deviceType = 'Desktop';
-            if (ua.includes('Mobi') || ua.includes('Android') || ua.includes('iPhone')) deviceType = 'Mobile';
+            let deviceType = 'DESKTOP';
+            if (ua.includes('Mobi') || ua.includes('Android') || ua.includes('iPhone')) deviceType = 'MOBILE';
             if (!deviceMap[deviceType]) deviceMap[deviceType] = { sessions: new Set(), views: 0 };
             deviceMap[deviceType].sessions.add(sid);
             deviceMap[deviceType].views++;
 
             // OS
-            let os = 'Otros';
-            if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
-            else if (ua.includes('Android')) os = 'Android';
-            else if (ua.includes('Windows')) os = 'Windows';
-            else if (ua.includes('Macintosh')) os = 'Mac';
-            else if (ua.includes('Linux')) os = 'Linux';
+            let os = 'OTROS';
+            if (ua.includes('iPhone') || ua.includes('iPad')) os = 'IOS';
+            else if (ua.includes('Android')) os = 'ANDROID';
+            else if (ua.includes('Windows')) os = 'WINDOWS';
+            else if (ua.includes('Macintosh')) os = 'MAC';
+            else if (ua.includes('Linux')) os = 'LINUX';
             if (!osMap[os]) osMap[os] = { sessions: new Set(), views: 0 };
             osMap[os].sessions.add(sid);
             osMap[os].views++;
 
             // Browser
-            let browser = 'Otros';
-            if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
-            else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
-            else if (ua.includes('Firefox')) browser = 'Firefox';
-            else if (ua.includes('Edg')) browser = 'Edge';
-            else if (ua.includes('SamsungBrowser')) browser = 'Samsung Browser';
+            let browser = 'OTROS';
+            if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'CHROME';
+            else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'SAFARI';
+            else if (ua.includes('Firefox')) browser = 'FIREFOX';
+            else if (ua.includes('Edg')) browser = 'EDGE';
+            else if (ua.includes('SamsungBrowser')) browser = 'SAMSUNG BROWSER';
             if (!browserMap[browser]) browserMap[browser] = { sessions: new Set(), views: 0 };
             browserMap[browser].sessions.add(sid);
             browserMap[browser].views++;
