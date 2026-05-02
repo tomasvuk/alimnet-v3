@@ -47,6 +47,8 @@ import ImportModal from './components/ImportModal';
 import ContactDropdown from './components/ContactDropdown';
 import CrmBoard from './components/CrmBoard';
 import MerchantCard from '@/components/MerchantCard';
+import MerchantReviewModal from './components/MerchantReviewModal';
+import CategoriesTab from './components/CategoriesTab';
 import { Eye } from 'lucide-react';
 
 // --- Tipos ---
@@ -130,7 +132,7 @@ export default function AdminDashboard() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'usuarios' | 'pagos' | 'analytics' | 'oficializacion'>('comercios');
+  const [activeTab, setActiveTab] = useState<'comercios' | 'mensajes' | 'pendientes' | 'usuarios' | 'pagos' | 'analytics' | 'oficializacion' | 'categorias'>('comercios');
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [donations, setDonations] = useState<Donation[]>([]);
@@ -139,8 +141,15 @@ export default function AdminDashboard() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   
-  const [crmView, setCrmView] = useState<'list' | 'board'>('list');
+  const [crmView, setCrmView] = useState<'list' | 'kanban' | 'revision'>('revision');
   const [crmTemplate, setCrmTemplate] = useState('');
+
+  // Review mode state
+  const [reviewMerchant, setReviewMerchant] = useState<Merchant | null>(null);
+  const [reviewIndex, setReviewIndex] = useState<number>(0);
+  const [crmSortBy, setCrmSortBy] = useState<string>('default');
+  const [crmFilterStatus, setCrmFilterStatus] = useState<string>('sin_contacto');
+  const [crmFilterReviewed, setCrmFilterReviewed] = useState<string>('all');
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [previewMerchant, setPreviewMerchant] = useState<Merchant | null>(null);
   
@@ -530,7 +539,14 @@ export default function AdminDashboard() {
           const p = payload.province || 'Unknown';
           const ct = payload.city || 'Unknown';
           const path = payload.path || '/';
-          const ref = payload.referrer ? new URL(payload.referrer).hostname : 'Directo';
+          let ref = 'Directo';
+          if (payload.referrer) {
+            try {
+              ref = new URL(payload.referrer).hostname || payload.referrer;
+            } catch (e) {
+              ref = payload.referrer;
+            }
+          }
           
           countryMap[c] = (countryMap[c] || 0) + 1;
           provinceMap[p] = (provinceMap[p] || 0) + 1;
@@ -715,6 +731,15 @@ export default function AdminDashboard() {
       // pero el cambio ya impactó en la DB y en el estado local.
     } else {
       alert('Error al actualizar estado: ' + error.message);
+    }
+  };
+
+  const handleReviewSave = async (id: string, updates: Partial<Merchant>) => {
+    const { error } = await supabase.from('merchants').update(updates).eq('id', id);
+    if (!error) {
+      setMerchants(prev => prev.map(m => m.id === id ? { ...m, ...updates } as Merchant : m));
+    } else {
+      alert('Error al guardar: ' + error.message);
     }
   };
 
@@ -986,7 +1011,8 @@ export default function AdminDashboard() {
                    </button>
                    <div style={{ display: 'flex', background: '#F0F4ED', borderRadius: '12px', overflow: 'hidden' }}>
                      <button onClick={() => setCrmView('list')} style={{ padding: '10px 16px', background: crmView === 'list' ? '#5F7D4A' : 'transparent', color: crmView === 'list' ? 'white' : '#5F7D4A', border: 'none', fontWeight: 900, cursor: 'pointer' }}>Lista</button>
-                     <button onClick={() => setCrmView('board')} style={{ padding: '10px 16px', background: crmView === 'board' ? '#5F7D4A' : 'transparent', color: crmView === 'board' ? 'white' : '#5F7D4A', border: 'none', fontWeight: 900, cursor: 'pointer' }}>Kanban</button>
+                     <button onClick={() => setCrmView('kanban')} style={{ padding: '10px 16px', background: crmView === 'kanban' ? '#5F7D4A' : 'transparent', color: crmView === 'kanban' ? 'white' : '#5F7D4A', border: 'none', fontWeight: 900, cursor: 'pointer' }}>Kanban</button>
+                     <button onClick={() => setCrmView('revision')} style={{ padding: '10px 16px', background: crmView === 'revision' ? '#5F7D4A' : 'transparent', color: crmView === 'revision' ? 'white' : '#5F7D4A', border: 'none', fontWeight: 900, cursor: 'pointer' }}>Revisión</button>
                    </div>
                  </div>
                </div>
