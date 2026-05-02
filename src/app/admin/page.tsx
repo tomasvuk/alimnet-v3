@@ -495,12 +495,17 @@ export default function AdminDashboard() {
       if (analyticsTimeRange === 'quarter') startDateStr = quarterAgo;
       if (analyticsTimeRange === 'year') startDateStr = yearAgo;
 
-      const { data: events } = await supabase
-        .from('system_events')
-        .select('*')
-        .gt('created_at', startDateStr)
-        .order('created_at', { ascending: false })
-        .limit(3000);
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`/api/admin/analytics?startDate=${startDateStr}`, {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`
+        }
+      });
+      const events = await res.json();
+      
+      if (events.error) {
+        console.error("Analytics fetch error:", events.error);
+      }
 
       const searchMap: Record<string, number> = {};
       const merchantMap: Record<string, { id: string, name: string, clicks: number }> = {};
@@ -515,7 +520,10 @@ export default function AdminDashboard() {
       const hourMap: Record<number, number> = {};
 
       (events || []).forEach(e => {
-        const payload = e.payload || {};
+        let payload = e.payload || {};
+        if (typeof payload === 'string') {
+          try { payload = JSON.parse(payload); } catch(err) { payload = {}; }
+        }
         
         // 1. Searches
         if (e.event_type === 'SEARCH_QUERY_ENTER' || e.event_type === 'SEARCH_QUERY_SELECTED' || e.event_type === 'SEARCH_QUERY_AUTO') {
