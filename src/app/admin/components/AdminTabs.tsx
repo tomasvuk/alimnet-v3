@@ -68,6 +68,7 @@ export default function AdminTabs({ activeTab, setActiveTab, counts, onTabChange
     { id: 'mensajes', label: 'Mensajes', count: counts.messages },
     { id: 'analytics', label: 'Inteligencia' },
     { id: 'pagos', label: 'Pagos' },
+    { id: 'categorias', label: 'Categorías' },
   ];
 
   return (

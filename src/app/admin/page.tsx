@@ -1090,14 +1090,182 @@ export default function AdminDashboard() {
                      </tbody>
                    </table>
                  </div>
-               ) : (
-                  <CrmBoard 
-                    merchants={filteredMerchants.filter(m => !m.claimed)} 
-                    crmTemplate={crmTemplate} 
-                    updateContactStatus={updateContactStatus}
-                    onPreviewCard={setPreviewMerchant}
-                  />
-               )}
+               ) : crmView === 'kanban' ? (
+                  <>
+                    <CrmBoard
+                      merchants={filteredMerchants.filter(m => !m.claimed)}
+                      crmTemplate={crmTemplate}
+                      updateContactStatus={updateContactStatus}
+                      onPreviewCard={setPreviewMerchant}
+                      onEditCard={(m) => { setReviewMerchant(m); setReviewIndex(0); }}
+                    />
+                    {reviewMerchant && (
+                      <MerchantReviewModal
+                        merchant={reviewMerchant}
+                        onClose={() => setReviewMerchant(null)}
+                        onSave={handleReviewSave as any}
+                        onUpdateContactStatus={updateContactStatus}
+                        crmTemplate={crmTemplate}
+                      />
+                    )}
+                  </>
+               ) : (() => {
+                  const PROVINCE_ORDER: Record<string, number> = { 'Buenos Aires': 0, 'CABA': 1, 'Ciudad Autónoma de Buenos Aires': 1 };
+                  const reviewMerchants = [...filteredMerchants]
+                    .filter(m => {
+                      if (crmFilterStatus !== 'all' && (m.contact_status || 'sin_contacto') !== crmFilterStatus) return false;
+                      if (crmFilterReviewed === 'pending' && (m as any).admin_reviewed) return false;
+                      if (crmFilterReviewed === 'reviewed' && !(m as any).admin_reviewed) return false;
+                      return true;
+                    })
+                    .sort((a, b) => {
+                      if (crmSortBy === 'sin_tags') return ((a as any).tags?.length || 0) - ((b as any).tags?.length || 0);
+                      if (crmSortBy === 'nombre') return a.name.localeCompare(b.name);
+                      const aProv = a.province || 'ZZZ';
+                      const bProv = b.province || 'ZZZ';
+                      const aOrder = PROVINCE_ORDER[aProv] ?? 99;
+                      const bOrder = PROVINCE_ORDER[bProv] ?? 99;
+                      if (aOrder !== bOrder) return aOrder - bOrder;
+                      if (aProv !== bProv) return aProv.localeCompare(bProv);
+                      return (a.locations?.[0]?.locality || '').localeCompare(b.locations?.[0]?.locality || '');
+                    });
+                  const reviewStats = {
+                    revisados: merchants.filter(m => (m as any).admin_reviewed).length,
+                    pendientes: merchants.filter(m => !(m as any).admin_reviewed).length,
+                    sinContacto: merchants.filter(m => (m.contact_status || 'sin_contacto') === 'sin_contacto').length,
+                    contactados: merchants.filter(m => m.contact_status === 'contactado').length,
+                    enProceso: merchants.filter(m => m.contact_status === 'en_proceso').length,
+                    oficializados: merchants.filter(m => m.contact_status === 'oficializado').length,
+                    negados: merchants.filter(m => m.contact_status === 'negado').length,
+                  };
+                  return (
+                    <div>
+                      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', padding: '1rem 1.5rem', marginBottom: '1rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <div style={{ flex: 1, minWidth: 200 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#5F7D4A' }}>{reviewStats.revisados} / {merchants.length} revisados</span>
+                            <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>{Math.round((reviewStats.revisados / Math.max(merchants.length, 1)) * 100)}%</span>
+                          </div>
+                          <div style={{ height: '6px', background: '#E4EBDD', borderRadius: '4px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${Math.round((reviewStats.revisados / Math.max(merchants.length, 1)) * 100)}%`, background: '#5F7D4A', borderRadius: '4px' }} />
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                          {[
+                            { label: 'Sin contacto', value: reviewStats.sinContacto, color: '#9CA3AF' },
+                            { label: 'Contactados', value: reviewStats.contactados, color: '#3B82F6' },
+                            { label: 'En proceso', value: reviewStats.enProceso, color: '#F59E0B' },
+                            { label: 'Oficializados', value: reviewStats.oficializados, color: '#10B981' },
+                            { label: 'Negados', value: reviewStats.negados, color: '#EF4444' },
+                          ].map(s => (
+                            <div key={s.label} style={{ textAlign: 'center' }}>
+                              <div style={{ fontSize: '1rem', fontWeight: 900, color: s.color }}>{s.value}</div>
+                              <div style={{ fontSize: '0.65rem', color: '#9CA3AF', fontWeight: 700 }}>{s.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                        <select value={crmFilterStatus} onChange={e => setCrmFilterStatus(e.target.value)} style={{ padding: '8px 12px', borderRadius: '10px', border: '1px solid #E4EBDD', fontSize: '0.82rem', fontWeight: 800, color: '#2D3A20' }}>
+                          <option value="all">Todos los estados</option>
+                          <option value="sin_contacto">Sin contacto</option>
+                          <option value="contactado">Contactado</option>
+                          <option value="en_proceso">En proceso</option>
+                          <option value="oficializado">Oficializado</option>
+                          <option value="negado">Negado</option>
+                        </select>
+                        <select value={crmFilterReviewed} onChange={e => setCrmFilterReviewed(e.target.value)} style={{ padding: '8px 12px', borderRadius: '10px', border: '1px solid #E4EBDD', fontSize: '0.82rem', fontWeight: 800, color: '#2D3A20' }}>
+                          <option value="all">Revisados y pendientes</option>
+                          <option value="pending">Solo pendientes de revisión</option>
+                          <option value="reviewed">Solo ya revisados</option>
+                        </select>
+                        <select value={crmSortBy} onChange={e => setCrmSortBy(e.target.value)} style={{ padding: '8px 12px', borderRadius: '10px', border: '1px solid #E4EBDD', fontSize: '0.82rem', fontWeight: 800, color: '#2D3A20' }}>
+                          <option value="default">Ordenar: Buenos Aires primero</option>
+                          <option value="sin_tags">Sin tags primero</option>
+                          <option value="nombre">Nombre A-Z</option>
+                        </select>
+                      </div>
+                      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', overflow: 'hidden' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ background: '#F8F9F5', borderBottom: '2px solid #E4EBDD' }}>
+                              <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.72rem', fontWeight: 900, color: '#2D3A20' }}>COMERCIO</th>
+                              <th style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.72rem', fontWeight: 900, color: '#2D3A20' }}>INFO</th>
+                              <th style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.72rem', fontWeight: 900, color: '#2D3A20' }}>TAGS</th>
+                              <th style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.72rem', fontWeight: 900, color: '#2D3A20' }}>ESTADO</th>
+                              <th style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.72rem', fontWeight: 900, color: '#2D3A20' }}>REVISADO</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {reviewMerchants.map((m, idx) => {
+                              const hasIg = !!m.instagram_url;
+                              const hasWeb = !!m.website_url;
+                              const hasWzp = !!(m.whatsapp || m.phone);
+                              const hasDesc = !!m.bio_short;
+                              const tagCount = (m as any).tags?.length || 0;
+                              const tagColor = tagCount === 0 ? '#EF4444' : tagCount <= 2 ? '#F59E0B' : '#10B981';
+                              const isReviewed = !!(m as any).admin_reviewed;
+                              const statusColors: Record<string, string> = { sin_contacto: '#9CA3AF', contactado: '#3B82F6', en_proceso: '#F59E0B', oficializado: '#10B981', negado: '#EF4444' };
+                              const cs = m.contact_status || 'sin_contacto';
+                              return (
+                                <tr
+                                  key={m.id}
+                                  onClick={() => { setReviewMerchant(m); setReviewIndex(idx); }}
+                                  style={{ borderBottom: '1px solid #F0F4ED', cursor: 'pointer', transition: 'background 0.15s' }}
+                                  onMouseEnter={e => (e.currentTarget.style.background = '#F8F9F5')}
+                                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                                >
+                                  <td style={{ padding: '0.75rem 1rem' }}>
+                                    <div style={{ fontWeight: 800, color: '#2D3A20', fontSize: '0.85rem' }}>{m.name}</div>
+                                    <div style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>{m.type} · {m.locations?.[0]?.locality || m.province || ''}</div>
+                                  </td>
+                                  <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                    <span title="IG · Web · WZP · Desc" style={{ fontSize: '0.75rem', letterSpacing: '2px' }}>
+                                      {hasIg ? '✅' : '❌'}{hasWeb ? '✅' : '❌'}{hasWzp ? '✅' : '❌'}{hasDesc ? '✅' : '❌'}
+                                    </span>
+                                  </td>
+                                  <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                    <span style={{ background: tagColor + '22', color: tagColor, fontWeight: 900, fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px' }}>{tagCount}</span>
+                                  </td>
+                                  <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                    <span style={{ background: (statusColors[cs] || '#9CA3AF') + '22', color: statusColors[cs] || '#9CA3AF', fontWeight: 800, fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', whiteSpace: 'nowrap' }}>{cs.replace('_', ' ')}</span>
+                                  </td>
+                                  <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                    {isReviewed ? <span style={{ color: '#10B981', fontSize: '0.85rem' }}>✓</span> : <span style={{ color: '#E4EBDD', fontSize: '0.85rem' }}>○</span>}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                            {reviewMerchants.length === 0 && (
+                              <tr><td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#B2AC88', fontWeight: 800 }}>No hay comercios con estos filtros.</td></tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                      {reviewMerchant && (
+                        <MerchantReviewModal
+                          merchant={reviewMerchant}
+                          onClose={() => setReviewMerchant(null)}
+                          onSave={handleReviewSave as any}
+                          onNext={() => {
+                            const nextIdx = reviewIndex + 1;
+                            if (nextIdx < reviewMerchants.length) { setReviewMerchant(reviewMerchants[nextIdx]); setReviewIndex(nextIdx); }
+                            else setReviewMerchant(null);
+                          }}
+                          onPrev={() => {
+                            const prevIdx = reviewIndex - 1;
+                            if (prevIdx >= 0) { setReviewMerchant(reviewMerchants[prevIdx]); setReviewIndex(prevIdx); }
+                          }}
+                          currentIndex={reviewIndex}
+                          totalCount={reviewMerchants.length}
+                          stats={reviewStats}
+                          onUpdateContactStatus={updateContactStatus}
+                          crmTemplate={crmTemplate}
+                        />
+                      )}
+                    </div>
+                  );
+               })()}
 
                {showTemplateEditor && (
                  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1118,10 +1286,14 @@ export default function AdminDashboard() {
                )}
             </div>
           ) : activeTab === 'mensajes' ? (
-             <MessagesTab 
-               messages={messages} 
-               onMarkAsRead={markAsRead} 
+             <MessagesTab
+               messages={messages}
+               onMarkAsRead={markAsRead}
              />
+          ) : activeTab === 'categorias' ? (
+            <div style={{ padding: '2rem' }}>
+              <CategoriesTab />
+            </div>
           ) : (
              <div style={{ padding: '40px', textAlign: 'center', color: '#B2AC88', fontWeight: 800 }}>
                Selecciona una pestaña para comenzar.
