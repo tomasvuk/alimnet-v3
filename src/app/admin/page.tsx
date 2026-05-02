@@ -519,7 +519,7 @@ export default function AdminDashboard() {
       const dayMap: Record<number, number> = {};
       const hourMap: Record<number, number> = {};
 
-      (events || []).forEach(e => {
+      (events || []).forEach((e: any) => {
         let payload = e.payload || {};
         if (typeof payload === 'string') {
           try { payload = JSON.parse(payload); } catch(err) { payload = {}; }
