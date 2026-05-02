@@ -138,6 +138,23 @@ export default function IntelligenceTab({
             </div>
           </div>
         </div>
+
+        {/* Demandas Populares (Palabras más buscadas) */}
+        <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Search size={20} color="#5F7D4A" /> Palabras más buscadas
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {topSearches.slice(0, 10).map(([query, count], index) => (
+                <div key={query} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#F8F9F5', padding: '10px 15px', borderRadius: '16px', border: '1px solid #F0F4ED' }}>
+                    <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.75rem', width: '15px' }}>{index + 1}</span>
+                    <span style={{ fontWeight: 900, color: '#2D3A20', flex: 1, textTransform: 'capitalize', fontSize: '0.9rem' }}>{query}</span>
+                    <span style={{ fontWeight: 1000, color: '#5F7D4A', background: '#E4EBDD', padding: '2px 8px', borderRadius: '6px', fontSize: '0.75rem' }}>{count}</span>
+                </div>
+              ))}
+              {topSearches.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay datos suficientes aún.</div>}
+          </div>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2.5rem', marginTop: '2.5rem' }}>
