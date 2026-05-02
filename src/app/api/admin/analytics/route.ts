@@ -4,6 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: 'Missing service role key' }, { status: 500 });
+  }
+
   const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -25,8 +29,7 @@ export async function GET(req: NextRequest) {
     const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).single();
     if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const searchParams = req.nextUrl.searchParams;
-    const startDate = searchParams.get('startDate');
+    // const startDate = searchParams.get('startDate');
 
     let query = supabaseAdmin
       .from('system_events')
@@ -34,9 +37,11 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(3000);
 
+    /*
     if (startDate) {
       query = query.gt('created_at', startDate);
     }
+    */
 
     const { data: events, error } = await query;
     if (error) throw error;
