@@ -26,6 +26,7 @@ interface IntelligenceTabProps {
   trafficByDevice?: { device: string, visitors: number, views: number }[];
   trafficByBrowser?: { browser: string, visitors: number, views: number }[];
   trafficByOS?: { os: string, visitors: number, views: number }[];
+  timeseriesData?: { label: string, value: number }[];
   sessionStats?: { avgDuration: number, bounceRate: number, conversionRate: number };
   peakData?: { peakDay: string, peakHour: string };
   analyticsError?: string | null;
