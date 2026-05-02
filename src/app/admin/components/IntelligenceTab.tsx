@@ -18,6 +18,10 @@ interface IntelligenceTabProps {
   sessionStats?: { avgDuration: number, bounceRate: number, conversionRate: number };
   peakData?: { peakDay: string, peakHour: string };
   analyticsError?: string | null;
+  timeseriesData?: { label: string, value: number }[];
+  trafficByDevice?: { device: string, count: number }[];
+  trafficByBrowser?: { browser: string, count: number }[];
+}
 }
 
 const ProductorIcon = ({ size = 20 }: { size?: number }) => (
@@ -40,7 +44,10 @@ export default function IntelligenceTab({
   trafficByProvince,
   sessionStats,
   peakData,
-  analyticsError
+  analyticsError,
+  timeseriesData,
+  trafficByDevice,
+  trafficByBrowser
 }: IntelligenceTabProps) {
   return (
     <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
@@ -80,6 +87,47 @@ export default function IntelligenceTab({
         </div>
       )}
 
+      {/* Traffic Trend Chart (SVG) */}
+      <div style={{ background: 'white', border: '1px solid #E4EBDD', borderRadius: '24px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h4 style={{ margin: 0, fontWeight: 950, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Layout size={18} color="#5F7D4A" /> Tráfico en el tiempo
+          </h4>
+          <span style={{ fontSize: '0.75rem', color: '#B2AC88', fontWeight: 800 }}>Visitantes únicos / Sesiones</span>
+        </div>
+        
+        <div style={{ height: '180px', width: '100%', position: 'relative', display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
+          {timeseriesData && timeseriesData.length > 0 ? (
+            timeseriesData.map((d, i) => {
+              const maxVal = Math.max(...timeseriesData.map(td => td.value)) || 1;
+              const height = (d.value / maxVal) * 100;
+              return (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, height: '100%' }}>
+                  <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end' }}>
+                    <div 
+                      style={{ 
+                        width: '100%', 
+                        height: `${height}%`, 
+                        background: 'linear-gradient(to top, #5F7D4A, #A67C00)', 
+                        borderRadius: '4px',
+                        opacity: 0.8,
+                        transition: 'height 0.5s ease-out'
+                      }} 
+                      title={`${d.label}: ${d.value}`}
+                    />
+                  </div>
+                  <span style={{ fontSize: '9px', fontWeight: 900, color: '#B2AC88', whiteSpace: 'nowrap' }}>{d.label}</span>
+                </div>
+              );
+            })
+          ) : (
+            <div style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#B2AC88', fontSize: '0.8rem', border: '1px dashed #F0F4ED', borderRadius: '15px' }}>
+              No hay datos históricos para este periodo.
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Main Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
         
@@ -114,6 +162,44 @@ export default function IntelligenceTab({
                 ))}
                 {(topCitiesReal || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>Sin datos de conexión aún.</div>}
              </div>
+          </div>
+
+          {/* Top Países */}
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <MapPin size={20} color="#EF4444" /> Tráfico por País
+             </h3>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {(trafficByCountry || []).slice(0, 5).map((c, index) => (
+                  <div key={c.country} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < 4 ? '1px solid #F0F4ED' : 'none' }}>
+                    <span style={{ fontWeight: 1000, color: '#EF4444' }}>{index + 1}. {c.country || 'Desconocido'}</span>
+                    <span style={{ fontWeight: 1000 }}>{c.count}</span>
+                  </div>
+                ))}
+                {(trafficByCountry || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>Sin datos de países aún.</div>}
+             </div>
+          </div>
+
+          {/* Dispositivos y Navegadores */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1rem' }}>Dispositivos</h4>
+              {(trafficByDevice || []).map((d, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '4px 0' }}>
+                  <span style={{ fontWeight: 800, color: '#666' }}>{d.device}</span>
+                  <span style={{ fontWeight: 1000 }}>{d.count}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1rem' }}>Navegadores</h4>
+              {(trafficByBrowser || []).map((b, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '4px 0' }}>
+                  <span style={{ fontWeight: 800, color: '#666' }}>{b.browser}</span>
+                  <span style={{ fontWeight: 1000 }}>{b.count}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

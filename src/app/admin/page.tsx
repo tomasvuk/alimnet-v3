@@ -208,6 +208,10 @@ export default function AdminDashboard() {
   const [userRoles, setUserRoles] = useState<{ role: string, count: number }[]>([]);
   const [topPages, setTopPages] = useState<{ path: string, count: number }[]>([]);
   const [topReferrers, setTopReferrers] = useState<{ referrer: string, count: number }[]>([]);
+  const [trafficByCountry, setTrafficByCountry] = useState<{ country: string, count: number }[]>([]);
+  const [trafficByDevice, setTrafficByDevice] = useState<{ device: string, count: number }[]>([]);
+  const [trafficByBrowser, setTrafficByBrowser] = useState<{ browser: string, count: number }[]>([]);
+  const [timeseriesData, setTimeseriesData] = useState<{ label: string, value: number }[]>([]);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -528,6 +532,8 @@ export default function AdminDashboard() {
       const sessionMap: Record<string, { start: number, end: number, count: number }> = {};
       const dayMap: Record<number, number> = {};
       const hourMap: Record<number, number> = {};
+      const deviceMap: Record<string, number> = {};
+      const browserMap: Record<string, number> = {};
 
       (events || []).forEach((e: any) => {
         let payload = e.payload || {};
@@ -572,6 +578,25 @@ export default function AdminDashboard() {
           pageMap[path] = (pageMap[path] || 0) + 1;
           referrerMap[ref] = (referrerMap[ref] || 0) + 1;
 
+          // Device & Browser parsing from userAgent
+          if (payload.userAgent) {
+            const ua = payload.userAgent;
+            let os = 'Otros';
+            if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+            else if (ua.includes('Android')) os = 'Android';
+            else if (ua.includes('Windows')) os = 'Windows';
+            else if (ua.includes('Macintosh')) os = 'macOS';
+            else if (ua.includes('Linux')) os = 'Linux';
+            deviceMap[os] = (deviceMap[os] || 0) + 1;
+
+            let browser = 'Otros';
+            if (ua.includes('Chrome')) browser = 'Chrome';
+            else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+            else if (ua.includes('Firefox')) browser = 'Firefox';
+            else if (ua.includes('Edge')) browser = 'Edge';
+            browserMap[browser] = (browserMap[browser] || 0) + 1;
+          }
+
           // Sessions
           const sid = payload.sessionId;
           if (sid) {
@@ -589,16 +614,30 @@ export default function AdminDashboard() {
           const date = new Date(e.created_at);
           const day = date.getDay();
           const hour = date.getHours();
-          dayMap[day] = (dayMap[day] || 0) + 1;
           hourMap[hour] = (hourMap[hour] || 0) + 1;
+
+          // Timeseries data (key for grouping)
+          const dateKey = analyticsTimeRange === 'day' 
+            ? `${hour}:00` 
+            : date.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+          (dayMap as any)[dateKey] = ((dayMap as any)[dateKey] || 0) + 1;
         }
       });
 
       // Calculate Session Stats
       const sessions = Object.values(sessionMap);
       const totalSessions = sessions.length;
-      const totalDuration = sessions.reduce((acc, s) => acc + (s.end - s.start), 0);
-      const avgDurationSec = totalSessions > 0 ? (totalDuration / totalSessions / 1000) : 0;
+      
+      // Cap individual session duration at 30 mins to avoid outliers
+      const totalDuration = sessions.reduce((acc, s) => {
+        if (s.count <= 1) return acc;
+        const duration = Math.min(s.end - s.start, 30 * 60 * 1000);
+        return acc + duration;
+      }, 0);
+      
+      const sessionWithDurationCount = sessions.filter(s => s.count > 1).length;
+      const avgDurationMin = sessionWithDurationCount > 0 ? (totalDuration / sessionWithDurationCount / 1000 / 60) : 0;
+      
       const bounceCount = sessions.filter(s => s.count === 1).length;
       const bounceRate = totalSessions > 0 ? Math.round((bounceCount / totalSessions) * 100) : 0;
       
@@ -619,7 +658,7 @@ export default function AdminDashboard() {
       const peakHourIdx = Object.entries(hourMap).sort((a,b) => b[1] - a[1])[0]?.[0];
 
       setSessionStats({
-        avgDuration: Math.round(avgDurationSec / 60),
+        avgDuration: Math.round(avgDurationMin),
         bounceRate,
         conversionRate: convRate
       });
@@ -634,8 +673,19 @@ export default function AdminDashboard() {
       setTopCitiesReal(Object.entries(cityRealMap).map(([city, count]) => ({ city, count })).sort((a,b) => b.count - a.count));
       setTopPages(Object.entries(pageMap).map(([path, count]) => ({ path, count })).sort((a,b) => b.count - a.count).slice(0, 10));
       setTopReferrers(Object.entries(referrerMap).map(([referrer, count]) => ({ referrer, count })).sort((a,b) => b.count - a.count).slice(0, 10));
+      setTrafficByDevice(Object.entries(deviceMap).map(([device, count]) => ({ device, count })).sort((a,b) => b.count - a.count));
+      setTrafficByBrowser(Object.entries(browserMap).map(([browser, count]) => ({ browser, count })).sort((a,b) => b.count - a.count));
       setTopSearches(Object.entries(searchMap).sort((a, b) => b[1] - a[1]).slice(0, 20));
       setTopMerchants(Object.values(merchantMap).sort((a, b) => b.clicks - a.clicks).slice(0, 20));
+
+      // Timeseries labels logic
+      const tsData = Object.entries(dayMap)
+        .map(([label, value]) => ({ label, value }))
+        .sort((a, b) => {
+          if (analyticsTimeRange === 'day') return parseInt(a.label) - parseInt(b.label);
+          return 0; // Dates are usually sorted by order of appearance or we can sort by date
+        });
+      setTimeseriesData(tsData as any);
       
       // Load initial batch
       await fetchUsers();
@@ -1016,6 +1066,9 @@ export default function AdminDashboard() {
                sessionStats={sessionStats}
                peakData={peakData}
                analyticsError={analyticsError}
+               timeseriesData={timeseriesData}
+               trafficByDevice={trafficByDevice}
+               trafficByBrowser={trafficByBrowser}
              />
           ) : activeTab === 'oficializacion' ? (
             <div style={{ padding: '2rem' }}>
