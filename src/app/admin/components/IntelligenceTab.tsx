@@ -319,34 +319,37 @@ export default function IntelligenceTab({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 480px))', gap: '1rem' }}>
+      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
         
-        {/* Row 1 */}
-        <AlimnetMetricTable title="Países" items={countryItems} limit={20} onRowClick={(label) => setSelectedCountry(label)} />
-        <AlimnetMetricTable title="Sistemas Operativos" items={osItems} limit={10} />
-
-        {/* Row 2 */}
-        <AlimnetMetricTable title="Navegadores" items={browserItems} limit={15} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '480px' }}>
-           <AlimnetMetricTable title="Dispositivos" items={deviceItems} visitorsLabel="VISITORS" />
-           <AlimnetMetricTable title="Fuentes (Referidos)" items={referrerItems} visitorsLabel="VISITORS" limit={15} />
+        {/* COLUMNA IZQUIERDA: TRACCIÓN Y CONTENIDO */}
+        <div style={{ flex: '1 1 450px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <AlimnetMetricTable title="Países" items={countryItems} limit={15} onRowClick={(label) => setSelectedCountry(label)} />
+          <AlimnetMetricTable title="Páginas Populares" items={pageItems} visitorsLabel="PAGE VIEWS" limit={20} />
         </div>
 
-        {/* Row 3 */}
-        <AlimnetMetricTable title="Páginas Populares" items={pageItems} visitorsLabel="PAGE VIEWS" limit={20} />
-        <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', padding: '1.5rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', maxWidth: '480px' }}>
-           <h4 style={{ margin: '0 0 1rem', fontSize: '0.9rem', fontWeight: 1000, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Search size={16} color="#5F7D4A" /> Búsquedas
-           </h4>
-           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {topSearches.slice(0, 15).map(([q, count]) => (
-                <div key={q} style={{ background: '#F8F9F5', padding: '6px 12px', borderRadius: '12px', border: '1px solid #F0F4ED', fontSize: '0.75rem', color: '#2D3A20', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 900, textTransform: 'capitalize' }}>{q}</span>
-                  <span style={{ color: '#5F7D4A', fontWeight: 1000, background: '#E4EBDD', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem' }}>{count}</span>
-                </div>
-              ))}
-           </div>
+        {/* COLUMNA DERECHA: PERFIL TÉCNICO Y FUENTES */}
+        <div style={{ flex: '1 1 450px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <AlimnetMetricTable title="Sistemas Operativos" items={osItems} limit={8} />
+          <AlimnetMetricTable title="Navegadores" items={browserItems} limit={8} />
+          <AlimnetMetricTable title="Dispositivos" items={deviceItems} visitorsLabel="VISITORS" />
+          <AlimnetMetricTable title="Fuentes (Referidos)" items={referrerItems} visitorsLabel="VISITORS" limit={10} />
+          
+          {/* Búsquedas en la columna derecha para balancear */}
+          <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', padding: '1.2rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', maxWidth: '480px' }}>
+             <h4 style={{ margin: '0 0 1rem', fontSize: '0.85rem', fontWeight: 1000, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Search size={14} color="#5F7D4A" /> Búsquedas
+             </h4>
+             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {topSearches.slice(0, 15).map(([q, count]) => (
+                  <div key={q} style={{ background: '#F8F9F5', padding: '4px 10px', borderRadius: '10px', border: '1px solid #F0F4ED', fontSize: '0.7rem', color: '#2D3A20', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 900, textTransform: 'capitalize' }}>{q}</span>
+                    <span style={{ color: '#5F7D4A', fontWeight: 1000, background: '#E4EBDD', padding: '1px 5px', borderRadius: '3px', fontSize: '0.6rem' }}>{count}</span>
+                  </div>
+                ))}
+             </div>
+          </div>
         </div>
+
       </div>
 
       {/* Drill-down Modal */}
