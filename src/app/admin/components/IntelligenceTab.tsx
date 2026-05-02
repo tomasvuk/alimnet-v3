@@ -51,9 +51,25 @@ const getFlagEmoji = (countryName: string) => {
     'Brazil': '🇧🇷',
     'Mexico': '🇲🇽',
     'Italy': '🇮🇹',
-    'France': '🇫🇷'
+    'France': '🇫🇷',
+    'AR': '🇦🇷',
+    'US': '🇺🇸',
+    'SE': '🇸🇪',
+    'DE': '🇩🇪',
+    'ES': '🇪🇸',
+    'AU': '🇦🇺',
+    'CL': '🇨🇱',
+    'CN': '🇨🇳',
+    'KH': '🇰🇭',
+    'NL': '🇳🇱',
+    'TN': '🇹🇳',
+    'UY': '🇺🇾',
+    'BR': '🇧🇷',
+    'MX': '🇲🇽',
+    'IT': '🇮🇹',
+    'FR': '🇫🇷'
   };
-  return map[countryName] || '🌐';
+  return map[countryName] || map[countryName.toUpperCase()] || '🌐';
 };
 
 const AlimnetMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLabel = 'PAGE VIEWS', limit = 15 }: { title: string, items: MetricItem[], visitorsLabel?: string, viewsLabel?: string, limit?: number }) => {
