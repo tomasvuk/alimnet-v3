@@ -796,65 +796,34 @@ export default function AdminDashboard() {
 
         {error && <div style={{background:'#FEE2E2', color:'#991B1B', padding:20, borderRadius:15, marginBottom:40, fontWeight:800}}>{error}</div>}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-          <KPICard label="Comercios en Red" value={stats.totalMerchants} trend="Activos" icon={<Store size={22} color="#5F7D4A" />} />
-          <KPICard label="Propietarios (Owners)" value={stats.totalOwners} trend="Comerciantes" icon={<ShieldCheck size={22} color="#A67C00"/>} />
-          <KPICard label="Usuarios (Comunidad)" value={stats.totalConsumers} trend="Miembros" icon={<Users size={22} color="#2D3A20" />} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
+          <KPICard label="Comercios en Red" value={stats.totalMerchants} trend="Activos" icon={<Store size={18} color="#5F7D4A" />}>
+             <MiniStat label="PROD" value={(stats as any).merchantsProducers || 0} />
+             <MiniStat label="ABAST" value={(stats as any).merchantsAbastecedores || 0} />
+             <MiniStat label="REST" value={(stats as any).merchantsRestaurantes || 0} />
+             <MiniStat label="CHEFS" value={(stats as any).merchantsChefs || 0} />
+          </KPICard>
+
+          <KPICard label="Propietarios" value={stats.totalOwners} trend="Owners" icon={<ShieldCheck size={18} color="#A67C00"/>}>
+             <MiniStat label="OFICIAL" value={(stats as any).merchantsVerified || 0} color="#A67C00" />
+             <MiniStat label="COMUN" value={(stats as any).merchantsUnverified || 0} color="#B2AC88" />
+          </KPICard>
+
+          <KPICard label="Usuarios" value={stats.totalConsumers} trend="Comunidad" icon={<Users size={18} color="#2D3A20" />}>
+             <MiniStat label="VAL +1" value={(stats as any).merchantsValidated || 0} color="#5F7D4A" />
+             <MiniStat label="S. VAL" value={(stats as any).merchantsNonValidated || 0} color="#666" />
+          </KPICard>
+
           <KPICard 
-             label="Actividad Hoy (Visitas)" 
+             label="Actividad Hoy" 
              value={stats.activityToday} 
-             trend={`+${stats.usersToday} nuevos perfiles`} 
-             icon={<BarChart3 size={22} color="#5F7D4A" />} 
-          />
-        </div>
-
-        {/* Categoty & Validation Breakdown */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-           <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between' }}>
-              <CategoryStat label="Productores" value={(stats as any).merchantsProducers || 0} icon={<ProductorIcon size={14}/>} />
-              <CategoryStat label="Abastecedores" value={(stats as any).merchantsAbastecedores || 0} icon={<Store size={14}/>} />
-              <CategoryStat label="Restaurantes" value={(stats as any).merchantsRestaurantes || 0} icon={<UtensilsCrossed size={14}/>} />
-              <CategoryStat label="Chefs" value={(stats as any).merchantsChefs || 0} icon={<ChefHat size={14}/>} />
-           </div>
-           <div style={{ background: 'white', padding: '1.5rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between' }}>
-              <CategoryStat label="Sello Oficial" value={(stats as any).merchantsVerified || 0} color="#A67C00" />
-              <CategoryStat label="Comunitarios" value={(stats as any).merchantsUnverified || 0} color="#B2AC88" />
-              <CategoryStat label="Validados +1" value={(stats as any).merchantsValidated || 0} color="#5F7D4A" />
-              <CategoryStat label="Sin Validar" value={(stats as any).merchantsNonValidated || 0} color="#666" />
-           </div>
-        </div>
-
-        {/* Growth Stats Strip */}
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', background: '#F0F4ED', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
-           <div style={{ flex: 1, textAlign: 'center' }}>
-             <div style={StatLabel}>Hoy</div>
-             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{stats.usersToday}</div>
-           </div>
-           <div style={{ width: '1px', background: '#E4EBDD' }} />
-           <div style={{ flex: 1, textAlign: 'center' }}>
-             <div style={StatLabel}>Semana</div>
-             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{stats.usersThisWeek}</div>
-           </div>
-           <div style={{ width: '1px', background: '#E4EBDD' }} />
-           <div style={{ flex: 1, textAlign: 'center' }}>
-             <div style={StatLabel}>Mes</div>
-             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{stats.usersThisMonth}</div>
-           </div>
-           <div style={{ width: '1px', background: '#E4EBDD' }} />
-           <div style={{ flex: 1, textAlign: 'center' }}>
-             <div style={StatLabel}>Trimestre</div>
-             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{(stats as any).usersThisQuarter || 0}</div>
-           </div>
-           <div style={{ width: '1px', background: '#E4EBDD' }} />
-           <div style={{ flex: 1, textAlign: 'center' }}>
-             <div style={StatLabel}>Año</div>
-             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#2D3A20' }}>+{(stats as any).usersThisYear || 0}</div>
-           </div>
-           <div style={{ width: '1px', background: '#E4EBDD' }} />
-           <div style={{ flex: 1, textAlign: 'center', background: 'rgba(95, 125, 74, 0.1)', borderRadius: '15px' }}>
-             <div style={StatLabel}>Histórico</div>
-             <div style={{ fontSize: '1.3rem', fontWeight: 1000, color: '#5F7D4A' }}>{stats.totalUsers}</div>
-           </div>
+             trend={`+${stats.usersToday} hoy`} 
+             icon={<BarChart3 size={18} color="#5F7D4A" />} 
+          >
+             <MiniStat label="SEMANA" value={`+${stats.usersThisWeek}`} />
+             <MiniStat label="MES" value={`+${stats.usersThisMonth}`} />
+             <MiniStat label="HIST." value={stats.totalUsers} color="#5F7D4A" />
+          </KPICard>
         </div>
 
         <div style={{ background: 'white', borderRadius: '40px', padding: '2.5rem', boxShadow: '0 30px 60px rgba(0,0,0,0.04)', border: '1px solid #E4EBDD' }}>
@@ -1404,12 +1373,31 @@ function DonationsList({ donations, loading }: any) {
     );
 }
 
-function KPICard({ label, value, trend, icon }: any) {
+function KPICard({ label, value, trend, icon, children }: any) {
   return (
-    <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#B2AC88' }}>{icon} <span style={{fontSize:'0.7rem'}}>{trend}</span></div>
-      <div style={{ fontSize: '2.2rem', fontWeight: '1000', color: '#2D3A20', margin: '10px 0' }}>{value}</div>
-      <div style={{ fontSize: '0.75rem', fontWeight: '900', color: '#B2AC88', textTransform: 'uppercase' }}>{label}</div>
+    <div style={{ background: 'white', padding: '1.2rem', borderRadius: '24px', border: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <div style={{ background: '#F0F4ED', padding: '8px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
+        <span style={{ fontSize: '0.65rem', fontWeight: 1000, color: '#5F7D4A', background: '#F0F4ED', padding: '4px 8px', borderRadius: '8px' }}>{trend}</span>
+      </div>
+      <div>
+        <div style={{ fontSize: '1.8rem', fontWeight: '1000', color: '#2D3A20', lineHeight: 1 }}>{value}</div>
+        <div style={{ fontSize: '0.65rem', fontWeight: '900', color: '#B2AC88', textTransform: 'uppercase', marginTop: '4px' }}>{label}</div>
+      </div>
+      {children && (
+        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #F0F4ED', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MiniStat({ label, value, color = '#5F7D4A' }: any) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+       <span style={{ fontSize: '0.55rem', fontWeight: 1000, color: '#B2AC88', textTransform: 'uppercase' }}>{label}</span>
+       <span style={{ fontSize: '0.8rem', fontWeight: 1000, color: color }}>{value}</span>
     </div>
   );
 }
