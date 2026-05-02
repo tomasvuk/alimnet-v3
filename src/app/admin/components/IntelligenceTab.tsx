@@ -80,13 +80,7 @@ export default function IntelligenceTab({
         </div>
       </div>
 
-      {/* Grid de Distribución de Rubros */}
-      <div style={{ background: 'white', padding: '1rem', borderRadius: '32px', border: '1px solid #E4EBDD', display: 'flex', justifyContent: 'space-between', marginBottom: '2.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
-        <CategoryStat label="Productores" value={stats.merchantsProducers || 0} icon={<ProductorIcon size={14}/>} />
-        <CategoryStat label="Abastecedores" value={stats.merchantsAbastecedores || 0} icon={<Store size={14}/>} />
-        <CategoryStat label="Restaurantes" value={stats.merchantsRestaurantes || 0} icon={<UtensilsCrossed size={14}/>} />
-        <CategoryStat label="Chefs" value={stats.merchantsChefs || 0} icon={<ChefHat size={14}/>} />
-      </div>
+
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
         {/* Localidades (Perfil vs Conexión) */}
@@ -123,20 +117,7 @@ export default function IntelligenceTab({
           </div>
         </div>
 
-        {/* Roles de Usuarios */}
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD', marginBottom: '2.5rem' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Users size={20} color="#5F7D4A" /> Roles de Usuarios (Comunidad)
-          </h3>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-              {(userRoles || []).map((r) => (
-                <div key={r.role} style={{ background: '#F8F9F5', padding: '15px 25px', borderRadius: '20px', border: '1px solid #F0F4ED', textAlign: 'center', minWidth: '150px' }}>
-                   <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase' }}>{r.role}</div>
-                   <div style={{ fontSize: '1.5rem', fontWeight: 1000, color: '#2D3A20' }}>{r.count}</div>
-                </div>
-              ))}
-          </div>
-        </div>
+
 
         {/* Geografía del Tráfico (Países y Provincias) */}
         <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
