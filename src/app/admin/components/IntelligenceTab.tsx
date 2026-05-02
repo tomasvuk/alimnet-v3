@@ -38,7 +38,10 @@ export default function IntelligenceTab({
   topMerchants, 
   analyticsTimeRange, 
   setAnalyticsTimeRange,
-  topCities
+  topCities,
+  trafficByCountry,
+  trafficByProvince,
+  sessionStats
 }: IntelligenceTabProps) {
   return (
     <div style={{ padding: '1rem' }}>
