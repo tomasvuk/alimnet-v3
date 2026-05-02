@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, ArrowUpRight, Store, UtensilsCrossed, ChefHat, MapPin, Clock } from 'lucide-react';
+import { Search, ArrowUpRight, Store, UtensilsCrossed, ChefHat, MapPin, Clock, Users } from 'lucide-react';
 
 interface IntelligenceTabProps {
   stats: any;
