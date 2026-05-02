@@ -937,6 +937,20 @@ export default function ExplorarPage() {
     setFilteredMerchants(result);
   };
 
+  // Debounced Search Tracking
+  useEffect(() => {
+    if (searchLocation.length < 2) return;
+    
+    const timer = setTimeout(() => {
+      trackClick('SEARCH_QUERY_AUTO', { 
+        query: searchLocation, 
+        results_count: filteredMerchants.length 
+      });
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [searchLocation]);
+
   const updateSuggestions = (value: string) => {
     setSearchLocation(value);
     if (value.length > 1) {

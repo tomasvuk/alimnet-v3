@@ -501,7 +501,7 @@ export default function AdminDashboard() {
         const payload = e.payload || {};
         
         // 1. Searches
-        if (e.event_type === 'SEARCH_QUERY_ENTER' || e.event_type === 'SEARCH_QUERY_SELECTED') {
+        if (e.event_type === 'SEARCH_QUERY_ENTER' || e.event_type === 'SEARCH_QUERY_SELECTED' || e.event_type === 'SEARCH_QUERY_AUTO') {
           const q = (payload.query || '').toLowerCase().trim();
           if (q) searchMap[q] = (searchMap[q] || 0) + 1;
         }
