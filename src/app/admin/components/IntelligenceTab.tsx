@@ -10,6 +10,8 @@ interface IntelligenceTabProps {
   analyticsTimeRange: string;
   setAnalyticsTimeRange: (range: any) => void;
   topCities: { locality: string, count: number }[];
+  topCitiesReal?: { city: string, count: number }[];
+  userRoles?: { role: string, count: number }[];
   trafficByCountry?: { country: string, count: number }[];
   trafficByProvince?: { province: string, count: number }[];
   sessionStats?: { avgDuration: number, bounceRate: number, conversionRate: number };
@@ -40,6 +42,8 @@ export default function IntelligenceTab({
   analyticsTimeRange, 
   setAnalyticsTimeRange,
   topCities,
+  topCitiesReal,
+  userRoles,
   trafficByCountry,
   trafficByProvince,
   sessionStats,
@@ -85,19 +89,53 @@ export default function IntelligenceTab({
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
-        {/* Top Ciudades */}
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-           <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Store size={20} color="#5F7D4A" /> Top Localidades (Usuarios)
-           </h3>
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {topCities.slice(0, 5).map((city, index) => (
-                <div key={city.locality} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < 4 ? '1px solid #F0F4ED' : 'none' }}>
-                  <span style={{ fontWeight: 1000, color: '#5F7D4A' }}>{index + 1}. {city.locality || 'Sin definir'}</span>
-                  <span style={{ fontWeight: 1000 }}>{city.count}</span>
+        {/* Localidades (Perfil vs Conexión) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', marginBottom: '2.5rem' }}>
+          {/* Top Ciudades Declaradas */}
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Store size={20} color="#5F7D4A" /> Ubicación Declarada (Perfil)
+             </h3>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {topCities.slice(0, 5).map((city, index) => (
+                  <div key={city.locality} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < 4 ? '1px solid #F0F4ED' : 'none' }}>
+                    <span style={{ fontWeight: 1000, color: '#5F7D4A' }}>{index + 1}. {city.locality || 'Sin definir'}</span>
+                    <span style={{ fontWeight: 1000 }}>{city.count}</span>
+                  </div>
+                ))}
+             </div>
+          </div>
+
+          {/* Top Ciudades Detectadas (Real) */}
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <MapPin size={20} color="#3B82F6" /> Ubicación Detectada (Ciudad Real)
+             </h3>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {(topCitiesReal || []).slice(0, 5).map((ct, index) => (
+                  <div key={ct.city} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < 4 ? '1px solid #F0F4ED' : 'none' }}>
+                    <span style={{ fontWeight: 1000, color: '#3B82F6' }}>{index + 1}. {ct.city || 'Desconocida'}</span>
+                    <span style={{ fontWeight: 1000 }}>{ct.count}</span>
+                  </div>
+                ))}
+                {(topCitiesReal || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>Sin datos de conexión aún.</div>}
+             </div>
+          </div>
+        </div>
+
+        {/* Roles de Usuarios */}
+        <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD', marginBottom: '2.5rem' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Users size={20} color="#5F7D4A" /> Roles de Usuarios (Comunidad)
+          </h3>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              {(userRoles || []).map((r) => (
+                <div key={r.role} style={{ background: '#F8F9F5', padding: '15px 25px', borderRadius: '20px', border: '1px solid #F0F4ED', textAlign: 'center', minWidth: '150px' }}>
+                   <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase' }}>{r.role}</div>
+                   <div style={{ fontSize: '1.5rem', fontWeight: 1000, color: '#2D3A20' }}>{r.count}</div>
                 </div>
               ))}
-           </div>
+          </div>
         </div>
 
         {/* Geografía del Tráfico (Países y Provincias) */}

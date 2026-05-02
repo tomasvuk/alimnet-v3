@@ -195,6 +195,8 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [topCities, setTopCities] = useState<{ locality: string, count: number }[]>([]);
+  const [topCitiesReal, setTopCitiesReal] = useState<{ city: string, count: number }[]>([]);
+  const [userRoles, setUserRoles] = useState<{ role: string, count: number }[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -312,16 +314,17 @@ export default function AdminDashboard() {
       
       setUsers(processedUsers);
       
-      // Calculate Top Cities
       const cityMap: Record<string, number> = {};
+      const roleMap: Record<string, number> = {};
       processedUsers.forEach(u => {
         const city = u.locality || 'Sin definir';
         cityMap[city] = (cityMap[city] || 0) + 1;
+        
+        const role = u.role || 'user';
+        roleMap[role] = (roleMap[role] || 0) + 1;
       });
-      const cityList = Object.entries(cityMap)
-        .map(([locality, count]) => ({ locality, count }))
-        .sort((a, b) => b.count - a.count);
-      setTopCities(cityList);
+      setTopCities(Object.entries(cityMap).map(([locality, count]) => ({ locality, count })).sort((a,b) => b.count - a.count));
+      setUserRoles(Object.entries(roleMap).map(([role, count]) => ({ role, count })).sort((a,b) => b.count - a.count));
     } catch (e) {
       console.error("Error fetching users:", e);
     }
@@ -493,6 +496,7 @@ export default function AdminDashboard() {
       
       const countryMap: Record<string, number> = {};
       const provinceMap: Record<string, number> = {};
+      const cityRealMap: Record<string, number> = {};
       const sessionMap: Record<string, { start: number, end: number, count: number }> = {};
       const dayMap: Record<number, number> = {};
       const hourMap: Record<number, number> = {};
@@ -518,10 +522,12 @@ export default function AdminDashboard() {
 
         // 3. Page Views & Geography
         if (e.event_type === 'PAGE_VIEW') {
-          const country = payload.country || 'Desconocido';
-          const province = payload.province || 'Desconocido';
-          countryMap[country] = (countryMap[country] || 0) + 1;
-          provinceMap[province] = (provinceMap[province] || 0) + 1;
+          const c = payload.country || 'Unknown';
+          const p = payload.province || 'Unknown';
+          const ct = payload.city || 'Unknown';
+          countryMap[c] = (countryMap[c] || 0) + 1;
+          provinceMap[p] = (provinceMap[p] || 0) + 1;
+          cityRealMap[ct] = (cityRealMap[ct] || 0) + 1;
 
           // Sessions
           const sid = payload.sessionId;
@@ -582,6 +588,7 @@ export default function AdminDashboard() {
 
       setTrafficByCountry(Object.entries(countryMap).map(([country, count]) => ({ country, count })).sort((a,b) => b.count - a.count));
       setTrafficByProvince(Object.entries(provinceMap).map(([province, count]) => ({ province, count })).sort((a,b) => b.count - a.count));
+      setTopCitiesReal(Object.entries(cityRealMap).map(([city, count]) => ({ city, count })).sort((a,b) => b.count - a.count));
       setTopSearches(Object.entries(searchMap).sort((a, b) => b[1] - a[1]).slice(0, 20));
       setTopMerchants(Object.values(merchantMap).sort((a, b) => b.clicks - a.clicks).slice(0, 20));
       
@@ -947,6 +954,8 @@ export default function AdminDashboard() {
                analyticsTimeRange={analyticsTimeRange}
                setAnalyticsTimeRange={setAnalyticsTimeRange}
                topCities={topCities}
+               topCitiesReal={topCitiesReal}
+               userRoles={userRoles}
                trafficByCountry={trafficByCountry}
                trafficByProvince={trafficByProvince}
                sessionStats={sessionStats}
