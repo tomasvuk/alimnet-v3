@@ -91,7 +91,7 @@ const AlimnetMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLab
   const displayItems = items.slice(0, limit);
 
   return (
-    <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', overflow: 'hidden', color: '#2D3A20', marginBottom: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)' }}>
+    <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E4EBDD', overflow: 'hidden', color: '#2D3A20', marginBottom: '1rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', maxWidth: '480px' }}>
       <div style={{ padding: '0.8rem 1.2rem', borderBottom: '1px solid #F0F4ED', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8F9F5' }}>
         <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 1000, color: '#2D3A20' }}>{title}</h4>
         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.6rem', fontWeight: 900, color: '#B2AC88', letterSpacing: '0.05em' }}>
@@ -123,13 +123,13 @@ const AlimnetMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLab
             >
               <div style={{ position: 'absolute', left: 0, top: '2px', bottom: '2px', width: `${percentage}%`, background: '#F0F4ED', borderRadius: '0 4px 4px 0', zIndex: 0, opacity: 0.7 }} />
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1, flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1, minWidth: '140px' }}>
                 {item.flag && <span style={{ fontSize: '1rem' }}>{item.flag}</span>}
                 {item.icon && <span style={{ color: '#5F7D4A', flexShrink: 0 }}>{item.icon}</span>}
-                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#2D3A20', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#2D3A20' }}>{item.label}</span>
               </div>
               
-              <div style={{ display: 'flex', gap: '0.8rem', zIndex: 1, flexShrink: 0, paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.8rem', zIndex: 1, flex: 1, justifyContent: 'flex-end' }}>
                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center', width: '50px', justifyContent: 'flex-end' }}>
                    <span style={{ fontSize: '0.6rem', color: '#B2AC88', fontWeight: 800 }}>{Math.round((item.visitors / (displayItems.reduce((acc, curr) => acc + curr.visitors, 0) || 1)) * 100)}%</span>
                    <span style={{ fontSize: '0.8rem', fontWeight: 1000, color: '#5F7D4A' }}>{item.visitors}</span>
@@ -319,7 +319,7 @@ export default function IntelligenceTab({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 480px))', gap: '1rem' }}>
         
         {/* Row 1 */}
         <AlimnetMetricTable title="Países" items={countryItems} limit={20} onRowClick={(label) => setSelectedCountry(label)} />
@@ -327,14 +327,14 @@ export default function IntelligenceTab({
 
         {/* Row 2 */}
         <AlimnetMetricTable title="Navegadores" items={browserItems} limit={15} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '480px' }}>
            <AlimnetMetricTable title="Dispositivos" items={deviceItems} visitorsLabel="VISITORS" />
            <AlimnetMetricTable title="Fuentes (Referidos)" items={referrerItems} visitorsLabel="VISITORS" limit={15} />
         </div>
 
         {/* Row 3 */}
         <AlimnetMetricTable title="Páginas Populares" items={pageItems} visitorsLabel="PAGE VIEWS" limit={20} />
-        <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', padding: '1.5rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)' }}>
+        <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', padding: '1.5rem', boxShadow: '0 2px 10px rgba(0,0,0,0.01)', maxWidth: '480px' }}>
            <h4 style={{ margin: '0 0 1rem', fontSize: '0.9rem', fontWeight: 1000, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Search size={16} color="#5F7D4A" /> Búsquedas
            </h4>
