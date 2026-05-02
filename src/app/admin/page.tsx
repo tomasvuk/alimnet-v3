@@ -208,7 +208,6 @@ export default function AdminDashboard() {
   const [userRoles, setUserRoles] = useState<{ role: string, count: number }[]>([]);
   const [topPages, setTopPages] = useState<{ path: string, count: number }[]>([]);
   const [topReferrers, setTopReferrers] = useState<{ referrer: string, count: number }[]>([]);
-  const [trafficByCountry, setTrafficByCountry] = useState<{ country: string, count: number }[]>([]);
   const [trafficByDevice, setTrafficByDevice] = useState<{ device: string, count: number }[]>([]);
   const [trafficByBrowser, setTrafficByBrowser] = useState<{ browser: string, count: number }[]>([]);
   const [timeseriesData, setTimeseriesData] = useState<{ label: string, value: number }[]>([]);
