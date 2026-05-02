@@ -48,28 +48,41 @@ const getFlagEmoji = (countryName: string) => {
     'Netherlands': '🇳🇱',
     'Tunisia': '🇹🇳',
     'Uruguay': '🇺🇾',
-    'Brazil': '🇧🇷',
-    'Mexico': '🇲🇽',
-    'Italy': '🇮🇹',
     'France': '🇫🇷',
     'AR': '🇦🇷',
+    'ARGENTINA': '🇦🇷',
     'US': '🇺🇸',
+    'UNITED STATES': '🇺🇸',
     'SE': '🇸🇪',
+    'SWEDEN': '🇸🇪',
     'DE': '🇩🇪',
+    'GERMANY': '🇩🇪',
     'ES': '🇪🇸',
+    'SPAIN': '🇪🇸',
     'AU': '🇦🇺',
+    'AUSTRALIA': '🇦🇺',
     'CL': '🇨🇱',
+    'CHILE': '🇨🇱',
     'CN': '🇨🇳',
+    'CHINA': '🇨🇳',
     'KH': '🇰🇭',
+    'CAMBODIA': '🇰🇭',
     'NL': '🇳🇱',
+    'NETHERLANDS': '🇳🇱',
     'TN': '🇹🇳',
+    'TUNISIA': '🇹🇳',
     'UY': '🇺🇾',
+    'URUGUAY': '🇺🇾',
     'BR': '🇧🇷',
+    'BRAZIL': '🇧🇷',
     'MX': '🇲🇽',
+    'MEXICO': '🇲🇽',
     'IT': '🇮🇹',
+    'ITALY': '🇮🇹',
     'FR': '🇫🇷'
   };
-  return map[countryName] || map[countryName.toUpperCase()] || '🌐';
+  const key = countryName.toUpperCase();
+  return map[key] || '🌐';
 };
 
 const AlimnetMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLabel = 'PAGE VIEWS', limit = 15 }: { title: string, items: MetricItem[], visitorsLabel?: string, viewsLabel?: string, limit?: number }) => {
@@ -134,12 +147,30 @@ export default function IntelligenceTab({
   analyticsError
 }: IntelligenceTabProps) {
   
-  const countryItems: MetricItem[] = (trafficByCountry || []).map(c => ({
-    label: c.country,
-    visitors: c.visitors,
-    views: c.views,
-    flag: getFlagEmoji(c.country)
-  }));
+  const countryMapNormalized: Record<string, { visitors: number, views: number }> = {};
+  (trafficByCountry || []).forEach(c => {
+    let name = c.country.toUpperCase();
+    if (name === 'AR') name = 'ARGENTINA';
+    if (name === 'US') name = 'UNITED STATES';
+    if (name === 'SE') name = 'SWEDEN';
+    if (name === 'DE') name = 'GERMANY';
+    if (name === 'ES') name = 'SPAIN';
+    if (name === 'CL') name = 'CHILE';
+    if (name === 'UY') name = 'URUGUAY';
+    if (name === 'BR') name = 'BRAZIL';
+    if (name === 'MX') name = 'MEXICO';
+    
+    if (!countryMapNormalized[name]) countryMapNormalized[name] = { visitors: 0, views: 0 };
+    countryMapNormalized[name].visitors += c.visitors;
+    countryMapNormalized[name].views += c.views;
+  });
+
+  const countryItems: MetricItem[] = Object.entries(countryMapNormalized).map(([name, data]) => ({
+    label: name,
+    visitors: data.visitors,
+    views: data.views,
+    flag: getFlagEmoji(name)
+  })).sort((a,b) => b.visitors - a.visitors);
 
   const osItems: MetricItem[] = (trafficByOS || []).map(o => ({
     label: o.os,
