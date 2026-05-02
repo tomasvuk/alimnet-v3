@@ -521,16 +521,69 @@ export default function AdminDashboard() {
         setAnalyticsError(`API Error: ${(events as any).error}`);
       }
 
+      // --- [BASELINE DATA FROM VERCEL SCREENSHOTS] ---
+      const baselineCountries: Record<string, { visitors: number, views: number }> = {
+        'ARGENTINA': { visitors: 46, views: 183 },
+        'SWEDEN': { visitors: 3, views: 4 },
+        'UNITED STATES': { visitors: 3, views: 7 },
+        'GERMANY': { visitors: 2, views: 3 },
+        'SPAIN': { visitors: 2, views: 2 },
+        'AUSTRALIA': { visitors: 1, views: 1 },
+        'CHILE': { visitors: 1, views: 1 },
+        'CHINA': { visitors: 1, views: 1 },
+        'CAMBODIA': { visitors: 1, views: 1 },
+        'NETHERLANDS': { visitors: 1, views: 2 },
+        'TUNISIA': { visitors: 1, views: 1 }
+      };
+
+      const baselineOS: Record<string, { visitors: number, views: number }> = {
+        'ANDROID': { visitors: 21, views: 86 },
+        'IOS': { visitors: 19, views: 39 },
+        'MAC': { visitors: 15, views: 68 },
+        'WINDOWS': { visitors: 5, views: 11 },
+        'LINUX': { visitors: 2, views: 2 }
+      };
+
+      const baselineBrowsers: Record<string, { visitors: number, views: number }> = {
+        'CHROME': { visitors: 35, views: 154 },
+        'SAFARI': { visitors: 17, views: 38 },
+        'SAMSUNG BROWSER': { visitors: 3, views: 7 },
+        'FACEBOOK': { visitors: 1, views: 1 },
+        'MIUI BROWSER': { visitors: 1, views: 1 }
+      };
+
+      const baselineDevices: Record<string, { visitors: number, views: number }> = {
+        'MOBILE': { visitors: 40, views: 130 },
+        'DESKTOP': { visitors: 20, views: 80 }
+      };
+
       const searchMap: Record<string, number> = {};
       const merchantMap: Record<string, { id: string, name: string, clicks: number }> = {};
       const dayMap: Record<number, number> = {};
       const hourMap: Record<number, number> = {};
       
       // Dual metrics maps: Category -> { sessions: Set<sessionId>, views: number }
+      // Initialize with baseline data from screenshots
       const countryMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      Object.entries(baselineCountries).forEach(([k, v]) => {
+        countryMap[k] = { sessions: new Set(Array(v.visitors).fill(0).map((_, i) => `base_country_${k}_${i}`)), views: v.views };
+      });
+
       const deviceMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      Object.entries(baselineDevices).forEach(([k, v]) => {
+        deviceMap[k] = { sessions: new Set(Array(v.visitors).fill(0).map((_, i) => `base_device_${k}_${i}`)), views: v.views };
+      });
+
       const browserMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      Object.entries(baselineBrowsers).forEach(([k, v]) => {
+        browserMap[k] = { sessions: new Set(Array(v.visitors).fill(0).map((_, i) => `base_browser_${k}_${i}`)), views: v.views };
+      });
+
       const osMap: Record<string, { sessions: Set<string>, views: number }> = {};
+      Object.entries(baselineOS).forEach(([k, v]) => {
+        osMap[k] = { sessions: new Set(Array(v.visitors).fill(0).map((_, i) => `base_os_${k}_${i}`)), views: v.views };
+      });
+
       const provinceMap: Record<string, { sessions: Set<string>, views: number }> = {};
       const cityRealMap: Record<string, { sessions: Set<string>, views: number }> = {};
       const pageMap: Record<string, number> = {};
@@ -561,9 +614,15 @@ export default function AdminDashboard() {
 
         // 3. Page Views & Geography
         if (e.event_type === 'PAGE_VIEW') {
-          const c = payload.country || 'Unknown';
-          const p = payload.province || 'Unknown';
-          const ct = payload.city || 'Unknown';
+          let c = (payload.country || 'Unknown').toUpperCase();
+          if (c === 'AR') c = 'ARGENTINA';
+          if (c === 'US') c = 'UNITED STATES';
+          if (c === 'SE') c = 'SWEDEN';
+          if (c === 'ES') c = 'SPAIN';
+          if (c === 'CL') c = 'CHILE';
+          
+          let p = (payload.province || 'Unknown').toUpperCase();
+          let ct = (payload.city || 'Unknown').toUpperCase();
           const path = payload.path || '/';
           let ref = 'Directo';
           if (payload.referrer) {
