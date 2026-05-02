@@ -197,6 +197,8 @@ export default function AdminDashboard() {
   const [topCities, setTopCities] = useState<{ locality: string, count: number }[]>([]);
   const [topCitiesReal, setTopCitiesReal] = useState<{ city: string, count: number }[]>([]);
   const [userRoles, setUserRoles] = useState<{ role: string, count: number }[]>([]);
+  const [topPages, setTopPages] = useState<{ path: string, count: number }[]>([]);
+  const [topReferrers, setTopReferrers] = useState<{ referrer: string, count: number }[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -497,6 +499,8 @@ export default function AdminDashboard() {
       const countryMap: Record<string, number> = {};
       const provinceMap: Record<string, number> = {};
       const cityRealMap: Record<string, number> = {};
+      const pageMap: Record<string, number> = {};
+      const referrerMap: Record<string, number> = {};
       const sessionMap: Record<string, { start: number, end: number, count: number }> = {};
       const dayMap: Record<number, number> = {};
       const hourMap: Record<number, number> = {};
@@ -525,9 +529,14 @@ export default function AdminDashboard() {
           const c = payload.country || 'Unknown';
           const p = payload.province || 'Unknown';
           const ct = payload.city || 'Unknown';
+          const path = payload.path || '/';
+          const ref = payload.referrer ? new URL(payload.referrer).hostname : 'Directo';
+          
           countryMap[c] = (countryMap[c] || 0) + 1;
           provinceMap[p] = (provinceMap[p] || 0) + 1;
           cityRealMap[ct] = (cityRealMap[ct] || 0) + 1;
+          pageMap[path] = (pageMap[path] || 0) + 1;
+          referrerMap[ref] = (referrerMap[ref] || 0) + 1;
 
           // Sessions
           const sid = payload.sessionId;
@@ -589,6 +598,8 @@ export default function AdminDashboard() {
       setTrafficByCountry(Object.entries(countryMap).map(([country, count]) => ({ country, count })).sort((a,b) => b.count - a.count));
       setTrafficByProvince(Object.entries(provinceMap).map(([province, count]) => ({ province, count })).sort((a,b) => b.count - a.count));
       setTopCitiesReal(Object.entries(cityRealMap).map(([city, count]) => ({ city, count })).sort((a,b) => b.count - a.count));
+      setTopPages(Object.entries(pageMap).map(([path, count]) => ({ path, count })).sort((a,b) => b.count - a.count).slice(0, 10));
+      setTopReferrers(Object.entries(referrerMap).map(([referrer, count]) => ({ referrer, count })).sort((a,b) => b.count - a.count).slice(0, 10));
       setTopSearches(Object.entries(searchMap).sort((a, b) => b[1] - a[1]).slice(0, 20));
       setTopMerchants(Object.values(merchantMap).sort((a, b) => b.clicks - a.clicks).slice(0, 20));
       
@@ -955,7 +966,8 @@ export default function AdminDashboard() {
                setAnalyticsTimeRange={setAnalyticsTimeRange}
                topCities={topCities}
                topCitiesReal={topCitiesReal}
-               userRoles={userRoles}
+               topPages={topPages}
+               topReferrers={topReferrers}
                trafficByCountry={trafficByCountry}
                trafficByProvince={trafficByProvince}
                sessionStats={sessionStats}

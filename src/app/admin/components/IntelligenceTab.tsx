@@ -11,7 +11,8 @@ interface IntelligenceTabProps {
   setAnalyticsTimeRange: (range: any) => void;
   topCities: { locality: string, count: number }[];
   topCitiesReal?: { city: string, count: number }[];
-  userRoles?: { role: string, count: number }[];
+  topPages?: { path: string, count: number }[];
+  topReferrers?: { referrer: string, count: number }[];
   trafficByCountry?: { country: string, count: number }[];
   trafficByProvince?: { province: string, count: number }[];
   sessionStats?: { avgDuration: number, bounceRate: number, conversionRate: number };
@@ -43,7 +44,8 @@ export default function IntelligenceTab({
   setAnalyticsTimeRange,
   topCities,
   topCitiesReal,
-  userRoles,
+  topPages,
+  topReferrers,
   trafficByCountry,
   trafficByProvince,
   sessionStats,
@@ -115,48 +117,39 @@ export default function IntelligenceTab({
                 {(topCitiesReal || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>Sin datos de conexión aún.</div>}
              </div>
           </div>
-        </div>
+               {/* Páginas y Referidos (Estilo Vercel) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2.5rem', marginBottom: '2.5rem' }}>
+          {/* Top Páginas */}
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Layout size={20} color="#5F7D4A" /> Top Páginas (Contenido)
+             </h3>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {(topPages || []).map((p, index) => (
+                  <div key={p.path} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < (topPages || []).length - 1 ? '1px solid #F0F4ED' : 'none' }}>
+                    <span style={{ fontWeight: 1000, color: '#5F7D4A', fontSize: '0.85rem', fontFamily: 'monospace' }}>{p.path}</span>
+                    <span style={{ fontWeight: 1000, fontSize: '0.85rem' }}>{p.count} <span style={{ color: '#B2AC88', fontWeight: 700, fontSize: '0.7rem' }}>vistas</span></span>
+                  </div>
+                ))}
+             </div>
+          </div>
 
-
-
-        {/* Geografía del Tráfico (Países y Provincias) */}
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <MapPin size={20} color="#5F7D4A" /> Geografía del Tráfico (Vistas)
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            <div>
-              <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '12px' }}>Países</h4>
-              {(trafficByCountry || [
-                { country: 'Argentina', count: 850 },
-                { country: 'Uruguay', count: 120 },
-                { country: 'España', count: 45 },
-                { country: 'Estados Unidos', count: 32 },
-                { country: 'Chile', count: 28 }
-              ]).map((item, index) => (
-                <div key={item.country} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F0F4ED' }}>
-                  <span style={{ fontWeight: 1000, color: '#5F7D4A', fontSize: '0.85rem' }}>{item.country}</span>
-                  <span style={{ fontWeight: 1000, fontSize: '0.85rem' }}>{item.count}</span>
-                </div>
-              ))}
-            </div>
-            <div>
-              <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '12px' }}>Provincias (Arg)</h4>
-              {(trafficByProvince || [
-                { province: 'Buenos Aires', count: 420 },
-                { province: 'CABA', count: 310 },
-                { province: 'Córdoba', count: 150 },
-                { province: 'Santa Fe', count: 85 },
-                { province: 'Mendoza', count: 62 }
-              ]).map((item, index) => (
-                <div key={item.province} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F0F4ED' }}>
-                  <span style={{ fontWeight: 1000, color: '#5F7D4A', fontSize: '0.85rem' }}>{item.province}</span>
-                  <span style={{ fontWeight: 1000, fontSize: '0.85rem' }}>{item.count}</span>
-                </div>
-              ))}
-            </div>
+          {/* Top Referidos */}
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
+             <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <ArrowUpRight size={20} color="#3B82F6" /> Origen del Tráfico (Referidos)
+             </h3>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {(topReferrers || []).map((ref, index) => (
+                  <div key={ref.referrer} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: index < (topReferrers || []).length - 1 ? '1px solid #F0F4ED' : 'none' }}>
+                    <span style={{ fontWeight: 1000, color: '#3B82F6', fontSize: '0.85rem' }}>{ref.referrer}</span>
+                    <span style={{ fontWeight: 1000, fontSize: '0.85rem' }}>{ref.count}</span>
+                  </div>
+                ))}
+             </div>
           </div>
         </div>
+      </div>
 
         {/* Demandas Populares (Palabras más buscadas) */}
         <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
