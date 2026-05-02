@@ -25,17 +25,6 @@ const ProductorIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
-function CategoryStat({ label, value, icon, color = '#2D3A20' }: any) {
-  return (
-    <div style={{ textAlign: 'center', flex: 1, padding: '1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#B2AC88', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '8px' }}>
-        {icon} {label}
-      </div>
-      <div style={{ fontSize: '1.5rem', fontWeight: 1000, color: color }}>{value}</div>
-    </div>
-  );
-}
-
 export default function IntelligenceTab({ 
   stats, 
   topSearches, 
@@ -52,8 +41,9 @@ export default function IntelligenceTab({
   peakData
 }: IntelligenceTabProps) {
   return (
-    <div style={{ padding: '1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', background: '#F0F4ED', padding: '1.2rem 2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
+    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      {/* Header Selector */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F0F4ED', padding: '1.2rem 2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
         <div>
           <h3 style={{ margin: 0, fontWeight: 1000, color: '#2D3A20', fontSize: '1.4rem' }}>Análisis de Demanda y Tracción</h3>
           <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#5F7D4A', fontWeight: 800 }}>Métricas estratégicas para el crecimiento de la red</p>
@@ -82,11 +72,11 @@ export default function IntelligenceTab({
         </div>
       </div>
 
-
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
-        {/* Localidades (Perfil vs Conexión) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', marginBottom: '2.5rem' }}>
+      {/* Main Stats Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
+        
+        {/* Col 1: Geografía */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
           {/* Top Ciudades Declaradas */}
           <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
              <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -117,8 +107,10 @@ export default function IntelligenceTab({
                 {(topCitiesReal || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>Sin datos de conexión aún.</div>}
              </div>
           </div>
-               {/* Páginas y Referidos (Estilo Vercel) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2.5rem', marginBottom: '2.5rem' }}>
+        </div>
+
+        {/* Col 2: Contenido & Tráfico */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
           {/* Top Páginas */}
           <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
              <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -131,6 +123,7 @@ export default function IntelligenceTab({
                     <span style={{ fontWeight: 1000, fontSize: '0.85rem' }}>{p.count} <span style={{ color: '#B2AC88', fontWeight: 700, fontSize: '0.7rem' }}>vistas</span></span>
                   </div>
                 ))}
+                {(topPages || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay registros de páginas aún.</div>}
              </div>
           </div>
 
@@ -146,18 +139,18 @@ export default function IntelligenceTab({
                     <span style={{ fontWeight: 1000, fontSize: '0.85rem' }}>{ref.count}</span>
                   </div>
                 ))}
+                {(topReferrers || []).length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic' }}>No hay referidos registrados.</div>}
              </div>
           </div>
         </div>
-      </div>
 
-        {/* Demandas Populares (Palabras más buscadas) */}
+        {/* Col 3: Buscador */}
         <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
               <Search size={20} color="#5F7D4A" /> Palabras más buscadas
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {topSearches.slice(0, 10).map(([query, count], index) => (
+              {(topSearches || []).slice(0, 10).map(([query, count], index) => (
                 <div key={query} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#F8F9F5', padding: '10px 15px', borderRadius: '16px', border: '1px solid #F0F4ED' }}>
                     <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.75rem', width: '15px' }}>{index + 1}</span>
                     <span style={{ fontWeight: 900, color: '#2D3A20', flex: 1, textTransform: 'capitalize', fontSize: '0.9rem' }}>{query}</span>
@@ -169,27 +162,29 @@ export default function IntelligenceTab({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2.5rem', marginTop: '2.5rem' }}>
+      {/* Row Secundario: Retención y Tracción */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2.5rem' }}>
         {/* Retención y Sesiones */}
         <div style={{ background: 'white', padding: '2rem', borderRadius: '32px', border: '1px solid #E4EBDD' }}>
            <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
               <Clock size={20} color="#5F7D4A" /> Sesiones y Retención
            </h3>
            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ background: '#F8F9F5', padding: '20px', borderRadius: '20px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Duración Promedio</div>
-                <div style={{ fontSize: '2rem', fontWeight: 1000, color: '#5F7D4A' }}>{sessionStats?.avgDuration || '4:12'} <span style={{ fontSize: '0.9rem' }}>min</span></div>
-              </div>
-              <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Tasa de Rebote</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 1000, color: '#A67C00' }}>{sessionStats?.bounceRate || '0'}%</div>
-              </div>
-              <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Tasa de Conversión</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 1000, color: '#10B981' }}>{sessionStats?.conversionRate || '0'}%</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
+                <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Duración</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#5F7D4A' }}>{sessionStats?.avgDuration || '0'} <span style={{ fontSize: '0.7rem' }}>min</span></div>
+                </div>
+                <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Rebote</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#A67C00' }}>{sessionStats?.bounceRate || '0'}%</div>
+                </div>
+                <div style={{ background: '#F8F9F5', padding: '15px', borderRadius: '20px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '5px' }}>Conv.</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#10B981' }}>{sessionStats?.conversionRate || '0'}%</div>
+                </div>
               </div>
               <div style={{ background: '#F0F4ED', padding: '15px', borderRadius: '20px' }}>
-                <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#B2AC88', textTransform: 'uppercase', marginBottom: '8px', textAlign: 'center' }}>Picos de Tráfico</div>
                 <div style={{ display: 'flex', justifyContent: 'space-around' }}>
                    <div style={{ textAlign: 'center' }}>
                       <div style={{ fontSize: '0.65rem', color: '#5F7D4A', fontWeight: 800 }}>Mejor Día</div>
@@ -201,9 +196,6 @@ export default function IntelligenceTab({
                    </div>
                 </div>
               </div>
-              <p style={{ fontSize: '0.75rem', color: '#B2AC88', fontStyle: 'italic', margin: 0, textAlign: 'center' }}>
-                Métricas calculadas en tiempo real para el periodo seleccionado.
-              </p>
            </div>
         </div>
 
@@ -212,15 +204,15 @@ export default function IntelligenceTab({
            <h3 style={{ fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: 10 }}>
               <ArrowUpRight size={20} color="#A67C00" /> Comercios con más Tracción
            </h3>
-           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-              {topMerchants.map((m, index) => (
-                 <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#F8F9F5', padding: '12px 20px', borderRadius: '16px', border: '1px solid #F0F4ED' }}>
+           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
+              {(topMerchants || []).slice(0, 5).map((m, index) => (
+                 <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#F8F9F5', padding: '10px 20px', borderRadius: '16px', border: '1px solid #F0F4ED' }}>
                     <span style={{ fontWeight: 1000, color: '#B2AC88', fontSize: '0.8rem', width: '20px' }}>{index + 1}</span>
-                    <span style={{ fontWeight: 1000, color: '#2D3A20', flex: 1 }}>{m.name}</span>
-                    <span style={{ fontWeight: 1000, color: '#A67C00', fontSize: '0.85rem' }}>{m.clicks} clicks</span>
+                    <span style={{ fontWeight: 1000, color: '#2D3A20', flex: 1, fontSize: '0.9rem' }}>{m.name}</span>
+                    <span style={{ fontWeight: 1000, color: '#A67C00', fontSize: '0.8rem' }}>{m.clicks} clicks</span>
                  </div>
               ))}
-              {topMerchants.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic', gridColumn: '1/-1', textAlign: 'center', padding: '2rem' }}>Aún no se registran interacciones en este periodo.</div>}
+              {topMerchants.length === 0 && <div style={{ color: '#B2AC88', fontStyle: 'italic', textAlign: 'center', padding: '1rem' }}>Aún no hay interacciones.</div>}
            </div>
         </div>
       </div>
