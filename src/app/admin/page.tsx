@@ -208,6 +208,7 @@ export default function AdminDashboard() {
   const [userRoles, setUserRoles] = useState<{ role: string, count: number }[]>([]);
   const [topPages, setTopPages] = useState<{ path: string, count: number }[]>([]);
   const [topReferrers, setTopReferrers] = useState<{ referrer: string, count: number }[]>([]);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -508,10 +509,12 @@ export default function AdminDashboard() {
       } else {
         const errText = await res.text();
         console.error("Analytics fetch failed:", res.status, errText);
+        setAnalyticsError(`Error ${res.status}: ${errText}`);
       }
       
       if (events && (events as any).error) {
         console.error("Analytics business error:", (events as any).error);
+        setAnalyticsError(`API Error: ${(events as any).error}`);
       }
 
       const searchMap: Record<string, number> = {};
@@ -1012,6 +1015,7 @@ export default function AdminDashboard() {
                trafficByProvince={trafficByProvince}
                sessionStats={sessionStats}
                peakData={peakData}
+               analyticsError={analyticsError}
              />
           ) : activeTab === 'oficializacion' ? (
             <div style={{ padding: '2rem' }}>

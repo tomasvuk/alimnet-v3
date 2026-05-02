@@ -17,6 +17,7 @@ interface IntelligenceTabProps {
   trafficByProvince?: { province: string, count: number }[];
   sessionStats?: { avgDuration: number, bounceRate: number, conversionRate: number };
   peakData?: { peakDay: string, peakHour: string };
+  analyticsError?: string | null;
 }
 
 const ProductorIcon = ({ size = 20 }: { size?: number }) => (
@@ -38,7 +39,8 @@ export default function IntelligenceTab({
   trafficByCountry,
   trafficByProvince,
   sessionStats,
-  peakData
+  peakData,
+  analyticsError
 }: IntelligenceTabProps) {
   return (
     <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
@@ -71,6 +73,12 @@ export default function IntelligenceTab({
           ))}
         </div>
       </div>
+
+      {analyticsError && (
+        <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '1rem 2rem', borderRadius: '24px', color: '#991B1B', fontWeight: 900, fontSize: '0.9rem', textAlign: 'center' }}>
+          ⚠️ ALERTA DE DATOS: {analyticsError}
+        </div>
+      )}
 
       {/* Main Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
