@@ -56,42 +56,42 @@ const getFlagEmoji = (countryName: string) => {
   return map[countryName] || '🌐';
 };
 
-const VercelMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLabel = 'PAGE VIEWS', limit = 10 }: { title: string, items: MetricItem[], visitorsLabel?: string, viewsLabel?: string, limit?: number }) => {
+const AlimnetMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLabel = 'PAGE VIEWS', limit = 15 }: { title: string, items: MetricItem[], visitorsLabel?: string, viewsLabel?: string, limit?: number }) => {
   const maxVisitors = Math.max(...items.map(i => i.visitors), 1);
   const displayItems = items.slice(0, limit);
 
   return (
-    <div style={{ background: '#0A0A0A', borderRadius: '12px', border: '1px solid #333', overflow: 'hidden', color: 'white', marginBottom: '2rem' }}>
-      <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#EDEDED' }}>{title}</h4>
-        <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.65rem', fontWeight: 700, color: '#888', letterSpacing: '0.05em' }}>
+    <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #E4EBDD', overflow: 'hidden', color: '#2D3A20', marginBottom: '1.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+      <div style={{ padding: '1.2rem 1.5rem', borderBottom: '1.5px solid #F0F4ED', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8F9F5' }}>
+        <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 1000, color: '#2D3A20' }}>{title}</h4>
+        <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.65rem', fontWeight: 900, color: '#B2AC88', letterSpacing: '0.05em' }}>
           <span>{visitorsLabel}</span>
           {items[0]?.views !== undefined && <span>{viewsLabel}</span>}
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {displayItems.length === 0 ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#666', fontSize: '0.8rem' }}>No data available</div>
+          <div style={{ padding: '2.5rem', textAlign: 'center', color: '#B2AC88', fontSize: '0.85rem', fontWeight: 700 }}>Sin datos en este periodo</div>
         ) : displayItems.map((item, idx) => {
           const percentage = (item.visitors / maxVisitors) * 100;
           return (
-            <div key={idx} style={{ position: 'relative', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: idx < displayItems.length - 1 ? '1px solid #1A1A1A' : 'none' }}>
-              {/* Background Bar */}
-              <div style={{ position: 'absolute', left: 0, top: '4px', bottom: '4px', width: `${percentage}%`, background: '#1A1A1A', borderRadius: '0 4px 4px 0', zIndex: 0 }} />
+            <div key={idx} style={{ position: 'relative', padding: '0.9rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: idx < displayItems.length - 1 ? '1px solid #F0F4ED' : 'none' }}>
+              {/* Alimnet Background Bar (Subtle Beige/Green) */}
+              <div style={{ position: 'absolute', left: 0, top: '4px', bottom: '4px', width: `${percentage}%`, background: '#F0F4ED', borderRadius: '0 8px 8px 0', zIndex: 0, opacity: 0.7 }} />
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', zIndex: 1 }}>
-                {item.flag && <span style={{ fontSize: '1.1rem' }}>{item.flag}</span>}
-                {item.icon && <span style={{ color: '#888' }}>{item.icon}</span>}
-                <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#EDEDED' }}>{item.label}</span>
+                {item.flag && <span style={{ fontSize: '1.2rem' }}>{item.flag}</span>}
+                {item.icon && <span style={{ color: '#5F7D4A' }}>{item.icon}</span>}
+                <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#2D3A20' }}>{item.label}</span>
               </div>
               
               <div style={{ display: 'flex', gap: '1.5rem', zIndex: 1 }}>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '60px', justifyContent: 'flex-end' }}>
-                   <span style={{ fontSize: '0.7rem', color: '#888', fontWeight: 600 }}>{Math.round((item.visitors / displayItems.reduce((acc, curr) => acc + curr.visitors, 0)) * 100)}%</span>
-                   <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{item.visitors}</span>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '70px', justifyContent: 'flex-end' }}>
+                   <span style={{ fontSize: '0.7rem', color: '#B2AC88', fontWeight: 800 }}>{Math.round((item.visitors / displayItems.reduce((acc, curr) => acc + curr.visitors, 0)) * 100)}%</span>
+                   <span style={{ fontSize: '0.9rem', fontWeight: 1000, color: '#5F7D4A' }}>{item.visitors}</span>
                 </div>
                 {item.views !== undefined && (
-                   <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#EDEDED', width: '60px', textAlign: 'right' }}>{item.views}</span>
+                   <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#2D3A20', width: '70px', textAlign: 'right' }}>{item.views}</span>
                 )}
               </div>
             </div>
@@ -140,52 +140,53 @@ export default function IntelligenceTab({
   const deviceItems: MetricItem[] = (trafficByDevice || []).map(d => ({
     label: d.device,
     visitors: d.visitors,
-    icon: d.device === 'Mobile' ? <Smartphone size={14} /> : <Monitor size={14} />
+    icon: d.device === 'Mobile' ? <Smartphone size={16} /> : <Monitor size={16} />
   }));
 
   const pageItems: MetricItem[] = (topPages || []).map(p => ({
     label: p.path,
-    visitors: p.count // Here visitors maps to views/count in the simple topPages state
+    visitors: p.count // Mapping count (views) to the first metric column
   }));
 
   const referrerItems: MetricItem[] = (topReferrers || []).map(r => ({
     label: r.referrer,
     visitors: r.count,
-    icon: r.referrer.includes('google') ? <Globe size={14} /> : <ArrowUpRight size={14} />
+    icon: r.referrer.includes('google') ? <Globe size={16} /> : <ArrowUpRight size={16} />
   }));
 
   return (
-    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#000', borderRadius: '32px' }}>
+    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       
       {analyticsError && (
-        <div style={{ background: '#331111', border: '1px solid #662222', padding: '1rem', borderRadius: '12px', color: '#FF5555', fontWeight: 600, fontSize: '0.85rem' }}>
-          ⚠️ Sync Error: {analyticsError}
+        <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '1.2rem 2rem', borderRadius: '24px', color: '#991B1B', fontWeight: 1000, fontSize: '0.9rem', textAlign: 'center' }}>
+          ⚠️ ALERTA DE DATOS: {analyticsError}
         </div>
       )}
 
       {/* Header Selector */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F0F4ED', padding: '1.2rem 2rem', borderRadius: '24px', border: '1px solid #E4EBDD' }}>
         <div>
-          <h3 style={{ margin: 0, fontWeight: 700, color: 'white', fontSize: '1.5rem' }}>Analytics</h3>
+          <h3 style={{ margin: 0, fontWeight: 1000, color: '#2D3A20', fontSize: '1.4rem' }}>Análisis Estratégico de Red</h3>
+          <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#5F7D4A', fontWeight: 800 }}>Métricas avanzadas de tracción y comportamiento</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', background: '#111', padding: '4px', borderRadius: '8px', border: '1px solid #333' }}>
+        <div style={{ display: 'flex', gap: '8px', background: 'white', padding: '6px', borderRadius: '15px', border: '1px solid #E4EBDD' }}>
           {[
-            { id: 'day', label: 'Today' },
-            { id: 'week', label: '7D' },
-            { id: 'month', label: '30D' },
-            { id: 'year', label: '12M' }
+            { id: 'day', label: 'Hoy' },
+            { id: 'week', label: '7 Días' },
+            { id: 'month', label: 'Mes' },
+            { id: 'year', label: 'Año' }
           ].map(range => (
             <button 
               key={range.id}
               onClick={() => setAnalyticsTimeRange(range.id)}
               style={{ 
-                padding: '6px 12px', 
-                borderRadius: '6px', 
+                padding: '10px 18px', 
+                borderRadius: '12px', 
                 border: 'none',
-                background: analyticsTimeRange === range.id ? '#333' : 'transparent',
-                color: analyticsTimeRange === range.id ? 'white' : '#888',
-                fontSize: '0.8rem',
-                fontWeight: 600,
+                background: analyticsTimeRange === range.id ? '#5F7D4A' : 'transparent',
+                color: analyticsTimeRange === range.id ? 'white' : '#5F7D4A',
+                fontSize: '0.85rem',
+                fontWeight: 1000,
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
@@ -196,28 +197,30 @@ export default function IntelligenceTab({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '2.5rem' }}>
         
         {/* Row 1 */}
-        <VercelMetricTable title="Countries" items={countryItems} />
-        <VercelMetricTable title="Operating Systems" items={osItems} />
+        <AlimnetMetricTable title="Tráfico por Países" items={countryItems} limit={20} />
+        <AlimnetMetricTable title="Sistemas Operativos" items={osItems} limit={10} />
 
         {/* Row 2 */}
-        <VercelMetricTable title="Browsers" items={browserItems} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-           <VercelMetricTable title="Devices" items={deviceItems} viewsLabel="" />
-           <VercelMetricTable title="Top Referrers" items={referrerItems} visitorsLabel="VISITORS" />
+        <AlimnetMetricTable title="Navegadores" items={browserItems} limit={15} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+           <AlimnetMetricTable title="Dispositivos" items={deviceItems} visitorsLabel="VISITORS" />
+           <AlimnetMetricTable title="Fuentes de Tráfico (Referidos)" items={referrerItems} visitorsLabel="VISITORS" limit={15} />
         </div>
 
         {/* Row 3 */}
-        <VercelMetricTable title="Pages" items={pageItems} visitorsLabel="PAGE VIEWS" />
-        <div style={{ background: '#0A0A0A', borderRadius: '12px', border: '1px solid #333', padding: '1.5rem', color: 'white' }}>
-           <h4 style={{ margin: '0 0 1.5rem', fontSize: '0.9rem', fontWeight: 600, color: '#EDEDED' }}>Top Searches</h4>
-           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              {topSearches.slice(0, 15).map(([q, count]) => (
-                <div key={q} style={{ background: '#1A1A1A', padding: '6px 12px', borderRadius: '20px', border: '1px solid #333', fontSize: '0.8rem', color: '#EDEDED', display: 'flex', gap: '8px' }}>
-                  <span style={{ fontWeight: 400 }}>{q}</span>
-                  <span style={{ color: '#888', fontWeight: 700 }}>{count}</span>
+        <AlimnetMetricTable title="Contenido más visto (Páginas)" items={pageItems} visitorsLabel="PAGE VIEWS" limit={20} />
+        <div style={{ background: 'white', borderRadius: '32px', border: '1px solid #E4EBDD', padding: '2.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+           <h4 style={{ margin: '0 0 2rem', fontSize: '1.2rem', fontWeight: 1000, color: '#2D3A20', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Search size={20} color="#5F7D4A" /> Búsquedas populares
+           </h4>
+           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              {topSearches.slice(0, 20).map(([q, count]) => (
+                <div key={q} style={{ background: '#F8F9F5', padding: '10px 18px', borderRadius: '16px', border: '1.5px solid #F0F4ED', fontSize: '0.9rem', color: '#2D3A20', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 900, textTransform: 'capitalize' }}>{q}</span>
+                  <span style={{ color: '#5F7D4A', fontWeight: 1000, background: '#E4EBDD', padding: '2px 8px', borderRadius: '6px', fontSize: '0.75rem' }}>{count}</span>
                 </div>
               ))}
            </div>

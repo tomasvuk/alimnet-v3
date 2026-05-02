@@ -703,8 +703,8 @@ export default function AdminDashboard() {
       setTrafficByOS(Object.entries(osMap).map(([os, data]) => ({ os, visitors: data.sessions.size, views: data.views })).sort((a,b) => b.visitors - a.visitors));
       setTopCitiesReal(Object.entries(cityRealMap).map(([city, data]) => ({ city, count: data.sessions.size })).sort((a,b) => b.count - a.count));
       
-      setTopPages(Object.entries(pageMap).map(([path, count]) => ({ path, count })).sort((a,b) => b.count - a.count).slice(0, 10));
-      setTopReferrers(Object.entries(referrerMap).map(([referrer, count]) => ({ referrer, count })).sort((a,b) => b.count - a.count).slice(0, 10));
+      setTopPages(Object.entries(pageMap).map(([path, count]) => ({ path, count })).sort((a,b) => b.count - a.count).slice(0, 30));
+      setTopReferrers(Object.entries(referrerMap).map(([referrer, count]) => ({ referrer, count })).sort((a,b) => b.count - a.count).slice(0, 30));
       setTopSearches(Object.entries(searchMap).sort((a, b) => b[1] - a[1]).slice(0, 20));
       setTopMerchants(Object.values(merchantMap).sort((a, b) => b.clicks - a.clicks).slice(0, 20));
 
