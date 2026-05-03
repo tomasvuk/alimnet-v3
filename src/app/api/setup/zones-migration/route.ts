@@ -65,18 +65,9 @@ export async function POST(request: NextRequest) {
       CREATE POLICY IF NOT EXISTS "mdz_read_all" ON merchant_delivery_zones FOR SELECT USING (true);
     `;
 
-    // Ejecutar SQL script
-    console.log('Ejecutando script SQL...');
-    const sqlResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/exec`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${supabaseServiceKey}`,
-      },
-      body: JSON.stringify({ sql: sqlScript }),
-    }).catch(() => null);
-
-    // Si exec no funciona, intentar insertar zonas directamente (las tablas deben existir en Supabase ya)
+    // Las tablas deben crearse manualmente en Supabase SQL Editor.
+    // Este endpoint solo inserta las zonas si las tablas ya existen.
+    // Si las tablas no existen, la inserción fallará y dará un error claro.
     const zones = [
       { country: 'Argentina', province: 'Buenos Aires', zone_name: 'CABA', slug: 'caba-ba', sort_order: 1 },
       { country: 'Argentina', province: 'Buenos Aires', zone_name: 'Zona Norte', slug: 'zona-norte-ba', sort_order: 2 },
@@ -102,6 +93,11 @@ export async function POST(request: NextRequest) {
     if (!insertResponse.ok) {
       const errorText = await insertResponse.text();
       console.error('Insert error:', errorText);
+
+      if (errorText.includes('relation "zones" does not exist') || errorText.includes('zones')) {
+        throw new Error('Las tablas de zonas no existen aún. Debes ejecutar el SQL en Supabase primero. Ve a tu proyecto Supabase → SQL Editor → copia y ejecuta el script de migración.');
+      }
+
       throw new Error(`Error al insertar zonas: ${errorText}`);
     }
 

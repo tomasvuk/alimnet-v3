@@ -141,6 +141,10 @@ export default function MerchantReviewModal({
     setAdminNotesLocal(merchant.admin_notes || '');
   }, [merchant?.id]);
 
+  // Prevent textarea values from depending on re-renders of merged
+  const adminNotesValue = adminNotesLocal;
+  const descriptionValue = edits.bio_short !== undefined ? edits.bio_short : (merchant?.bio_short || '');
+
   // Load tag categories and zones once
   useEffect(() => {
     fetch('/api/admin/tag-categories')
@@ -403,11 +407,11 @@ export default function MerchantReviewModal({
         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20', display: 'block', marginBottom: '6px' }}>
           Descripción
           <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#B2AC88' }}>
-            {merged?.bio_short ? '✅' : '❌'}
+            {descriptionValue ? '✅' : '❌'}
           </span>
         </label>
         <textarea
-          value={merged?.bio_short || ''}
+          value={descriptionValue}
           onChange={(e) => setEdits((p) => ({ ...p, bio_short: e.target.value }))}
           placeholder="Descripción del comercio..."
           style={{
@@ -422,7 +426,8 @@ export default function MerchantReviewModal({
             resize: 'vertical',
             maxHeight: '160px',
             overflowY: 'auto',
-            minHeight: '120px'
+            minHeight: '120px',
+            outline: 'none'
           }}
           rows={5}
         />
@@ -467,7 +472,8 @@ export default function MerchantReviewModal({
             resize: 'vertical',
             maxHeight: '160px',
             overflowY: 'auto',
-            minHeight: '120px'
+            minHeight: '120px',
+            outline: 'none'
           }}
           rows={5}
         />
@@ -881,12 +887,12 @@ function FieldRow({ label, value, onChange, link, linkLabel, multiline, placehol
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20', flex: 1 }}>{label}</label>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', flexWrap: 'wrap' }}>
+        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20' }}>{label}</label>
         <FieldIndicator value={value} />
         {link && (
-          <a href={link} target="_blank" rel="noreferrer" style={{ fontSize: '0.7rem', color: '#5F7D4A', fontWeight: 900, display: 'flex', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
-            <ExternalLink size={11} /> {linkLabel}
+          <a href={link} target="_blank" rel="noreferrer" style={{ fontSize: '0.65rem', color: '#5F7D4A', fontWeight: 900, display: 'flex', alignItems: 'center', gap: 2, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            <ExternalLink size={10} /> {linkLabel}
           </a>
         )}
       </div>
