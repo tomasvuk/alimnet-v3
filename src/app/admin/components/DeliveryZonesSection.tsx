@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Sparkles, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 interface Zone {
   id: string;
   country: string;
   province?: string;
+  district?: string;
+  locality?: string;
   zone_name: string;
   slug: string;
 }
@@ -20,12 +22,6 @@ interface DeliveryZonesSectionProps {
   availableZones: Zone[];
 }
 
-interface MatchResult {
-  matched: Zone[];
-  unmatched: string[];
-  suggestions: { [key: string]: Zone[] };
-}
-
 export default function DeliveryZonesSection({
   merchantId,
   initialText,
@@ -34,63 +30,46 @@ export default function DeliveryZonesSection({
   onZonesChange,
   availableZones,
 }: DeliveryZonesSectionProps) {
-  const [deliveryText, setDeliveryText] = useState(initialText);
+  const [selectedCountry, setSelectedCountry] = useState<string>('Argentina');
+  const [selectedProvinces, setSelectedProvinces] = useState<Set<string>>(new Set());
   const [selectedZoneIds, setSelectedZoneIds] = useState<string[]>(initialZoneIds);
-  const [suggestedZones, setSuggestedZones] = useState<Zone[]>([]);
-  const [matchLoading, setMatchLoading] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [unmatched, setUnmatched] = useState<string[]>([]);
 
-  const handleTextChange = useCallback(
-    (value: string) => {
-      setDeliveryText(value);
-    },
-    []
-  );
+  // Get unique countries from available zones
+  const countries = useMemo(() => {
+    const uniqueCountries = new Set(availableZones.map(z => z.country));
+    return Array.from(uniqueCountries).sort();
+  }, [availableZones]);
 
-  const handleTextSave = useCallback(() => {
-    onTextChange(deliveryText);
-  }, [deliveryText, onTextChange]);
+  // Get provinces for selected country
+  const provinces = useMemo(() => {
+    return availableZones
+      .filter(z => z.country === selectedCountry)
+      .map(z => z.province || '')
+      .filter((p, i, arr) => p && arr.indexOf(p) === i)
+      .sort();
+  }, [selectedCountry, availableZones]);
 
-  const triggerAutoMatch = useCallback(async () => {
-    if (!deliveryText.trim()) {
-      console.warn('Empty delivery text');
-      return;
+  // Get zones for selected provinces
+  const zonesForSelectedProvinces = useMemo(() => {
+    return availableZones.filter(
+      z => z.country === selectedCountry && selectedProvinces.has(z.province || '')
+    );
+  }, [selectedCountry, selectedProvinces, availableZones]);
+
+  const toggleProvince = (province: string) => {
+    const newProvinces = new Set(selectedProvinces);
+    if (newProvinces.has(province)) {
+      newProvinces.delete(province);
+      // Also remove zones from this province
+      const zonesToRemove = availableZones
+        .filter(z => z.country === selectedCountry && z.province === province)
+        .map(z => z.id);
+      setSelectedZoneIds(prev => prev.filter(id => !zonesToRemove.includes(id)));
+    } else {
+      newProvinces.add(province);
     }
-
-    setMatchLoading(true);
-    try {
-      const response = await fetch('/api/admin/match-zones', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: deliveryText, country: 'Argentina' }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Match zones error:', errorData);
-        throw new Error(errorData.error || 'Failed to match zones');
-      }
-
-      const result: MatchResult = await response.json();
-      setSuggestedZones(result.matched);
-      setUnmatched(result.unmatched);
-
-      // Auto-apply suggested zones
-      const newZoneIds = result.matched.map(z => z.id);
-      setSelectedZoneIds(prev => {
-        const combined = new Set([...prev, ...newZoneIds]);
-        const arr = Array.from(combined);
-        return arr;
-      });
-
-      setShowSuggestions(true);
-    } catch (err) {
-      console.error('Auto-match error:', err);
-    } finally {
-      setMatchLoading(false);
-    }
-  }, [deliveryText]);
+    setSelectedProvinces(newProvinces);
+  };
 
   const toggleZone = useCallback(
     (zoneId: string) => {
@@ -107,144 +86,104 @@ export default function DeliveryZonesSection({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-      {/* Sección de Texto Libre */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-        <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#666' }}>
-          Zonas de Entrega (Descripción)
-        </label>
-        <textarea
-          value={deliveryText}
-          onChange={e => handleTextChange(e.target.value)}
-          onBlur={handleTextSave}
-          placeholder="Ej: CABA, Zona Norte, Zona Oeste · Lunes a viernes 9-18hs"
-          style={{
-            width: '100%',
-            minHeight: '60px',
-            padding: '10px 12px',
-            fontSize: '0.9rem',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            fontFamily: 'inherit',
-            resize: 'vertical',
-          }}
-        />
-        <button
-          onClick={triggerAutoMatch}
-          disabled={matchLoading}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.4rem 0.8rem',
-            fontSize: '0.8rem',
-            fontWeight: '600',
-            backgroundColor: '#5F7D4A',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: matchLoading ? 'not-allowed' : 'pointer',
-            opacity: matchLoading ? 0.6 : 1,
-            alignSelf: 'flex-start',
-          }}
-        >
-          <Sparkles size={14} />
-          {matchLoading ? 'Buscando...' : 'Auto-detectar zonas'}
-        </button>
-      </div>
-
-      {/* Sección de Checkboxes de Zonas */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-        <label style={{ fontSize: '0.75rem', fontWeight: '600', color: '#666' }}>
-          Zonas del Sistema (Selecciona todas las que apliquen)
-        </label>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '0.6rem',
-            padding: '0.8rem',
-            backgroundColor: '#f9fafb',
-            borderRadius: '6px',
-            border: '1px solid #e5e7eb',
-          }}
-        >
-          {availableZones.map(zone => (
-            <label
-              key={zone.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                cursor: 'pointer',
-                fontSize: '0.85rem',
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={selectedZoneIds.includes(zone.id)}
-                onChange={() => toggleZone(zone.id)}
-                style={{ cursor: 'pointer' }}
-              />
-              <span>{zone.zone_name}</span>
-            </label>
-          ))}
+      {/* País selector */}
+      {countries.length > 1 && (
+        <div>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#666', display: 'block', marginBottom: '4px' }}>
+            País
+          </label>
+          <select
+            value={selectedCountry}
+            onChange={(e) => {
+              setSelectedCountry(e.target.value);
+              setSelectedProvinces(new Set());
+              setSelectedZoneIds([]);
+              onZonesChange([]);
+            }}
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              borderRadius: '6px',
+              border: '1px solid #e5e7eb',
+              fontSize: '0.9rem',
+              fontWeight: 600,
+              fontFamily: 'inherit',
+            }}
+          >
+            {countries.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
         </div>
-      </div>
+      )}
 
-      {/* Feedback: Zonas no encontradas */}
-      {showSuggestions && unmatched.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.6rem',
-            padding: '0.8rem',
-            backgroundColor: '#FEF3C7',
-            border: '1px solid #FCD34D',
-            borderRadius: '6px',
-            fontSize: '0.85rem',
-          }}
-        >
-          <AlertCircle size={16} style={{ flexShrink: 0, color: '#D97706' }} />
-          <div>
-            <strong>⚠️ No encontradas:</strong> {unmatched.join(', ')}
-            <br />
-            <span style={{ fontSize: '0.75rem', color: '#666' }}>
-              Edita el texto o selecciona manualmente de las opciones arriba
-            </span>
+      {/* Provincia selector */}
+      {provinces.length > 0 && (
+        <div>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#666', display: 'block', marginBottom: '4px' }}>
+            Provincias (selecciona una o más)
+          </label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {provinces.map(prov => (
+              <label key={prov} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedProvinces.has(prov)}
+                  onChange={() => toggleProvince(prov)}
+                  style={{ cursor: 'pointer' }}
+                />
+                {prov}
+              </label>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Feedback: Zonas sugeridas aplicadas */}
-      {showSuggestions && suggestedZones.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.6rem',
-            padding: '0.8rem',
-            backgroundColor: '#ECFDF5',
-            border: '1px solid #A7F3D0',
-            borderRadius: '6px',
-            fontSize: '0.85rem',
-          }}
-        >
-          <span style={{ color: '#10B981', fontWeight: '600' }}>✅ Zonas detectadas:</span>
-          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-            {suggestedZones.map(z => (
-              <span
-                key={z.id}
+      {/* Zonas checkboxes */}
+      {zonesForSelectedProvinces.length > 0 && (
+        <div>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#666', display: 'block', marginBottom: '4px' }}>
+            Zonas de Entrega (selecciona todas las que apliquen)
+          </label>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: '0.6rem',
+              padding: '0.8rem',
+              backgroundColor: '#f9fafb',
+              borderRadius: '6px',
+              border: '1px solid #e5e7eb',
+            }}
+          >
+            {zonesForSelectedProvinces.map(zone => (
+              <label
+                key={zone.id}
                 style={{
-                  padding: '0.2rem 0.6rem',
-                  backgroundColor: '#D1FAE5',
-                  borderRadius: '3px',
-                  fontSize: '0.75rem',
-                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
                 }}
               >
-                {z.zone_name}
-              </span>
+                <input
+                  type="checkbox"
+                  checked={selectedZoneIds.includes(zone.id)}
+                  onChange={() => toggleZone(zone.id)}
+                  style={{ cursor: 'pointer' }}
+                />
+                <span>{zone.zone_name}</span>
+              </label>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Info message */}
+      {selectedProvinces.size === 0 && (
+        <div style={{ fontSize: '0.85rem', color: '#999', fontStyle: 'italic', padding: '0.8rem', backgroundColor: '#f9fafb', borderRadius: '6px' }}>
+          Selecciona una provincia para ver sus zonas de entrega disponibles
         </div>
       )}
     </div>

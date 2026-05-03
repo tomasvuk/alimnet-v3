@@ -142,8 +142,8 @@ export default function MerchantReviewModal({
   }, [merchant?.id]);
 
   // Prevent textarea values from depending on re-renders of merged
-  const adminNotesValue = adminNotesLocal;
-  const descriptionValue = edits.bio_short !== undefined ? edits.bio_short : (merchant?.bio_short || '');
+  const adminNotesValue = adminNotesLocal || '';
+  const descriptionValue = edits.bio_short !== undefined ? (edits.bio_short || '') : (merchant?.bio_short || '');
 
   // Load tag categories and zones once
   useEffect(() => {
