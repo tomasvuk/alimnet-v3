@@ -227,9 +227,9 @@ export default function MerchantReviewModal({
     setAdminNotesLocal(value);
   }, []);
 
-  const handleAdminNotesSave = () => {
+  const handleAdminNotesSave = useCallback(() => {
     setEdits((p) => ({ ...p, admin_notes: adminNotesLocal }));
-  };
+  }, [adminNotesLocal]);
 
   // ---------------------------------------------------------------------------
   // AI suggest
@@ -448,34 +448,11 @@ export default function MerchantReviewModal({
       </div>
       {/* Admin notes — Custom large textarea */}
       <div style={{ gridColumn: '1 / -1' }}>
-        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20', display: 'block', marginBottom: '6px' }}>
-          Notas admin (interno)
-          <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#B2AC88' }}>
-            {adminNotesLocal ? '✅' : '❌'}
-          </span>
-        </label>
-        <textarea
-          ref={adminNotesRef}
+        <AdminNotesTextarea
           value={adminNotesLocal}
-          onChange={(e) => handleAdminNotesChange(e.target.value)}
+          onChange={handleAdminNotesChange}
           onBlur={handleAdminNotesSave}
-          placeholder="Notas internas..."
-          style={{
-            width: '100%',
-            padding: '10px 12px',
-            border: '1px solid #E4EBDD',
-            borderRadius: '8px',
-            fontSize: '0.9rem',
-            fontFamily: 'system-ui',
-            color: '#2D3A20',
-            background: '#FFFBEB',
-            resize: 'vertical',
-            maxHeight: '160px',
-            overflowY: 'auto',
-            minHeight: '120px',
-            outline: 'none'
-          }}
-          rows={5}
+          hasValue={!!adminNotesLocal}
         />
       </div>
     </div>
@@ -853,6 +830,55 @@ export default function MerchantReviewModal({
     </>
   );
 }
+
+// ---------------------------------------------------------------------------
+// AdminNotesTextarea — memoized to prevent re-renders
+// ---------------------------------------------------------------------------
+
+interface AdminNotesProps {
+  value: string;
+  onChange: (v: string) => void;
+  onBlur: () => void;
+  hasValue: boolean;
+}
+
+const AdminNotesTextarea = React.memo(function AdminNotesTextarea({ value, onChange, onBlur, hasValue }: AdminNotesProps) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  return (
+    <div>
+      <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20', display: 'block', marginBottom: '6px' }}>
+        Notas admin (interno)
+        <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#B2AC88' }}>
+          {hasValue ? '✅' : '❌'}
+        </span>
+      </label>
+      <textarea
+        ref={ref}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        placeholder="Notas internas..."
+        style={{
+          width: '100%',
+          padding: '10px 12px',
+          border: '1px solid #E4EBDD',
+          borderRadius: '8px',
+          fontSize: '0.9rem',
+          fontFamily: 'system-ui',
+          color: '#2D3A20',
+          background: '#FFFBEB',
+          resize: 'vertical',
+          maxHeight: '160px',
+          overflowY: 'auto',
+          minHeight: '120px',
+          outline: 'none',
+        }}
+        rows={5}
+      />
+    </div>
+  );
+});
 
 // ---------------------------------------------------------------------------
 // FieldRow — generic editable row
