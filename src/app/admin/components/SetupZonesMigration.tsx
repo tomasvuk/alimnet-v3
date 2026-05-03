@@ -21,7 +21,8 @@ export default function SetupZonesMigration() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(`HTTP ${response.status}: ${errorData.error || 'Unknown error'} - ${errorData.details || ''}`);
       }
 
       const data = await response.json();
