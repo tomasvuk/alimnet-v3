@@ -31,6 +31,7 @@ interface IntelligenceTabProps {
   sessionStats?: { avgDuration: number, bounceRate: number, conversionRate: number };
   peakData?: { peakDay: string, peakHour: string };
   analyticsError?: string | null;
+  analyticsStats?: { visitors: number, pageViews: number, bounceRate: number };
 }
 
 const getFlagEmoji = (countryName: string) => {
@@ -146,10 +147,10 @@ const AlimnetMetricTable = ({ title, items, visitorsLabel = 'VISITORS', viewsLab
   );
 };
 
-export default function IntelligenceTab({ 
-  stats, 
-  topSearches, 
-  analyticsTimeRange, 
+export default function IntelligenceTab({
+  stats,
+  topSearches,
+  analyticsTimeRange,
   setAnalyticsTimeRange,
   topCities,
   topCitiesReal,
@@ -160,7 +161,8 @@ export default function IntelligenceTab({
   trafficByBrowser,
   trafficByOS,
   analyticsError,
-  rawEvents
+  rawEvents,
+  analyticsStats
 }: IntelligenceTabProps) {
   const [selectedCountry, setSelectedCountry] = React.useState<string | null>(null);
 
@@ -298,12 +300,12 @@ export default function IntelligenceTab({
             { id: 'month', label: 'Mes' },
             { id: 'year', label: 'Año' }
           ].map(range => (
-            <button 
+            <button
               key={range.id}
               onClick={() => setAnalyticsTimeRange(range.id)}
-              style={{ 
-                padding: '6px 12px', 
-                borderRadius: '8px', 
+              style={{
+                padding: '6px 12px',
+                borderRadius: '8px',
                 border: 'none',
                 background: analyticsTimeRange === range.id ? '#5F7D4A' : 'transparent',
                 color: analyticsTimeRange === range.id ? 'white' : '#5F7D4A',
@@ -318,6 +320,32 @@ export default function IntelligenceTab({
           ))}
         </div>
       </div>
+
+      {/* Top 3 Stats Cards */}
+      {analyticsStats && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+          {/* Visitors */}
+          <div style={{ background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', padding: '1.2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#B2AC88', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>VISITORS</div>
+            <div style={{ fontSize: '2rem', fontWeight: 1000, color: '#2D3A20' }}>{analyticsStats.visitors}</div>
+            <div style={{ fontSize: '0.65rem', color: '#5F7D4A', marginTop: '0.5rem', fontWeight: 700 }}>Visitantes únicos</div>
+          </div>
+
+          {/* Page Views */}
+          <div style={{ background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', padding: '1.2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#B2AC88', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>PAGE VIEWS</div>
+            <div style={{ fontSize: '2rem', fontWeight: 1000, color: '#2D3A20' }}>{analyticsStats.pageViews}</div>
+            <div style={{ fontSize: '0.65rem', color: '#5F7D4A', marginTop: '0.5rem', fontWeight: 700 }}>Vistas totales</div>
+          </div>
+
+          {/* Bounce Rate */}
+          <div style={{ background: 'white', border: '1px solid #E4EBDD', borderRadius: '12px', padding: '1.2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#B2AC88', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>BOUNCE RATE</div>
+            <div style={{ fontSize: '2rem', fontWeight: 1000, color: '#2D3A20' }}>{analyticsStats.bounceRate}%</div>
+            <div style={{ fontSize: '0.65rem', color: '#5F7D4A', marginTop: '0.5rem', fontWeight: 700 }}>Tasa de rechazo</div>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
         

@@ -167,6 +167,7 @@ export default function AdminDashboard() {
   const [trafficByProvince, setTrafficByProvince] = useState<{ province: string, visitors: number, views: number }[]>([]);
   const [sessionStats, setSessionStats] = useState({ avgDuration: 0, bounceRate: 0, conversionRate: 0 });
   const [peakData, setPeakData] = useState<{ peakDay: string, peakHour: string }>({ peakDay: '-', peakHour: '-' });
+  const [analyticsStats, setAnalyticsStats] = useState<{ visitors: number, pageViews: number, bounceRate: number }>({ visitors: 0, pageViews: 0, bounceRate: 0 });
   
   // Filtros Avanzados
   const [filterProvince, setFilterProvince] = useState<string>('all');
@@ -747,6 +748,15 @@ export default function AdminDashboard() {
 
       const convRate = totalSessions > 0 ? parseFloat(((currentPeriodSignups / totalSessions) * 100).toFixed(1)) : 0;
 
+      // Top-level analytics stats (Visitors, Page Views, Bounce Rate)
+      const totalPageViews = rawEvents?.length || 0;
+      const totalVisitors = Object.values(sessionMap).length;
+      setAnalyticsStats({
+        visitors: totalVisitors,
+        pageViews: totalPageViews,
+        bounceRate: bounceRate
+      });
+
       // Peak Data
       const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
       const peakDayIdx = Object.entries(dayMap).sort((a,b) => b[1] - a[1])[0]?.[0];
@@ -1149,7 +1159,7 @@ export default function AdminDashboard() {
                 <DonationsList donations={donations} loading={donationsLoading} />
              </div>
           ) : activeTab === 'analytics' ? (
-             <IntelligenceTab 
+             <IntelligenceTab
                stats={stats}
                topSearches={topSearches}
                topMerchants={topMerchants}
@@ -1169,6 +1179,7 @@ export default function AdminDashboard() {
                trafficByBrowser={trafficByBrowser}
                trafficByOS={trafficByOS}
                rawEvents={rawEvents}
+               analyticsStats={analyticsStats}
              />
           ) : activeTab === 'oficializacion' ? (
             <div style={{ padding: '2rem' }}>
