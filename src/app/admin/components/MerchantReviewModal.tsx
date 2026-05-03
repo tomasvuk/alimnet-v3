@@ -327,7 +327,7 @@ export default function MerchantReviewModal({
   // ---------------------------------------------------------------------------
 
   const InfoSection = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       {/* Instagram */}
       <FieldRow
         label="Instagram URL"
@@ -387,7 +387,7 @@ export default function MerchantReviewModal({
   );
 
   const TagsSection = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
       {/* AI suggest button */}
       <div>
         <button
@@ -536,7 +536,7 @@ export default function MerchantReviewModal({
     const emailAddr = merged?.email;
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
         {/* Contact status */}
         <div>
           <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#666', display: 'block', marginBottom: '4px' }}>Estado de contacto</label>
@@ -665,7 +665,7 @@ export default function MerchantReviewModal({
           {/* Header                                                           */}
           {/* ---------------------------------------------------------------- */}
           <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #E4EBDD', background: '#F8F9F5' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.8rem' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                   <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#2D3A20' }}>{merchant.name}</h2>
@@ -767,7 +767,7 @@ export default function MerchantReviewModal({
             {/* Desktop: 2 col layout */}
             <div className="desktop-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden', width: '100%' }}>
               {/* Left column: Info + CRM */}
-              <div style={{ flex: '0 0 60%', overflowY: 'auto', padding: '1.5rem', borderRight: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ flex: '0 0 60%', overflowY: 'auto', padding: '1.5rem', borderRight: '1px solid #E4EBDD', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                 <section>
                   <h3 style={{ margin: '0 0 1rem', fontSize: '0.78rem', fontWeight: 900, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Información del comercio</h3>
                   <InfoSection />
@@ -852,39 +852,42 @@ interface FieldRowProps {
 function FieldRow({ label, value, onChange, link, linkLabel, multiline, placeholder, noteStyle }: FieldRowProps) {
   const inputStyle: React.CSSProperties = {
     flex: 1,
-    padding: '6px 10px',
+    padding: '10px 12px',
     border: '1px solid #E4EBDD',
     borderRadius: '8px',
-    fontSize: '0.82rem',
+    fontSize: '0.9rem',
     fontFamily: 'system-ui',
     color: '#2D3A20',
     background: noteStyle ? '#FFFBEB' : 'white',
     resize: 'vertical' as const,
-    minHeight: multiline ? '60px' : undefined,
+    minHeight: multiline ? '80px' : undefined,
   };
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-        <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#666', flex: 1 }}>{label}</label>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20', flex: 1 }}>{label}</label>
         <FieldIndicator value={value} />
         {link && (
-          <a href={link} target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: '#5F7D4A', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
+          <a href={link} target="_blank" rel="noreferrer" style={{ fontSize: '0.7rem', color: '#5F7D4A', fontWeight: 900, display: 'flex', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
             <ExternalLink size={11} /> {linkLabel}
           </a>
         )}
       </div>
       {multiline ? (
         <textarea
+          key={`textarea-${label}`}
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          style={inputStyle}
-          rows={3}
+          style={{ ...inputStyle, minHeight: noteStyle ? '150px' : '100px' }}
+          rows={5}
         />
       ) : (
         <input
           type="text"
+          key={`input-${label}`}
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
