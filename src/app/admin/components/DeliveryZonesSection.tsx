@@ -44,13 +44,19 @@ export default function DeliveryZonesSection({
   const handleTextChange = useCallback(
     (value: string) => {
       setDeliveryText(value);
-      onTextChange(value);
     },
-    [onTextChange]
+    []
   );
 
+  const handleTextSave = useCallback(() => {
+    onTextChange(deliveryText);
+  }, [deliveryText, onTextChange]);
+
   const triggerAutoMatch = useCallback(async () => {
-    if (!deliveryText.trim()) return;
+    if (!deliveryText.trim()) {
+      console.warn('Empty delivery text');
+      return;
+    }
 
     setMatchLoading(true);
     try {
@@ -60,7 +66,11 @@ export default function DeliveryZonesSection({
         body: JSON.stringify({ text: deliveryText, country: 'Argentina' }),
       });
 
-      if (!response.ok) throw new Error('Failed to match zones');
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Match zones error:', errorData);
+        throw new Error(errorData.error || 'Failed to match zones');
+      }
 
       const result: MatchResult = await response.json();
       setSuggestedZones(result.matched);
@@ -70,7 +80,8 @@ export default function DeliveryZonesSection({
       const newZoneIds = result.matched.map(z => z.id);
       setSelectedZoneIds(prev => {
         const combined = new Set([...prev, ...newZoneIds]);
-        return Array.from(combined);
+        const arr = Array.from(combined);
+        return arr;
       });
 
       setShowSuggestions(true);
@@ -104,6 +115,7 @@ export default function DeliveryZonesSection({
         <textarea
           value={deliveryText}
           onChange={e => handleTextChange(e.target.value)}
+          onBlur={handleTextSave}
           placeholder="Ej: CABA, Zona Norte, Zona Oeste · Lunes a viernes 9-18hs"
           style={{
             width: '100%',

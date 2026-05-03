@@ -207,10 +207,25 @@ export default function MerchantReviewModal({
     }
   };
 
+  const normalizeInstagramUrl = (input: string): { name: string; url: string } => {
+    if (!input.trim()) return { name: '', url: '' };
+    const clean = input.trim();
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      return { name: clean, url: clean };
+    }
+    if (clean.startsWith('@')) {
+      return { name: clean, url: `https://instagram.com/${clean.slice(1)}` };
+    }
+    return { name: `@${clean}`, url: `https://instagram.com/${clean}` };
+  };
+
   const handleAdminNotesChange = useCallback((value: string) => {
     setAdminNotesLocal(value);
-    setEdits((p) => ({ ...p, admin_notes: value }));
   }, []);
+
+  const handleAdminNotesSave = () => {
+    setEdits((p) => ({ ...p, admin_notes: adminNotesLocal }));
+  };
 
   // ---------------------------------------------------------------------------
   // AI suggest
@@ -346,45 +361,70 @@ export default function MerchantReviewModal({
   // ---------------------------------------------------------------------------
 
   const InfoSection = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-      {/* Instagram */}
-      <FieldRow
-        label="Instagram URL"
-        value={merged?.instagram_url}
-        onChange={(v) => setEdits((p) => ({ ...p, instagram_url: v }))}
-        link={merged?.instagram_url || undefined}
-        linkLabel="Abrir"
-      />
-      {/* Website */}
-      <FieldRow
-        label="Website"
-        value={merged?.website_url}
-        onChange={(v) => setEdits((p) => ({ ...p, website_url: v }))}
-        link={merged?.website_url || undefined}
-        linkLabel="Abrir"
-      />
-      {/* WhatsApp/Phone */}
-      <FieldRow
-        label="WhatsApp / Teléfono"
-        value={merged?.whatsapp || merged?.phone}
-        onChange={(v) => setEdits((p) => ({ ...p, whatsapp: v }))}
-      />
-      {/* Google Maps */}
-      <FieldRow
-        label="Google Maps URL"
-        value={merged?.google_maps_url}
-        onChange={(v) => setEdits((p) => ({ ...p, google_maps_url: v }))}
-        link={merged?.google_maps_url || undefined}
-        linkLabel="Ver mapa"
-      />
-      {/* Bio — full width */}
-      <div style={{ gridColumn: '1 / -1' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+      {/* Contact fields row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+        {/* Instagram */}
         <FieldRow
-          label="Descripción"
-          value={merged?.bio_short}
-          onChange={(v) => setEdits((p) => ({ ...p, bio_short: v }))}
-          multiline
-          placeholder="Sin descripción"
+          label="Instagram"
+          value={merged?.instagram_url}
+          onChange={(v) => {
+            const { url } = normalizeInstagramUrl(v);
+            setEdits((p) => ({ ...p, instagram_url: url }));
+          }}
+          link={normalizeInstagramUrl(merged?.instagram_url || '').url || undefined}
+          linkLabel="Abrir"
+        />
+        {/* Website */}
+        <FieldRow
+          label="Website"
+          value={merged?.website_url}
+          onChange={(v) => setEdits((p) => ({ ...p, website_url: v }))}
+          link={merged?.website_url || undefined}
+          linkLabel="Abrir"
+        />
+        {/* WhatsApp/Phone */}
+        <FieldRow
+          label="WhatsApp / Teléfono"
+          value={merged?.whatsapp || merged?.phone}
+          onChange={(v) => setEdits((p) => ({ ...p, whatsapp: v }))}
+        />
+        {/* Google Maps */}
+        <FieldRow
+          label="Google Maps"
+          value={merged?.google_maps_url}
+          onChange={(v) => setEdits((p) => ({ ...p, google_maps_url: v }))}
+          link={merged?.google_maps_url || undefined}
+          linkLabel="Ver mapa"
+        />
+      </div>
+      {/* Bio — full width */}
+      <div>
+        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20', display: 'block', marginBottom: '6px' }}>
+          Descripción
+          <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#B2AC88' }}>
+            {merged?.bio_short ? '✅' : '❌'}
+          </span>
+        </label>
+        <textarea
+          value={merged?.bio_short || ''}
+          onChange={(e) => setEdits((p) => ({ ...p, bio_short: e.target.value }))}
+          placeholder="Descripción del comercio..."
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            border: '1px solid #E4EBDD',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontFamily: 'system-ui',
+            color: '#2D3A20',
+            background: 'white',
+            resize: 'vertical',
+            maxHeight: '160px',
+            overflowY: 'auto',
+            minHeight: '120px'
+          }}
+          rows={5}
         />
       </div>
       {/* Delivery — full width */}
@@ -413,6 +453,7 @@ export default function MerchantReviewModal({
           ref={adminNotesRef}
           value={adminNotesLocal}
           onChange={(e) => handleAdminNotesChange(e.target.value)}
+          onBlur={handleAdminNotesSave}
           placeholder="Notas internas..."
           style={{
             width: '100%',
@@ -436,81 +477,6 @@ export default function MerchantReviewModal({
 
   const TagsSection = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-      {/* AI suggest button */}
-      <div>
-        <button
-          onClick={triggerSuggestTags}
-          disabled={aiLoading}
-          style={{
-            padding: '8px 16px',
-            background: aiLoading ? '#E4EBDD' : '#2D3A20',
-            color: aiLoading ? '#9CA3AF' : 'white',
-            border: 'none',
-            borderRadius: '10px',
-            cursor: aiLoading ? 'not-allowed' : 'pointer',
-            fontSize: '0.82rem',
-            fontWeight: 900,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <Sparkles size={14} />
-          {aiLoading ? 'Analizando...' : 'Sugerir con IA'}
-        </button>
-
-        {aiSuggestions.length > 0 && (
-          <div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px' }}>
-            <p style={{ margin: '0 0 0.5rem', fontSize: '0.78rem', fontWeight: 700, color: '#92400E' }}>Sugerencias IA — selecciona las que quieras aplicar:</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '0.75rem' }}>
-              {aiSuggestions.map((tag) => {
-                const selected = selectedSuggestions.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    onClick={() =>
-                      setSelectedSuggestions((prev) =>
-                        selected ? prev.filter((t) => t !== tag) : [...prev, tag]
-                      )
-                    }
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: '20px',
-                      border: `2px solid ${selected ? '#F59E0B' : '#FDE68A'}`,
-                      background: selected ? '#FEF3C7' : 'white',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      color: '#78350F',
-                    }}
-                  >
-                    {selected && <Check size={11} />}
-                    {tag}
-                  </button>
-                );
-              })}
-            </div>
-            <button
-              onClick={applySelectedSuggestions}
-              style={{
-                padding: '6px 14px',
-                background: '#F59E0B',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.78rem',
-                fontWeight: 900,
-                cursor: 'pointer',
-              }}
-            >
-              Aplicar seleccionados ({selectedSuggestions.length})
-            </button>
-          </div>
-        )}
-      </div>
 
       {/* Per-category tags */}
       {tagCategories.map((cat) => {
