@@ -49,6 +49,7 @@ import CrmBoard from './components/CrmBoard';
 import MerchantCard from '@/components/MerchantCard';
 import MerchantReviewModal from './components/MerchantReviewModal';
 import CategoriesTab from './components/CategoriesTab';
+import SetupZonesMigration from './components/SetupZonesMigration';
 import { Eye } from 'lucide-react';
 
 // --- Tipos ---
@@ -1497,6 +1498,8 @@ export default function AdminDashboard() {
           ) : activeTab === 'categorias' ? (
             <div style={{ padding: '2rem' }}>
               <CategoriesTab />
+              <hr style={{ margin: '2rem 0', borderColor: '#e5e7eb' }} />
+              <SetupZonesMigration />
             </div>
           ) : (
              <div style={{ padding: '40px', textAlign: 'center', color: '#B2AC88', fontWeight: 800 }}>
