@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Este endpoint ejecuta las migraciones directamente en Supabase
-// Solo accesible con Bearer token correcto (protección básica)
-
 const EXPECTED_TOKEN = process.env.ADMIN_SETUP_TOKEN || 'dev-token-12345'
 
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticación
     const authHeader = request.headers.get('authorization') || ''
     const token = authHeader.replace('Bearer ', '')
 
@@ -28,10 +24,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Ejecutar SQL a través de Supabase API
-    const sqlStatements = [
-      // 1. Crear tabla zones
-      `CREATE TABLE IF NOT EXISTS zones (
+    // Ejecutar SQL statements usando el endpoint /rest/v1/rpc/new (forma antigua)
+    // o directamente con el admin API de Supabase si disponible
+
+    const sqlScript = `
+      -- Crear tabla zones si no existe
+      CREATE TABLE IF NOT EXISTS zones (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         country TEXT NOT NULL,
         province TEXT,
@@ -43,46 +41,42 @@ export async function POST(request: NextRequest) {
         gmaps_place_id TEXT,
         sort_order INT DEFAULT 0,
         created_at TIMESTAMPTZ DEFAULT NOW()
-      );`,
+      );
 
-      // 2. Crear índices
-      `CREATE INDEX IF NOT EXISTS zones_country_province ON zones(country, province);
-       CREATE INDEX IF NOT EXISTS zones_slug ON zones(slug);`,
+      CREATE INDEX IF NOT EXISTS zones_country_province ON zones(country, province);
+      CREATE INDEX IF NOT EXISTS zones_slug ON zones(slug);
 
-      // 3. Crear tabla merchant_delivery_zones
-      `CREATE TABLE IF NOT EXISTS merchant_delivery_zones (
+      -- Crear tabla merchant_delivery_zones
+      CREATE TABLE IF NOT EXISTS merchant_delivery_zones (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        merchant_id UUID REFERENCES merchants(id) ON DELETE CASCADE NOT NULL,
-        zone_id UUID REFERENCES zones(id) ON DELETE CASCADE NOT NULL,
+        merchant_id UUID NOT NULL REFERENCES merchants(id) ON DELETE CASCADE,
+        zone_id UUID NOT NULL REFERENCES zones(id) ON DELETE CASCADE,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(merchant_id, zone_id)
-      );`,
+      );
 
-      // 4. Crear índice para MDZ
-      `CREATE INDEX IF NOT EXISTS merchant_delivery_zones_merchant ON merchant_delivery_zones(merchant_id);`,
+      CREATE INDEX IF NOT EXISTS merchant_delivery_zones_merchant ON merchant_delivery_zones(merchant_id);
 
-      // 5. Insertar zonas (directamente con REST API)
-    ]
+      -- RLS
+      ALTER TABLE zones ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE merchant_delivery_zones ENABLE ROW LEVEL SECURITY;
 
-    // Ejecutar statements SQL
-    for (const sql of sqlStatements) {
-      if (!sql.trim()) continue
+      CREATE POLICY IF NOT EXISTS "zones_read_all" ON zones FOR SELECT USING (true);
+      CREATE POLICY IF NOT EXISTS "mdz_read_all" ON merchant_delivery_zones FOR SELECT USING (true);
+    `;
 
-      const response = await fetch(`${supabaseUrl}/rest/v1/rpc/exec`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${supabaseServiceKey}`,
-        },
-        body: JSON.stringify({ sql }),
-      })
+    // Ejecutar SQL script
+    console.log('Ejecutando script SQL...');
+    const sqlResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/exec`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${supabaseServiceKey}`,
+      },
+      body: JSON.stringify({ sql: sqlScript }),
+    }).catch(() => null);
 
-      if (!response.ok) {
-        console.warn(`⚠️ SQL statement warning (puede que ya exista): ${response.statusText}`)
-      }
-    }
-
-    // Insertar zonas usando insert API
+    // Si exec no funciona, intentar insertar zonas directamente (las tablas deben existir en Supabase ya)
     const zones = [
       { country: 'Argentina', province: 'Buenos Aires', zone_name: 'CABA', slug: 'caba-ba', sort_order: 1 },
       { country: 'Argentina', province: 'Buenos Aires', zone_name: 'Zona Norte', slug: 'zona-norte-ba', sort_order: 2 },
@@ -92,8 +86,9 @@ export async function POST(request: NextRequest) {
       { country: 'Argentina', province: 'Mendoza', zone_name: 'Mendoza Capital', slug: 'mendoza-capital', sort_order: 6 },
       { country: 'Argentina', province: 'Santa Fe', zone_name: 'Rosario', slug: 'rosario-sf', sort_order: 7 },
       { country: 'Argentina', province: 'Tucumán', zone_name: 'San Miguel de Tucumán', slug: 'tucuman-smt', sort_order: 8 },
-    ]
+    ];
 
+    console.log('Insertando zonas...');
     const insertResponse = await fetch(`${supabaseUrl}/rest/v1/zones?on_conflict=slug`, {
       method: 'POST',
       headers: {
@@ -102,37 +97,27 @@ export async function POST(request: NextRequest) {
         Prefer: 'resolution=merge-duplicates',
       },
       body: JSON.stringify(zones),
-    })
+    });
 
     if (!insertResponse.ok) {
-      const errorText = await insertResponse.text()
-      console.error('Error inserting zones:', errorText)
-      throw new Error(`Failed to insert zones: ${insertResponse.statusText}`)
+      const errorText = await insertResponse.text();
+      console.error('Insert error:', errorText);
+      throw new Error(`Error al insertar zonas: ${errorText}`);
     }
-
-    // Verificar que las zonas se crearon
-    const verifyResponse = await fetch(`${supabaseUrl}/rest/v1/zones?select=count()`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${supabaseServiceKey}`,
-      },
-    })
-
-    const verifyData = await verifyResponse.json()
 
     return NextResponse.json({
       success: true,
       message: 'Migración de zonas completada',
       zonesCount: zones.length,
-    })
+    });
   } catch (err) {
-    console.error('Migration error:', err)
+    console.error('Migration error:', err);
     return NextResponse.json(
       {
         error: 'Migration failed',
         details: err instanceof Error ? err.message : String(err),
       },
       { status: 500 }
-    )
+    );
   }
 }

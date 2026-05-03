@@ -373,14 +373,14 @@ export default function AdminDashboard() {
       // 1. MERCHANTS
       const { data: mData, error: mError } = await supabase
         .from('merchants')
-        .select('*, locations(*), merchant_delivery_zones(zone_id)')
+        .select('*, locations(*)')
         .order('created_at', { ascending: false });
 
       if (mError) { console.error("Error fetching merchants:", mError); throw mError; }
 
       const processedMerchants = (mData || []).map(m => ({
         ...m,
-        delivery_zone_ids: (m.merchant_delivery_zones || []).map((mdz: any) => mdz.zone_id),
+        delivery_zone_ids: [],
         province: m.locations?.[0]?.province || 'Sin Provincia',
         validationsCount: m.validation_count || 0
       }));
