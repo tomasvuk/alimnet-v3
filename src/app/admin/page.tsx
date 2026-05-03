@@ -89,6 +89,7 @@ interface Merchant {
   bio_short?: string | null;
   bio_long?: string | null;
   delivery_info?: string | null;
+  delivery_zone_ids?: string[];
   created_by_type?: string;
   created_by?: string | null;
   gallery_images?: string[];
