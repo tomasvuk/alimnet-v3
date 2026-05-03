@@ -4,10 +4,14 @@ const EXPECTED_TOKEN = process.env.ADMIN_SETUP_TOKEN || 'dev-token-12345'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== ZONES MIGRATION START ===');
     const authHeader = request.headers.get('authorization') || ''
     const token = authHeader.replace('Bearer ', '')
+    console.log('Token received:', token ? '✓' : '✗');
+    console.log('Expected token:', EXPECTED_TOKEN);
 
     if (token !== EXPECTED_TOKEN) {
+      console.error('Token mismatch:', { received: token, expected: EXPECTED_TOKEN });
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -16,6 +20,11 @@ export async function POST(request: NextRequest) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    console.log('Supabase config:', {
+      url: supabaseUrl ? '✓' : '✗',
+      anonKey: supabaseAnonKey ? '✓' : '✗'
+    });
 
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('Missing config:', { supabaseUrl: !!supabaseUrl, supabaseAnonKey: !!supabaseAnonKey });
@@ -104,6 +113,7 @@ export async function POST(request: NextRequest) {
       throw new Error(`Error al insertar zonas (${insertResponse.status}): ${errorText}`);
     }
 
+    console.log('✓ Migration successful - zones inserted');
     return NextResponse.json({
       success: true,
       message: 'Migración de zonas completada',
