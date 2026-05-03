@@ -18,8 +18,9 @@ export async function POST(request: NextRequest) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing config:', { supabaseUrl: !!supabaseUrl, supabaseAnonKey: !!supabaseAnonKey });
       return NextResponse.json(
-        { error: 'Server configuration error' },
+        { error: 'Server configuration error - missing Supabase credentials', details: 'Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY' },
         { status: 500 }
       )
     }
@@ -92,13 +93,14 @@ export async function POST(request: NextRequest) {
 
     if (!insertResponse.ok) {
       const errorText = await insertResponse.text();
-      console.error('Insert error:', errorText);
+      console.error('Insert error status:', insertResponse.status);
+      console.error('Insert error text:', errorText);
 
-      if (errorText.includes('relation "zones" does not exist') || errorText.includes('zones')) {
-        throw new Error('Las tablas de zonas no existen aún. Debes ejecutar el SQL en Supabase primero. Ve a tu proyecto Supabase → SQL Editor → copia y ejecuta el script de migración.');
+      if (errorText.includes('relation "zones" does not exist') || errorText.includes('zones') || errorText.includes('permission')) {
+        throw new Error('Las tablas de zonas no existen o no hay permisos. Verifica que el SQL se ejecutó correctamente en Supabase SQL Editor.');
       }
 
-      throw new Error(`Error al insertar zonas: ${errorText}`);
+      throw new Error(`Error al insertar zonas (${insertResponse.status}): ${errorText}`);
     }
 
     return NextResponse.json({
