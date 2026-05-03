@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, ExternalLink, MessageCircle, Instagram, Mail, Keyboard, Sparkles, Check } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
+import DeliveryZonesSection from './DeliveryZonesSection';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,6 +26,7 @@ interface Merchant {
   bio_short?: string | null;
   delivery_info?: string | null;
   tags?: string[];
+  delivery_zone_ids?: string[];
   locations?: { locality?: string; province?: string }[];
   email?: string | null;
   admin_reviewed?: boolean;
@@ -114,6 +116,8 @@ export default function MerchantReviewModal({
   const [edits, setEdits] = useState<Partial<Merchant>>({});
   const [localTags, setLocalTags] = useState<string[]>([]);
   const [tagCategories, setTagCategories] = useState<TagCategory[]>([]);
+  const [zones, setZones] = useState<any[]>([]);
+  const [deliveryZoneIds, setDeliveryZoneIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'info' | 'tags' | 'crm'>('info');
   const [toast, setToast] = useState<string | null>(null);
   const [showCheatsheet, setShowCheatsheet] = useState(false);
@@ -130,17 +134,23 @@ export default function MerchantReviewModal({
     if (!merchant) return;
     setEdits({});
     setLocalTags(merchant.tags || []);
+    setDeliveryZoneIds(merchant.delivery_zone_ids || []);
     setAiSuggestions([]);
     setSelectedSuggestions([]);
     setActiveTab('info');
     setAdminNotesLocal(merchant.admin_notes || '');
   }, [merchant?.id]);
 
-  // Load tag categories once
+  // Load tag categories and zones once
   useEffect(() => {
     fetch('/api/admin/tag-categories')
       .then((r) => r.json())
       .then((data: TagCategory[]) => setTagCategories(data))
+      .catch(() => {});
+
+    fetch('/api/admin/zones')
+      .then((r) => r.json())
+      .then((data: any[]) => setZones(data))
       .catch(() => {});
   }, []);
 
@@ -197,6 +207,11 @@ export default function MerchantReviewModal({
     }
   };
 
+  const handleAdminNotesChange = useCallback((value: string) => {
+    setAdminNotesLocal(value);
+    setEdits((p) => ({ ...p, admin_notes: value }));
+  }, []);
+
   // ---------------------------------------------------------------------------
   // AI suggest
   // ---------------------------------------------------------------------------
@@ -252,6 +267,7 @@ export default function MerchantReviewModal({
       await onSave(merchant.id, {
         ...edits,
         tags: localTags,
+        delivery_zone_ids: deliveryZoneIds,
         admin_reviewed: true,
         ...extra,
       });
@@ -330,7 +346,7 @@ export default function MerchantReviewModal({
   // ---------------------------------------------------------------------------
 
   const InfoSection = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
       {/* Instagram */}
       <FieldRow
         label="Instagram URL"
@@ -353,14 +369,6 @@ export default function MerchantReviewModal({
         value={merged?.whatsapp || merged?.phone}
         onChange={(v) => setEdits((p) => ({ ...p, whatsapp: v }))}
       />
-      {/* Bio */}
-      <FieldRow
-        label="Descripción"
-        value={merged?.bio_short}
-        onChange={(v) => setEdits((p) => ({ ...p, bio_short: v }))}
-        multiline
-        placeholder="Sin descripción"
-      />
       {/* Google Maps */}
       <FieldRow
         label="Google Maps URL"
@@ -369,14 +377,30 @@ export default function MerchantReviewModal({
         link={merged?.google_maps_url || undefined}
         linkLabel="Ver mapa"
       />
-      {/* Delivery */}
-      <FieldRow
-        label="Zonas de entrega"
-        value={merged?.delivery_info}
-        onChange={(v) => setEdits((p) => ({ ...p, delivery_info: v }))}
-        multiline
-        placeholder="Sin información"
-      />
+      {/* Bio — full width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <FieldRow
+          label="Descripción"
+          value={merged?.bio_short}
+          onChange={(v) => setEdits((p) => ({ ...p, bio_short: v }))}
+          multiline
+          placeholder="Sin descripción"
+        />
+      </div>
+      {/* Delivery — full width */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <DeliveryZonesSection
+          merchantId={merchant.id}
+          initialText={merged?.delivery_info || ''}
+          initialZoneIds={deliveryZoneIds}
+          onTextChange={(text) => setEdits((p) => ({ ...p, delivery_info: text }))}
+          onZonesChange={(zoneIds) => {
+            setDeliveryZoneIds(zoneIds);
+            setEdits((p) => ({ ...p, delivery_zone_ids: zoneIds }));
+          }}
+          availableZones={zones}
+        />
+      </div>
       {/* Admin notes — Custom large textarea */}
       <div style={{ gridColumn: '1 / -1' }}>
         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20', display: 'block', marginBottom: '6px' }}>
@@ -388,10 +412,7 @@ export default function MerchantReviewModal({
         <textarea
           ref={adminNotesRef}
           value={adminNotesLocal}
-          onChange={(e) => {
-            setAdminNotesLocal(e.target.value);
-            setEdits((p) => ({ ...p, admin_notes: e.target.value }));
-          }}
+          onChange={(e) => handleAdminNotesChange(e.target.value)}
           placeholder="Notas internas..."
           style={{
             width: '100%',
@@ -887,7 +908,9 @@ function FieldRow({ label, value, onChange, link, linkLabel, multiline, placehol
     color: '#2D3A20',
     background: noteStyle ? '#FFFBEB' : 'white',
     resize: 'vertical' as const,
-    minHeight: multiline ? '80px' : undefined,
+    minHeight: multiline ? '100px' : undefined,
+    maxHeight: multiline ? '140px' : undefined,
+    overflowY: multiline ? 'auto' : undefined,
   };
 
   return (

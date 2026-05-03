@@ -371,13 +371,14 @@ export default function AdminDashboard() {
       // 1. MERCHANTS
       const { data: mData, error: mError } = await supabase
         .from('merchants')
-        .select('*, locations(*)')
+        .select('*, locations(*), merchant_delivery_zones(zone_id)')
         .order('created_at', { ascending: false });
-      
+
       if (mError) { console.error("Error fetching merchants:", mError); throw mError; }
-      
+
       const processedMerchants = (mData || []).map(m => ({
         ...m,
+        delivery_zone_ids: (m.merchant_delivery_zones || []).map((mdz: any) => mdz.zone_id),
         province: m.locations?.[0]?.province || 'Sin Provincia',
         validationsCount: m.validation_count || 0
       }));
@@ -911,8 +912,27 @@ export default function AdminDashboard() {
   };
 
   const handleReviewSave = async (id: string, updates: Partial<Merchant>) => {
-    const { error } = await supabase.from('merchants').update(updates).eq('id', id);
+    const { delivery_zone_ids, ...merchantUpdates } = updates;
+
+    // Guardar datos del comercio
+    const { error } = await supabase.from('merchants').update(merchantUpdates).eq('id', id);
+
     if (!error) {
+      // Si hay zone_ids, actualizar la tabla merchant_delivery_zones
+      if (delivery_zone_ids !== undefined) {
+        // Borrar relaciones previas
+        await supabase.from('merchant_delivery_zones').delete().eq('merchant_id', id);
+
+        // Insertar nuevas relaciones
+        if (delivery_zone_ids.length > 0) {
+          const relations = delivery_zone_ids.map(zone_id => ({
+            merchant_id: id,
+            zone_id,
+          }));
+          await supabase.from('merchant_delivery_zones').insert(relations);
+        }
+      }
+
       setMerchants(prev => prev.map(m => m.id === id ? { ...m, ...updates } as Merchant : m));
     } else {
       alert('Error al guardar: ' + error.message);
