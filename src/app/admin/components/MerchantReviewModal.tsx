@@ -121,7 +121,9 @@ export default function MerchantReviewModal({
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [adminNotesLocal, setAdminNotesLocal] = useState<string>('');
   const cheatsheetRef = useRef<HTMLDivElement>(null);
+  const adminNotesRef = useRef<HTMLTextAreaElement>(null);
 
   // Reset state when merchant changes
   useEffect(() => {
@@ -131,6 +133,7 @@ export default function MerchantReviewModal({
     setAiSuggestions([]);
     setSelectedSuggestions([]);
     setActiveTab('info');
+    setAdminNotesLocal(merchant.admin_notes || '');
   }, [merchant?.id]);
 
   // Load tag categories once
@@ -327,7 +330,7 @@ export default function MerchantReviewModal({
   // ---------------------------------------------------------------------------
 
   const InfoSection = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
       {/* Instagram */}
       <FieldRow
         label="Instagram URL"
@@ -374,15 +377,39 @@ export default function MerchantReviewModal({
         multiline
         placeholder="Sin información"
       />
-      {/* Admin notes */}
-      <FieldRow
-        label="Notas admin (interno)"
-        value={merged?.admin_notes}
-        onChange={(v) => setEdits((p) => ({ ...p, admin_notes: v }))}
-        multiline
-        placeholder="Notas internas..."
-        noteStyle
-      />
+      {/* Admin notes — Custom large textarea */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2D3A20', display: 'block', marginBottom: '6px' }}>
+          Notas admin (interno)
+          <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#B2AC88' }}>
+            {adminNotesLocal ? '✅' : '❌'}
+          </span>
+        </label>
+        <textarea
+          ref={adminNotesRef}
+          value={adminNotesLocal}
+          onChange={(e) => {
+            setAdminNotesLocal(e.target.value);
+            setEdits((p) => ({ ...p, admin_notes: e.target.value }));
+          }}
+          placeholder="Notas internas..."
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            border: '1px solid #E4EBDD',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontFamily: 'system-ui',
+            color: '#2D3A20',
+            background: '#FFFBEB',
+            resize: 'vertical',
+            maxHeight: '160px',
+            overflowY: 'auto',
+            minHeight: '120px'
+          }}
+          rows={5}
+        />
+      </div>
     </div>
   );
 
