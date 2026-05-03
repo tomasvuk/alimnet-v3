@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     const parsed = JSON.parse(jsonMatch[0]);
     const suggested = (parsed.tags || []).filter((t: string) => validTags.includes(t)).slice(0, 6);
 
-    return NextResponse.json({ suggested });
+    return NextResponse.json({ suggested: suggested });
   } catch (e) {
     console.error('suggest-tags error:', e);
     return NextResponse.json({ suggested: [], reason: 'error' });

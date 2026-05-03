@@ -14,12 +14,12 @@ function TabItem({ active, label, onClick, count }: TabItemProps) {
   const hasUnread = isMessages && (count ?? 0) > 0;
 
   return (
-    <div onClick={onClick} style={{ 
-      padding: '1rem 0', cursor: 'pointer', 
-      borderBottom: active ? '3px solid #5F7D4A' : '3px solid transparent', 
-      color: active ? '#2D3A20' : '#B2AC88', 
-      fontWeight: 950, display: 'flex', gap: 8, alignItems: 'center',
-      whiteSpace: 'nowrap'
+    <div onClick={onClick} style={{
+      padding: '0.75rem 0', cursor: 'pointer',
+      borderBottom: active ? '3px solid #5F7D4A' : '3px solid transparent',
+      color: active ? '#2D3A20' : '#B2AC88',
+      fontWeight: 950, display: 'flex', gap: 6, alignItems: 'center',
+      whiteSpace: 'nowrap', fontSize: '0.95rem'
     }}>
       {label} 
       {count !== undefined && (
@@ -62,17 +62,17 @@ interface AdminTabsProps {
 export default function AdminTabs({ activeTab, setActiveTab, counts, onTabChange }: AdminTabsProps) {
   const tabs = [
     { id: 'oficializacion', label: 'Oficialización', count: counts.unclaimed },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'mensajes', label: 'Mensajes', count: counts.messages },
     { id: 'comercios', label: 'Comercios', count: counts.merchants },
     { id: 'pendientes', label: 'Por Aprobar', count: counts.pending },
     { id: 'usuarios', label: 'Usuarios', count: counts.users },
-    { id: 'mensajes', label: 'Mensajes', count: counts.messages },
-    { id: 'analytics', label: 'Inteligencia' },
     { id: 'pagos', label: 'Pagos' },
     { id: 'categorias', label: 'Categorías' },
   ];
 
   return (
-    <div style={{ display: 'flex', gap: '2rem', borderBottom: '1px solid #F0F4ED', marginBottom: '2.5rem', overflowX: 'auto' }}>
+    <div style={{ display: 'flex', gap: '1.2rem', borderBottom: '1px solid #F0F4ED', marginBottom: '2.5rem', overflowX: 'auto', paddingRight: '1rem' }}>
       {tabs.map((tab) => (
         <TabItem
           key={tab.id}

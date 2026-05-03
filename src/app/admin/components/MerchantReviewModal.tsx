@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, ExternalLink, MessageCircle, Instagram, Mail, Keyboard, Sparkles, Check } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -180,6 +181,19 @@ export default function MerchantReviewModal({
     return crmTemplate ? crmTemplate.replace('{{LINK}}', link) : link;
   };
 
+  const getAuthToken = async () => {
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+      );
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.access_token || null;
+    } catch {
+      return null;
+    }
+  };
+
   // ---------------------------------------------------------------------------
   // AI suggest
   // ---------------------------------------------------------------------------
@@ -188,17 +202,28 @@ export default function MerchantReviewModal({
     if (!merchant || aiLoading) return;
     setAiLoading(true);
     try {
+      const token = await getAuthToken();
       const res = await fetch('/api/admin/suggest-tags', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchantId: merchant.id }),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          merchant_id: merchant.id,
+          name: merchant.name,
+          bio_short: merchant.bio_short,
+          instagram_url: merchant.instagram_url,
+          locality: merchant.locations?.[0]?.locality || '',
+        }),
       });
       const data = await res.json();
-      const suggestions: string[] = data.tags || data.suggestions || [];
+      const suggestions: string[] = data.suggested || [];
       setAiSuggestions(suggestions);
       setSelectedSuggestions(suggestions);
       if (!suggestions.length) showToast('Sin info suficiente para sugerir');
-    } catch {
+    } catch (err) {
+      console.error('Suggest tags error:', err);
       showToast('Error al sugerir tags');
     } finally {
       setAiLoading(false);
