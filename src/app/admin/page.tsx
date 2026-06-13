@@ -50,6 +50,7 @@ import MerchantCard from '@/components/MerchantCard';
 import MerchantReviewModal from './components/MerchantReviewModal';
 import CategoriesTab from './components/CategoriesTab';
 import SetupZonesMigration from './components/SetupZonesMigration';
+import EmailsTab from './components/EmailsTab';
 import { Eye } from 'lucide-react';
 
 // --- Tipos ---
@@ -895,10 +896,49 @@ export default function AdminDashboard() {
   };
 
   const updateMerchantStatus = async (id: string, status: 'active' | 'rejected') => {
+    const merchant = merchants.find(m => m.id === id);
     const { error } = await supabase.from('merchants').update({ status }).eq('id', id);
     if (!error) {
       setMerchants(prev => prev.map(m => m.id === id ? { ...m, status } : m));
       fetchData();
+
+      if (status === 'active' && merchant && merchant.created_by_type === 'neighborhood_recommendation' && merchant.created_by) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, full_name, email')
+            .eq('id', merchant.created_by)
+            .single();
+
+          if (profile && profile.email) {
+            const userName = profile.first_name || profile.full_name || 'Vecino/a';
+            
+            const { data: notif, error: notifError } = await supabase.from('notifications').insert([{
+              user_id: merchant.created_by,
+              title: `Recomendación aprobada: ${merchant.name}`,
+              content: `¡Tu recomendación de ${merchant.name} fue aceptada! Ya figura en el mapa.`,
+              type: 'RECOMMENDATION_APPROVED',
+              metadata: {
+                email: profile.email,
+                user_name: userName,
+                merchant_name: merchant.name,
+                merchant_id: merchant.id
+              }
+            }]).select().single();
+
+            if (notifError) console.warn("Error creating approval notification:", notifError);
+
+            if (notif) {
+              fetch('/api/notifications/process', {
+                method: 'POST',
+                body: JSON.stringify({ notificationId: notif.id })
+              }).catch(console.error);
+            }
+          }
+        } catch (err) {
+          console.error("Error al procesar notificación de aprobación:", err);
+        }
+      }
     }
   };
 
@@ -1500,6 +1540,10 @@ export default function AdminDashboard() {
               <CategoriesTab />
               <hr style={{ margin: '2rem 0', borderColor: '#e5e7eb' }} />
               <SetupZonesMigration />
+            </div>
+          ) : activeTab === 'emails' ? (
+            <div style={{ padding: '2rem' }}>
+              <EmailsTab />
             </div>
           ) : (
              <div style={{ padding: '40px', textAlign: 'center', color: '#B2AC88', fontWeight: 800 }}>

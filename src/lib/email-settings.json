@@ -1,0 +1,10 @@
+{
+  "recommendation_received": {
+    "subject": "¡Recibimos tu recomendación de \"{{merchantName}}\"! 🌿",
+    "body": "Hola {{userName}},\n\nTe escribimos para contarte que recibimos tu recomendación del comercio **{{merchantName}}**. ¡Muchísimas gracias por tu colaboración!\n\nTe agradecemos enormemente por darle valor a la comunidad. Creemos firmemente que **entre todos hacemos Alimnet**, y tu aporte ayuda a que más vecinos encuentren alimentos reales y de calidad.\n\nTu sugerencia ya entró en nuestro proceso de admisión. Estaremos revisando los detalles y, en cuanto la validemos, aparecerá activa en el mapa para todo el mundo.\n\nUn abrazo,\n**El equipo de Alimnet**\ninfo@alimnet.com"
+  },
+  "recommendation_approved": {
+    "subject": "¡Tu recomendación de \"{{merchantName}}\" fue aceptada! 🎉",
+    "body": "¡Hola {{userName}}!\n\nTe traemos excelentes noticias: hemos revisado y **aprobado tu recomendación** para incorporar a **{{merchantName}}** en el mapa de Alimnet.\n\nTanto la comunidad como el comercio estamos profundamente agradecidos por tu valioso aporte. Gracias a vecinos activos como vos, seguimos tejiendo esta red de comida consciente.\n\nYa podés ver el comercio en el mapa y compartirlo para que otros vecinos también lo conozcan.\n\n¡Gracias nuevamente!\n\nUn abrazo,\n**El equipo de Alimnet**\ninfo@alimnet.com"
+  }
+}

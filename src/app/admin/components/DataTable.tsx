@@ -309,9 +309,17 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
                   
                   <div style={{ background: 'white', padding: '1rem', borderRadius: '20px', border: '1px solid #E4EBDD', marginTop: '1rem' }}>
                      <div style={StatLabel}>Datos de Contacto</div>
-                     <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {merchant.phone && <div style={{ fontSize: '0.85rem', color: '#2D3A20', fontWeight: 900 }}>📞 Tel: {merchant.phone}</div>}
-                        {merchant.whatsapp && <div style={{ fontSize: '0.85rem', color: '#5F7D4A', fontWeight: 900 }}>💬 Wzp: {merchant.whatsapp}</div>}
+                     <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {merchant.phone ? (
+                           <div style={{ fontSize: '0.85rem', color: '#2D3A20', fontWeight: 900 }}>📞 Tel: {merchant.phone}</div>
+                        ) : (
+                           <div style={{ fontSize: '0.75rem', color: '#EF4444', fontWeight: 800 }}>📞 Tel: <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); onOpenEdit(merchant); }}>Sin cargar (Editar)</span></div>
+                        )}
+                        {merchant.whatsapp ? (
+                           <div style={{ fontSize: '0.85rem', color: '#5F7D4A', fontWeight: 900 }}>💬 Wzp: {merchant.whatsapp}</div>
+                        ) : (
+                           <div style={{ fontSize: '0.75rem', color: '#EF4444', fontWeight: 800 }}>💬 Wzp: <span style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); onOpenEdit(merchant); }}>Sin cargar (Editar)</span></div>
+                        )}
                         {owner ? (
                            <div style={{ marginTop: '4px', borderTop: '1px solid #F0F4ED', paddingTop: '4px' }}>
                               <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#A67C00' }}>👑 DUEÑO: {owner.full_name || owner.first_name}</div>
@@ -320,6 +328,27 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
                         ) : (
                            <div style={{ fontSize: '0.7rem', color: '#B2AC88', marginTop: '4px', fontStyle: 'italic' }}>Sin dueño vinculado.</div>
                         )}
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onOpenEdit(merchant); }}
+                          style={{ 
+                            marginTop: '6px', 
+                            padding: '6px 10px', 
+                            background: '#F0F4ED', 
+                            color: '#5F7D4A', 
+                            border: '1px solid #E4EBDD', 
+                            borderRadius: '8px', 
+                            fontWeight: 1000, 
+                            fontSize: '0.68rem', 
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '4px',
+                            width: '100%'
+                          }}
+                        >
+                          ✏️ EDITAR DATOS (TEL/WZP/WEB/MAPS)
+                        </button>
                      </div>
                   </div>
                </div>
@@ -327,7 +356,11 @@ function MerchantRow({ merchant, users, expanded, toggle, onUpdateStatus, onUpda
                {/* --- PANEL DERECHO: BIO Y LOGÍSTICA (HORIZONTAL) --- */}
                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', border: '1px solid #E4EBDD' }}>
-                     <div style={StatLabel}>Bio / Información</div>
+                     <div style={StatLabel}>
+                        {merchant.created_by_type === 'neighborhood_recommendation' 
+                          ? `Comentario de ${creator ? creator.first_name || creator.full_name : 'Vecino'} (quien lo cargó)` 
+                          : 'Bio / Información'}
+                     </div>
                      <p style={{ fontSize: '0.9rem', color: '#2D3A20', marginTop: '8px', lineHeight: '1.5', fontWeight: 600 }}>
                        {merchant.bio_short || merchant.bio_long || 'Sin descripción detallada.'}
                      </p>

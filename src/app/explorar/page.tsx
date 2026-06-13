@@ -96,6 +96,8 @@ interface Merchant {
   search_keywords?: string[];
   products?: string[];
   quality?: string[];
+  created_by_type?: string;
+  created_by?: string;
 }
 
 interface Location {
@@ -737,7 +739,7 @@ export default function ExplorarPage() {
     try {
       const { data, error } = await supabase
         .from('merchants')
-        .select('*, locations(*)');
+        .select('*, locations(*), profiles!created_by(id, first_name, last_name, full_name, avatar_url, user_number, email)');
         // .eq('status', 'active'); // TEMPORALMENTE DESHABILITADO PARA ASEGURAR VISIBILIDAD
 
       if (error) {
@@ -2157,6 +2159,26 @@ function DetailPanel({
             ))}
             <span style={{ padding: '0.3rem 0.8rem', background: 'var(--soft-leaf)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900' }}>Aval de la Comunidad</span>
           </div>
+
+          {merchant.created_by_type === 'neighborhood_recommendation' && (merchant as any).profiles && (
+            <div style={{ background: '#FFFDF5', padding: '1.2rem', borderRadius: '24px', border: '1px solid #F3EAD3', marginBottom: '1rem', display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#E4EBDD', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {(merchant as any).profiles.avatar_url ? (
+                  <img src={(merchant as any).profiles.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ color: '#5F7D4A', fontWeight: '900', fontSize: '0.9rem' }}>
+                    {((merchant as any).profiles.first_name || (merchant as any).profiles.full_name || 'V')[0].toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div>
+                <span style={{ fontSize: '0.6rem', fontWeight: '950', color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Recomendado por vecino</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: '1000', color: '#2D3A20' }}>
+                  {(merchant as any).profiles.first_name || (merchant as any).profiles.full_name || 'Vecino colaborador'}
+                </span>
+              </div>
+            </div>
+          )}
 
           <div 
             onClick={onShowValidators}

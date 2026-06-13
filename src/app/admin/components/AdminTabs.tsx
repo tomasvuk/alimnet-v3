@@ -69,6 +69,7 @@ export default function AdminTabs({ activeTab, setActiveTab, counts, onTabChange
     { id: 'usuarios', label: 'Usuarios', count: counts.users },
     { id: 'pagos', label: 'Pagos' },
     { id: 'categorias', label: 'Categorías' },
+    { id: 'emails', label: 'Emails' },
   ];
 
   return (

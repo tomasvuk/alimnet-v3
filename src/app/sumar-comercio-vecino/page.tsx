@@ -161,8 +161,11 @@ function NeighborRecommendationContent() {
 
       console.log("Comercio insertado con éxito:", merchantData.id);
 
-      // 3. Crear Alerta para el Admin (Tomás)
+      // 3. Crear Alerta para el Admin (Tomás) y al Usuario Agradeciendo
       try {
+        const { data: profile } = await supabase.from('profiles').select('first_name, last_name, full_name').eq('id', user.id).single();
+        const userName = profile ? (profile.first_name || profile.full_name || 'Vecino/a') : 'Vecino/a';
+
         const { data: adminNotif, error: notifError } = await supabase.from('notifications').insert([{
           user_id: user.id,
           title: 'Nueva Recomendación de Vecino',
@@ -189,8 +192,32 @@ function NeighborRecommendationContent() {
             body: JSON.stringify({ notificationId: adminNotif.id })
           }).catch(console.error);
         }
+
+        // Notificación de agradecimiento al vecino
+        const { data: userNotif, error: userNotifError } = await supabase.from('notifications').insert([{
+          user_id: user.id,
+          title: `Recomendación recibida: ${formData.name}`,
+          content: `Hemos recibido tu recomendación de ${formData.name} y ya está en proceso de admisión.`,
+          type: 'RECOMMENDATION_RECEIVED',
+          metadata: {
+            email: user.email,
+            user_name: userName,
+            merchant_name: formData.name,
+            merchant_id: merchantData.id
+          }
+        }]).select().single();
+
+        if (userNotifError) console.warn("Error creating user notification:", userNotifError);
+
+        if (userNotif) {
+          fetch('/api/notifications/process', {
+            method: 'POST',
+            body: JSON.stringify({ notificationId: userNotif.id })
+          }).catch(console.error);
+        }
+
       } catch (err) {
-        console.error('Error al crear alerta admin:', err);
+        console.error('Error al crear alertas/notificaciones:', err);
       }
 
       // Insertar locación si tenemos datos
