@@ -739,7 +739,7 @@ export default function ExplorarPage() {
     try {
       const { data, error } = await supabase
         .from('merchants')
-        .select('*, locations(*), profiles!created_by(id, first_name, last_name, full_name, avatar_url, user_number, email)');
+        .select('*, locations(*)');
         // .eq('status', 'active'); // TEMPORALMENTE DESHABILITADO PARA ASEGURAR VISIBILIDAD
 
       if (error) {
@@ -2160,6 +2160,7 @@ function DetailPanel({
             <span style={{ padding: '0.3rem 0.8rem', background: 'var(--soft-leaf)', color: 'white', borderRadius: '20px', fontSize: '0.65rem', fontWeight: '900' }}>Aval de la Comunidad</span>
           </div>
 
+          {/* TODO: Re-enable neighborhood recommendation display after fixing profiles join
           {merchant.created_by_type === 'neighborhood_recommendation' && (merchant as any).profiles && (
             <div style={{ background: '#FFFDF5', padding: '1.2rem', borderRadius: '24px', border: '1px solid #F3EAD3', marginBottom: '1rem', display: 'flex', gap: '12px', alignItems: 'center' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#E4EBDD', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2179,6 +2180,7 @@ function DetailPanel({
               </div>
             </div>
           )}
+          */}
 
           <div 
             onClick={onShowValidators}
